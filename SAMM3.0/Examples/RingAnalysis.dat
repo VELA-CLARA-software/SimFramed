@@ -1,0 +1,17 @@
+Beam energy                =    2 GeV
+Circumference              =  400 m
+Revolution frequency       = 749.481 kHz
+Horizontal tune            = 5.53547
+Vertical tune              = 3.25315
+Longitudinal tune          = 0.0325491
+RF frequency               = 499.854 MHz
+Harmonic number            = 666.933
+Momentum compaction factor = 0.0362
+Energy loss per turn       =  222 keV
+Horizontal damping partition number = 0.638
+Horizontal damping time    = 37.6 ms
+Vertical damping time      =   24 ms
+Longitudinal damping time  = 10.2 ms
+Natural rms energy spread  = 0.000625
+Natural rms bunch length   = 44.2 mm
+Natural emittance          =  812 nm

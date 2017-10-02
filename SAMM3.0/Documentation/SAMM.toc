@@ -1,0 +1,67 @@
+\contentsline {section}{\numberline {1}Getting started}{4}{section.1}
+\contentsline {subsection}{\numberline {1.1}Introduction to SAMM}{4}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Installation}{4}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Structure}{5}{subsection.1.3}
+\contentsline {paragraph}{SAMMlab}{5}{section*.2}
+\contentsline {paragraph}{Particles}{5}{section*.3}
+\contentsline {paragraph}{Components}{5}{section*.4}
+\contentsline {paragraph}{Physics}{5}{section*.5}
+\contentsline {paragraph}{}{5}{section*.6}
+\contentsline {subsection}{\numberline {1.4}A simple example: tracking a beam through a beam line}{5}{subsection.1.4}
+\contentsline {subsubsection}{\numberline {1.4.1}Defining the components in the beam line}{5}{subsubsection.1.4.1}
+\contentsline {subsubsection}{\numberline {1.4.2}Defining the beam line}{6}{subsubsection.1.4.2}
+\contentsline {subsubsection}{\numberline {1.4.3}Defining the beam}{6}{subsubsection.1.4.3}
+\contentsline {subsubsection}{\numberline {1.4.4}Tracking the beam through the beam line}{8}{subsubsection.1.4.4}
+\contentsline {subsection}{\numberline {1.5}More about beam lines}{8}{subsection.1.5}
+\contentsline {subsubsection}{\numberline {1.5.1}Apertures and collimation}{10}{subsubsection.1.5.1}
+\contentsline {subsubsection}{\numberline {1.5.2}Parser for MAD8 lattice files}{10}{subsubsection.1.5.2}
+\contentsline {subsection}{\numberline {1.6}More about beams}{11}{subsection.1.6}
+\contentsline {subsubsection}{\numberline {1.6.1}Reference energy}{11}{subsubsection.1.6.1}
+\contentsline {subsubsection}{\numberline {1.6.2}Reference momentum}{11}{subsubsection.1.6.2}
+\contentsline {subsubsection}{\numberline {1.6.3}Beam rigidity}{12}{subsubsection.1.6.3}
+\contentsline {subsubsection}{\numberline {1.6.4}Dynamical variables}{13}{subsubsection.1.6.4}
+\contentsline {subsubsection}{\numberline {1.6.5}Spin}{15}{subsubsection.1.6.5}
+\contentsline {section}{\numberline {2}Accelerator components}{16}{section.2}
+\contentsline {subsection}{\numberline {2.1}Marker}{17}{subsection.2.1}
+\contentsline {subsubsection}{\numberline {2.1.1}Properties}{17}{subsubsection.2.1.1}
+\contentsline {subsubsection}{\numberline {2.1.2}Methods}{17}{subsubsection.2.1.2}
+\contentsline {subsection}{\numberline {2.2}Drift space}{17}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}Properties}{17}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Methods}{17}{subsubsection.2.2.2}
+\contentsline {subsection}{\numberline {2.3}Solenoid}{17}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}Properties}{18}{subsubsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.2}Methods}{18}{subsubsection.2.3.2}
+\contentsline {subsection}{\numberline {2.4}Orbit corrector}{18}{subsection.2.4}
+\contentsline {subsubsection}{\numberline {2.4.1}Properties}{19}{subsubsection.2.4.1}
+\contentsline {subsubsection}{\numberline {2.4.2}Methods}{19}{subsubsection.2.4.2}
+\contentsline {subsection}{\numberline {2.5}Dipole}{19}{subsection.2.5}
+\contentsline {subsubsection}{\numberline {2.5.1}Properties}{20}{subsubsection.2.5.1}
+\contentsline {subsubsection}{\numberline {2.5.2}Methods}{20}{subsubsection.2.5.2}
+\contentsline {subsection}{\numberline {2.6}Quadrupole}{20}{subsection.2.6}
+\contentsline {subsubsection}{\numberline {2.6.1}Properties}{21}{subsubsection.2.6.1}
+\contentsline {subsubsection}{\numberline {2.6.2}Methods}{21}{subsubsection.2.6.2}
+\contentsline {subsection}{\numberline {2.7}Sextupole}{21}{subsection.2.7}
+\contentsline {subsubsection}{\numberline {2.7.1}Properties}{22}{subsubsection.2.7.1}
+\contentsline {subsubsection}{\numberline {2.7.2}Methods}{22}{subsubsection.2.7.2}
+\contentsline {subsection}{\numberline {2.8}RF cavity}{22}{subsection.2.8}
+\contentsline {subsubsection}{\numberline {2.8.1}Properties}{23}{subsubsection.2.8.1}
+\contentsline {subsubsection}{\numberline {2.8.2}Methods}{23}{subsubsection.2.8.2}
+\contentsline {subsection}{\numberline {2.9}RF accelerating structure}{23}{subsection.2.9}
+\contentsline {subsubsection}{\numberline {2.9.1}Properties}{24}{subsubsection.2.9.1}
+\contentsline {subsubsection}{\numberline {2.9.2}Methods}{24}{subsubsection.2.9.2}
+\contentsline {subsection}{\numberline {2.10}Master oscillator}{25}{subsection.2.10}
+\contentsline {subsection}{\numberline {2.11}Beam position monitor}{25}{subsection.2.11}
+\contentsline {subsubsection}{\numberline {2.11.1}Properties}{25}{subsubsection.2.11.1}
+\contentsline {subsubsection}{\numberline {2.11.2}Methods}{25}{subsubsection.2.11.2}
+\contentsline {section}{\numberline {3}Accelerator physics}{26}{section.3}
+\contentsline {subsection}{\numberline {3.1}Particle tracking}{26}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Transfer matrices}{28}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Closed orbits and dispersion}{28}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Lattice functions}{29}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Synchrotron radiation integrals}{31}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.6}Spin tracking}{32}{subsection.3.6}
+\contentsline {section}{\numberline {4}Examples}{33}{section.4}
+\contentsline {paragraph}{\texttt {DemoTracking}}{33}{section*.7}
+\contentsline {paragraph}{\texttt {DemoBeamlineAnalysis}}{33}{section*.8}
+\contentsline {paragraph}{\texttt {DemoSpinTracking}}{33}{section*.9}
+\contentsline {section}{\numberline {5}Some useful references}{33}{section.5}
