@@ -4,40 +4,74 @@
 #
 from ComponentBase import ComponentBase
 from ..SAMMlab import Beam
+from ..SAMMlab import MasterOscillator
+from ..SAMMlab import PhysicalConstants as PhyC
 import numpy
 
 
 class RFCavity(ComponentBase):
-    def __init__(self,voltage=0,harmonic=1,phase=numpy.pi,length=0, name="", aperture=[]):
+    def __init__(self, voltage=0, harmonic=1, phase=numpy.pi, length=0,
+                 name="", aperture=[]):
         ComponentBase.__init__(self, length, name, aperture)
         # in volts
         self.volts = volts
-        #frequency (in units of master oscillator frequency)
-        self.harmonic = 1
+        # frequency (in units of master oscillator frequency)
+        self.harmonic = harmonic
         # relative to master oscillator, in radians
         self.phase = phase
         # 1x2 array of elliptical aperture half-axes, in metres
         self.aperture = aperture
+        # length in metres
+        self.length = length
 
-    @property
-    def frequency(self):
-        return self.__rigidity * self.species.charge
+    # @property
 
-    @momentum.setter
-    def momentum(self, momentum):
-        self.__rigidity = momentum / self.species.charge
+    def setFrequency(self, f):
+        MasterOscillator.frequency = f / self.harmonic
+
+    def getFrequency(self):
+        return self.harmonic * MasterOscillator.frequency
+
+    def Track(self, beam):
+        # Applies the dynamical map for an RF cavity to the particles
+        # in beam1.  The reference momentum is unchanged.
+        beta0 = beam.__beta
+        mofreq = MasterOscillator.frequency
+        ds = self.length
+        f = self.harmonic * mofreq
+        # First apply a drift through ds/2
+        d1 = sqrt(1 - beam.px**2 - beam.py**2 + 2 * beam.dp / beta0 +
+                  beam.dp**2)
+        x1 = beam.x + ds * beam.px / d1 / 2
+        y1 = beam.y + ds * beam.py / d1 / 2
+        ct1 = beam.ct + ds * (1 - (1 + beam.dp * dp0) / d1) / beta0 / 2
+        # Next, apply an rf 'kick'
+        p = floor(beam.globaltime * mofreq)
+        beam.globaltime = beam.globaltime - (p / mofreq)
+        t = beam.globaltime - (ct1 / (beta0 * PhysicalConstants.SpeedOfLight))
+        ft = (f * t) - floor(f * t)
+        vnorm = rfcavity.voltage / beam.rigidity / PhyC.SpeedOfLight
+        dp1 = beam.dp + (vnorm * sin((2 * pi * ft) + rfcavity.phase))
+        # Finally, apply a second drift through ds/2
+        d1 = sqrt(1 - beam.px**2 - beam.py**2 + 2 * dp1 / beta0 +
+                  dp1**2)
+        beam.x = x1 + (ds * px0) / d1 / 2
+        beam.y = y1 + (ds * py0) / d1 / 2
+        beam.ct = ct1 + ds * (1 - (1 + beta0 * dp1) / d1) / beta0 / 2
+
+    # @momentum.setter
+    # def momentum(self, momentum):
+    #    self.__rigidity = momentum / self.species.charge
 
 
+    #    function set.frequency(rfcavity,f)
+    #        f1 = rfcavity.harmonic * MasterOscillator.GetFrequency();
+    #        MasterOscillator.SetFrequency(MasterOscillator.GetFrequency()*f/f1);
+    #    end
 
-
-        function set.frequency(rfcavity,f)
-            f1 = rfcavity.harmonic * MasterOscillator.GetFrequency();
-            MasterOscillator.SetFrequency(MasterOscillator.GetFrequency()*f/f1);
-        end
-
-        function f = get.frequency(rfcavity)
-            f = rfcavity.harmonic * MasterOscillator.GetFrequency();
-        end
+    #    function f = get.frequency(rfcavity)
+    #        f = rfcavity.harmonic * MasterOscillator.GetFrequency();
+    #    end
 
 
 # classdef RFCavity < handle
