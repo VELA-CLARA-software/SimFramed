@@ -20,7 +20,7 @@ class Beamline(object):
             positions.append( positions[-1] + component.length )
         return positions
 
-    def AppendComponent(self,component):
+    def AppendComponent(self, component):
         self.componentlist.append(component)
 
     def TrackMatlab(self, elements, beam):

@@ -1,6 +1,7 @@
-from SAMMcore.Components import *
-# from SAMMcore.Components import Dipole
-# from SAMMcore.Components import Quadrupole
+# from SAMMcore.Components import *
+from SAMMcore.Components import Drift
+from SAMMcore.Components import Dipole
+from SAMMcore.Components import Quadrupole
 from SAMMcore.SAMMlab import Beamline
 from SAMMcore.SAMMlab import Beam
 from SAMMcore.Particles import Positron
@@ -55,13 +56,6 @@ beam2 = beamline1.TrackMatlab([0, 2], beam1)
 print("beam2 = ", beam2)
 
 print np.array([[9.01351346e-04, -5.97789022e-05, 0.00000000e+00,
-            0.00000000e+00, -2.50103285e-09, 0.00000000e+00],
-            [0.00000000e+00, 0.00000000e+00, 1.09921487e-03,
-            6.01384044e-05, -2.89286998e-09, 0.00000000e+00]])
-
-
-list1 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-list2 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-Nlist1 = np.array(list1)
-list1**2
+                0.00000000e+00, -2.50103285e-09, 0.00000000e+00],
+                [0.00000000e+00, 0.00000000e+00, 1.09921487e-03,
+                6.01384044e-05, -2.89286998e-09, 0.00000000e+00]])

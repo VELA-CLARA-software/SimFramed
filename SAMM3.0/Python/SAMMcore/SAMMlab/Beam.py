@@ -8,6 +8,7 @@ from ..Particles import Electron
 #from ..Particles import Positron
 from ..SAMMlab import PhysicalConstants
 import numpy as np
+import math
 
 
 class Beam(object):
@@ -44,7 +45,7 @@ class Beam(object):
             self.__rigidity = rigidity
 
         # do we really need this... ?
-        self.__brho = 0 # ??
+        self.__brho = 0  # ??
         # Dependent=true properties get a __ prefix
         # relativistic beta (v/c)
         self.__beta = 0
@@ -152,8 +153,8 @@ class Beam(object):
     @property
     def gamma(self):
         bg = self.__rigidity * self.species.charge / self.species.mass / PhysicalConstants.SpeedOfLight
-        self.__gamma = sqrt(1+bg*bg)
-        return __gamma
+        self.__gamma = math.sqrt(1+bg*bg)
+        return self.__gamma
 
 
 
