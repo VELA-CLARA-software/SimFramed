@@ -2,10 +2,11 @@
 # DJS August 2017
 # Version 0.1
 #
-import Beam
+from ..SAMMlab import PhysicalConstants as PhyC
+
 
 class Beamline(object):
-    def __init__(self,componentlist=[], tracklocal=False, precision = 1e-9):
+    def __init__(self, componentlist=[], tracklocal=False, precision=1e-9):
         # array of components
         self.componentlist = componentlist
         self.tracklocal = tracklocal
@@ -14,10 +15,13 @@ class Beamline(object):
         self.trackingMethod = 'default'
         # self.tracker = @TrackMatlab;       % pointer to tracking function
 
+    def find(self, lst, a):
+        return [i for i, x in enumerate(lst) if x == a]
+
     def ComputePositions(self):
         positions = [0]
         for component in self.componentlist:
-            positions.append( positions[-1] + component.length )
+            positions.append(positions[-1] + component.length)
         return positions
 
     def AppendComponent(self, component):
@@ -27,18 +31,22 @@ class Beamline(object):
         nmax = len(self.componentlist)
         s = elements[0]
         e = elements[-1]
-        #print("range = ", s, " ", e, "maxn = ",nmax)
-        #for n = range(1):range(2)
-        beamout = None
-        for n in range(s,e):
+        # print("range = ", s, " ", e, "maxn = ",nmax)
+        # beamout = None
+        for n in range(s, e+1):
 
             m = n % nmax
-            if m==0:
+            if m == 0:
                 m = nmax
-            #break
+            # break
             self.componentlist[n].Track(beam)
+            beam.globaltime = beam.globaltime + self.componentlist[n].length / (beam.beta * PhyC.SpeedOfLight)
+            inbeam = self.find(beam.distance[1], 1)
+            # beam.distance[0][inbeam]
+            beam.distance[0][inbeam] = beam.distance[0][inbeam] + self.componentlist[n].length
+        return beam
 
-        return beam.particles
+
             # check for spin tracking
             # if(~isempty(beam.spins) && ismethod(cmpt,'TrackSpin'))
             #     beam = cmpt.TrackSpin(beam);

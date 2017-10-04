@@ -33,7 +33,7 @@ class RFCavity(ComponentBase):
     def Track(self, beam):
         # Applies the dynamical map for an RF cavity to the particles
         # in beam1.  The reference momentum is unchanged.
-        beta0 = beam.__beta
+        beta0 = beam.beta
         mofreq = MasterOscillator.frequency
         ds = self.length
         f = self.harmonic * mofreq

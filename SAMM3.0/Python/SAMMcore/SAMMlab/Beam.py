@@ -83,7 +83,7 @@ class Beam(object):
             #print self.y
             #print self.py
             # distance is whether they are in the aperture or not at each stage (!)
-            self.distance = np.array([[0] * len(particles), [1] * len(particles)])
+            self.distance = np.array([[0.0] * len(particles), [1.0] * len(particles)])
             #print self.distance
         else:
             print 'particles should be a numpy array'

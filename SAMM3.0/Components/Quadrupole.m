@@ -112,6 +112,7 @@ classdef Quadrupole < handle
             
             d0  = 1/beta0 + dp0;
             d2  =-d0./d1./d1./d1/2;
+            d2
             
             c0  = (1/beta0 - d0./d1)*ds;
             c11 = k1*k1*d2.*(xs2./w - 2*ds)./w./w/4;

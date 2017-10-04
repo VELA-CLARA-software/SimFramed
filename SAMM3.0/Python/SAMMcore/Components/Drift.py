@@ -7,40 +7,40 @@ from ..SAMMlab import Beam
 import numpy
 
 class Drift(ComponentBase):
-    def __init__(self,length=0, name="", aperture=[]):
-        ComponentBase.__init__(self,length, name, aperture)
-        #super(ComponentBase, self).__init__(length, name, aperture)
+    def __init__(self, length=0, name="", aperture=[]):
+        ComponentBase.__init__(self, length, name, aperture)
+        # super(ComponentBase, self).__init__(length, name, aperture)
         self.dummy = 0
 
-    def Track(self,  beam):
-        #print 'Tracking - DRIFT:  particles'
+    def Track(self, beam):
+        # print 'Tracking - DRIFT:  particles'
         # Applies the transfer map for a drift to the particles in beam
         #
         # I think the below is NOT as accurate as it might be...
         # this should be updated after some discussions with Wolski
         # The 1 is an approximation for high energy particles...
-        # d1 = numpy.sqrt(1 - beam.px*beam.px \
-        #                 - beam.py*beam.py \
-        #                 + 2 * beam.dp / beam.beta \
-        #                 + beam.dp * beam.dp)
-        # abve confirmed!
-        d1 = numpy.sqrt((beam.gamma*beam.gamma -1)/beam.gamma*beam.gamma*beam.beta*beam.beta
-                        - beam.px*beam.px \
-                        - beam.py*beam.py \
-                        + 2 * beam.dp / beam.beta \
+        d1 = numpy.sqrt(1 - beam.px * beam.px
+                        - beam.py * beam.py
+                        + 2 * beam.dp / beam.beta
                         + beam.dp * beam.dp)
+        # abve confirmed!
+        # d1 = numpy.sqrt((beam.gamma*beam.gamma -1)/beam.gamma*beam.gamma*beam.beta*beam.beta
+        #                - beam.px * beam.px \
+        #                - beam.py * beam.py \
+        #                + 2 * beam.dp / beam.beta \
+        #                + beam.dp * beam.dp)
 
-        #print('numpy.divide( beam.px, d1) = ', numpy.divide(beam.px, d1))
+        # print('numpy.divide( beam.px, d1) = ', numpy.divide(beam.px, d1))
         # remember these are relative to the reference particle (!)
-        #beam.x  = beam.x  + self.length*numpy.divide(beam.px,d1)
-        beam.x  = beam.x  + self.length * beam.px / d1
-        #beam.y  = beam.y  + self.length*numpy.divide(beam.py,d1)
-        beam.y  = beam.y  + self.length * beam.py / d1
+        # beam.x  = beam.x  + self.length*numpy.divide(beam.px,d1)
+        beam.x = beam.x + (self.length * beam.px) / d1
+        # beam.y  = beam.y  + self.length*numpy.divide(beam.py,d1)
+        beam.y = beam.y + self.length * beam.py / d1
 
         # beam.ct = beam.ct + self.length*numpy.divide\
         #         ((1 - numpy.divide(1 + beam.beta*beam.dp,d1)),beam.beta)
 
-        beam.ct = beam.ct + self.length*(1 - (1 + beam.beta*beam.dp)/d1)/ beam.beta
+        beam.ct = beam.ct + self.length * (1 - (1 + beam.beta * beam.dp) / d1) / beam.beta
 
         #beam.ct = beam.ct + self.length* ((1 - (1 + beam.beta*beam.dp/d1))/beam.beta)
 
