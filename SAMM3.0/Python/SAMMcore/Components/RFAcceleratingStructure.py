@@ -121,6 +121,7 @@ class RFAcceleratingStructure(ComponentBase):
         beam.py = py0
         beam.ct = ct0
         beam.dp = dp0
+        # testing this is notified on slack
 #     % RFAcceleratingStructure class
 #     %
 #     % RFAcceleratingStructure:
