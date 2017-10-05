@@ -4,9 +4,9 @@
 #
 import math
 from ..Particles import Electron
-#from ..Particles import Proton
-#from ..Particles import Positron
+
 from ..SAMMlab import PhysicalConstants
+from ..SAMMlab import PhysicalUnits
 import numpy as np
 import math
 
@@ -23,7 +23,7 @@ class Beam(object):
         # this is s - the independant coordinate
         self.distance = np.array(distance)
         # global time in seconds
-        self.globaltime  = globaltime
+        self.globaltime = globaltime
         # 2xN array, polar angles of spin vector of N particles
         self.spins = spins
         # 6xN array, phase space variables of N particles
@@ -93,27 +93,26 @@ class Beam(object):
 
     @property
     def energy(self):
-        return math.sqrt( math.pow( self.__rigidity * self.species.charge,2) ) * PhysicalConstants.SpeedOfLight2 \
-               + \
-               ( self.species.mass2 * PhysicalConstants.SpeedOfLight4 )
+        return math.sqrt(math.pow(self.__rigidity * self.species.charge, 2) * PhysicalConstants.SpeedOfLight2
+                         + (self.species.mass2 * PhysicalConstants.SpeedOfLight4))
 
     @energy.setter
-    def energy(self,energy):
-        self.__rigidity = ( math.sqrt( math.pow(energy,2)/ PhysicalConstants.SpeedOfLight2 ) \
-                        - (self.species.mass2 * PhysicalConstants.SpeedOfLight2 ) ) / self.species.charge
-        #print('energy: set rigidity = ', self.__rigidity)
+    def energy(self, energy):
+        self.__rigidity = math.sqrt(energy**2 / PhysicalConstants.SpeedOfLight2
+        - (self.species.mass2 * PhysicalConstants.SpeedOfLight2)) / self.species.charge
+        # print('energy: set rigidity = ', self.__rigidity)
 
     @property
     def momentum(self):
         return  self.__rigidity * self.species.charge
 
     @momentum.setter
-    def momentum(self,momentum):
+    def momentum(self, momentum):
         self.__rigidity = momentum / self.species.charge
 
     @property
     def rigidity(self):
-        return  self.__rigidity
+        return self.__rigidity
 
     @rigidity.setter
     def rigidity(self,rigidity):

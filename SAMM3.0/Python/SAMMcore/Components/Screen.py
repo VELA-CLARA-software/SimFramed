@@ -20,16 +20,15 @@ class Screen(ComponentBase):
         self.y = None
         self.xSigma = None
         self.ySigma = None
+
     def Track(self, beam):
         # First apply a drift through ds/2
-        d1 = math.sqrt(1 - beam.px**2 - beam.py**2 + 2 * beam.dp / beta0 +
-                       beam.dp**2)
-        x1 = beam.x + ds * beam.px / d1 / 2
-        y1 = beam.y + ds * beam.py / d1 / 2
-        ct1 = beam.ct + ds * (1 - (1 + beam.dp * beta0) / d1) / beta0 / 2
         # Next, Calc Y and Y in the middle of the BPM (TP added this)
-        self.x = numpy.mean(x1)
-        self.y = numpy.mean(y1)
-        self.xSigma = numpy.std(x1)
-        self.ySigma = numpy.std(y1)
+        self.x = numpy.mean(beam.x)
+        self.y = numpy.mean(beam.y)
+        self.xSigma = numpy.std(beam.x)
+        self.ySigma = numpy.std(beam.y)
         # Finally, apply a second drift through ds/2
+
+        # save
+        self.lastTrackedBeam = beam

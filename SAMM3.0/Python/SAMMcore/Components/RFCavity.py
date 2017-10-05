@@ -57,6 +57,8 @@ class RFCavity(ComponentBase):
         beam.y = y1 + (ds * beam.y) / d1 / 2
         beam.ct = ct1 + ds * (1 - (1 + beta0 * dp1) / d1) / beta0 / 2
 
+        # save
+        self.lastTrackedBeam = beam
     # @momentum.setter
     # def momentum(self, momentum):
     #    self.__rigidity = momentum / self.species.charge

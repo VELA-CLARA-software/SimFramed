@@ -23,18 +23,19 @@ class Quadrupole(ComponentBase):
 
     def Track(self, beam):
         # normalised gradient
-        self.k1 = self.gradient / beam.rigidity
+        self.k1 = numpy.divide(self.gradient, beam.rigidity)
         self.absk1 = abs(self.k1)
         # print('Quad = ',self.gradient,beam.rigidity)
         if self.k1 > 0:
-            print('Quad TrackFQuad')
             self.TrackFQuad(beam)
         elif self.k1 < 0:
-            print('Quad TrackDQuad')
             self.TrackDQuad(beam)
         else:
             # print('Quad TrackDrift')
             self.TrackDrift(beam)
+
+        # save
+        self.lastTrackedBeam = beam
 
     def GetBField(self, beam):
         # [bx, by, bz] = Quadrupole.GetBField(beam)
@@ -46,7 +47,8 @@ class Quadrupole(ComponentBase):
 
     def TrackFQuad(self, beam):
 
-        d1 = numpy.sqrt(1 + numpy.divide(2 * beam.dp, beam.beta) + beam.dp * beam.dp)
+        d1 = numpy.sqrt(1 + numpy.divide(2 * beam.dp, beam.beta) +
+                        beam.dp * beam.dp)
         w = numpy.sqrt(numpy.divide(self.k1, d1))
 
         xs = numpy.sin(w * self.ds)
@@ -58,7 +60,7 @@ class Quadrupole(ComponentBase):
 
         d0 = 1 / beam.beta + beam.dp
         d2 = -d0 / d1 / d1 / d1 / 2
-        print d2
+
         c0 = (1 / beam.beta - d0 / d1) * self.ds
         c11 = self.k1 * self.k1 * d2 * (xs2 / w - 2 * self.ds) / w / w / 4
         c12 = -self.k1 * d2 * xs * xs / w / w
@@ -74,10 +76,12 @@ class Quadrupole(ComponentBase):
                    + c34 * beam.y * beam.py
                    + c44 * beam.py * beam.py)
 
-        beam.x = beam.x * xc + beam.px * xs * w / self.k1
-        beam.px = -self.k1 * beam.x * xs / w + beam.px * xc
-        beam.y = beam.y * yc + beam.py * ys * w / self.k1
-        beam.py = self.k1 * beam.y * ys / w + beam.py * yc
+        x0 = beam.x
+        beam.x = beam.x * xc + beam.px * (xs * w / self.absk1)
+        beam.px = -x0 * self.k1 * xs / w + beam.px * xc
+        y0 = beam.y
+        beam.y = beam.y * yc + beam.py * (ys * w / self.absk1)
+        beam.py = y0 * self.k1 * ys / w + beam.py * yc
 
         # i'm sure the following could be tidied up ++ CHECK!
 
@@ -132,11 +136,12 @@ class Quadrupole(ComponentBase):
                    + c33 * beam.y * beam.y
                    + c34 * beam.y * beam.py
                    + c44 * beam.py * beam.py)
-
+        x0 = beam.x
         beam.x = beam.x * xc + beam.px * (xs * w / self.absk1)
-        beam.px = -beam.x * (self.k1 * xs / w) + beam.px * xc
+        beam.px = -x0 * self.k1 * xs / w + beam.px * xc
+        y0 = beam.y
         beam.y = beam.y * yc + beam.py * (ys * w / self.absk1)
-        beam.py = beam.y * (self.k1 * ys / w) + beam.py * yc
+        beam.py = y0 * self.k1 * ys / w + beam.py * yc
 
     def TrackDrift(self, beam):
         drift = Drift.Drift(length=self.length)

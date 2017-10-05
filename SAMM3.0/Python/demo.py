@@ -1,6 +1,6 @@
-# from SAMMcore.Components import *
+
 from SAMMcore.Components import Drift as d
-# from SAMMcore.Components import Dipole
+from SAMMcore.Components import Dipole as D
 from SAMMcore.Components import Quadrupole as Q
 from SAMMcore.Components import Screen as S
 from SAMMcore.Components import OrbitCorrector as C
@@ -11,11 +11,11 @@ from SAMMcore.Particles import Electron
 from SAMMcore.SAMMlab import PhysicalUnits
 import numpy as np
 
-[t1, t2] = np.array([[1], [2]])
+#[t1, t2] = np.array([[1], [2]])
 
-beam1 = Beam.Beam(species=Positron.Positron)
+#beam1 = Beam.Beam(species=Electron.Electron)
 
-beam1.energy = 1.20 * PhysicalUnits.GeV
+#beam1.energy = 1.20 * PhysicalUnits.GeV
 
 # help(comp)
 
@@ -44,27 +44,34 @@ EBT_INJ_DIA_YAG_02 = S.Screen()
 EBT_S01_DRIFT_11 = d.Drift(length=0.275)
 EBT_INJ_MAG_HVCOR_03 = C.OrbitCorrector(field=[0, 0], length=0.05)
 EBT_S01_DRIFT_12 = d.Drift(length=0.05)
-EBT_INJ_TDC_01
-EBT_S01_DRIFT_13
-EBT_INJ_MAG_HVCOR_04
-
-
-
-
-
-
-drift1 = Drift.Drift(length=1.5)
-quad1 = Quadrupole.Quadrupole(length=0.3, gradient=-0.8)
-# dip1 = Dipole.Dipole(field=1, length=0.5, gradient=0.8)
-
-
-# dip1.theta = 0.2
-# dip1.curvature = 3
-# print('dip1.curvature = ', dip1.curvature)
-
-# print('dip1.curvature = ', dip1.curvature)
-
-# print dip1.curvature
+EBT_INJ_TDC_01 = d.Drift(length=0.5)
+EBT_S01_DRIFT_13 = d.Drift(length=0.033)
+EBT_INJ_MAG_HVCOR_04 = C.OrbitCorrector(field=[0, 0], length=0.05)
+EBT_S01_DRIFT_14 = d.Drift(length=0.22)
+EBT_INJ_DIA_YAG_03 = S.Screen()
+EBT_S01_DRIFT_15 = d.Drift(length=0.126)
+EBT_INJ_DIA_BPM_02 = BPM.BeamPositionMonitor(length=0.07)
+EBT_S01_DRIFT_16 = d.Drift(length=0.318)
+CLA_C2V_MAG_DIP_02_DRIFT_01 = d.Drift(length=0.0781)
+CLA_C2V_MAG_DIP_02 = D.Dipole(length=0.4, field=0.02058, theta=0)
+CLA_C2V_MAG_DIP_02_DRIFT_02 = d.Drift(length=0.0781)
+CLA_SP1_DRIFT_01 = d.Drift(length=0.13)
+EBT_INJ_DIA_BPM_03 = BPM.BeamPositionMonitor(length=0.0563)
+EBT_INJ_MAG_HVCOR_05 = C.OrbitCorrector(field=[0, 0], length=0.059)
+CLA_SP1_DRIFT_02 = d.Drift(length=0.103)
+EBT_INJ_MAG_QUAD_05_DRIFT_01 = d.Drift(length=0.0225)
+EBT_INJ_MAG_QUAD_05 = Q.Quadrupole(length=0.1, gradient=0.0)
+EBT_INJ_MAG_QUAD_05_DRIFT_02 = d.Drift(length=0.0225)
+CLA_SP1_DRIFT_03 = d.Drift(length=0.255)
+EBT_INJ_MAG_QUAD_06_DRIFT_01 = d.Drift(length=0.0225)
+EBT_INJ_MAG_QUAD_06 = Q.Quadrupole(length=0.1, gradient=0.0)
+EBT_INJ_MAG_QUAD_06_DRIFT_02 = d.Drift(length=0.0225)
+CLA_SP1_DRIFT_04 = d.Drift(length=0.884)
+EBT_INJ_DIA_SCR_04_DRIFT_01 = d.Drift(length=0.1)
+EBT_INJ_DIA_SCR_04 = S.Screen()
+EBT_INJ_DIA_SCR_04_DRIFT_02 = d.Drift(length=0.1)
+CLA_SP1_DRIFT_05 = d.Drift(length=0.0)
+EBT_INJ_DIA_FCUP_01 = d.Drift(length=0.0)
 
 V1 = Beamline.Beamline(componentlist=[EBT_S01_DRIFT_01,
                                       EBT_INJ_MAG_HVCOR_01,
@@ -87,16 +94,44 @@ V1 = Beamline.Beamline(componentlist=[EBT_S01_DRIFT_01,
                                       EBT_INJ_DIA_YAG_02,
                                       EBT_S01_DRIFT_11,
                                       EBT_INJ_MAG_HVCOR_03,
-                                      EBT_S01_DRIFT_12])
-
-# print beamline1.precision
-# print beamline1.ComputePositions()
+                                      EBT_S01_DRIFT_12,
+                                      EBT_INJ_TDC_01,
+                                      EBT_S01_DRIFT_13,
+                                      EBT_INJ_MAG_HVCOR_04,
+                                      EBT_S01_DRIFT_14,
+                                      EBT_INJ_DIA_YAG_03,
+                                      EBT_S01_DRIFT_15,
+                                      EBT_INJ_DIA_BPM_02,
+                                      EBT_S01_DRIFT_16,
+                                      CLA_C2V_MAG_DIP_02_DRIFT_01,
+                                      CLA_C2V_MAG_DIP_02,
+                                      CLA_C2V_MAG_DIP_02_DRIFT_02,
+                                      CLA_SP1_DRIFT_01,
+                                      EBT_INJ_DIA_BPM_03,
+                                      EBT_INJ_MAG_HVCOR_05,
+                                      CLA_SP1_DRIFT_02,
+                                      EBT_INJ_MAG_QUAD_05_DRIFT_01,
+                                      EBT_INJ_MAG_QUAD_05,
+                                      EBT_INJ_MAG_QUAD_05_DRIFT_02,
+                                      CLA_SP1_DRIFT_03,
+                                      EBT_INJ_MAG_QUAD_06_DRIFT_01,
+                                      EBT_INJ_MAG_QUAD_06,
+                                      EBT_INJ_MAG_QUAD_06_DRIFT_02,
+                                      CLA_SP1_DRIFT_04,
+                                      EBT_INJ_DIA_SCR_04_DRIFT_01,
+                                      EBT_INJ_DIA_SCR_04,
+                                      EBT_INJ_DIA_SCR_04_DRIFT_02,
+                                      CLA_SP1_DRIFT_05,
+                                      EBT_INJ_DIA_FCUP_01])
 
 beam1 = Beam.Beam(species=Electron.Electron, energy=4.5 * PhysicalUnits.MeV)
 # beam1 = Beam.Beam(species=Positron, energy = 2)
 
 beam1.distance
 
+
+TEST = Beamline.Beamline(componentlist=[EBT_S01_DRIFT_01,
+                                        EBT_INJ_MAG_HVCOR_01])
 # print('beam1.energy = ', beam1.energy)
 # print('beam1.rigidity = ',beam1.rigidity )
 # print('beam1.momentum = ',beam1.momentum )
@@ -111,11 +146,9 @@ parts = np.array([ptcle1, ptcle2])
 # print parts[:,3]
 
 beam1.particles = np.array([ptcle1, ptcle2])
-beam2 = beamline1.TrackMatlab([0, 2], beam1)
-print("beam2 particle1 = ", beam2.particles[0])
-print("beam2 particle2 = ", beam2.particles[1])
-# print np.array([[9.01351346e-04, -5.97789022e-05, 0.00000000e+00,
-#                 0.00000000e+00, -2.50103285e-09, 0.00000000e+00],
-#                 [0.00000000e+00, 0.00000000e+00, 1.09921487e-03,
-#                 6.01384044e-05, -2.89286998e_09, 0.00000000e+00]])
-#
+
+beam1.particles = np.array([ptcle1, ptcle2])
+beam2 = V1.TrackMatlab([0, len(V1.componentlist)-1], beam1)
+print "beam2 particle1 = ", beam2.particles[0]
+print "beam2 particle2 = ", beam2.particles[1]
+print EBT_S01_DRIFT_12.lastTrackedBeam.particles[0]

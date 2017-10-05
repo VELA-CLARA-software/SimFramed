@@ -112,7 +112,6 @@ classdef Quadrupole < handle
             
             d0  = 1/beta0 + dp0;
             d2  =-d0./d1./d1./d1/2;
-            d2
             
             c0  = (1/beta0 - d0./d1)*ds;
             c11 = k1*k1*d2.*(xs2./w - 2*ds)./w./w/4;
@@ -142,12 +141,13 @@ classdef Quadrupole < handle
             beta0 = beam.beta;
 
             ds = quadrupole.length;
-            k1 = quadrupole.gradient / beam.rigidity; % normalised gradient
+            k1 = quadrupole.gradient / beam.rigidity % normalised gradient
 
             d1 = sqrt(1 + 2*dp0/beta0 + dp0.*dp0);
-            w  = sqrt(abs(k1) ./ d1);
             
-            xs  = sinh(w*ds);
+            w  = sqrt(abs(k1) ./ d1)
+            
+            xs  = sinh(w*ds)
             xc  = cosh(w*ds);
             ys  = sin(w*ds);
             yc  = cos(w*ds);
@@ -157,6 +157,7 @@ classdef Quadrupole < handle
 %           yc2 = cos(2*w*ds);
             
             x1  =  x0.*xc       + px0.*xs.*w/abs(k1);
+            a=-k1*x0.*xs./w
             px1 = -k1*x0.*xs./w + px0.*xc;
             y1  =  y0.*yc       + py0.*ys.*w/abs(k1);
             py1 =  k1*y0.*ys./w + py0.*yc;

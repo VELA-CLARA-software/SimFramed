@@ -42,7 +42,8 @@ class Drift(ComponentBase):
 
         beam.ct = beam.ct + self.length * (1 - (1 + beam.beta * beam.dp) / d1) / beam.beta
 
-        #beam.ct = beam.ct + self.length* ((1 - (1 + beam.beta*beam.dp/d1))/beam.beta)
+        # save
+        self.lastTrackedBeam = beam
 
 
 

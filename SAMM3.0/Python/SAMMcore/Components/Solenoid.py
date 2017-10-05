@@ -56,6 +56,8 @@ class Solenoid(ComponentBase):
         beam.y  = y1
         beam.py = py1
 
+        # save
+        self.lastTrackedBeam = beam
 
     def GetBField(self,beam):
         #% [bx, by, bz] = Solenoid.GetBField(beam)

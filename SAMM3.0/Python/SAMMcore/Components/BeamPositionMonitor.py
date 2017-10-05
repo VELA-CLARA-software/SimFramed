@@ -16,18 +16,21 @@ class BeamPositionMonitor(ComponentBase):
         self.y = None
     def Track(self, beam):
         # First apply a drift through ds/2
-        d1 = math.sqrt(1 - beam.px**2 - beam.py**2 + 2 * beam.dp / beta0 +
-                       beam.dp**2)
-        x1 = beam.x + ds * beam.px / d1 / 2
-        y1 = beam.y + ds * beam.py / d1 / 2
-        ct1 = beam.ct + ds * (1 - (1 + beam.dp * beta0) / d1) / beta0 / 2
+        d1 = numpy.sqrt(1 - beam.px * beam.px
+                        - beam.py * beam.py
+                        + 2 * beam.dp / beam.beta
+                        + beam.dp * beam.dp)
+        beam.x = beam.x + (self.length * beam.px) / d1
+        # beam.y  = beam.y  + self.length*numpy.divide(beam.py,d1)
+        beam.y = beam.y + self.length * beam.py / d1
+
+        beam.ct = beam.ct + self.length * (1 - (1 + beam.beta * beam.dp) / d1) / beam.beta
         # Next, Calc Y and Y in the middle of the BPM (TP added this)
-        self.x = numpy.mean(x1)
-        self.y = numpy.mean(y1)
-        # Finally, apply a second drift through ds/2
-        beam.x = x1 + (ds * beam.x) / d1 / 2
-        beam.y = y1 + (ds * beam.y) / d1 / 2
-        beam.ct = ct1 + ds * (1 - (1 + beta0 * beam.dp) / d1) / beta0 / 2
+        self.x = numpy.mean(beam.x)
+        self.y = numpy.mean(beam.y)
+
+        # save
+        self.lastTrackedBeam = beam
 
 #
 # classdef BeamPositionMonitor < handle

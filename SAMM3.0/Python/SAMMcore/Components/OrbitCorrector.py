@@ -5,42 +5,42 @@
 from ComponentBase import ComponentBase
 import numpy
 
+
 class OrbitCorrector(ComponentBase):
-    def __init__(self,field=[0,0],length=0,name="", aperture=[]):
+    def __init__(self, field=[0, 0], length=0, name="", aperture=[]):
         ComponentBase.__init__(self, length, name, aperture)
         # horizontal and vertical magnetic field, in tesla
         self.field = field
         # quadrupole gradient, in tesla/metre
 
-    def Track(self,beam):
-        #% beam2 = OrbitCorrector.Track(beam1)
-        #% Applies the transfer map for an orbit corrector
-        #% to the particles in in beam1.
-        #[x0, px0, y0, py0, ct0, dp0] = beam.GetParticles();
+    def Track(self, beam):
+        # beam2 = OrbitCorrector.Track(beam1)
+        # Applies the transfer map for an orbit corrector
+        # to the particles in in beam1.
+        # [x0, px0, y0, py0, ct0, dp0] = beam.GetParticles();
 
-        beta0  = beam.beta
+        # beta0 = beam.beta
 
         k0 = numpy.divide(self.field, beam.rigidity)
         d1 = numpy.sqrt(1 + 2 * beam.dp / beam.beta + beam.dp * beam.dp)
 
-        x1 = beam.x + self.length * beam.px / d1 - self.length * self.length * k0[1] / d1 / 2
-        px1 = beam.px - self.length * k0[1]
+        beam.x = beam.x + self.length * beam.px / d1 - self.length * self.length * k0[1] / d1 / 2
+        beam.px = beam.px - self.length * k0[1]
 
-        y1 = beam.y + self.length * beam.py / d1 + self.length * self.length * k0[0] / d1 / 2
-        py1 = beam.py  + self.length * k0[0]
+        beam.y = beam.y + self.length * beam.py / d1 + self.length * self.length * k0[0] / d1 / 2
+        beam.py = beam.py + self.length * k0[0]
 
         f1 = self.length * (1 / beam.beta + beam.dp) / d1 / d1 / d1 / 2
         # !
-        c0 = beam.ct + self.length / beam.beta -
-        self.length * (1 / beam.beta + beam.dp) / d1 -
-        self.length * self.length * f1 * (k0[0] * k0[0] + k0[1] * k0[1]) / 3
+        c0 = (beam.ct + self.length / beam.beta -
+              self.length * (1 / beam.beta + beam.dp) / d1 -
+              self.length * self.length * f1 * (k0[0] * k0[0] + k0[1] * k0[1]) / 3)
 
-        beam.ct = c0 + self.length * f1 * (k0[2] * beam.px - k0[1] * beam.py) -
-        f1 * (beam.px * beam.px + beam.py * beam.py)
+        beam.ct = (c0 + self.length * f1 * (k0[1] * beam.px - k0[0] * beam.py) -
+                   f1 * (beam.px * beam.px + beam.py * beam.py))
 
-        beam.SetParticles(x1, px1, y1, py1, ct1, dp0)
-
-
+        # save
+        self.lastTrackedBeam = beam
 
 # classdef OrbitCorrector < handle
 #     % OrbitCorrector class
