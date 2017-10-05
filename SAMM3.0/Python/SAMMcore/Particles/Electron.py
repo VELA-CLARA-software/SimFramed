@@ -20,21 +20,21 @@ class Electron(object):
                         PhysicalConstants.VacuumPermittivity / \
                         math.pow( PhysicalConstants.ElectronMass * PhysicalConstants.SpeedOfLight2,4)
 
-        @property
-        def Electron(self):
-            return Positron()
+    @property
+    def Electron(self):
+        return Positron()
 
-        @property
-        def charge(self):
-            return self.__charge
+    @property
+    def charge(self):
+        return self.__charge
 
-        @property
-        def mass(self):
-            return self.__mass
+    @property
+    def mass(self):
+        return self.__mass
 
-        @property
-        def mass2(self):
-            return self.__mass2
+    @property
+    def mass2(self):
+        return self.__mass2
 
 # classdef Electron
 #     % Electron

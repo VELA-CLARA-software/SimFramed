@@ -20,23 +20,23 @@ class OrbitCorrector(ComponentBase):
 
         beta0  = beam.beta
 
-        k0   = self.field / beam.rigidity
-        d1   = numpy.sqrt(1 + 2*beam.dp/beam.beta + beam.dp*beam.dp)
+        k0 = numpy.divide(self.field, beam.rigidity)
+        d1 = numpy.sqrt(1 + 2 * beam.dp / beam.beta + beam.dp * beam.dp)
 
-        x1   = beam.x + self.length*beam.px/d1 - self.length*self.length*k0[2]/d1/2
-        px1  =         px0     - self.length*k0[2]
+        x1 = beam.x + self.length * beam.px / d1 - self.length * self.length * k0[1] / d1 / 2
+        px1 = beam.px - self.length * k0[1]
 
-        y1   = y0 + self.length*beam.py/d1 + self.length*self.length*k0[1]/d1/2
-        py1  =         beam.py  + self.length*k0[1]
+        y1 = beam.y + self.length * beam.py / d1 + self.length * self.length * k0[0] / d1 / 2
+        py1 = beam.py  + self.length * k0[0]
 
-        f1 = self.length*(1/beam.beta + beam.dp)/d1/d1/d1/2
-
+        f1 = self.length * (1 / beam.beta + beam.dp) / d1 / d1 / d1 / 2
         # !
-        c0 = beam.ct + self.length / beam.beta - self.length*(1/beam.beta + beam.dp)/d1 - \
-        self.length*self.length*f1*(k0[1]*k0[1] + k0[2]*k0[2])/3
+        c0 = beam.ct + self.length / beam.beta -
+        self.length * (1 / beam.beta + beam.dp) / d1 -
+        self.length * self.length * f1 * (k0[0] * k0[0] + k0[1] * k0[1]) / 3
 
-        beam.ct = c0 + self.length*f1*(k0[2]*beam.px - k0[1]*beam.py) - \
-              f1*(beam.px*beam.px + beam.py*beam.py)
+        beam.ct = c0 + self.length * f1 * (k0[2] * beam.px - k0[1] * beam.py) -
+        f1 * (beam.px * beam.px + beam.py * beam.py)
 
         beam.SetParticles(x1, px1, y1, py1, ct1, dp0)
 
