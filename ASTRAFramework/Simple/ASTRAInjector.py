@@ -26,6 +26,8 @@ class ASTRAInjector(object):
         self.overwrite = overwrite
         self.runname = runname
         self.subdirectory = self.basedirectory+'/'+subdir
+        if not os.path.exists(self.subdirectory):
+            os.makedirs(self.subdirectory)
         if self.overwrite == None:
             if not os.path.exists(self.subdirectory):
                 os.makedirs(self.subdirectory)

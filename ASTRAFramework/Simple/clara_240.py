@@ -19,7 +19,7 @@ astra.loadSettings('short_240.settings')
 ''' Create an initial distribution
     - charge is in pC!
     '''
-astra.createInitialDistribution(npart=100, charge=250)
+# astra.createInitialDistribution(npart=100, charge=250)
 
 ''' Apply the new settings '''
 astra.applySettings()

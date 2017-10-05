@@ -72,9 +72,9 @@
   LEFieLD=.T
 
   FILE_EFieLD(1) = "../TWS_S-DL.dat" , Nue(1)=2.9985,
-  MaxE(1)=$linac2_field$,  Phi(1)=$linac2_phase$., C_pos(1)=6.789075, C_numb(1)=120, C_smooth(1)=10
+  MaxE(1)=$linac2_field$,  Phi(1)=$linac2_phase$, C_pos(1)=6.789075, C_numb(1)=120, C_smooth(1)=10
   FILE_EFieLD(2) = "../TWS_S-DL.dat" , Nue(2)=2.9985,
-  MaxE(2)=$linac3_field$,  Phi(2)=$linac3_phase$., C_pos(2)=12.091945226, C_numb(2)=120, C_smooth(2)=10
+  MaxE(2)=$linac3_field$,  Phi(2)=$linac3_phase$, C_pos(2)=12.091945226, C_numb(2)=120, C_smooth(2)=10
   FILE_EFieLD(3) = "../TWS_X-DL.dat" , Nue(3)=11.994,
   MaxE(3)=$4hc_field$,  Phi(3)=$4hc_phase$, C_pos(3)=23.4652784541667, C_numb(3)=69, C_smooth(3)=10
 

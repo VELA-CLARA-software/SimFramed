@@ -15,12 +15,12 @@ files:
     linac1_phase: 20
     gun_sol_field: 0.237
   test.in.126:
-    linac2_field: 30
-    linac2_phase: -33
-    linac3_field: 30
-    linac3_phase: -33
-    4hc_field: 30.64
-    4hc_phase: 158.814
+    linac2_field: 26
+    linac2_phase: -25
+    linac3_field: 26
+    linac3_phase: -25
+    4hc_field: 35.64
+    4hc_phase: 187
     quad_K: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
   test.in.127:
     quad_K: [1.76571, -0.334896]
