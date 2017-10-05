@@ -2,6 +2,7 @@ import yaml, collections, subprocess, os, re
 import numpy
 import h5py
 import glob
+from copy import deepcopy
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -36,12 +37,54 @@ class ASTRAInjector(object):
 
     def loadSettings(self, filename='short_240.settings'):
         self.settings = {}
-        self.settingsFile = filename
-        stream = file(filename, 'r')
-        settings = yaml.load(stream)
+        if isinstance(filename, dict):
+            settings = filename
+        else:
+            self.settingsFile = filename
+            stream = file(filename, 'r')
+            settings = yaml.load(stream)
+            stream.close()
         self.globalSettings = settings['global']
         self.fileSettings = settings['files']
-        stream.close()
+
+    def findKey(self, key, var):
+        if hasattr(var,'iteritems'):
+            for k, v in var.iteritems():
+                if k == key:
+                    yield k, v
+                if isinstance(v, dict):
+                    for result in self.findKey(key, v):
+                        yield result
+                elif isinstance(v, list):
+                    for d in v:
+                        for result in self.findKey(key, d):
+                            yield result
+
+    def replaceKeyValue(self, container, key, value):
+        copy = container
+        try:
+            if key in container:
+                container[key] = value
+                return container
+        except:
+            return container
+        else:
+            if isinstance(container, list):
+                for i, v in enumerate(container):
+                    container[i] = self.replaceKeyValue(v, key, value)
+            elif isinstance(container, tuple):
+                container = list(container)
+                for i, v in enumerate(container):
+                    container[i] = self.replaceKeyValue(v, key, value)
+                container = tuple(container)
+            elif isinstance(container, dict):
+                for k in container.keys():
+                    container[k] = self.replaceKeyValue(container[k], key, value)
+        return container
+
+    def modifySetting(self, key, value):
+        self.replaceKeyValue(self.fileSettings, key, value)
+        self.replaceKeyValue(self.globalSettings, key, value)
 
     def readFile(self, fname=None):
         with open(fname) as f:
@@ -87,12 +130,18 @@ class ASTRAInjector(object):
                 self.astraFiles.append(newfilename)
                 os.chdir(self.basedirectory)
 
-    def runASTRAFiles(self):
+    def runASTRAFiles(self,files=[]):
         if self.overwrite:
-            for f in self.astraFiles:
-                os.chdir(self.subdirectory)
-                self.runASTRA(f)
-                os.chdir(self.basedirectory)
+            if files == []:
+                for f in self.astraFiles:
+                    os.chdir(self.subdirectory)
+                    self.runASTRA(f)
+                    os.chdir(self.basedirectory)
+            else:
+                for f in files:
+                    os.chdir(self.subdirectory)
+                    self.runASTRA(f)
+                    os.chdir(self.basedirectory)
 
     def runASTRA(self, filename=''):
         command = self.astraCommand + [filename]
