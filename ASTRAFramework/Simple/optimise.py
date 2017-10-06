@@ -1,6 +1,6 @@
 from ASTRAInjector import *
 import blackbox as bb
-import sdds
+# import sdds
 import numpy as np
 from constraints import *
 import tempfile
@@ -18,6 +18,8 @@ class fitnessFunc():
         self.tmpdir = tempfile.mkdtemp(dir=os.getcwd())
         self.dirname = os.path.basename(self.tmpdir)
         astra = ASTRAInjector(self.dirname, overwrite=True)
+        if not os.name == 'nt':
+            astra.defineASTRACommand(['mpiexec','-np','4','/opt/ASTRA/astra_MPICH2.sh'])
         astra.loadSettings('short_240.settings')
         astra.modifySetting('linac1_field', linac1field)
         astra.modifySetting('linac1_phase', linac1phase)
@@ -38,27 +40,10 @@ class fitnessFunc():
     def removeTempDirectory(self):
         shutil.rmtree(self.tmpdir)
 
-    def loadBeamFile(self):
-        sddsbeam = sdds.SDDS(0)
-        sddsbeam.load(self.dirname+'/test.in.128.4929.128.sdds')
-        beam = {}
-        for col in range(len(sddsbeam.columnName)):
-            if len(sddsbeam.columnData[col]) == 1:
-                beam[sddsbeam.columnName[col]] = sddsbeam.columnData[col][0]
-            else:
-                beam[sddsbeam.columnName[col]] = sddsbeam.columnData[col]
-            SDDSparameterNames = list()
-            # print beam
-            for param in sddsbeam.columnName:
-                if param in beam and isinstance(beam[param][0], (float, long)):
-                    SDDSparameterNames.append(param)
-        return beam
-
     def calculateBeamParameters(self):
         beam = raf.read_astra_beam_file(self.dirname+'/test.in.128.4929.128')
         c = [0] * 5
         w = [2,1,2,5,5]
-        beam = self.loadBeamFile()
         sigmat = 1e12*np.std(beam['t'])
         sigmap = np.std(beam['p'])
         meanp = np.mean(beam['p'])
@@ -78,13 +63,13 @@ def optfunc(args):
     fit.removeTempDirectory()
     return fitvalue
 
-# optfunc([21,20,25,-25,25,-25,30,187,25,0])
+print optfunc([21,20,25,-25,25,-25,30,187,25,0])
 
 def main():
     bb.search(f=optfunc,  # given function
               box=[[10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [135,200], [10, 32], [-30,30]],  # range of values for each parameter
-              n=200,  # number of function calls on initial stage (global search)
-              m=200,  # number of function calls on subsequent stage (local search)
+              n=60,  # number of function calls on initial stage (global search)
+              m=60,  # number of function calls on subsequent stage (local search)
               batch=4,  # number of calls that will be evaluated in parallel
               resfile='output.csv')  # text file where results will be saved
 

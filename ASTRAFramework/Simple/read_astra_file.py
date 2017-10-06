@@ -14,7 +14,7 @@ def read_astra_beam_file(file):
     t = -1*z / speed_of_light
     pz = normalise_to_ref_particle(pz, subtractmean=False)
     p = np.sqrt(px**2 + py**2 + pz**2)
-    print p
+    #print p
     beam['x'] = x
     beam['y'] = y
     beam['z'] = z
