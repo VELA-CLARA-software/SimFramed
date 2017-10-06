@@ -73,11 +73,6 @@ EBT_INJ_MAG_HVCOR_03.length=0.05;
 EBT_S01_DRIFT_12 = Drift;
 EBT_S01_DRIFT_12.length=0.05;
 
-DIP = Dipole;
-DIP.field=0.02058;
-DIP.length=0.4;
-beamlineD = Beamline;
-beamlineD.componentlist = {DIP};
 beamline1 = Beamline;
 beamline1.componentlist = {EBT_S01_DRIFT_01, ...
                           EBT_INJ_MAG_HVCOR_01, ...
@@ -105,6 +100,18 @@ beam1 = Beam(Electron);
 beam1.energy = 4.5*PhysicalUnits.MeV;
 ptcle1 = [0.001,0,0,0,0,0]';
 ptcle2 = [0,0,0.001,0,0,0]';
-beam1.particles = [ptcle1 ptcle2];
+ptcle3 = [0,0,0,0,0,0]';
+beam1.particles = [ptcle1, ptcle2, ptcle3];
+ptcle3 = [0,0,0,0,0,0]';
+DIP = Dipole;
+DIP.angle = pi/4;
+DIP.length=0.4;
+DIP.field = beam1.rigidity * DIP.angle / DIP.length;
+
+beamlineD = Beamline;
+beamlineD.componentlist = {DIP};
 beam2 = beamlineD.Track([1,1],beam1);
 beam2.particles
+
+
+
