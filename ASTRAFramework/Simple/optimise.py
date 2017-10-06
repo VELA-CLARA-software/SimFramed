@@ -1,6 +1,6 @@
 from ASTRAInjector import *
 import blackbox as bb
-import sdds
+# import sdds
 import numpy as np
 from constraints import *
 import tempfile
@@ -18,6 +18,8 @@ class fitnessFunc():
         self.tmpdir = tempfile.mkdtemp(dir=os.getcwd())
         self.dirname = os.path.basename(self.tmpdir)
         astra = ASTRAInjector(self.dirname, overwrite=True)
+        if not os.name == 'nt':
+            astra.defineASTRACommand(['mpiexec','-np','12','/opt/ASTRA/astra_MPICH2.sh'])
         astra.loadSettings('short_240.settings')
         astra.modifySetting('linac1_field', linac1field)
         astra.modifySetting('linac1_phase', linac1phase)
