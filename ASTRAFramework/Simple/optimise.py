@@ -6,7 +6,7 @@ from constraints import *
 import tempfile
 import os
 import shutil
-
+import read_astra_file as raf
 
 class fitnessFunc():
 
@@ -55,7 +55,7 @@ class fitnessFunc():
         return beam
 
     def calculateBeamParameters(self):
-        self.loadBeamFile()
+        beam = raf.read_astra_beam_file(self.dirname+'/test.in.128.4929.128')
         c = [0] * 5
         w = [2,1,2,5,5]
         beam = self.loadBeamFile()
