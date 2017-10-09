@@ -1,4 +1,5 @@
-import yaml, collections, subprocess, os
+import yaml, collections, subprocess, os, sys
+sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+'\\..\\SAMM3.0\\Python\\')
 from SAMMcore.Components import Drift as d
 from SAMMcore.Components import Dipole as D
 from SAMMcore.Components import Quadrupole as Q
@@ -62,8 +63,12 @@ for index, name in enumerate(groups['VELA-SP1']):
         backOfLast = lastElement['global_position'][-1]
         frontOfCurrent = element['global_position'][-1]
         #if element['global_rotation'][-1] == 45:
-        frontOfCurrent = (frontOfCurrent -
-                          element['length'] * np.cos(element['global_rotation'][-1]*np.pi / 180))
+        if element['type'] == 'dipole':
+            print 'LALALALALAL'
+            frontOfCurrent = element['global_front'][-1]
+        else:
+            frontOfCurrent = (frontOfCurrent -
+                              element['length'] * np.cos(element['global_rotation'][-1]*np.pi / 180))
         #elif element['global_rotation'][-1] == 0:
         #    frontOfCurrent = (frontOfCurrent - element['length'])
         #else:
@@ -75,10 +80,10 @@ for index, name in enumerate(groups['VELA-SP1']):
             # Add a drift before adding component
             b = frontOfCurrent
             a = backOfLast
-            print 'drift: ', (b - a)/np.cos(element['global_position'][-1]*np.pi / 180)
+            print 'drift: ', (b - a)/np.cos(element['global_rotation'][-1]*np.pi / 180)
             driftCounter = driftCounter + 1
             driftComponent = d.Drift(name='drift' + str(driftCounter),
-                                     length=(b - a)/np.cos(element['global_position'][-1]*np.pi / 180))
+                                     length=(b - a)/np.cos(element['global_rotation'][-1]*np.pi / 180))
             V1_SP1.componentlist.append(driftComponent)
         else:
             print 'No drift required', index
@@ -87,7 +92,7 @@ for index, name in enumerate(groups['VELA-SP1']):
     V1_SP1.componentlist.append(component)
 
 len(V1_SP1.componentlist)
-a=len(V1_SP1.componentlist)-1
+a=40 # len(V1_SP1.componentlist)-1
 print V1_SP1.componentlist[a].name
 print V1_SP1.componentlist[a].length
 #for c in V1_SP1.componentlist:

@@ -64,6 +64,8 @@ EBT_S01_DRIFT_16 = d.Drift(length=0.318)
 CLA_C2V_MAG_DIP_02_DRIFT_01 = d.Drift(length=0.0781)
 angle = np.pi/4
 Field = beam1.rigidity * angle / 0.4
+print angle
+print Field
 CLA_C2V_MAG_DIP_02 = D.Dipole(length=0.4, field=Field, theta=angle)
 CLA_C2V_MAG_DIP_02_DRIFT_02 = d.Drift(length=0.0781)
 CLA_SP1_DRIFT_01 = d.Drift(length=0.13)
@@ -133,11 +135,12 @@ V1 = Beamline.Beamline(componentlist=[EBT_S01_DRIFT_01,
 
 print 'hi'
 
-a=33
+a=46
 print V1.componentlist[a].length
+print V1.componentlist[a]
 #print V1.componentlist[a].theta
 V1.componentlist[a].length
-beam2 = V1.TrackMatlab([0, len(V1.componentlist)-1], beam1)
+beam2 = V1.TrackMatlab([0, a], beam1)
 print "beam2 particle1 = ", beam2.particles[0]
 print "beam2 particle2 = ", beam2.particles[1]
 print "beam2 particle3 = ", beam2.particles[2]
