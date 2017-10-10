@@ -3,7 +3,7 @@
 # Version 0.1
 #
 from ComponentBase import ComponentBase
-from ..SAMMlab import Beam
+from ..SAMPLlab import Beam
 import numpy
 
 class Drift(ComponentBase):

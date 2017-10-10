@@ -96,21 +96,21 @@ elements:
 #BPMs
   EBT-INJ-DIA-BPM-01:
     name: BPM01
-    pv: EBT-INJ-DIA-BPM-01
+    pv: EBT-INJ-DIA-BPMC-02
     type: bpm
     length: 0.05
     global_position: [0,0,0.9]
     global_rotation: [0,0,0]
   EBT-INJ-DIA-BPM-02:
     name: BPM02
-    pv: EBT-INJ-DIA-BPM-02
+    pv: EBT-INJ-DIA-BPMC-04
     type: bpm
     length: 0.07
     global_position: [0,0,3.519]
     global_rotation: [0,0,0]
   EBT-INJ-DIA-BPM-03:
     name: BPM03
-    pv: EBT-INJ-DIA-BPM-03
+    pv: EBT-INJ-DIA-BPMC-06
     type: bpm
     length: 0.0563
     global_position: [-0.336115411674596,0,4.46215438928623]
@@ -119,6 +119,7 @@ elements:
   EBT-INJ-DIA-YAG-01:
     name: YAG01
     pv: EBT-INJ-DIA-YAG-01
+    camPV: EBT-INJ-DIA-CAM-02:CAM
     type: screen
     length: 0.0
     global_position: [0,0,1.05]
@@ -126,6 +127,7 @@ elements:
   EBT-INJ-DIA-YAG-02:
     name: YAG02
     pv: EBT-INJ-DIA-YAG-02
+    camPV: EBT-INJ-DIA-CAM-03:CAM
     type: screen
     length: 0.0
     global_position: [0,0,2.145]
@@ -133,6 +135,7 @@ elements:
   EBT-INJ-DIA-YAG-03:
     name: YAG03
     pv: EBT-INJ-DIA-YAG-03
+    camPV: EBT-INJ-DIA-CAM-04:CAM
     type: screen
     length: 0.0
     global_position: [0,0,3.323]
@@ -140,6 +143,7 @@ elements:
   EBT-INJ-DIA-SCR-04:
     name: YAG04
     pv: EBT-INJ-DIA-YAG-04
+    camPV: EBT-INJ-DIA-CAM-05:CAM
     type: screen
     length: 0.0
     global_position: [-1.53254008137744,0,5.65857906711866]

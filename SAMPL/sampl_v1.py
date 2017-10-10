@@ -5,16 +5,17 @@ machine it is for
 '''
 
 from PyQt4.QtCore import QThread
-import createBeam
+import createBeam as cb
 import createBeamline as cbl
 import yaml
-import sys
+# import sys
 import os
-import numpy as np
-sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+'\\..\\SAMM3.0\\Python\\')
-from SAMMcore.SAMMlab import Beam
-from SAMMcore.Particles import Electron
-from SAMMcore.SAMMlab import PhysicalUnits
+
+from epics import caget, caput
+# sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+'\\sourceCode\\')
+from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
+
+
 class Setup(QThread):
     # CONSTRUCTOR
     def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
@@ -34,7 +35,7 @@ class Setup(QThread):
         self.initDistrib = None
         self.initCharge = 0.0
 
-        stream = file("VELA.yaml", 'r')
+        stream = file(str(os.path.abspath(__file__)).split('sampl_v1')[0] + "VELA.yaml", 'r')
         settings = yaml.load(stream)
         self.elements = settings['elements']
         self.groups = settings['groups']
@@ -57,14 +58,9 @@ class Setup(QThread):
     def run(self):
         # create a beam
         print('Create a beam ...')
-        # initDistrib = createBeam.guassian(x=0.0, y=0.0,
-        #                                  sigmaX=0.001, sigmaY=0.001,
-        #                                  particle='Electron', number=1000)
-        self.initDistrib = Beam.Beam(species=Electron.Electron, energy=4.5 * PhysicalUnits.MeV)
-        ptcle1 = [0.001, 0, 0, 0, 0, 0]
-        ptcle2 = [0, 0, 0.001, 0, 0, 0]
-        ptcle3 = [0, 0, 0, 0, 0, 0]
-        self.initDistrib.particles = np.array([ptcle1, ptcle2, ptcle3])
+        createBeam = cb.createBeam()
+        self.initDistrib = createBeam.guassian(x=caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE8'),
+                                               y=caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE9'))
         selectedGroup = None
 
         # Find which line to use
@@ -85,11 +81,22 @@ class Setup(QThread):
 
         # Run simulation
         print('------------------------------')
+        print('-------------SAMPL------------')
         print('------NEW SIMULTAION RUN------')
         print('------------------------------')
-        startIndex = selectedGroup.index(self.startElement)
-        stopIndex = selectedGroup.index(self.stopElement)
-        finalDistrib = beamLine.TrackMatlab([startIndex, stopIndex], self.initDistrib)
-        print(finalDistrib.particles)
+        startIndex = [i for i, x in enumerate(beamLine.componentlist) if x.name == self.startElement]
+        stopIndex = [i for i, x in enumerate(beamLine.componentlist) if x.name == self.stopElement]
+        finalDistrib = beamLine.TrackMatlab([startIndex[0], stopIndex[0]], self.initDistrib)
 
-        # #SAMPL to EPICS
+        # SAMPL to EPICS
+        for i in beamLine.componentlist:
+            if 'SCR' in i.name or 'YAG' in i.name:
+                caput('VM-' + self.elements[i.name]['camPV'] + ':X', i.x)
+                caput('VM-' + self.elements[i.name]['camPV'] + ':Y', i.y)
+                caput('VM-' + self.elements[i.name]['camPV'] + ':SigmaX', i.xSigma)
+                caput('VM-' + self.elements[i.name]['camPV'] + ':SigmaY', i.ySigma)
+                print 'Written CAM data to EPICS for ', i.name
+            if 'BPM'in i.name:
+                caput('VM-' + self.elements[i.name]['pv'] + ':X', i.x)
+                caput('VM-' + self.elements[i.name]['pv'] + ':Y', i.y)
+                print 'Written BPM data to EPICS for ', i.name
