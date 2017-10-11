@@ -45,7 +45,7 @@ class fitnessFunc():
         self.parameters = args
         self.linacfields = [linac1field, linac2field, linac3field, linac4field]
         self.dirname = os.path.basename(self.tmpdir)
-        astra = ASTRAInjector(self.dirname, overwrite=True)
+        astra = ASTRAInjector(self.dirname, overwrite=False)
         if not os.name == 'nt':
             astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2_Quiet.sh'])
         astra.loadSettings('short_240.settings')
@@ -83,15 +83,17 @@ class fitnessFunc():
         fhcfield = self.parameters[6]
 
         constraintsList = {
-        'lessThan': {'value': sigmat, 'limit': 0.25, 'weight': 4},
-        'lessThan': {'value': fitp, 'limit': 0.5, 'weight': 1},
-        'greaterThan': {'value': meanp, 'limit': 200, 'weight': 2},
-        'lessThan': {'value': max(self.linacfields), 'limit': 32, 'weight': 5},
-        'lessThan': {'value': self.parameters[6], 'limit': 35, 'weight': 5},
-        'lessThan': {'value': emitx, 'limit': 1, 'weight': 3},
-        'lessThan': {'value': emity, 'limit': 1, 'weight': 3},
+            'bunch length': {'type': 'lessthan', 'value': sigmat, 'limit': 0.25, 'weight': 4},
+            'energy spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.5, 'weight': 1},
+            'final momentum': {'type': 'greaterthan','value': 1e-6*meanp, 'limit': 200, 'weight': 2},
+            'linac fields': {'type': 'lessthan', 'value': max(self.linacfields), 'limit': 32, 'weight': 5},
+            '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 5},
+            'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 3},
+            'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 1, 'weight': 3},
         }
+        print 'constraintsList = ', constraintsList
         fitness = self.cons.constraints(constraintsList)
+        print 'fitness = ', fitness
         return fitness
 
 def optfunc(args, dir=None, **kwargs):
@@ -104,9 +106,10 @@ def optfunc(args, dir=None, **kwargs):
             fitvalue = fit.calculateBeamParameters()
     return (fitvalue,)
 
-best = [14.95092614,-21.06732049,31.23925726,-24.8609014,0,0,20.44109707,144.3601313,16.86181033,15.40806285]
+best = [8.921109062432713,12.123371545885824,23.78362555695125,19.321385344939678,27.104723771217316,3.6664170541773866,14.26201028141319,151.40274304880091,21.582800685217236,4.926169290367247]
 
-# print optfunc(best, dir=os.getcwd()+'/test', npart=10000, ncpu=20)
+# print optfunc(best, dir=os.getcwd()+'/test_1952', npart=1000, ncpu=20)
+# exit()
 
 startranges = [[10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [135,200], [10, 32], [-30,30]]
 
