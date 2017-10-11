@@ -51,8 +51,6 @@ class Beam(object):
         self.__beta = 0
         # relativistic gamma factor
         self.__gamma = 0
-        # beam rigidity in tesla metres
-        # self.__brho = 0
         # phase space coordinates of particles
         self.__phasespace = 0
         # why not have phase space as explicit lists? that are accessed anywhere?
@@ -63,7 +61,8 @@ class Beam(object):
         self.ct = np.array([5, 5])
         self.dp = np.array([6, 7])
         # self.__particles = np.array([self.x, self.px, self.y, self.py, self.ct, self.dp])
-        self.__particles = np.column_stack((self.x, self.px, self.y, self.py, self.ct, self.dp))
+        self.__particles = np.column_stack((self.x, self.px, self.y,
+                                            self.py, self.ct, self.dp))
         # for i in range(len(self.__particles)):
         #     print self.__particles[i]
 
@@ -83,7 +82,8 @@ class Beam(object):
             # print self.y
             # print self.py
             # distance is whether they are in the aperture or not at each stage (!)
-            self.distance = np.array([[0.0] * len(particles), [1.0] * len(particles)])
+            self.distance = np.array([[0.0] * len(particles),
+                                     [1.0] * len(particles)])
             # print self.distance
         else:
             print 'particles should be a numpy array'
@@ -104,7 +104,7 @@ class Beam(object):
 
     @property
     def momentum(self):
-        return  self.__rigidity * self.species.charge
+        return self.__rigidity * self.species.charge
 
     @momentum.setter
     def momentum(self, momentum):
@@ -118,18 +118,17 @@ class Beam(object):
     def rigidity(self,rigidity):
         self.__rigidity = abs(rigidity) * numpy.sign(self.species.charge)
 
-        #if ~isempty(beam.phasespace) && beam.brho~=0
+        # if ~isempty(beam.phasespace) && beam.brho~=0
         if not self.phasespace and self.__brho != 0:
 
             # if we have some particles and we are scaling their momentum
             # (maybe after emitting radiation, or passing though an
             # rf structure? )
 
-
             P0 = self.__brho * self.species.charge;
-            P1 = self.__rigidity  * self.species.charge
+            P1 = self.__rigidity * self.species.charge
 
-            E0 = math.sqrt(math.pow(P0,2)* PhysicalConstants.SpeedOfLight2 \
+            E0 = math.sqrt(math.pow(P0, 2) * PhysicalConstants.SpeedOfLight2 \
              + self.species.mass2 * PhysicalConstants.SpeedOfLight4 )
 
             E1 = math.sqrt(math.pow(P1,2)* PhysicalConstants.SpeedOfLight2 \
@@ -146,7 +145,7 @@ class Beam(object):
     @property
     def beta(self):
         bg = self.__rigidity * self.species.charge / self.species.mass / PhysicalConstants.SpeedOfLight
-        self.__beta = bg/ math.sqrt(1+bg*bg)
+        self.__beta = bg / math.sqrt(1+bg*bg)
         return self.__beta
 
     @property
