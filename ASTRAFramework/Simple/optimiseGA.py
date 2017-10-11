@@ -39,7 +39,7 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir):
+    def __init__(self, args, tempdir, npart=250, ncpu=3):
         self.tmpdir = tempdir
         linac1field, linac1phase, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase = args
         self.parameters = args
@@ -47,23 +47,24 @@ class fitnessFunc():
         self.dirname = os.path.basename(self.tmpdir)
         astra = ASTRAInjector(self.dirname, overwrite=True)
         if not os.name == 'nt':
-            astra.defineASTRACommand(['mpiexec','-np','3','/opt/ASTRA/astra_MPICH2_Quiet.sh'])
+            astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2_Quiet.sh'])
         astra.loadSettings('short_240.settings')
-        astra.modifySetting('linac1_field', linac1field)
+        astra.modifySetting('linac1_field', abs(linac1field))
         astra.modifySetting('linac1_phase', linac1phase)
-        astra.modifySetting('linac2_field', linac2field)
+        astra.modifySetting('linac2_field', abs(linac2field))
         astra.modifySetting('linac2_phase', linac2phase)
-        astra.modifySetting('linac3_field', linac3field)
+        astra.modifySetting('linac3_field', abs(linac3field))
         astra.modifySetting('linac3_phase', linac3phase)
-        astra.modifySetting('4hc_field', fhcfield)
+        astra.modifySetting('4hc_field', abs(fhcfield))
         astra.modifySetting('4hc_phase', fhcphase)
-        astra.modifySetting('linac4_field', linac4field)
+        astra.modifySetting('linac4_field', abs(linac4field))
         astra.modifySetting('linac4_phase', linac4phase)
-        astra.createInitialDistribution(npart=100, charge=250)
+        astra.createInitialDistribution(npart=npart, charge=250)
         astra.applySettings()
         astra.runASTRAFiles()
         ft = feltools(self.dirname)
         sddsfile = ft.convertToSDDS('test.in.128.4929.128')
+        self.cons = constraintsClass()
 
     def emittance(self, x, xp, p):
         x = x - np.mean(x)
@@ -73,38 +74,39 @@ class fitnessFunc():
 
     def calculateBeamParameters(self):
         beam = raf.read_astra_beam_file(self.dirname+'/test.in.128.4929.128')
-        c = [0] * 7
-        w = [2,1,2,5,5,10,10]
         sigmat = 1e12*np.std(beam['t'])
         sigmap = np.std(beam['p'])
         meanp = np.mean(beam['p'])
         emitx = 1e6*self.emittance(beam['x'],beam['xp'],beam['p'])
         emity = 1e6*self.emittance(beam['y'],beam['yp'],beam['p'])
-        # print 'emitx = ', emitx
-        # print 'emity = ', emity
         fitp = 100*sigmap/meanp
         fhcfield = self.parameters[6]
-        c[0] = 0 if sigmat < 0.5 else (np.abs(sigmat-0.5))
-        c[1] = 0 if fitp < 0.5 else (np.abs(fitp-0.5))
-        c[2] = 0 if meanp > 200 else (np.abs(meanp-200))
-        c[3] = 0 if max(self.linacfields) < 32 else (np.abs(max(self.linacfields)-32))
-        c[4] = 0 if fhcfield < 35 else (np.abs(fhcfield-35))
-        c[5] = 0 if emitx < 1 else (np.abs(emitx-1))
-        c[6] = 0 if emity < 1 else (np.abs(emity-1))
-        fitness = map(lambda x,y: (x*y)**2,c,w)
-        return np.sqrt(np.sum(c))
 
-def optfunc(args, dir=None):
+        constraintsList = {
+        'lessThan': {'value': sigmat, 'limit': 0.25, 'weight': 4},
+        'lessThan': {'value': fitp, 'limit': 0.5, 'weight': 1},
+        'greaterThan': {'value': meanp, 'limit': 200, 'weight': 2},
+        'lessThan': {'value': max(self.linacfields), 'limit': 32, 'weight': 5},
+        'lessThan': {'value': self.parameters[6], 'limit': 35, 'weight': 5},
+        'lessThan': {'value': emitx, 'limit': 1, 'weight': 3},
+        'lessThan': {'value': emity, 'limit': 1, 'weight': 3},
+        }
+        fitness = self.cons.constraints(constraintsList)
+        return fitness
+
+def optfunc(args, dir=None, **kwargs):
     if dir == None:
         with TemporaryDirectory(dir=os.getcwd()) as tmpdir:
-            fit = fitnessFunc(args, tmpdir)
+            fit = fitnessFunc(args, tmpdir, **kwargs)
             fitvalue = fit.calculateBeamParameters()
     else:
-            fit = fitnessFunc(args, dir)
+            fit = fitnessFunc(args, dir, **kwargs)
             fitvalue = fit.calculateBeamParameters()
     return (fitvalue,)
 
-# print optfunc([21,-16,25,-15,25,-15,35,187,25,0], dir=os.getcwd()+'/test')
+best = [14.95092614,-21.06732049,31.23925726,-24.8609014,0,0,20.44109707,144.3601313,16.86181033,15.40806285]
+
+# print optfunc(best, dir=os.getcwd()+'/test', npart=10000, ncpu=20)
 
 startranges = [[10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [135,200], [10, 32], [-30,30]]
 
@@ -126,8 +128,8 @@ toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
 toolbox.register("evaluate", optfunc)
-toolbox.register("mate", tools.cxTwoPoint)
-toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
+toolbox.register("mate", tools.cxBlend, alpha=0.2)
+toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)
 
 
@@ -143,7 +145,7 @@ if __name__ == "__main__":
     # toolbox.register("map", futures.map)
 
     if not os.name == 'nt':
-        pop = toolbox.population(n=50)
+        pop = toolbox.population(n=100)
     else:
         pop = toolbox.population(n=18)
     hof = tools.HallOfFame(10)
@@ -164,10 +166,6 @@ if __name__ == "__main__":
         csv_out=csv.writer(out)
         for row in hof:
             csv_out.writerow(row)
-
-    print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best')
-
     pool.close()
-#
-# if __name__ == '__main__':
-#     main()
+
+    print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best', npart=10000, ncpu=20)
