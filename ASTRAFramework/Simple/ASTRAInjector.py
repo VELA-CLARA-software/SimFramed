@@ -33,7 +33,7 @@ class ASTRAInjector(object):
                 os.makedirs(self.subdirectory)
                 self.overwrite = True
             else:
-                response = input('Overwrite existing directory (/'+subdir+')? [Y/n]')
+                response = raw_input('Overwrite existing directory ? [Y/n]')
                 self.overwrite = True if response in {'','y','Y','yes','Yes','YES'} else False
         self.astraFiles = []
 
@@ -147,7 +147,8 @@ class ASTRAInjector(object):
 
     def runASTRA(self, filename=''):
         command = self.astraCommand + [filename]
-        subprocess.call(command)
+        with open(os.devnull, "w") as f:
+            subprocess.call(command, stdout=f)
 
     def defineASTRACommand(self,command=['astra']):
         self.astraCommand = command
@@ -160,12 +161,12 @@ class ASTRAInjector(object):
         self.globalSettings['charge'] = charge/1000.0
         if self.overwrite:
             astragen = ASTRAGenerator(self.subdir, charge, npart)
-            if not generatorCommand == None:
+            if not generatorCommand is None:
                 astragen.defineGeneratorCommand(generatorCommand)
             elif os.name == 'nt':
                 astragen.defineGeneratorCommand(['../generator_7June2007'])
             else:
-                astragen.defineGeneratorCommand(['/opt/ASTRA/generator'])
+                astragen.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
             inputfile = astragen.generateBeam()
             self.setInitialDistribution(inputfile)
             scgrid = getGrids(npart)
@@ -331,11 +332,8 @@ class ASTRAGenerator(object):
 
     def runGenerator(self, filename=''):
         command = self.generatorCommand + [filename]
-        comm = subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-        for line in iter(comm.stdout.readline,''):
-            if 'phase-space distribution saved to file' in line.rstrip():
-                comm.stdin.write('\n')
-        # print 'here!'
+        with open(os.devnull, "w") as f:
+            subprocess.call(command, stdout=f)
 
     def defineGeneratorCommand(self,command=['generator']):
         self.generatorCommand = command

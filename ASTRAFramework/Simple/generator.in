@@ -7,6 +7,7 @@
   Noise_reduc=.F.
   High_res=.T.
   Cathode=.T.
+  Lprompt=F
   Q_total=$charge$
   Ref_zpos=0.
   Ref_clock=0E-3

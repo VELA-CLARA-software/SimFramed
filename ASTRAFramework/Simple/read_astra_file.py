@@ -23,6 +23,8 @@ def read_astra_beam_file(file):
     beam['py'] = py
     beam['pz'] = pz
     beam['p'] = p
+    beam['xp'] = px/pz
+    beam['yp'] = py/pz
     beam['clock'] = clock
     beam['charge'] = charge
     beam['index'] = index
