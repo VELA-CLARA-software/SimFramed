@@ -45,6 +45,10 @@ Cmagnets.switchONpsu('DIP02')
 Cmagnets.setSI('DIP02', -1.474)
 SAMPL.startElement = 'V1-COR01'
 SAMPL.stopElement = 'SP-YAG04'
+ASTRA.startElement = 'C1-GUN'
+ASTRA.stopElement = 'SP-YAG04'
+ASTRA.initDistrib = 'temp-start.ini'
+ASTRA.initCharge = 0.25
 ASTRA.startElement = 'V1-GUN'
 ASTRA.stopElement = 'SP-YAG04'
 while True:
@@ -60,4 +64,4 @@ while True:
     laser.setHpos(float(H))
     SAMPL.run()
     gun.setAmpMVM(65)  # MV/m
-    # ASTRA.run()
+    ASTRA.run()
