@@ -3,7 +3,7 @@
 # Version 0.1
 #
 from ComponentBase import ComponentBase
-from ..SAMMlab import Beam
+from ..SAMPLlab import Beam
 import numpy
 
 class Drift(ComponentBase):
@@ -13,6 +13,7 @@ class Drift(ComponentBase):
         self.dummy = 0
 
     def Track(self, beam):
+        # print 'DRIFT_TRACK'
         # print 'Tracking - DRIFT:  particles'
         # Applies the transfer map for a drift to the particles in beam
         #

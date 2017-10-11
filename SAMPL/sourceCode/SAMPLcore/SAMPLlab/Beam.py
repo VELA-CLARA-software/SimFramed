@@ -5,16 +5,16 @@
 import math
 from ..Particles import Electron
 
-from ..SAMMlab import PhysicalConstants
-from ..SAMMlab import PhysicalUnits
+from ..SAMPLlab import PhysicalConstants
+# from ..SAMPLlab import PhysicalUnits
 import numpy as np
-import math
+# import math
 
 
 class Beam(object):
-    def __init__(self, species = Electron.Electron, bunchcharge = 0, distance = [],
-                 globaltime = 0,  spins = 0, energy = 0,
-                 momentum = 0,  rigidity = 0):
+    def __init__(self, species=Electron.Electron, bunchcharge=0, distance=[],
+                 globaltime=0, spins=0, energy=0,
+                 momentum=0, rigidity=0):
         # particle type, e.g. electron, positron, proton
         self.species = species()
         # bunch charge in coulombs
@@ -27,7 +27,7 @@ class Beam(object):
         # 2xN array, polar angles of spin vector of N particles
         self.spins = spins
         # 6xN array, phase space variables of N particles
-        #self.particles = particles
+        # self.particles = particles
 
         # reference energy in joules
         if energy != 0:
@@ -52,39 +52,39 @@ class Beam(object):
         # relativistic gamma factor
         self.__gamma = 0
         # beam rigidity in tesla metres
-        #self.__brho = 0
+        # self.__brho = 0
         # phase space coordinates of particles
         self.__phasespace = 0
         # why not have phase space as explicit lists? that are accessed anywhere?
-        self.x  = np.array([1,1])
-        self.px = np.array([2,2])
-        self.y  = np.array([3,3])
-        self.py = np.array([4,4])
-        self.ct = np.array([5,5])
-        self.dp = np.array([6,7])
-        #self.__particles = np.array([self.x, self.px, self.y, self.py, self.ct, self.dp])
+        self.x = np.array([1, 1])
+        self.px = np.array([2, 2])
+        self.y = np.array([3, 3])
+        self.py = np.array([4, 4])
+        self.ct = np.array([5, 5])
+        self.dp = np.array([6, 7])
+        # self.__particles = np.array([self.x, self.px, self.y, self.py, self.ct, self.dp])
         self.__particles = np.column_stack((self.x, self.px, self.y, self.py, self.ct, self.dp))
         # for i in range(len(self.__particles)):
         #     print self.__particles[i]
 
-#https://softwareengineering.stackexchange.com/questions/283514/python-best-way-to-have-interdependant-variable-in-a-class
+# https://softwareengineering.stackexchange.com/questions/283514/python-best-way-to-have-interdependant-variable-in-a-class
 
     @property
     def particles(self):
-        return np.transpose( [self.x, self.px, self.y, self.py, self.ct, self.dp] )
+        return np.transpose([self.x, self.px, self.y, self.py, self.ct, self.dp])
 
     @particles.setter
-    def particles(self, particles ):
+    def particles(self, particles):
         if type(particles).__module__ == np.__name__:
-            #print 'setting particles'
+            # print 'setting particles'
             [self.x, self.px, self.y, self.py, self.ct, self.dp] = np.column_stack((particles))
-            #print self.x
-            #print self.px
-            #print self.y
-            #print self.py
+            # print self.x
+            # print self.px
+            # print self.y
+            # print self.py
             # distance is whether they are in the aperture or not at each stage (!)
             self.distance = np.array([[0.0] * len(particles), [1.0] * len(particles)])
-            #print self.distance
+            # print self.distance
         else:
             print 'particles should be a numpy array'
 

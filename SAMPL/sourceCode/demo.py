@@ -1,14 +1,14 @@
 
-from SAMMcore.Components import Drift as d
-from SAMMcore.Components import Dipole as D
-from SAMMcore.Components import Quadrupole as Q
-from SAMMcore.Components import Screen as S
-from SAMMcore.Components import OrbitCorrector as C
-from SAMMcore.Components import BeamPositionMonitor as BPM
-from SAMMcore.SAMMlab import Beamline
-from SAMMcore.SAMMlab import Beam
-from SAMMcore.Particles import Electron
-from SAMMcore.SAMMlab import PhysicalUnits
+from SAMPLcore.Components import Drift as d
+from SAMPLcore.Components import Dipole as D
+from SAMPLcore.Components import Quadrupole as Q
+from SAMPLcore.Components import Screen as S
+from SAMPLcore.Components import OrbitCorrector as C
+from SAMPLcore.Components import BeamPositionMonitor as BPM
+from SAMPLcore.SAMPLlab import Beamline
+from SAMPLcore.SAMPLlab import Beam
+from SAMPLcore.Particles import Electron
+from SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
 
 #[t1, t2] = np.array([[1], [2]])

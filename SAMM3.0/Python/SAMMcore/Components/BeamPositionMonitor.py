@@ -14,7 +14,9 @@ class BeamPositionMonitor(ComponentBase):
         self.dummy = 0
         self.x = None
         self.y = None
+
     def Track(self, beam):
+        # print 'BPM_TRACK'
         # First apply a drift through ds/2
         d1 = numpy.sqrt(1 - beam.px * beam.px
                         - beam.py * beam.py

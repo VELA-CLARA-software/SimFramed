@@ -1,8 +1,8 @@
 #
 from ComponentBase import ComponentBase
 
-from ..SAMMlab import MasterOscillator
-from ..SAMMlab import PhysicalConstants as PhyC
+from ..SAMPLlab import MasterOscillator
+from ..SAMPLlab import PhysicalConstants as PhyC
 import numpy
 import math
 

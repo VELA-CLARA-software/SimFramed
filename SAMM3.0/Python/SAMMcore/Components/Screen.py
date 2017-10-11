@@ -22,6 +22,7 @@ class Screen(ComponentBase):
         self.ySigma = None
 
     def Track(self, beam):
+        # print 'SCR_TRACK'
         # First apply a drift through ds/2
         # Next, Calc Y and Y in the middle of the BPM (TP added this)
         self.x = numpy.mean(beam.x)

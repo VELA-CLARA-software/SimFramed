@@ -46,7 +46,7 @@ class Quadrupole(ComponentBase):
         self.__bz = [0.0] * len(beam.y)
 
     def TrackFQuad(self, beam):
-
+        # print 'QUAD_TRACK'
         d1 = numpy.sqrt(1 + numpy.divide(2 * beam.dp, beam.beta) +
                         beam.dp * beam.dp)
         w = numpy.sqrt(numpy.divide(self.k1, d1))
@@ -109,6 +109,7 @@ class Quadrupole(ComponentBase):
         # beam.py = py1
 
     def TrackDQuad(self, beam):
+        # print 'QUAD_TRACK'
         # [x0, px0, y0, py0, ct0, dp0] = beam.GetParticles();
         d1 = numpy.sqrt(1 + 2 * numpy.divide(beam.dp, beam.beta) + numpy.multiply(beam.dp, beam.dp))
         w = numpy.sqrt(self.absk1 / d1)
@@ -144,6 +145,7 @@ class Quadrupole(ComponentBase):
         beam.py = y0 * self.k1 * ys / w + beam.py * yc
 
     def TrackDrift(self, beam):
+        # print 'QUAD_TRACK'
         drift = Drift.Drift(length=self.length)
         drift.Track(beam)
 

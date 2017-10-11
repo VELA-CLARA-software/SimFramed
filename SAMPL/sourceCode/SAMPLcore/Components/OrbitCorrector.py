@@ -14,6 +14,7 @@ class OrbitCorrector(ComponentBase):
         # quadrupole gradient, in tesla/metre
 
     def Track(self, beam):
+        # print 'KICK_TRACK'
         # beam2 = OrbitCorrector.Track(beam1)
         # Applies the transfer map for an orbit corrector
         # to the particles in in beam1.

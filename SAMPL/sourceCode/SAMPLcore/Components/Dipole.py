@@ -49,15 +49,16 @@ class Dipole(ComponentBase):
         self.__curvature = theta / self.length
 
     def Track(self, beam):
+        # print 'DIP_TRACK'
         # beam2 = Dipole.Track(beam1)
         # Applies the transfer map for a dipole to the particles in
         # in beam1.
         # [x0, px0, y0, py0, ct0, dp0] = beam.GetParticles();
 
         k0 = self.field / beam.rigidity
-        print 'k0 ', k0
+        #print 'k0 ', k0
         d1 = numpy.sqrt(1 + 2 * beam.dp / beam.beta + beam.dp * beam.dp)
-        print 'd1 ', d1
+        #print 'd1 ', d1
         # First, apply a map for the entrance fringe field
         sine1 = numpy.sin(self.e1)
         phi = 2 * self.fint1 * self.hgap * k0 * (1 + sine1 * sine1) / numpy.cos(self.e1)
@@ -71,14 +72,14 @@ class Dipole(ComponentBase):
         # h = self.curvature
         k1 = self.gradient / beam.rigidity
         a1 = self.curvature - k0 / d1
-        print 'a1 ', a1
+        #print 'a1 ', a1
         wx = numpy.sqrt((self.__curvature * k0 + k1) / d1)
         xc = numpy.cos(wx * self.length)
         xs = numpy.sin(wx * self.length) / wx
         xs2 = numpy.sin(2 * wx * self.length) / wx
 
         wy = numpy.sqrt(k1 / d1)
-        print 'wy', wy
+        #print 'wy', wy
         yc = numpy.cosh(wy * self.length)
 
         if(wy.any() != 0):

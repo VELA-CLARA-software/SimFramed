@@ -2,7 +2,7 @@
 # DJS August 2017
 # Version 0.1
 #
-from ..SAMMlab import PhysicalConstants as PhyC
+from ..SAMPLlab import PhysicalConstants as PhyC
 
 
 class Beamline(object):

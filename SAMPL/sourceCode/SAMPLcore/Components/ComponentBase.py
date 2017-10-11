@@ -2,7 +2,7 @@
 # DJS August 2017
 # Version 0.1
 #
-from ..SAMMlab import Beam
+from ..SAMPLlab import Beam
 class ComponentBase(object):
     def __init__(self, length=0, name="", aperture=[]):
         #super(ComponentBase, self).__init__(**kwargs)
