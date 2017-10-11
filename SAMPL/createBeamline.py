@@ -26,7 +26,7 @@ class createBeamline():
         self.L01_RF_Ctrl = L01_RF_Ctrl
 
     def getObject(self, nickName, name):
-        if 'EBT' in component and 'MAG' in name:
+        if 'EBT' in name and 'MAG' in name:
             if 'COR' in name:
                 vObj = self.V_MAG_Ctrl.getMagObjConstRef('V' + nickName)
                 hObj = self.V_MAG_Ctrl.getMagObjConstRef('H' + nickName)
@@ -71,50 +71,11 @@ class createBeamline():
             component = None
             # Check element type and add accordingly
             if element['type'] == 'dipole':
-                dip = self.getObject(nickName, name)
-                angle = element['angle'] * (np.pi / 180)
-                length = element['length']
-                field = 0.0
-
-                if dip.siWithPol != 0.0:
-                    coeffs = dip.fieldIntegralCoefficients
-                    absField = (np.polyval(coeffs, abs(dip.siWithPol)) /
-                                dip.magneticLength)
-                    field = np.copysign(absField, dip.siWithPol)
-
-                component = D.Dipole(name=name, length=length,
-                                     theta=angle, field=field)
+                component = self.addDipole(element, nickName, name)
             elif element['type'] == 'quadrupole':
-                quad = self.getObject(nickName, name)
-                grad = 0.0
-
-                if quad.siWithPol != 0.0:
-                    coeffs = quad.fieldIntegralCoefficients
-                    absGrad = (np.polyval(coeffs, abs(quad.siWithPol)) /
-                               quad.magneticLength)
-                    grad = 1000 * np.copysign(absGrad, quad.siWithPol)
-
-                component = Q.Quadrupole(name=name, length=element['length'],
-                                         gradient=grad)
+                component = self.addQuadrupole(element, nickName, name)
             elif element['type'] == 'kicker':
-                vObj, hObj = self.getObject(nickName, name)
-                vField = 0.0
-                hField = 0.0
-
-                if vObj.siWithPol != 0.0:
-                    coeffs = vObj.fieldIntegralCoefficients
-                    absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
-                                 vObj.magneticLength)
-                    vField = 1000 * np.copysign(absVField, vObj.siWithPol)
-
-                if hObj.siWithPol != 0.0:
-                    coeffs = hObj.fieldIntegralCoefficients
-                    absVField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
-                                 hObj.magneticLength)
-                    vField = 1000 * np.copysign(absVField, hObj.siWithPol)
-
-                component = C.OrbitCorrector(name=name, field=[hField, vField],
-                                             length=element['length'])
+                component = self.addCorrector(element, nickName, name)
             elif element['type'] == 'bpm':
                 component = BPM.BeamPositionMonitor(name=name,
                                                     length=element['length'])
@@ -157,3 +118,50 @@ class createBeamline():
             # Append component
             line.componentlist.append(component)
         return line
+
+# Complicated adding
+    def addDipole(self, element, nickName, name):
+        dip = self.getObject(nickName, name)
+        angle = element['angle'] * (np.pi / 180)
+        length = element['length']
+        field = 0.0
+
+        if dip.siWithPol != 0.0:
+            coeffs = dip.fieldIntegralCoefficients
+            absField = (np.polyval(coeffs, abs(dip.siWithPol)) /
+                        dip.magneticLength)
+            field = np.copysign(absField, dip.siWithPol)
+
+        return D.Dipole(name=name, length=length, theta=angle, field=field)
+
+    def addQuadrupole(self, element, nickName, name):
+        quad = self.getObject(nickName, name)
+        grad = 0.0
+
+        if quad.siWithPol != 0.0:
+            coeffs = quad.fieldIntegralCoefficients
+            absGrad = (np.polyval(coeffs, abs(quad.siWithPol)) /
+                       quad.magneticLength)
+            grad = 1000 * np.copysign(absGrad, quad.siWithPol)
+
+        return Q.Quadrupole(name=name, length=element['length'], gradient=grad)
+
+    def addCorrector(self, element, nickName, name):
+        vObj, hObj = self.getObject(nickName, name)
+        vField = 0.0
+        hField = 0.0
+
+        if vObj.siWithPol != 0.0:
+            coeffs = vObj.fieldIntegralCoefficients
+            absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
+                         vObj.magneticLength)
+            vField = 1000 * np.copysign(absVField, vObj.siWithPol)
+
+        if hObj.siWithPol != 0.0:
+            coeffs = hObj.fieldIntegralCoefficients
+            absVField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
+                         hObj.magneticLength)
+            vField = 1000 * np.copysign(absVField, hObj.siWithPol)
+
+        return C.OrbitCorrector(name=name, field=[hField, vField],
+                                length=element['length'])
