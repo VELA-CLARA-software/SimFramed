@@ -82,7 +82,7 @@ class RFAcceleratingStructure(ComponentBase):
             print 'hi'
             # First, apply a drift map through L/2
             # to the longitudinal coordinate
-            beta0 = beam.__beta
+            beta0 = beam.beta
             d1 = math.sqrt(1 - px0 * px0 - py0 * py0 +
                            2 * dp0 / beta0 + dp0 * dp0)
             ct0 = ct0 + L * (1 - (1 + beta0 * dp0) / d1) / beta0 / 2

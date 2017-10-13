@@ -7,7 +7,7 @@
   Lprompt=F
   Distribution ='/home/vmsim/Desktop/V2/ASTRA/temp-start.ini',
   Xoff=0.0
-  Yoff=0.0
+  Yoff=0.001
   Lmagnetized=.F
   EmitS=.T
   TR_emitS=F
