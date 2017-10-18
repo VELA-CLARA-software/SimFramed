@@ -21,47 +21,53 @@ Vmagnets = magInit.virtual_VELA_INJ_Magnet_Controller()
 Cmagnets = magInit.virtual_CLARA_PH1_Magnet_Controller()
 laser = pilInit.virtual_PILaser_Controller()
 gun = llrfInit.virtual_CLARA_LRRG_LLRF_Controller()
-# LINAC01 = llrfInit.virtual_L01_LLRF_Controller()
+LINAC01 = llrfInit.virtual_L01_LLRF_Controller()
 
 
 SAMPL = sampl.Setup(V_MAG_Ctrl=Vmagnets,
                     C_S01_MAG_Ctrl=Cmagnets,
                     C_S02_MAG_Ctrl=Cmagnets,
                     C2V_MAG_Ctrl=Cmagnets,
-                    V_RF_Ctrl=None,
-                    C_RF_Ctrl=None,
-                    L01_RF_Ctrl=None,
+                    V_RF_Ctrl=gun,
+                    C_RF_Ctrl=gun,
+                    L01_RF_Ctrl=LINAC01,
                     messages=False)
 ASTRA = astra.Setup(V_MAG_Ctrl=Vmagnets,
                     C_S01_MAG_Ctrl=Cmagnets,
                     C_S02_MAG_Ctrl=Cmagnets,
                     C2V_MAG_Ctrl=Cmagnets,
                     V_RF_Ctrl=gun,
-                    C_RF_Ctrl=None,
-                    L01_RF_Ctrl=None,
+                    C_RF_Ctrl=gun,
+                    L01_RF_Ctrl=LINAC01,
                     messages=True)
 
+Cmagnets.switchONpsu('DIP01')
 Cmagnets.switchONpsu('DIP02')
-Cmagnets.setSI('DIP02', -1.474)
-SAMPL.startElement = 'V1-COR01'
+
+SAMPL.startElement = 'C1-COR01'
 SAMPL.stopElement = 'SP-YAG04'
+# 'C1-S02-YAG02'
 ASTRA.startElement = 'C1-GUN'
 ASTRA.stopElement = 'SP-YAG04'
 ASTRA.initDistrib = 'temp-start.ini'
 ASTRA.initCharge = 0.25
-ASTRA.startElement = 'V1-GUN'
-ASTRA.stopElement = 'SP-YAG04'
+
 while True:
 
     print("")
     print('New Run:')
     I = raw_input("Re-enter a current: ")
     print float(I)
-    Cmagnets.setSI('DIP02', float(I))
+    Cmagnets.setSI('DIP01', float(I))
     V = raw_input("Vertical offset (m): ")
     laser.setVpos(float(V))
     H = raw_input("Horizontal offset (m): ")
     laser.setHpos(float(H))
+    PF = raw_input("L01 Peak Field (MV/m): ")
+    LINAC01.setAmpMVM(float(PF))
+    phase = raw_input("L01 Phase (degrees): ")
+    LINAC01.setPhiDEG(float(phase))
+
     SAMPL.run()
-    gun.setAmpMVM(65)  # MV/m
-    ASTRA.run()
+    # gun.setAmpMVM(65)
+    # ASTRA.run()

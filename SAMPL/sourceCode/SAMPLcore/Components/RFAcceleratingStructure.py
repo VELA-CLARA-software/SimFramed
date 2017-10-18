@@ -1,15 +1,12 @@
-#
 from ComponentBase import ComponentBase
-
-from ..SAMPLlab import MasterOscillator
-from ..SAMPLlab import PhysicalConstants as PhyC
+import MasterOscillator
+from ..SAMPLlab import PhysicalConstants
 import numpy
-import math
 
 
 class RFAcceleratingStructure(ComponentBase):
     def __init__(self, voltage=0, harmonic=1, phase=numpy.pi, length=0,
-                 name="", aperture=[], ncell=0, structureType='None'):
+                 name="", aperture=[], ncell=0, structureType='TravellingWave'):
         ComponentBase.__init__(self, length, name, aperture)
         # in volts
         self.voltage = voltage
@@ -27,20 +24,20 @@ class RFAcceleratingStructure(ComponentBase):
         self.globalclock = 1
 
     def setFrequency(self, f):
-        MasterOscillator.frequency = f / self.harmonic
+        MasterOscillator.SetFrequency(f / self.harmonic)
 
     def getFrequency(self):
-        return self.harmonic * MasterOscillator.frequency
+        return self.harmonic * MasterOscillator.GetFrequency()
 
     def Track(self, beam):
-        # beam2 = RFAcceleratingStructure.Track(beam1)
+        # RFAcceleratingStructure.Track(beam)
         # Applies the dynamical map for a linac structure to the particles
-        # in beam1.  The reference energy is changed by qV*cos(phase).
+        # in beam.  The reference energy is changed by qV*cos(phase).
         mofreq = MasterOscillator.frequency
         nc = self.ncell
         f = self.harmonic * mofreq
         L = self.length / nc
-        cosphi = math.cos(self.phase)
+        cosphi = numpy.cos(self.phase)
 
         beam.globaltime = (beam.globaltime -
                            math.floor(beam.globaltime * mofreq) / mofreq)
@@ -53,7 +50,7 @@ class RFAcceleratingStructure(ComponentBase):
 
         if abs(dE / E0) > 1e-6:
             if self.structuretype == 'TravellingWave':
-                logE = math.log(1 + dE / E0)
+                logE = numpy.log(1 + dE / E0)
                 r11 = 1 - logE / 2
                 r12 = L * logE * E0 / dE
                 r21 = -dE * logE / 4 / L / E1
@@ -63,6 +60,15 @@ class RFAcceleratingStructure(ComponentBase):
                 if abs(L / L1 - 1) > 1e-2:
                     print('RFAcceleratingStructure:BadLength  ',
                           'RFAcceleratingStructure.length should be c/2f.')
+                a = numpy.log(E1 / E0) / numpy.sqrt(8) / cosphi
+                Eprime = (E1 - E0) / L
+
+                r11 = numpy.cos(a) - numpy.sqrt(2) * cosphi * numpy.sin(a)
+                r12 = numpy.sqrt(8) * cosphi * numpy.sin(a) * E0 / Eprime
+                r21 = -((cosphi / numpy.sqrt(2) + 1 / numpy.sqrt(8) / cosphi)
+                        * numpy.sin(a) * Eprime / E1)
+                r22 = (numpy.cos(a) +
+                       numpy.sqrt(2) * cosphi * numpy.sin(a)) * E0 / E1
             else:
                 print('RFAcceleratingStructure:UnrecognisedType  ',
                       'RFAcceleratingStructure.structuretype should',
@@ -72,56 +78,44 @@ class RFAcceleratingStructure(ComponentBase):
             r12 = L * (1 - dE / 2 / E0)
             r21 = 0
             r22 = 1 - dE / E0
-        x0 = beam.x
-        px0 = beam.px
-        y0 = beam.y
-        py0 = beam.py
-        ct0 = beam.ct
-        dp0 = beam.dp
+
         for n in range(1, nc + 1):
-            print 'hi'
             # First, apply a drift map through L/2
             # to the longitudinal coordinate
-            beta0 = beam.beta
-            d1 = math.sqrt(1 - px0 * px0 - py0 * py0 +
-                           2 * dp0 / beta0 + dp0 * dp0)
-            ct0 = ct0 + L * (1 - (1 + beta0 * dp0) / d1) / beta0 / 2
+            d1 = numpy.sqrt(1 - beam.px * beam.px - beam.py * beam.py +
+                           2 * beam.dp / beam.beta + beam.dp * beam.dp)
+            beam.ct = (beam.ct +
+                       L * (1 - (1 + beam.beta * beam.dp) / d1) / beam.beta / 2)
 
             # Now apply the RF structure map to the transverse variables
             # and the momentum deviation
-            x1 = r11 * x0 + r12 * px0
-            px0 = r21 * x0 + r22 * px0
-            x0 = x1
+            x1 = r11 * beam.x+ r12 * beam.px
+            beam.px = r21 *beam.x+ r22 * beam.px
+            beam.x= x1
 
-            y1 = r11 * y0 + r12 * py0
-            py0 = r21 * y0 + r22 * py0
-            y0 = y1
+            y1 = r11 * beam.y + r12 * beam.py
+            beam.py = r21 * beam.y + r22 * beam.py
+            beam.y = y1
 
             P0 = beam.momentum
-            Edc = (dp0 + 1 / beta0) * P0
+            Edc = (beam.dp + 1 / beam.beta) * P0
 
             beam.energy = E1
-            beta0 = beam.beta
             P0 = beam.momentum
 
-            t = gt - ct0 / PhyC.SpeedOfLight
-            Edc = Edc +
-            beam.species.charge * self.voltage *
-            math.cos(2 * math.pi * f * t + self.phase) / nc / PhyC.SpeedOfLight
+            t = gt - beam.ct / PhysicalConstants.SpeedOfLight
+            Edc = Edc + (beam.species.charge * self.voltage *
+                         numpy.cos(2 * numpy.pi * f * t + self.phase) /
+                         nc / PhysicalConstants.SpeedOfLight)
 
-            dp0 = Edc / P0 - 1 / beta0
+           beam.dp = Edc / P0 - 1 / beam.beta
 
             # Finally, apply a drift map through L/2
             # to the longitudinal coordinate
-            d1 = math.sqrt(1 - px0 * px0 - py0 * py0 +
-                           2 * dp0 / beta0 + dp0 * dp0)
-            ct0 = ct0 + L * (1 - (1 + beta0 * dp0) / d1) / beta0 / 2
-        beam.x = x0
-        beam.px = px0
-        beam.y = y0
-        beam.py = py0
-        beam.ct = ct0
-        beam.dp = dp0
+            d1 = numpy.sqrt(1 -beam.px*beam.px-beam.py*beam.py+
+                            2 *beam.dp/beam.beta+beam.dp* dp0)
+           beam.ct = beam.ct + (L * (1 - (1 + beam.beta* dp0) / d1)
+                                / beam.beta / 2)
 
         # save
         self.lastTrackedBeam = beam

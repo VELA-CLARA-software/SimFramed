@@ -20,6 +20,8 @@ class SolenoidAndRF(ComponentBase):
         self.dummy = 0
 
     def Track(self, beam):
+        # print 'Paricle before:'
+        # print beam.particles
 
         rfAndSol = RFSolTracking.RFSolTracker(self.name, quiet=True)
         rfAndSol.setRFPeakField(self.peakField)
@@ -46,8 +48,12 @@ class SolenoidAndRF(ComponentBase):
                         + 2 * beam.dp / beam.beta
                         + beam.dp * beam.dp)
         beam.ct = beam.ct + self.length * (1 - (1 + beam.beta * beam.dp) / d1) / beam.beta
-        print beam.momentum * PhysicalConstants.SpeedOfLight/PhysicalUnits.MeV
-        beam.momentum = beam.momentum + rfAndSol.getFinalMomentum()* PhysicalUnits.MeV/PhysicalConstants.SpeedOfLight
-        print beam.momentum * PhysicalConstants.SpeedOfLight/PhysicalUnits.MeV
+        print beam.momentum * PhysicalConstants.SpeedOfLight / PhysicalUnits.MeV
+        beam.momentum = (beam.momentum +
+                         rfAndSol.getFinalMomentum()
+                         * PhysicalUnits.MeV / PhysicalConstants.SpeedOfLight)
+        print beam.momentum * PhysicalConstants.SpeedOfLight / PhysicalUnits.MeV
         # savePhysicalUnits
+        # print 'Paricle After:'
+        # print beam.particles
         self.lastTrackedBeam = beam

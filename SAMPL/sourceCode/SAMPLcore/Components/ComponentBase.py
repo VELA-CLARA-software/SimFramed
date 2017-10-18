@@ -15,5 +15,5 @@ class ComponentBase(object):
         # 1x2 array of elliptical aperture half-axes, in metres
         self.aperture = aperture
 
-        # Each componet stores last beam that was tracked last
+        # Each componet stores last beam that was tracked last (TP added)
         self.lastTrackedBeam = Beam.Beam()

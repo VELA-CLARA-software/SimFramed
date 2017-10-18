@@ -1,138 +1,83 @@
-# classdef Multipole < handle
-#     % Multipole class
-#     %
-#     % Properties:
-#     %   name
-#     %   angle
-#     %   curvature
-#     %   field
-#     %   aperture
-#     %
-#     % Methods:
-#     %   Track
-#     %   TrackSpin
-#     %   GetBField
-#
-#     properties
-#         name      = ''; % string
-#         angle     = 0;  % bending angle of reference trajectory, in radians
-#         curvature = 0;  % reciprocal of radius of curvature of reference trajectory, in 1/metres (for applying weak focusing)
-#         field     = []; % Nx2 array of N field components [index normal-component+i*skew-component]
-#         aperture  = []; % 1x2 array of elliptical aperture half-axes, in metres
-#     end % properties
-#
-#     properties (Constant=true)
-#         length   = 0;
-#     end % properties (constant)
-#
-#     methods
-#
-#
-#         function beam = Track(multipole,beam)
-#             % beam2 = Multipole.Track(beam1)
-#             % Applies the transfer map for a multipole to the particles
-#             % in beam1.
-#
-#             [x0, px0, y0, py0, ct0, dp0] = beam.GetParticles();
-#
-#             dpx = -multipole.angle * (1 + dp0 - multipole.curvature * x0);
-#
-#             % Apply a multipole 'kick'
-#             xi0 = x0 + 1i*y0;
-#
-#             for indx = 1:size(multipole.field,1)
-#                 n   = multipole.field(indx,1);
-#                 dpx = dpx + multipole.field(indx,2) * (xi0.^n) / beam.rigidity / factorial(n);
-#             end
-#
-#             px1 = px0 - real(dpx);
-#             py1 = py0 + imag(dpx);
-#             ct1 = ct0 - multipole.angle * x0;
-#
-#             beam.SetParticles(x0, px1, y0, py1, ct1, dp0);
-#
-#         end % function Track
-#
-#
-#         function TrackLibrary(multipole,trackingMethod,libroutine)
-#
-#             multipole.field       = sortrows(multipole.field,1);
-#
-#             multipole1.angle      = multipole.angle;
-#             multipole1.curvature  = multipole.curvature;
-#             multipole1.ncpts      = size(multipole.field,1);
-#             multipole1.fieldindex = libpointer('doublePtr',real(multipole.field(:,1)));
-#             multipole1.bnL        = libpointer('doublePtr',real(multipole.field(:,2)));
-#             multipole1.anL        = libpointer('doublePtr',imag(multipole.field(:,2)));
-#             if(~isempty(multipole.aperture))
-#                multipole1.apertureX = multipole.aperture(1);
-#                multipole1.apertureY = multipole.aperture(2);
-#             end
-#
-#             calllib(trackingMethod,[libroutine 'Multipole'],multipole1);
-#
-#         end % function TrackLibrary
-#
-#
-#         function [bx, by, bz] = GetBField(multipole,beam)
-#             % [bx, by, bz] = Multipole.GetBField(beam)
-#             % Returns the *integrated* magnetic field (in tesla metres) at
-#             % the locations of the particles in the beam.
-#
-#             [x, ~, y] = beam.GetParticles();
-#
-#             xi = x + 1i * y;
-#             b  = 0;
-#
-#             for indx = 1:size(multipole.field,1)
-#                 n = multipole.field(indx,1);
-#                 b = b + multipole.field(indx,2) * xi.^n / factorial(n);
-#             end
-#
-#             bx = real(b);
-#             by = imag(b);
-#             bz = 0;
-#
-#         end % function GetBField
-#
-#
-#         function beam = TrackSpin(multipole,beam)
-#             % beam2 = Multipole.Trackspin(beam1)
-#             % Tracks particle spins through a Multipole.
-#
-#             [bxL, byL, bzL] = multipole.GetBField(beam);
-#
-#             nomlength = 1e-9;
-#
-#             Utilities.SpinRotation(beam, bxL/nomlength, byL/nomlength, bzL/nomlength, nomlength);
-#
-#             % Account for the rotation of the local coordinate system
-#
-#             if multipole.angle ~= 0
-#
-#                 [theta1, phi1] = beam.GetSpins();
-#
-#                 polsnx2    = sin(theta1).*cos(phi1);
-#                 polsny2    = sin(theta1).*sin(phi1);
-#                 polsnz2    = cos(theta1);
-#
-#                 thetaprime = acos(polsny2);
-#                 phiprime   = atan2(polsnx2,polsnz2) + multipole.angle;
-#
-#                 polsnx3    = sin(thetaprime).*sin(phiprime);
-#                 polsny3    = cos(thetaprime);
-#                 polsnz3    = sin(thetaprime).*cos(phiprime);
-#
-#                 phi2       = atan2(polsny3,polsnx3);
-#                 theta2     = acos(polsnz3);
-#
-#                 beam.SetSpins(theta2, phi2);
-#
-#             end
-#
-#         end % function TrackSpin
-#
-#
-#     end % methods
-#
-# end % classdef Multipole
+from ComponentBase import ComponentBase
+from ..SAMPLlab import Utilities
+import numpy
+
+
+class Multipole(ComponentBase):
+    def __init__(self, length=0, name="", aperture=[],
+                 curvature=0, field=[], angle=0):
+        ComponentBase.__init__(self, length, name, aperture)
+        self.dummy = 0#
+        # reciprocal of radius of curvature of reference trajectory,
+        # in 1/metres (for applying weak focusing)
+        self.curvature = curvature
+        # Nx2 array of N field components [index normal-component+i*skew-component]
+        # [n][0]=real component, [n][1] = imaginary componnet
+        self.field = field
+        # bending angle of reference trajectory, in radians
+        self.angle = angle
+
+    def Track(self, beam):
+        dpx = -self.angle * (1 + beam.dp - self..curvature * beam.x);
+        # Apply a multipole 'kick'
+        xi0 = beam.x + beam.y*1j;
+
+        for i in range(len(self.field)):
+            n   = self.field[i][0]
+            if n >= 0:
+                dpx = dpx + (self.field[i][1] * (xi0**n) / beam.rigidity /
+                             numpy.math.factorial(n))
+            else
+                dpx = dpx + (self.field[i][1] * (1 / xi0**abs(n)) /
+                             beam.rigidity / numpy.math.factorial(n))
+        beam.px = beam.px - real(dpx);
+        beam.py = beam.py + imag(dpx);
+        beam.ct = beam.ct - self.angle * beam.x;
+        # save
+        self.lastTrackedBeam = beam
+
+    def GetBField(self, beam):
+        # [bx, by, bz] = Multipole.GetBField(beam)
+        # Returns the *integrated* magnetic field (in tesla metres) at
+        # the locations of the particles in the beam.
+        xi = beam.x + beam.y*1j
+        b  = 0
+
+        for i in range(len(self.field)):
+            n = self.field[i][0]
+            if n >= 0:
+                b = b + self.field[i][2] * xi**n / numpy.math.factorial(n)
+            else:
+                b = b + self.field[i][2] * (1 / xi**abs(n)) / numpy.math.factorial(n)
+
+        bx = b.real
+        by = b.imag
+        bz = [0.0] * len(beam.y)
+        return [bx, by, bz]
+
+    def TrackSpin(self, beam):
+        #  Multipole.Trackspin(beam)
+        # Tracks particle spins through a Multipole.
+        [bxL, byL, bzL] = self.GetBField(beam);
+        nomlength = 1e-9;
+        Utilities.SpinRotation(beam, bxL/nomlength, byL/nomlength, bzL/nomlength, nomlength);
+        # Account for the rotation of the local coordinate system
+        if self.angle != 0:
+
+            [theta1, phi1] = beam.GetSpins();
+
+            polsnx2 = numpy.sin(theta1) * numpy.cos(phi1)
+            polsny2 = numpy.sin(theta1) * numpy.sin(phi1)
+            polsnz2 = numpy.cos(theta1)
+
+            thetaprime = numpy.arccos(polsny2)
+            phiprime = numpy.arctan2(polsnx2,polsnz2) + self.angle
+
+            polsnx3 = numpy.sin(thetaprime) * numpy.sin(phiprime)
+            polsny3 = numpy.cos(thetaprime)
+            polsnz3 = numpy.sin(thetaprime) * numpy.cos(phiprime)
+
+            phi2 = numpy.arctan2(polsny3,polsnx3)
+            theta2 = numpy.arccos(polsnz3)
+
+            beam.SetSpins(theta2, phi2)

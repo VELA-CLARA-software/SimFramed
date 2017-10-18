@@ -31,4 +31,8 @@ class createBeam():
         p = np.array([xArray, pxArray, yArray, pyArray, ctArray, dpArray])
         p = p.transpose()
         beam.particles = p
+        ptcle1 = [0.001, 0, 0, 0, 0, 0]
+        ptcle2 = [0, 0, 0.001, 0, 0, 0]
+        ptcle3 = [0, 0, 0, 0, 0, 0]
+        # beam.particles = np.array([ptcle1, ptcle2, ptcle3])
         return beam

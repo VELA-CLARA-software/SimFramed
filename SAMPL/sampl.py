@@ -36,7 +36,7 @@ class Setup(QThread):
         self.initCharge = 0.0
 
         stream = file(str(os.path.abspath(__file__)).split('sampl')[0] +
-                      "VELA.yaml", 'r')
+                      "VELA-CLARA.yaml", 'r')
         settings = yaml.load(stream)
         self.elements = settings['elements']
         self.groups = settings['groups']
@@ -102,19 +102,20 @@ class Setup(QThread):
               startName + ' to ' + stopName + '.')
         beamLine.TrackMatlab([startIndex[0], stopIndex[0]], self.initDistrib)
 
-        # SAMPL to EPICS (look how short it is it is!!!!!!) this take the
-        # most time to complete
+        # SAMPL to EPICS (look how short it is it is!!!!!!)
+        # this take the most time to complete
         print('4. Writing data to EPICS ...')
         for i in beamLine.componentlist:
-            if 'SCR' in i.name or 'YAG' in i.name:
-                caput('VM-' + self.elements[i.name]['camPV'] + ':X', i.x)
-                caput('VM-' + self.elements[i.name]['camPV'] + ':Y', i.y)
-                caput('VM-' + self.elements[i.name]['camPV'] +
-                      ':SigmaX', i.xSigma)
-                caput('VM-' + self.elements[i.name]['camPV'] +
-                      ':SigmaY', i.ySigma)
-                print '    Written data for ', self.elements[i.name]['omName']
-            if 'BPM'in i.name:
-                caput('VM-' + self.elements[i.name]['pv'] + ':X', i.x)
-                caput('VM-' + self.elements[i.name]['pv'] + ':Y', i.y)
-                print '    Written data for ', self.elements[i.name]['omName']
+            if beamLine.componentlist.index(i) >= startIndex[0] and beamLine.componentlist.index(i) <= stopIndex[0]:
+                if 'SCR' in i.name or 'YAG' in i.name:
+                    caput('VM-' + self.elements[i.name]['camPV'] + ':X', i.x)
+                    caput('VM-' + self.elements[i.name]['camPV'] + ':Y', i.y)
+                    caput('VM-' + self.elements[i.name]['camPV'] +
+                          ':SigmaX', i.xSigma)
+                    caput('VM-' + self.elements[i.name]['camPV'] +
+                          ':SigmaY', i.ySigma)
+                    print '    Written data for ', self.elements[i.name]['omName']
+                if 'BPM'in i.name:
+                    caput('VM-' + self.elements[i.name]['pv'] + ':X', i.x)
+                    caput('VM-' + self.elements[i.name]['pv'] + ':Y', i.y)
+                    print '    Written data for ', self.elements[i.name]['omName']

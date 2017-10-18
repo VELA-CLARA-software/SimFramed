@@ -1,4 +1,6 @@
 
+# this shouldn't exit here
+
 def initFrequnecy(x):
     global frequency
     frequency = x

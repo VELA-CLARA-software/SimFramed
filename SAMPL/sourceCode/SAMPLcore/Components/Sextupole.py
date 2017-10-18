@@ -1,101 +1,51 @@
-# classdef Sextupole < handle
-#     % Sextupole class
-#     %
-#     % Properties:
-#     %   name
-#     %   length
-#     %   gradient
-#     %   aperture
-#     %
-#     % Methods:
-#     %   Track
-#     %   TrackSpin
-#     %   GetBField
-#
-#     properties
-#         name     = ''; % string
-#         length   = 0;  % in metres
-#         gradient = 0;  % in tesla/metre^2
-#         aperture = []; % 1x2 array of elliptical aperture half-axes, in metres
-#     end % properties
-#
-#     methods
-#
-#
-#         function beam = Track(sextupole,beam)
-#             % beam2 = Sextupole.Track(beam1)
-#             % Applies the transfer map for a sextupole to the particles
-#             % in beam1.
-#
-#             [x0, px0, y0, py0, ct0, dp0] = beam.GetParticles();
-#
-#             beta0  = beam.beta;
-#
-#             ds = sextupole.length;
-#             k2 = sextupole.gradient / beam.rigidity; % normalised gradient
-#
-#             % First apply a drift through ds/2
-#             d1  = sqrt(1 - px0.*px0 - py0.*py0 + 2*dp0/beta0 + dp0.*dp0);
-#
-#             x1  = x0  + ds*px0./d1/2;
-#             y1  = y0  + ds*py0./d1/2;
-#             ct1 = ct0 + ds*(1 - (1 + beta0*dp0)./d1)/beta0/2;
-#
-#             % Next, apply a sextupole 'kick'
-#             px1 = px0 - (x1.*x1 - y1.*y1)*k2*ds/2;
-#             py1 = py0 + x1.*y1*k2*ds;
-#
-#             % Finally, apply a second drift through ds/2
-#             d1  = sqrt(1 - px1.*px1 - py1.*py1 + 2*dp0/beta0 + dp0.*dp0);
-#
-#             x2  = x1  + ds*px1./d1/2;
-#             y2  = y1  + ds*py1./d1/2;
-#             ct2 = ct1 + ds*(1 - (1 + beta0*dp0)./d1)/beta0/2;
-#
-#             beam.SetParticles(x2, px1, y2, py1, ct2, dp0);
-#
-#         end % function Track
-#
-#
-#         function TrackLibrary(sextupole,trackingMethod,libroutine)
-#
-#             sextupole1.length   = sextupole.length;
-#             sextupole1.gradient = sextupole.gradient;
-#             if(~isempty(sextupole.aperture))
-#                sextupole1.apertureX = sextupole.aperture(1);
-#                sextupole1.apertureY = sextupole.aperture(2);
-#             end
-#
-#             calllib(trackingMethod,[libroutine 'Sextupole'],sextupole1);
-#
-#         end % function TrackLibrary
-#
-#
-#         function [bx, by, bz] = GetBField(sextupole,beam)
-#             % [bx, by, bz] = Sextupole.GetBField(beam)
-#             % Returns the magnetic field (in tesla) at the locations of
-#             % the particles in the beam.
-#
-#             [x, ~, y] = beam.GetParticles();
-#
-#             bx = sextupole.gradient * (x.*x - y.*y) / 2;
-#             by = sextupole.gradient * x .* y;
-#             bz = 0;
-#
-#         end % function GetBField
-#
-#
-#         function beam = TrackSpin(sextupole,beam)
-#             % beam2 = Sextupole.Trackspin(beam1)
-#             % Tracks particle spins through a Sextupole.
-#
-#             [bx, by, bz] = sextupole.GetBField(beam);
-#
-#             Utilities.SpinRotation(beam,bx,by,bz,sextupole.length);
-#
-#         end % function TrackSpin
-#
-#
-#     end % methods
-#
-# end % classdef Sextupole
+from ComponentBase import ComponentBase
+from ..SAMPLlab import Utilities
+import numpy
+
+
+class Sextupole(ComponentBase):
+    def __init__(self, length=0, name="", aperture=[], gradient=0):
+        ComponentBase.__init__(self, length, name, aperture)
+        self.dummy = 0#
+        # gradient in tesla/metre^2
+        self.gradient = gradient
+
+    def Track(self, beam):
+        # normalised gradient
+        k2 = self.gradient / beam.rigidity
+        # First apply a drift through ds/2
+        d1  = sqrt(1 - beam.px * beam.px - beam.py * beqam.py +
+                   2 * beam.dp / beam.beta + beam.dp * beam.dp)
+        beam.x = beam.x + (self.length * beam.px) / d1 / 2
+        beam.y = beam.y + (self.length * beam.py) / d1 / 2
+        beam.ct = beam.ct + (self.length * (1 - (1 + beam.beta * beam.dp) / d1)
+                             / beam.beta / 2)
+        # Next, apply a Sextupole 'kick'
+        beam.px = beam.px - ((beam.x * beam.x * beam.x -
+                              3 * beam.x * beam.y * beam.y)
+                             * k2 * self.length)
+        beam.py = beam.py + (beam.x * beam.y * k2 * self.length)
+        # Finally, apply a second drift through ds/2
+        d1  = sqrt(1 - beam.px * beam.px - beam.py * beqam.py +
+                   2 * beam.dp / beam.beta + beam.dp * beam.dp)
+        beam.x = beam.x + (self.length * beam.px) / d1 / 2
+        beam.y = beam.y + (self.length * beam.py) / d1 / 2
+        beam.ct = beam.ct + (self.length * (1 - (1 + beam.beta * beam.dp) / d1)
+                             / beam.beta / 2)
+        # save
+        self.lastTrackedBeam = beam
+
+    def GetBField(self, beam):
+        # [bx, by, bz] = Octupole.GetBField(beam)
+        # Returns the magnetic field (in tesla) at the locations of
+        # the particles in the beam.
+        bx = self.gradient * (beam.x * beam.x - beam.y * beam.y) / 2
+        by = self.gradient * beam.x * beam.y
+        bz = [0.0] * len(beam.y)
+        return [bx, by, bz]
+
+    def TrackSpin(self, beam):
+        #  Octupole.Trackspin(beam)
+        # Tracks particle spins through an Octupole.
+        [bx, by, bz] = self.GetBField(beam)
+        Utilities.SpinRotation(beam, bxL, byL, bzL, self.length)

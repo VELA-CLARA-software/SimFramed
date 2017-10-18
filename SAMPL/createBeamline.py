@@ -7,6 +7,7 @@ from sourceCode.SAMPLcore.Components import Quadrupole as Q
 from sourceCode.SAMPLcore.Components import Screen as S
 from sourceCode.SAMPLcore.Components import OrbitCorrector as C
 from sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
+from sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
 from sourceCode.SAMPLcore.SAMPLlab import Beamline
 # from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
@@ -35,29 +36,31 @@ class createBeamline():
                 return self.V_MAG_Ctrl.getMagObjConstRef(nickName)
         elif 'S01' in name and 'MAG' in name:
             if 'COR' in name:
-                vObj = self.C_S01_MAG_Ctrl.getMagObjConstRef('V' + nickName)
-                hObj = self.C_S01_MAG_Ctrl.getMagObjConstRef('H' + nickName)
+                vObj = self.C_S01_MAG_Ctrl.getMagObjConstRef('S01-V' + nickName)
+                hObj = self.C_S01_MAG_Ctrl.getMagObjConstRef('S01-H' + nickName)
                 return vObj, hObj
             else:
                 return self.C_S01_MAG_Ctrl.getMagObjConstRef(nickName)
+        elif 'L01' in name and 'MAG' in name:
+            return self.C_S01_MAG_Ctrl.getMagObjConstRef(nickName)
         elif 'S02' in name and 'MAG' in name:
             if 'COR' in name:
-                vObj = self.C_S02_MAG_Ctrl.getMagObjConstRef('V' + nickName)
-                hObj = self.C_S02_MAG_Ctrl.getMagObjConstRef('H' + nickName)
+                vObj = self.C_S02_MAG_Ctrl.getMagObjConstRef('S02-V' + nickName)
+                hObj = self.C_S02_MAG_Ctrl.getMagObjConstRef('S02-H' + nickName)
                 return vObj, hObj
             else:
                 return self.C_S02_MAG_Ctrl.getMagObjConstRef(nickName)
         elif 'C2V' in name and 'MAG' in name:
             if 'COR' in name:
-                vObj = self.C2V_MAG_Ctrl.getMagObjConstRef('V' + nickName)
-                hObj = self.C2V_MAG_Ctrl.getMagObjConstRef('H' + nickName)
+                vObj = self.C2V_MAG_Ctrl.getMagObjConstRef('C2V-V' + nickName)
+                hObj = self.C2V_MAG_Ctrl.getMagObjConstRef('C2V-H' + nickName)
                 return vObj, hObj
             else:
                 return self.C2V_MAG_Ctrl.getMagObjConstRef(nickName)
         elif 'L01' in name:
-            return self.L01_RF_Ctrl.getLLRFObjConstRef(nickName)
+            return self.L01_RF_Ctrl.getLLRFObjConstRef()
         elif 'GUN' in name:
-            return self.V_RF_Ctrl.getLLRFObjConstRef(nickName)
+            return self.V_RF_Ctrl.getLLRFObjConstRef()
         else:
             print ("Trying to get unrecognised object.")
 
@@ -85,7 +88,25 @@ class createBeamline():
                 component = d.Drift(name=name, length=element['length'])
             elif element['type'] == 'tdc':
                 component = d.Drift(name=name, length=element['length'])
+            elif element['type'] == 'bam':
+                component = d.Drift(name=name, length=element['length'])
+            elif element['type'] == 'linac':
+                linac = self.getObject(nickName, name)
+                # get detials solnoids ascociated with the linac
+                solenoid1 = elements[element['sol1']]
+                solenoid2 = elements[element['sol2']]
+                sol1 = self.getObject(solenoid1['name'], element['sol1'])
+                sol2 = self.getObject(solenoid2['name'], element['sol2'])
+                print linac.amp_MVM
+                print linac.phi_DEG
+                component = SARF.SolenoidAndRF(length=element['length'],
+                                               name='Linac1',
+                                               peakField=linac.amp_MVM,
+                                               phase=linac.phi_DEG,
+                                               solCurrent1=sol1.siWithPol,
+                                               solCurrent2=sol2.siWithPol)
             else:
+                component = d.Drift(name=name, length=element['length'])
                 print ('ERROR: This reader doesn\'t',
                        'recognise element type of ', name)
 
@@ -135,6 +156,7 @@ class createBeamline():
         return D.Dipole(name=name, length=length, theta=angle, field=field)
 
     def addQuadrupole(self, element, nickName, name):
+        print name
         quad = self.getObject(nickName, name)
         grad = 0.0
 
@@ -147,17 +169,20 @@ class createBeamline():
         return Q.Quadrupole(name=name, length=element['length'], gradient=grad)
 
     def addCorrector(self, element, nickName, name):
+        print name
         vObj, hObj = self.getObject(nickName, name)
         vField = 0.0
         hField = 0.0
 
         if vObj.siWithPol != 0.0:
+            print vObj.magneticLength
             coeffs = vObj.fieldIntegralCoefficients
             absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
                          vObj.magneticLength)
             vField = 1000 * np.copysign(absVField, vObj.siWithPol)
 
         if hObj.siWithPol != 0.0:
+            print hObj.magneticLength
             coeffs = hObj.fieldIntegralCoefficients
             absVField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
                          hObj.magneticLength)

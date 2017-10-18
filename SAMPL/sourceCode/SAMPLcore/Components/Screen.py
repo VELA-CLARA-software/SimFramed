@@ -1,7 +1,5 @@
-# SAM to Python Conversion
-# DJS August 2017
-# Version 0.1
-#
+# Brand new class added my Tim Price
+# October 2017
 import numpy
 import math
 from ComponentBase import ComponentBase
@@ -23,13 +21,9 @@ class Screen(ComponentBase):
 
     def Track(self, beam):
         # print 'SCR_TRACK'
-        # First apply a drift through ds/2
-        # Next, Calc Y and Y in the middle of the BPM (TP added this)
         self.x = numpy.mean(beam.x)
         self.y = numpy.mean(beam.y)
         self.xSigma = numpy.std(beam.x)
         self.ySigma = numpy.std(beam.y)
-        # Finally, apply a second drift through ds/2
-
         # save
         self.lastTrackedBeam = beam
