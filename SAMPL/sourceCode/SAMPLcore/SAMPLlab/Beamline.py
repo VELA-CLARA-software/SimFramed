@@ -33,8 +33,7 @@ class Beamline(object):
         e = elements[-1]
         # print("range = ", s, " ", e, "maxn = ",nmax)
         # beamout = None
-        for n in range(s, e+1):
-
+        for n in range(s, e + 1):
             m = n % nmax
             if m == 0:
                 m = nmax
