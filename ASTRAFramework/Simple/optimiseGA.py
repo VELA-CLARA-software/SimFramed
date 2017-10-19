@@ -2,7 +2,7 @@ from ASTRAInjector import *
 import numpy as np
 from constraints import *
 import os
-import read_astra_file as raf
+import read_beam_file as raf
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -10,6 +10,7 @@ from deap import tools
 import operator
 import random
 import multiprocessing
+from scoop import futures
 import csv
 
 
@@ -39,13 +40,14 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, npart=250, ncpu=3):
+    def __init__(self, args, tempdir, npart=10000, ncpu=6, overwrite=True, verbose=False):
         self.tmpdir = tempdir
+        self.verbose = verbose
         linac1field, linac1phase, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase = args
         self.parameters = args
         self.linacfields = [linac1field, linac2field, linac3field, linac4field]
         self.dirname = os.path.basename(self.tmpdir)
-        astra = ASTRAInjector(self.dirname, overwrite=False)
+        astra = ASTRAInjector(self.dirname, overwrite=overwrite)
         if not os.name == 'nt':
             astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2_Quiet.sh'])
         astra.loadSettings('short_240.settings')
@@ -66,34 +68,31 @@ class fitnessFunc():
         sddsfile = ft.convertToSDDS('test.in.128.4929.128')
         self.cons = constraintsClass()
 
-    def emittance(self, x, xp, p):
-        x = x - np.mean(x)
-        xp = xp - np.mean(xp)
-        gamma = np.mean(p)/511000
-        return gamma*np.sqrt(np.mean(x**2)*np.mean(xp**2) - np.mean(x*xp)**2)
-
     def calculateBeamParameters(self):
-        beam = raf.read_astra_beam_file(self.dirname+'/test.in.128.4929.128')
-        sigmat = 1e12*np.std(beam['t'])
-        sigmap = np.std(beam['p'])
-        meanp = np.mean(beam['p'])
-        emitx = 1e6*self.emittance(beam['x'],beam['xp'],beam['p'])
-        emity = 1e6*self.emittance(beam['y'],beam['yp'],beam['p'])
+        beam = raf.beam()
+        beam.read_astra_beam_file(self.dirname+'/test.in.128.4929.128')
+        sigmat = 1e12*np.std(beam.t)
+        sigmap = np.std(beam.p)
+        meanp = np.mean(beam.p)
+        emitx = 1e6*beam.normalized_horizontal_emittance
+        emity = 1e6*beam.normalized_vertical_emittance
         fitp = 100*sigmap/meanp
         fhcfield = self.parameters[6]
-
+        peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = beam.sliceAnalysis()
         constraintsList = {
-            'bunch length': {'type': 'lessthan', 'value': sigmat, 'limit': 0.25, 'weight': 4},
-            'energy spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.5, 'weight': 1},
-            'final momentum': {'type': 'greaterthan','value': 1e-6*meanp, 'limit': 200, 'weight': 2},
-            'linac fields': {'type': 'lessthan', 'value': max(self.linacfields), 'limit': 32, 'weight': 5},
-            '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 5},
+            'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 20},
+            'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 3},
+            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.25, 'weight': 2.5},
+            'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.25, 'weight': 2.5},
+            'peakIMomentum': {'type': 'greaterthan','value': 1e-6*peakIMomentum, 'limit': 210, 'weight': 10},
+            'linac fields': {'type': 'lessthan', 'value': max(self.linacfields), 'limit': 32, 'weight': 100},
+            '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 100},
             'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 3},
             'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 1, 'weight': 3},
         }
-        print 'constraintsList = ', constraintsList
         fitness = self.cons.constraints(constraintsList)
-        print 'fitness = ', fitness
+        if self.verbose:
+            print self.cons.constraintsList(constraintsList)
         return fitness
 
 def optfunc(args, dir=None, **kwargs):
@@ -106,15 +105,22 @@ def optfunc(args, dir=None, **kwargs):
             fitvalue = fit.calculateBeamParameters()
     return (fitvalue,)
 
-best = [8.921109062432713,12.123371545885824,23.78362555695125,19.321385344939678,27.104723771217316,3.6664170541773866,14.26201028141319,151.40274304880091,21.582800685217236,4.926169290367247]
+if not os.name == 'nt':
+    os.chdir('/home/jkj62/ASTRAFramework/Simple')
 
-# print optfunc(best, dir=os.getcwd()+'/test_1952', npart=1000, ncpu=20)
-# exit()
+best = [20.715615124317853,-19.490448811248754,31.499129685645897,-27.463243697074024,16.912367920177985,-12.668172100137667,27.842335415412833,188.38675572505772,20.577934659165386,3.017649550471842]
+print optfunc(best, dir=os.getcwd()+'/best_0436', npart=1000, ncpu=20, overwrite=False, verbose=True)
+exit()
 
-startranges = [[10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [-30,30], [10, 32], [135,200], [10, 32], [-30,30]]
-
+startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40]]
+generateHasBeenCalled = False
 def generate():
-    return creator.Individual(random.uniform(a,b) for a,b in startranges)
+    global generateHasBeenCalled
+    if not generateHasBeenCalled:
+        generateHasBeenCalled = True
+        return creator.Individual(list(best))
+    else:
+        return creator.Individual(random.uniform(a,b) for a,b in startranges)
 
 # print generate()
 
@@ -148,7 +154,7 @@ if __name__ == "__main__":
     # toolbox.register("map", futures.map)
 
     if not os.name == 'nt':
-        pop = toolbox.population(n=100)
+        pop = toolbox.population(n=500)
     else:
         pop = toolbox.population(n=18)
     hof = tools.HallOfFame(10)
@@ -171,4 +177,4 @@ if __name__ == "__main__":
             csv_out.writerow(row)
     pool.close()
 
-    print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best', npart=10000, ncpu=20)
+    print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best', npart=50000, ncpu=40)
