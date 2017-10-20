@@ -13,11 +13,12 @@ class createBeam():
 
     def guassian(self, x=0.0, y=0.0, sigmaX=0.001, sigmaY=0.001,
                  particle='Electron', number=1000,
-                 Energy=4.5 * PhysicalUnits.MeV):
+                 Energy=4.5 * PhysicalUnits.MeV, charge=250e-9):
         if particle == 'Electron':
             beam = Beam.Beam(species=Electron.Electron, energy=Energy)
         if particle == 'Positron':
-            beam = Beam.Beam(species=Positron.Positron, energy=Energy)
+            beam = Beam.Beam(species=Positron.Positron, energy=Energy,
+                             bunchcharge=charge)
         # if particle == 'Proton':
         #     beam = Beam.Beam(species=Proton.Proton, energy = Energy)
         # Generate particles
@@ -31,8 +32,5 @@ class createBeam():
         p = np.array([xArray, pxArray, yArray, pyArray, ctArray, dpArray])
         p = p.transpose()
         beam.particles = p
-        ptcle1 = [0.001, 0, 0, 0, 0, 0]
-        ptcle2 = [0, 0, 0.001, 0, 0, 0]
-        ptcle3 = [0, 0, 0, 0, 0, 0]
-        # beam.particles = np.array([ptcle1, ptcle2, ptcle3])
+
         return beam

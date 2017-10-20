@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CUDAParticleTracking", "CUDAParticleTracking\CUDAParticleTracking.vcxproj", "{3D706E48-F4A6-4495-8398-8E0494DBACE3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CParticleTracking", "CParticleTracking\CParticleTracking.vcxproj", "{6AEAA872-9A26-43B3-9ECA-BB83EBBAD23A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D706E48-F4A6-4495-8398-8E0494DBACE3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3D706E48-F4A6-4495-8398-8E0494DBACE3}.Debug|Win32.Build.0 = Debug|Win32
+		{3D706E48-F4A6-4495-8398-8E0494DBACE3}.Release|Win32.ActiveCfg = Release|Win32
+		{3D706E48-F4A6-4495-8398-8E0494DBACE3}.Release|Win32.Build.0 = Release|Win32
+		{6AEAA872-9A26-43B3-9ECA-BB83EBBAD23A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6AEAA872-9A26-43B3-9ECA-BB83EBBAD23A}.Debug|Win32.Build.0 = Debug|Win32
+		{6AEAA872-9A26-43B3-9ECA-BB83EBBAD23A}.Release|Win32.ActiveCfg = Release|Win32
+		{6AEAA872-9A26-43B3-9ECA-BB83EBBAD23A}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
