@@ -15,10 +15,8 @@ function particles = MakeMatchedBunch(orbit,beta,emittances,nparticles)
       
     % Find the eigensystem of sigma*S
     [V,D] = eig(sigma*S);
-    
     % Sort the eigenvalues and eigenvectors into conjugate pairs
     [D,indx] = sort(abs(diag(D)),'descend');
-    V = V(:,indx);
 
     % Normalise the eigenvectors
     w = diag(V'*S*V);
