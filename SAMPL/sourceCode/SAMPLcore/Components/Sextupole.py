@@ -6,7 +6,7 @@ import numpy
 class Sextupole(ComponentBase):
     def __init__(self, length=0, name="", aperture=[], gradient=0):
         ComponentBase.__init__(self, length, name, aperture)
-        self.dummy = 0#
+        self.dummy = 0
         # gradient in tesla/metre^2
         self.gradient = gradient
 
@@ -14,8 +14,8 @@ class Sextupole(ComponentBase):
         # normalised gradient
         k2 = self.gradient / beam.rigidity
         # First apply a drift through ds/2
-        d1  = sqrt(1 - beam.px * beam.px - beam.py * beqam.py +
-                   2 * beam.dp / beam.beta + beam.dp * beam.dp)
+        d1 = numpy.sqrt(1 - beam.px * beam.px - beam.py * beam.py +
+                        2 * beam.dp / beam.beta + beam.dp * beam.dp)
         beam.x = beam.x + (self.length * beam.px) / d1 / 2
         beam.y = beam.y + (self.length * beam.py) / d1 / 2
         beam.ct = beam.ct + (self.length * (1 - (1 + beam.beta * beam.dp) / d1)
@@ -26,8 +26,8 @@ class Sextupole(ComponentBase):
                              * k2 * self.length)
         beam.py = beam.py + (beam.x * beam.y * k2 * self.length)
         # Finally, apply a second drift through ds/2
-        d1  = sqrt(1 - beam.px * beam.px - beam.py * beqam.py +
-                   2 * beam.dp / beam.beta + beam.dp * beam.dp)
+        d1 = numpy.sqrt(1 - beam.px * beam.px - beam.py * beam.py +
+                        2 * beam.dp / beam.beta + beam.dp * beam.dp)
         beam.x = beam.x + (self.length * beam.px) / d1 / 2
         beam.y = beam.y + (self.length * beam.py) / d1 / 2
         beam.ct = beam.ct + (self.length * (1 - (1 + beam.beta * beam.dp) / d1)
@@ -48,4 +48,4 @@ class Sextupole(ComponentBase):
         #  Octupole.Trackspin(beam)
         # Tracks particle spins through an Octupole.
         [bx, by, bz] = self.GetBField(beam)
-        Utilities.SpinRotation(beam, bxL, byL, bzL, self.length)
+        Utilities.SpinRotation(beam, bx, by, bz, self.length)
