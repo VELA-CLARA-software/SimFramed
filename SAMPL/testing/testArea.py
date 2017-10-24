@@ -24,12 +24,15 @@ beam1.particles = np.array([ptcle1, ptcle2, ptcle3])
 
 Line = Beamline.Beamline(componentlist=[])
 Line.componentlist.append(d.Drift(name='drift1', length=0.1))
-Line.componentlist.append(Q.Quadrupole(name='quad1', gradient=0.0, length=0.05))
-
+Line.componentlist.append(Q.Quadrupole(name='quad1',
+                                       gradient=0.0, length=0.05))
+Line.componentlist.append(D.Dipole(name='dip1',
+                                   field=beam1.rigidity * np.pi / 4 / 0.4,
+                                   length=0.4, theta=np.pi / 4))
 beam2 = Line.TrackMatlab([0, len(Line.componentlist) - 1], beam1)
-
+print beam2.particles
 traj = np.array([0, 0, 0, 0, 0, 0])
-a, b = CTM.ComputeTransferMatrix(Line, [0, 1], beam1, traj)
+#a, b = CTM.ComputeTransferMatrix(Line, [0, len(Line.componentlist) - 1], beam1, traj)
 
-print b
-print a
+#print b
+#print a
