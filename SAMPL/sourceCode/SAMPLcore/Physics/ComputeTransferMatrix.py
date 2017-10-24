@@ -16,13 +16,14 @@ def ComputeTransferMatrix(beamline, startStop, beam, trajectory):
     beam.particles = p
     #print beam.particles
 
-    for i in range(startStop[0], startStop[1]):
-        beam = beamline.TrackMatlab([i, i], beam)
-        p1 = beam.particles
-        print p1
+    for i in range(startStop[0], startStop[1] + 1):
+        print i
+        print beamline.componentlist[i].name
+        beamline.componentlist[i].Track(beam)
+        p1 = beam.particles.T
+        # print p1
         for j in range(6):
-            m[i - startStop[0] + 2, j, :] = (p1[j] - trajectory) / precn
+            m[i - startStop[0] + 1, j, :] = (p1[j] - trajectory) / precn
 
-        eref[i - startStop[0] + 2] = beam.energy
-
+        eref[i - startStop[0] + 1] = beam.energy
     return m, eref
