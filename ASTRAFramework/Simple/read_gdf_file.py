@@ -1,7 +1,7 @@
 """Reads in files from General Particle Tracer .gdf files
 """
 from __future__ import division
-from pylab import *
+# from pylab import *
 import time
 import struct
 import os
