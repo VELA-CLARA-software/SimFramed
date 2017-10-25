@@ -104,7 +104,7 @@ class ASTRAInjector(object):
             return line
 
     def replaceString(self, lines=[], findString=None, replaceString=None):
-        if isinstance(replaceString,list):
+        if isinstance(replaceString, (list, tuple, set)):
             self.lineIterator = 0
             return [self.lineReplaceFunction(line, findString, replaceString, self.lineIterator) for line in lines]
         else:

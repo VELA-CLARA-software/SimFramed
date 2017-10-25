@@ -1,6 +1,8 @@
+import os
 import numpy as np
 import scipy.constants as constants
-import sdds
+if os.name == 'nt':
+    import sdds
 import read_gdf_file as rgf
 
 class beam(object):
