@@ -26,8 +26,8 @@ astra.applySettings()
 
 ''' Run ASTRA '''
 astra.runASTRAFiles()
-''' The followinf only runs certain files - this may break if the correct input files do not exist! '''
-astra.runASTRAFiles(files=['test.in.126','test.in.127','test.in.128'])
+''' The following only runs certain files - this may break if the correct input files do not exist! '''
+# astra.runASTRAFiles(files=['test.in.126','test.in.127','test.in.128'])
 
 ''' Run this to create a summary file with all required input files, and the consequent output files'''
 # astra.createHDF5Summary(screens=[4929])
