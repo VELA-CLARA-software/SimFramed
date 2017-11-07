@@ -2,6 +2,7 @@ from ASTRAInjector import *
 import numpy as np
 from constraints import *
 import os
+import copy
 import read_twiss_file as rtf
 from scipy.optimize import minimize
 import operator
@@ -113,19 +114,23 @@ best = [
 # print optfunc(best, dir=os.getcwd()+'/match_1117', npart=1000, ncpu=20, overwrite=False, verbose=True)
 # exit()
 
-startranges = [[0.9*i, 1.1*i] for i in best]
+startranges = [[0.8*i, 1.4*i] for i in best]
 
 
 def createSimplex():
-    simplex = [best for i in range(len(best)+1)]
+    simplex = [copy.copy(best) for i in range(len(best)+1)]
     for i in range(len(best)):
-        r = random.uniform(0.9*best[i],1.1*best[i])
+        lower, upper = startranges[i]
+        r = random.uniform(lower, upper)
         simplex[i][i] = r
     return simplex
 
 if __name__ == "__main__":
     random.seed(64)
 
-    res = minimize(optfunc, best, method='Nelder-Mead', options={'initial_simplex': createSimplex(), 'disp': True})
-
-    print 'best fitness = ', optfunc(res, dir=os.getcwd()+'/match', npart=10000, ncpu=40)
+    startsimplex = createSimplex()
+    # print startsimplex
+    # exit()
+    res = minimize(optfunc, best, method='Nelder-Mead', tol=1e-6, options={'initial_simplex': startsimplex, 'disp': True})
+    print res
+    print 'best fitness = ', optfunc(res.x, dir=os.getcwd()+'/match', npart=10000, ncpu=40)
