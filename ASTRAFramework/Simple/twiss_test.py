@@ -44,7 +44,7 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, npart=100, ncpu=10, overwrite=True, verbose=False):
+    def __init__(self, args, tempdir, npart=100, ncpu=6, overwrite=True, verbose=False):
         self.tmpdir = tempdir
         self.verbose = verbose
         self.parameters = list(args)
