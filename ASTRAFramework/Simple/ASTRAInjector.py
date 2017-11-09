@@ -148,7 +148,7 @@ class ASTRAInjector(object):
     def runASTRA(self, filename=''):
         command = self.astraCommand + [filename]
         with open(os.devnull, "w") as f:
-            subprocess.call(command, stdout=f)
+            subprocess.call(command)
 
     def defineASTRACommand(self,command=['astra']):
         self.astraCommand = command
@@ -170,7 +170,9 @@ class ASTRAInjector(object):
             inputfile = astragen.generateBeam()
             self.setInitialDistribution(inputfile)
             scgrid = getGrids(npart)
-            for scvar in ['SC_2D_Nrad','SC_2D_Nlong','SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
+            self.globalSettings['SC_2D_Nrad'] = max([scgrid.gridSizes,4])
+            self.globalSettings['SC_2D_Nlong'] = max([scgrid.gridSizes,4])
+            for scvar in ['SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
                 self.globalSettings[scvar] = scgrid.gridSizes
 
     def getScreenFiles(self):
@@ -351,7 +353,7 @@ class getGrids(object):
     def getGridSizes(self, x):
         self.x = abs(x)
         self.cuberoot = int(round(self.x ** (1. / 3)))
-        return max([1,self.find_nearest(self.powersof8, self.cuberoot)])
+        return max([4,self.find_nearest(self.powersof8, self.cuberoot)])
 
     def find_nearest(self, array, value):
         self.array = array
