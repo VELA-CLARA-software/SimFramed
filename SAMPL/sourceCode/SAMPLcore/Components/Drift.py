@@ -56,7 +56,7 @@ class Drift(ComponentBase):
                              / beam.beta / 2)
 
         # Apply space charge kick
-        #print beam.bunchcharge
+        # print beam.bunchcharge
         bunchcharge = beam.bunchcharge
         nparticles = len(beam.x)
 
@@ -66,7 +66,6 @@ class Drift(ComponentBase):
 
         for m in range(nparticles):
             for n in range(m):
-
                 rx[m][n] = beam.x[m] - beam.x[n]
                 ry[m][n] = beam.y[m] - beam.y[n]
                 rz[m][n] = (beam.ct[m] - beam.ct[n]) * beam.gamma
@@ -91,7 +90,8 @@ class Drift(ComponentBase):
 
         dpx = q2 * numpy.sum(rx * invr3, axis=1) * dt / p0
         dpy = q2 * numpy.sum(ry * invr3, axis=1) * dt / p0
-        #print dpx
+        #
+        # print dpx
         # Note - longitudinal kick not yet implemented!
         # dpz = sum(rz.*invr3,2)*dt;
 
