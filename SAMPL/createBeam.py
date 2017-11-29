@@ -13,7 +13,7 @@ class createBeam():
 
     def guassian(self, x=0.0, y=0.0, sigmaX=0.001, sigmaY=0.001,
                  particle='Electron', number=1000,
-                 Energy=4.5 * PhysicalUnits.MeV, charge=250e-9):
+                 Energy=12 * PhysicalUnits.MeV, charge=250e-9):
         if particle == 'Electron':
             beam = Beam.Beam(species=Electron.Electron, energy=Energy)
         if particle == 'Positron':
