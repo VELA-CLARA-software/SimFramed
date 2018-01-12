@@ -7,7 +7,9 @@ from ..SAMPLlab import PhysicalConstants
 from ComponentBase import ComponentBase
 import numpy
 
+
 class Drift(ComponentBase):
+
     def __init__(self, length=0, name="", aperture=[]):
         ComponentBase.__init__(self, length, name, aperture)
         self.dummy = 0
@@ -42,7 +44,7 @@ class Drift(ComponentBase):
         # save
         self.lastTrackedBeam = beam
 
-    # Space chargdrift for drifte
+    # Space chargdrift for drift
     def TrackSpaceCharge(self, beam):
 
         d1 = numpy.sqrt(1 - beam.px * beam.px

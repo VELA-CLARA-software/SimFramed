@@ -1,0 +1,73 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[pdftex]{graphicx}
+\usepackage[pdftex]{hyperref}
+
+\begin{document}
+	
+	\title{SAMPL: Simple Accelerator Modelling Python Library}
+	\author{T.\,Price}
+	\date{Version 1.0: January 12, 2018}
+	
+	\maketitle
+	
+	\begin{abstract}
+	SAMPL has been created from the simulation code SAMM (Simple Accelerator Modelling in MatLab) written by Andy Wolski, for the purposes of having simulation code to be used to investigate trends in the machine VELA-CLARA. These notes describe the equations behind each section of code in SAMPL that maps particles through a given element used in an accelerator. 
+	\end{abstract}
+	
+	\newpage
+	
+	\tableofcontents
+	
+	\newpage
+	\section{Introduction}
+	In this section, we give a brief explanation of the purpose and capabilities
+	of SAMM, describe how to install it, and discuss some simple examples.
+	\subsection{Introduction to SAMM}
+	SAMM is a set of Matlab \cite{cite:matlab} routines for modelling beam dynamics in high energy particle accelerators. To develop an application, the user writes Matlab scripts that call classes and functions defined in SAMM. In other words, SAMM consists of a library from which an accelerator simulation may be developed. The intentions behind SAMM are: for the
+	physics to be as accurate as possible; for the code to be as short and simple as possible; and for the structure of the code to reflect as closely as possible the structure of a real accelerator.  It is also intended that the code be structured
+	to make it as easy as possible to extend its capabilities: that is, it should be straightforward for the user to add new beamline components, dynamical effects, and analysis procedures, as required.
+	
+	Since simplicity and brevity are prioritised over performance, SAMM is unlikely to be the best code for large-scale simulations of complex accelerator systems. However, some effort has been made to make the code reasonably efficient, so for relatively simple systems, the speed of computation should be acceptable.
+	
+	To achieve a logical and clear structure in SAMM, extensive use is made of object-oriented programming features in Matlab.  Users are recommended to familiarise themselves with the section on ``Object-Oriented Programming'' in the Matlab documentation \cite{cite:matlabdoc}, before working with SAMM.
+	
+	The latest version of SAMM has been tested with Matlab Release 2012a. Compatibility with earlier versions of Matlab is not guaranteed.
+	\subsection{Introduction to SAMM}
+	12
+	\section{Drift}
+	zdfhzg
+	\section{Solenoid}
+	dhgsfhj
+	\section{Dipole}
+	sgsgjsgj
+	\section{Quadrupole}
+	sgjsgj
+	\section{Sextupole}
+	zgjzgjcv
+	\section{Octupole}
+	zxgjvxc
+	\section{Multipole}
+	xgvxcjg
+	\section{RF Cavity}
+	zxcgjvca
+	\section{RF Accelerating Structure}
+	zgjzcvcvz
+	\section{NEW: Solenoid and RF Class}
+	zcgcvcvzg
+	\section{Orbit Corrector}
+	zgjzvjvzc
+	\section{Screen}
+	zdgjzcvhatd
+	\section{Beam Position Monitor}
+	zgjzcvzf
+		
+	\begin{thebibliography}{99}
+		
+		\bibitem{cite:matlab}
+		Mathworks, \texttt{http://www.mathworks.co.uk/}
+
+		
+	\end{thebibliography}
+	
+\end{document}
