@@ -1,4 +1,4 @@
-import yaml, collections, subprocess, os, re
+import yaml, collections, subprocess, os, re, time
 import numpy
 import h5py
 import glob
@@ -111,7 +111,8 @@ class ASTRAInjector(object):
             return [self.lineReplaceFunction(line, findString, replaceString) for line in lines]
 
     def saveFile(self, lines=[], filename='runastratemp.in'):
-        stream = file(filename, 'w')
+        # print 'filename = ', self.subdir+'/'+filename
+        stream = file(self.subdir+'/'+filename, 'w')
         for line in lines:
             stream.write(line)
         stream.close()
@@ -120,35 +121,30 @@ class ASTRAInjector(object):
         if self.overwrite:
             for f, s in self.fileSettings.iteritems():
                 newfilename = f
+                # print 'newfilename = ', newfilename
                 if not newfilename[-3:-1] == '.in':
                     newfilename = newfilename+'.in'
                 lines = self.readFile(f)
-                os.chdir(self.subdirectory)
                 for var, val in s.iteritems():
                     lines = self.replaceString(lines, var, val)
                 for var, val in self.globalSettings.iteritems():
                     lines = self.replaceString(lines, var, val)
                 self.saveFile(lines, newfilename)
                 self.astraFiles.append(newfilename)
-                os.chdir(self.basedirectory)
 
-    def runASTRAFiles(self,files=[]):
+    def runASTRAFiles(self, files=[]):
         if self.overwrite:
             if files == []:
                 for f in self.astraFiles:
-                    os.chdir(self.subdirectory)
                     self.runASTRA(f)
-                    os.chdir(self.basedirectory)
             else:
                 for f in files:
-                    os.chdir(self.subdirectory)
                     self.runASTRA(f)
-                    os.chdir(self.basedirectory)
 
     def runASTRA(self, filename=''):
         command = self.astraCommand + [filename]
         with open(os.devnull, "w") as f:
-            subprocess.call(command)
+            subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def defineASTRACommand(self,command=['astra']):
         self.astraCommand = command
@@ -164,7 +160,7 @@ class ASTRAInjector(object):
             if not generatorCommand is None:
                 astragen.defineGeneratorCommand(generatorCommand)
             elif os.name == 'nt':
-                astragen.defineGeneratorCommand(['../generator_7June2007'])
+                astragen.defineGeneratorCommand(['generator_7June2007'])
             else:
                 astragen.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
             inputfile = astragen.generateBeam()
@@ -178,19 +174,19 @@ class ASTRAInjector(object):
     def getScreenFiles(self):
         self.screenpositions = {}
         for f, s in self.fileSettings.iteritems():
-            os.chdir(self.subdirectory)
+            # os.chdir(self.subdirectory)
             filenumber = re.search('\d\d\d',f).group(0)
-            files = glob.glob('test.in.'+filenumber+'.????.'+filenumber)
+            files = glob.glob(self.subdir+'/'+'test.in.'+filenumber+'.????.'+filenumber)
             screenpositions = [re.search('\d\d\d\d',s).group(0) for s in files]
             self.screenpositions[filenumber] = screenpositions
-            os.chdir(self.basedirectory)
+            # os.chdir(self.basedirectory)
         return self.screenpositions
 
     def createHDF5Summary(self, screens=None):
         savescreens = [str(s) for s in screens]
         screenpositions = self.getScreenFiles()
         filename = '_'.join(map(str,[self.runname,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
-        print filename
+        # print filename
         f = h5py.File(filename, "w")
         inputgrp = f.create_group("Input")
         inputgrp['charge'] = self.globalSettings['charge']
@@ -200,21 +196,21 @@ class ASTRAInjector(object):
         yemitgrp = f.create_group("Yemit")
         zemitgrp = f.create_group("Zemit")
         screengrp = f.create_group("screens")
-        os.chdir(self.subdirectory)
-        inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.globalSettings['initial_distribution']))
+        # os.chdir(self.subdirectory)
+        inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.subdir+'/'+self.globalSettings['initial_distribution']))
         for n, screens in screenpositions.iteritems():
-            inputfile = file('test.in.'+n+'.in','r')
+            inputfile = file(self.subdir+'/'+'test.in.'+n+'.in','r')
             inputfilecontents = inputfile.read()
             inputgrp.create_dataset(n,data=inputfilecontents)
             for emit, grp in {'X': xemitgrp,'Y': yemitgrp,'Z': zemitgrp}.iteritems():
-                emitfile = 'test.in.'+n+'.'+emit+'emit.'+n
+                emitfile = self.subdir+'/'+'test.in.'+n+'.'+emit+'emit.'+n
                 grp.create_dataset(n,data=numpy.loadtxt(emitfile))
             for s in screens:
-                screenfile = 'test.in.'+n+'.'+s+'.'+n
+                screenfile = self.subdir+'/'+'test.in.'+n+'.'+s+'.'+n
                 if screens == None or s in savescreens:
-                    print 'screen = ', s
+                    # print 'screen = ', s
                     screengrp.create_dataset(s,data=numpy.loadtxt(screenfile))
-        os.chdir(self.basedirectory)
+        # os.chdir(self.basedirectory)
 
 class feltools(object):
 
@@ -285,7 +281,7 @@ class ASTRAGenerator(object):
     def generateBeam(self):
         self.createSettings()
         self.createGeneratorInput()
-        return '../'+self.subdir+'/'+self.settings['filename']
+        return self.settings['filename']
 
     def readFile(self, fname=None):
         with open(fname) as f:
@@ -325,17 +321,28 @@ class ASTRAGenerator(object):
 
     def createGeneratorInput(self):
         lines = self.readFile(self.generatorBaseFile)
-        os.chdir(self.subdirectory)
+        # os.chdir(self.subdirectory)
         for var, val in self.settings.iteritems():
             lines = self.replaceString(lines, var, val)
-        self.saveFile(lines, 'generator.in')
+        self.saveFile(lines, self.subdir+'\\'+'generator.in')
         self.runGenerator('generator.in')
-        os.chdir(self.basedirectory)
+        # os.chdir(self.basedirectory)
 
     def runGenerator(self, filename=''):
         command = self.generatorCommand + [filename]
         with open(os.devnull, "w") as f:
-            subprocess.call(command, stdout=f)
+            # print 'subdir = ', self.subdir
+            subprocess.call(command, stdout=f, cwd=self.subdir)
+
+    def fileAvailable(self, f):
+        if os.path.exists(f):
+            try:
+                os.rename(f, f)
+            except OSError as e:
+                return False
+            return True
+        else:
+            return True
 
     def defineGeneratorCommand(self,command=['generator']):
         self.generatorCommand = command
