@@ -4,6 +4,7 @@ import SolenoidAndRF.rf_sol_tracking as RFSolTracking
 from ..SAMPLlab import PhysicalUnits
 from ..SAMPLlab import PhysicalConstants
 
+
 class SolenoidAndRF(ComponentBase):
     def __init__(self, length=0, name="", aperture=[], peakField=0.0,
                  phase=0.0, solCurrent1=0.0, solCurrent2=0.0,
