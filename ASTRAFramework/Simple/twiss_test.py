@@ -4,13 +4,20 @@ from constraints import *
 import os
 import copy
 import read_twiss_file as rtf
-from scipy.optimize import minimize
+from deap import algorithms
+from deap import base
+from deap import creator
+from deap import tools
+import multiprocessing
+from scoop import futures
 import operator
 import random
 
 import csv
 
 twiss = rtf.twiss()
+if os.path.exists('running_generator'):
+    os.remove('running_generator')
 
 def merge_two_dicts(x, y):
     """Given two dicts, merge them into a new dict as a shallow copy."""
@@ -52,9 +59,15 @@ class fitnessFunc():
         astra = ASTRAInjector(self.dirname, overwrite=overwrite)
         if not os.name == 'nt':
             astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2_Quiet.sh'])
-        astra.loadSettings('short_240_0955.settings')
-        astra.fileSettings['test.in.127']['quad_K'] = self.parameters[0:2]
-        astra.fileSettings['test.in.128']['quad_K'] = self.parameters[2:]
+        else:
+            astra.defineASTRACommand(['astra'])
+        astra.loadSettings('short_240.settings')
+        astra.fileSettings['test.4']['quad_K'] = self.parameters[0:2]
+        astra.fileSettings['test.5']['quad_K'] = self.parameters[2:]
+        # astra.fileSettings['test.2']['starting_distribution'] = astra.fileSettings['test.2']['starting_distribution']
+        # astra.fileSettings['test.3']['starting_distribution'] = astra.fileSettings['test.3']['starting_distribution']
+        # astra.fileSettings['test.4']['starting_distribution'] = astra.fileSettings['test.4']['starting_distribution']
+        # astra.fileSettings['test.5']['starting_distribution'] = astra.fileSettings['test.5']['starting_distribution']
         astra.createInitialDistribution(npart=npart, charge=250)
         astra.applySettings()
         astra.runASTRAFiles()
@@ -70,7 +83,7 @@ class fitnessFunc():
         #     'min_xrms_126': {'type': 'greaterthan', 'value': min(twiss['sigma_x']), 'limit': 0.2, 'weight': 10},
         #     'min_yrms_126': {'type': 'greaterthan', 'value': min(twiss['sigma_y']), 'limit': 0.2, 'weight': 10},
         # }
-        twiss.read_astra_emit_files(self.dirname+'/test.in.127.Zemit.127')
+        twiss.read_astra_emit_files(self.dirname+'/test.4.Zemit.001')
         constraintsList127 = {
             'min_xrms_127': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_x']), 'limit': 0.1, 'weight': 30},
             'min_yrms_127': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_y']), 'limit': 0.2, 'weight': 50},
@@ -79,7 +92,7 @@ class fitnessFunc():
             'last_exn_127': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 10},
             'last_eyn_127': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 10},
         }
-        twiss.read_astra_emit_files(self.dirname+'/test.in.128.Zemit.128')
+        twiss.read_astra_emit_files(self.dirname+'/test.5.Zemit.001')
         constraintsList128 = {
             'min_xrms_128': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_x']), 'limit': 0.1, 'weight': 20},
             'min_yrms_128': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_y']), 'limit': 0.2, 'weight': 20},
@@ -102,7 +115,7 @@ def optfunc(args, dir=None, **kwargs):
     else:
             fit = fitnessFunc(args, dir, **kwargs)
             fitvalue = fit.calculateTwissParameters()
-    return fitvalue
+    return (fitvalue,)
 
 if not os.name == 'nt':
     os.chdir('/home/jkj62/ASTRAFramework/Simple')
@@ -111,26 +124,73 @@ best = [
     1.76571, -0.334896,
     -2.38819, 3.60297, 5., -4., -3.29565, 3.38181, 1.52921, 2.22559, -2.95347, -1.71192, -5.98555, 7.72644, -5.24599
 ]
-# print optfunc(best, dir=os.getcwd()+'/match_1117', npart=1000, ncpu=20, overwrite=False, verbose=True)
+# print optfunc(best, dir=os.getcwd()+'/testing', npart=10, ncpu=20, overwrite=True, verbose=True)
 # exit()
 
 startranges = [[0.8*i, 1.4*i] for i in best]
 
+generateHasBeenCalled = False
+def generate():
+    global generateHasBeenCalled
+    if not generateHasBeenCalled:
+        generateHasBeenCalled = True
+        return creator.Individual(list(best))
+    else:
+        return creator.Individual(random.uniform(a,b) for a,b in startranges)
 
-def createSimplex():
-    simplex = [copy.copy(best) for i in range(len(best)+1)]
-    for i in range(len(best)):
-        lower, upper = startranges[i]
-        r = random.uniform(lower, upper)
-        simplex[i][i] = r
-    return simplex
+# print generate()
+
+creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+creator.create("Individual", list, fitness=creator.FitnessMin)
+
+toolbox = base.Toolbox()
+
+# Attribute generator
+toolbox.register("attr_bool", generate)
+
+# Structure initializers
+toolbox.register("Individual", generate)
+toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
+
+toolbox.register("evaluate", optfunc)
+toolbox.register("mate", tools.cxBlend, alpha=0.2)
+toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
+toolbox.register("select", tools.selTournament, tournsize=3)
+
 
 if __name__ == "__main__":
     random.seed(64)
 
-    startsimplex = createSimplex()
-    # print startsimplex
-    # exit()
-    res = minimize(optfunc, best, method='Nelder-Mead', tol=1e-6, options={'initial_simplex': startsimplex, 'disp': True})
-    print res
-    print 'best fitness = ', optfunc(res.x, dir=os.getcwd()+'/match', npart=10000, ncpu=40)
+    # Process Pool of 4 workers
+    if not os.name == 'nt':
+        pool = multiprocessing.Pool(processes=10)
+    else:
+        pool = multiprocessing.Pool(processes=5)
+    toolbox.register("map", pool.map)
+    # toolbox.register("map", futures.map)
+
+    if not os.name == 'nt':
+        pop = toolbox.population(n=500)
+    else:
+        pop = toolbox.population(n=20)
+    hof = tools.HallOfFame(10)
+    stats = tools.Statistics(lambda ind: ind.fitness.values)
+    stats.register("avg", numpy.mean)
+    stats.register("std", numpy.std)
+    stats.register("min", numpy.min)
+    stats.register("max", numpy.max)
+
+    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=20,
+                            stats=stats, halloffame=hof)
+
+    # print 'pop = ', pop
+    print logbook
+    print hof
+
+    with open('best_solutions.csv','wb') as out:
+        csv_out=csv.writer(out)
+        for row in hof:
+            csv_out.writerow(row)
+    pool.close()
+
+    print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best', npart=1000, ncpu=40)

@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import scipy.constants as constants
+from scipy.spatial.distance import cdist
 if os.name == 'nt':
     import sdds
 import read_gdf_file as rgf
@@ -56,32 +57,34 @@ class beam(object):
         self.beam['Bx'] = self.vx / constants.speed_of_light
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
-        self.beam['z'] = (-1 * self.Bz * constants.speed_of_light) * self.t
+        self.beam['z'] = np.full(len(self.t), 0) #(-1 * self.Bz * constants.speed_of_light) * self.t
         if charge is None:
             self.beam['total_charge'] = 0
         else:
             self.beam['total_charge'] = charge
+        self.beam['charge'] = []
 
     def set_beam_charge(self, charge):
         self.beam['total_charge'] = charge
 
     def read_astra_beam_file(self, file):
         self.reset_dicts()
-        x, y, z, px, py, pz, clock, charge, index, status = np.loadtxt(file, unpack=True)
-        z = self.normalise_to_ref_particle(z, subtractmean=True)
-        pz = self.normalise_to_ref_particle(pz, subtractmean=False)
-        p = np.sqrt(px**2 + py**2 + pz**2)
+        x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.loadtxt(file, unpack=True)
+        z = self.normalise_to_ref_particle(z, subtractmean=False)
+        cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
+        clock = self.normalise_to_ref_particle(clock, subtractmean=True)
+        cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
         self.beam['x'] = x
         self.beam['y'] = y
         self.beam['z'] = z
-        self.beam['cpx'] = px
-        self.beam['cpy'] = py
-        self.beam['cpz'] = pz
-        self.beam['px'] = px * self.q_over_c
-        self.beam['py'] = py * self.q_over_c
-        self.beam['pz'] = pz * self.q_over_c
-        self.beam['cp'] = p
-        self.beam['p'] = p * self.q_over_c
+        self.beam['cpx'] = cpx
+        self.beam['cpy'] = cpy
+        self.beam['cpz'] = cpz
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
+        self.beam['cp'] = cp
+        self.beam['p'] = cp * self.q_over_c
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
         self.beam['clock'] = clock
@@ -96,13 +99,90 @@ class beam(object):
         self.beam['Bx'] = self.vx / constants.speed_of_light
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
-        self.beam['t'] = self.z / (-1 * self.Bz * constants.speed_of_light)
+        self.beam['t'] = [time if status is -1 else 0 for time, status in zip(clock, status)]#self.z / (-1 * self.Bz * constants.speed_of_light)
         self.beam['total_charge'] = np.sum(self.beam['charge'])
+
+    def find_nearest_vector(self, nodes, node):
+        return cdist([node], nodes).argmin()
+
+    def rms(self, x, axis=None):
+        return np.sqrt(np.mean(x**2, axis=axis))
+
+    def create_ref_particle(self, array, index=0, subtractmean=False):
+        array[1:] = array[0] + array[1:]
+        if subtractmean:
+            array = array - np.mean(array)
+        return array
+
+    def write_astra_beam_file(self, file, index=1, status=5, charge=None, normaliseZ=False):
+        if not isinstance(index,(list, tuple, np.ndarray)):
+            if len(self.beam['charge']) == len(self.x):
+                chargevector = self.beam['charge']
+            else:
+                chargevector = np.full(len(self.x), self.charge/len(self.x))
+        if not isinstance(index,(list, tuple, np.ndarray)):
+            indexvector = np.full(len(self.x), index)
+        if not isinstance(status,(list, tuple, np.ndarray)):
+            statusvector = np.full(len(self.x), status)
+        ''' if a particle is emitting from the cathode it's z value is 0 and it's clock value is finite, otherwise z is finite and clock is irrelevant (thus zero) '''
+        zvector = [0 if status == -1 and t == 0 else z for status, z, t in zip(statusvector, self.z, self.t)]
+        ''' if the clock value is finite, we calculate it from the z value, using Betaz '''
+        clockvector = [z / (-1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
+        ''' this is the ASTRA array in all it's glory '''
+        array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
+        ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
+        rms_vector = [a if abs(a) > 0 else 1 for a in self.rms(array, axis=0)]
+        ''' normalise the array '''
+        norm_array = array / rms_vector
+        ''' take the meen of the normalised array '''
+        mean_vector = np.mean(norm_array, axis=0)
+        ''' find the index of the vector that is closest to the mean - if you read in an ASTRA file, this should actually return the reference particle! '''
+        nearest_idx = self.find_nearest_vector(norm_array, mean_vector)
+        ref_particle = array[nearest_idx]
+        ''' set the closest mean vector to be in position 0 in the array '''
+        array = np.roll(array, -1*nearest_idx, axis=0)
+        ''' normalise Z to the reference particle '''
+        array[1:,2] = array[1:,2] - ref_particle[2]
+        ''' should we leave Z as the reference value, set it to 0, or set it to be some offset? '''
+        if not normaliseZ is False:
+            array[0,2] = 0
+        if not isinstance(normaliseZ,(bool)):
+            array[0,2] += normaliseZ
+        ''' normalise pz and the clock '''
+        array[1:,5] = array[1:,5] - ref_particle[5]
+        array[1:,6] = array[1:,6] - ref_particle[6]
+        np.savetxt(file, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%d','%d'))
+
+    def write_vsim_beam_file(self, file, normaliseT=False):
+        if len(self.beam['charge']) == len(self.x):
+            chargevector = self.beam['charge']
+        else:
+            chargevector = np.full(len(self.x), self.beam['total_charge']/len(self.x))
+        if normaliseT:
+            tvector = self.t - np.mean(self.t)
+        else:
+            tvector = self.t
+        zvector = [t * (-1 * Bz * constants.speed_of_light) if z == 0 else z for z, t, Bz in zip(self.z, tvector, self.Bz)]
+        ''' this is the VSIM array in all it's glory '''
+        array = np.array([zvector, self.y, self.x, self.Bz*self.gamma*constants.speed_of_light, self.By*self.gamma*constants.speed_of_light, self.Bx*self.gamma*constants.speed_of_light]).transpose()
+        ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
+        np.savetxt(file, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e'))
+
+
+    def read_gdf_beam_file_object(self, file):
+        if isinstance(file, (str)):
+            gdfbeam = rgf.read_gdf_file(file)
+        elif isinstance(file, (rgf.read_gdf_file)):
+            gdfbeam = file
+        else:
+            raise Exception('file is not str or gdf object!')
+        return gdfbeam
 
     def read_gdf_beam_file(self, file, position=None, time=None, block=None, charge=None):
         self.reset_dicts()
         gdfbeamdata = None
-        gdfbeam = rgf.read_gdf_file(file)
+        gdfbeam = self.read_gdf_beam_file_object(file)
+
         if position is not None and (time is not None or block is not None):
             print 'Assuming position over time!'
             gdfbeamdata = gdfbeam.get_position(position)
@@ -131,10 +211,10 @@ class beam(object):
         self.beam['Bz'] = gdfbeamdata.Bz
         if hasattr(gdfbeamdata,'z'):
             self.beam['z'] = gdfbeamdata.z
-            self.beam['t'] = self.z / (-1 * self.Bz * constants.speed_of_light)
+            self.beam['t'] = np.full(len(self.z), 0)# self.z / (-1 * self.Bz * constants.speed_of_light)
         elif hasattr(gdfbeamdata,'t'):
             self.beam['t'] = gdfbeamdata.t
-            self.beam['z'] = (-1 * self.Bz * constants.speed_of_light) * self.t
+            self.beam['z'] = np.full(len(self.t), 0)#(-1 * self.Bz * constants.speed_of_light) * self.t
         self.beam['gamma'] = gdfbeamdata.G
         if hasattr(gdfbeamdata,'q'):
             self.beam['charge'] = gdfbeamdata.q
@@ -158,9 +238,6 @@ class beam(object):
         self.beam['cp'] = self.p / self.q_over_c
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
-
-    def rms(self, u):
-        return np.mean(u)
 
     def covariance(self, u, up):
         u2 = u - np.mean(u)
