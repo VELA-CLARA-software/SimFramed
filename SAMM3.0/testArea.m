@@ -20,8 +20,8 @@ dip1.field = beam1.rigidity * dip1.angle / dip1.length;
 
 
 beamlineD = Beamline;
-beamlineD.componentlist = {drift,quad1,dip1};
-beam2 = beamlineD.Track([1,3],beam1);
+beamlineD.componentlist = {,dip1};
+beam2 = beamlineD.Track([1,1],beam1);
 beam2 = beam2.particles
 
 %[G,r] = ComputeTransferMatrix(beamlineD, [1 2], beam1, [0 0 0 0 0 0]');
