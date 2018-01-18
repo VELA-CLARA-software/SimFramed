@@ -55,8 +55,8 @@ class ASTRA(object):
 
 
     def getElementsBetweenS(self, elementtype, output={}, zstart=None, zstop=None):
-        zstart          =     zstart if zstart is not None else getParameter(output,'zstart',default=0)
-        zstop           =     zstop if zstop is not None else getParameter(output,'zstop',default=0)
+        zstart = zstart if zstart is not None else getParameter(output,'zstart',default=0)
+        zstop = zstop if zstop is not None else getParameter(output,'zstop',default=0)
 
         elements = findSetting('type',elementtype,dictionary=self.elements)
         elements = [s[0] for s in elements if s[1]['position_start'][2] >= zstart and s[1]['position_start'][2] <= zstop]

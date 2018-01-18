@@ -6,6 +6,7 @@ import time
 import struct
 import os
 import sys
+import numpy as np
 
 #Constants
 GDFNAMELEN = 16;                 #Length of the ascii-names
@@ -60,15 +61,31 @@ class read_gdf_file(object):
         self.grab_groups[name] = grab_group(name)
         return self.grab_groups[name]
 
+    @property
+    def positions(self):
+        positions = []
+        for datagrab in self.grab_groups.values():
+            if hasattr(datagrab.groups['param'],'position'):
+                positions.append(datagrab.groups['param'].position)
+        return positions
+
     def get_position(self, position):
         for datagrab in self.grab_groups.values():
-            if hasattr(datagrab.groups['param'],'positionp'):
-                if str(datagrab.groups['param'].positionp) == str(position):
+            if hasattr(datagrab.groups['param'],'position'):
+                if str(datagrab.groups['param'].position) == str(position):
                     return datagrab.groups['data']
+    @property
+    def times(self):
+        times = []
+        for datagrab in self.grab_groups.values():
+            if hasattr(datagrab.groups['param'],'time'):
+                times.append(datagrab.groups['param'].time)
+        return times
+
     def get_time(self, time):
         for datagrab in self.grab_groups.values():
-            if hasattr(datagrab.groups['param'],'timet'):
-                if str(datagrab.groups['param'].timet) == str(time):
+            if hasattr(datagrab.groups['param'],'time'):
+                if str(datagrab.groups['param'].time) == str(time):
                     return datagrab.groups['data']
     def get_grab(self, grab_group_number=0):
         for name, datagrab in self.grab_groups.items():
@@ -134,11 +151,6 @@ class read_gdf_file(object):
             data_group = grab_group.create_group('data')
             param_group = grab_group.create_group('param')
 
-            #Initialise values to print progress to terminal
-            file_size = os.stat(self.filename)[6]
-            start_time = time.time()
-            last_running_time = 0
-
             #Read GDF data blocks
             lastarr = False
             while True:
@@ -165,12 +177,7 @@ class read_gdf_file(object):
                         else:
                             found_str = ""
                 name = str(find_name(name))
-                append = ''
-                if name == 'time':
-                    append = 't'
-                elif name == 'position':
-                    append = 'p'
-                name = name + append
+                name = name
 
                 #Get block type
                 dir  = int(typee & t_dir > 0)
@@ -193,19 +200,25 @@ class read_gdf_file(object):
                 #Read single value
                 if sval:
                     if dattype == t_dbl:
+                        # print 'new dbl = ', name
                         value = struct.unpack('d', f.read(8))[0]
+                        # print '    dbl = ', value
                         param_group.create_dataset(name, data=value)
                     elif dattype == t_null:
+                        # print 'new null = ', name
                         pass
                     elif dattype == t_ascii:
+                        # print 'new ascii = ', name
                         value = str(f.read(size))
                         value = value.strip(' \t\r\n\0')
+                        # print '    ascii = ', value
                         try:
                             param_group.create_dataset(name, data=value)
                         except RuntimeError:
                             del param_group[name]
                             param_group.create_dataset(name, data=value)
                     elif dattype == t_s32:
+                        # print 'new s32 = ', name
                         value = struct.unpack('i', f.read(4))[0]
                         param_group.create_dataset(name, data=value)
                     else:
@@ -220,21 +233,15 @@ class read_gdf_file(object):
                     if dattype == t_dbl:
                         if (size % 8) != 0:
                             raise RuntimeWarning('Tried to save an array of doubles, but the array size is not consistant with that of doubles.')
-                        value = fromfile(f, dtype=dtype('f8'), count=int(size/8))
+                        value = np.fromfile(f, dtype=np.dtype('f8'), count=int(size/8))
                         data_group.create_dataset(name, data=value)
+                        # print 'new dataset = ', name
                     else:
                         print 'unknown datatype of value!!!'
                         print 'name=', name
                         print 'type=', typee
                         print 'size=', size
                         value = f.read(size)
-
-                #Print out progress approx. every 2 seconds
-                running_time = int(round(time.time()-start_time))
-                if (running_time % 2 is 0) and not (running_time is last_running_time):
-                    percent_done = f.tell()/file_size*100
-                    print 'Completed: %(completed).1f%(percent_sign)s' % {'completed':percent_done, 'percent_sign':'%'}
-                    last_running_time = running_time
 
                 lastarr = arr;
         f.close()
