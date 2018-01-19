@@ -109,8 +109,8 @@ if not os.name == 'nt':
     os.chdir('/home/jkj62/ASTRAFramework/Simple')
 
 best = [20.715615124317853,-19.490448811248754,31.499129685645897,-27.463243697074024,16.912367920177985,-12.668172100137667,27.842335415412833,188.38675572505772,20.577934659165386,3.017649550471842]
-print optfunc(best, dir=os.getcwd()+'/best_0436', npart=1000, ncpu=20, overwrite=False, verbose=True)
-exit()
+# print optfunc(best, dir=os.getcwd()+'/best_0436', npart=1000, ncpu=20, overwrite=False, verbose=True)
+# exit()
 
 startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40]]
 generateHasBeenCalled = False
@@ -136,7 +136,7 @@ toolbox.register("attr_bool", generate)
 toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
-toolbox.register("evaluate", optfunc)
+toolbox.register("evaluate", optfunc, npart=100)
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)
@@ -151,7 +151,6 @@ if __name__ == "__main__":
     else:
         pool = multiprocessing.Pool(processes=6)
     toolbox.register("map", pool.map)
-    # toolbox.register("map", futures.map)
 
     if not os.name == 'nt':
         pop = toolbox.population(n=500)
