@@ -73,7 +73,7 @@ class Dipole(ComponentBase):
         wy = numpy.sqrt(k1 / d1)
         yc = numpy.cosh(wy * self.length)
 
-        # I do not think this is the right function compared to SAMM
+
         if(wy.any() != 0):
             ys = numpy.sinh(wy * self.length) / wy
             ys2 = numpy.sinh(2 * wy * self.length) / wy
