@@ -321,17 +321,14 @@ class ASTRAGenerator(object):
 
     def createGeneratorInput(self):
         lines = self.readFile(self.generatorBaseFile)
-        # os.chdir(self.subdirectory)
         for var, val in self.settings.iteritems():
             lines = self.replaceString(lines, var, val)
-        self.saveFile(lines, self.subdir+'\\'+'generator.in')
+        self.saveFile(lines, self.subdir+'/'+'generator.in')
         self.runGenerator('generator.in')
-        # os.chdir(self.basedirectory)
 
     def runGenerator(self, filename=''):
         command = self.generatorCommand + [filename]
         with open(os.devnull, "w") as f:
-            # print 'subdir = ', self.subdir
             subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def fileAvailable(self, f):
