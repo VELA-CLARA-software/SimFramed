@@ -64,13 +64,13 @@ class fitnessFunc():
         astra.createInitialDistribution(npart=npart, charge=250)
         astra.applySettings()
         astra.runASTRAFiles()
-        ft = feltools(self.dirname)
-        sddsfile = ft.convertToSDDS('test.5.3819.001')
+        # ft = feltools(self.dirname)
+        # sddsfile = ft.convertToSDDS('test.5.3819.001')
         self.cons = constraintsClass()
 
     def calculateBeamParameters(self):
         beam = raf.beam()
-        beam.slice_length(0.1e-12)
+        beam.slice_length = 0.1e-12
         beam.read_astra_beam_file(self.dirname+'/test.5.3819.001')
         sigmat = 1e12*np.std(beam.t)
         sigmap = np.std(beam.p)
@@ -106,14 +106,15 @@ def optfunc(args, dir=None, **kwargs):
             fitvalue = fit.calculateBeamParameters()
     return (fitvalue,)
 
-if not os.name == 'nt':
-    os.chdir('/home/jkj62/ASTRAFramework/Simple')
+# if not os.name == 'nt':
+#     os.chdir('/home/jkj62/ASTRAFramework/Simple')
 
 best = [20.715615124317853,-19.490448811248754,31.499129685645897,-27.463243697074024,16.912367920177985,-12.668172100137667,27.842335415412833,188.38675572505772,20.577934659165386,3.017649550471842]
 # print optfunc(best, dir=os.getcwd()+'/best_0436', npart=1000, ncpu=20, overwrite=False, verbose=True)
 # exit()
 
 startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40]]
+startranges = [[0.8*i, 1.4*i] for i in best]
 generateHasBeenCalled = False
 def generate():
     global generateHasBeenCalled
@@ -137,7 +138,7 @@ toolbox.register("attr_bool", generate)
 toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
-toolbox.register("evaluate", optfunc, npart=100)
+toolbox.register("evaluate", optfunc, npart=1000)
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)
@@ -154,7 +155,7 @@ if __name__ == "__main__":
     toolbox.register("map", pool.map)
 
     if not os.name == 'nt':
-        pop = toolbox.population(n=500)
+        pop = toolbox.population(n=50)
     else:
         pop = toolbox.population(n=18)
     hof = tools.HallOfFame(10)
@@ -164,7 +165,7 @@ if __name__ == "__main__":
     stats.register("min", numpy.min)
     stats.register("max", numpy.max)
 
-    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=20,
+    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=50,
                             stats=stats, halloffame=hof)
 
     # print 'pop = ', pop

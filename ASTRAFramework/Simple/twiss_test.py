@@ -117,8 +117,8 @@ def optfunc(args, dir=None, **kwargs):
             fitvalue = fit.calculateTwissParameters()
     return (fitvalue,)
 
-if not os.name == 'nt':
-    os.chdir('/home/jkj62/ASTRAFramework/Simple')
+# if not os.name == 'nt':
+#     os.chdir('/home/jkj62/ASTRAFramework/Simple')
 
 best = [
     1.76571, -0.334896,
