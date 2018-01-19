@@ -223,11 +223,9 @@ class feltools(object):
         self.sddsMatchTwissCommand = ['sddsmatchtwiss']
 
     def convertToSDDS(self, inputfile='test.in.128.4929.128', outputfile=None):
-        os.chdir(self.subdirectory)
         outputfile = outputfile if not outputfile == None else inputfile+'.sdds'
         command = self.astra2elegantCommand + [inputfile, outputfile]
-        comm = subprocess.call(command)
-        os.chdir(self.basedirectory)
+        comm = subprocess.call(command, cwd=self.subdirectory)
         return outputfile
 
     def filterInput(self, inputstr, parameters, **kwargs):
@@ -256,9 +254,7 @@ class feltools(object):
         outputcommand += ['-saveMatrices='+kwargs['saveMatrices']] if 'saveMatrices' in kwargs else []
         outputcommand += ['-loadMatrices='+kwargs['loadMatrices']] if 'loadMatrices' in kwargs else []
         outputcommand += ['-nowarnings ='+kwargs['nowarnings']] if 'nowarnings' in kwargs else []
-        os.chdir(self.subdirectory)
-        comm = subprocess.call(outputcommand)
-        os.chdir(self.basedirectory)
+        comm = subprocess.call(outputcommand, cwd=self.subdirectory)
 
     def compressOutputBunch(self, bunch='test.in.128.4929.128.sdds', dt=5e-13, outputbunch='compressed.sdds'):
         self.sddsMatchTwiss(bunch,outputbunch,tStDev=dt)

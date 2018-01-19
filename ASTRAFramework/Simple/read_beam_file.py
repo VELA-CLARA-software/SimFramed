@@ -371,6 +371,7 @@ class beam(object):
     @property
     def slice_length(self):
         return self._slicelength
+        
     @slice_length.setter
     def slice_length(self, slicelength):
         self._slicelength = slicelength
@@ -382,12 +383,19 @@ class beam(object):
             self.slice_length = 0.1e-12
             print("Assuming slice length is 100 fs")
         twidth = (max(self.t) - min(self.t))
-        nbins = int(np.ceil(twidth / self.slice_length))
-        self._hist, binst =  np.histogram(self.t, bins=nbins)
+        if twidth == 0:
+            t = self.z / (-1 * self.Bz * constants.speed_of_light)
+            twidth = (max(t) - min(t))
+        else:
+            t = self.t
+        nbins = max([1,int(np.ceil(twidth / self.slice_length))])
+        self._hist, binst =  np.histogram(t, bins=nbins)
         self.slice['t_Bins'] = binst
-        self._t_binned = np.digitize(self.t, self.slice['t_Bins'])
+        self._t_binned = np.digitize(t, self.slice['t_Bins'])
         self._tbins = [[self._t_binned == i] for i in range(1, len(binst))]
         self._cpbins = [self.cp[tbin] for tbin in self._tbins]
+
+
     @property
     def slice_bins(self):
         if not hasattr(self,'slice'):
