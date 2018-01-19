@@ -65,12 +65,13 @@ class fitnessFunc():
         astra.applySettings()
         astra.runASTRAFiles()
         ft = feltools(self.dirname)
-        sddsfile = ft.convertToSDDS('test.in.128.4929.128')
+        sddsfile = ft.convertToSDDS('test.5.3819.001')
         self.cons = constraintsClass()
 
     def calculateBeamParameters(self):
         beam = raf.beam()
-        beam.read_astra_beam_file(self.dirname+'/test.in.128.4929.128')
+        beam.slice_length(0.1e-12)
+        beam.read_astra_beam_file(self.dirname+'/test.5.3819.001')
         sigmat = 1e12*np.std(beam.t)
         sigmap = np.std(beam.p)
         meanp = np.mean(beam.p)
@@ -149,7 +150,7 @@ if __name__ == "__main__":
     if not os.name == 'nt':
         pool = multiprocessing.Pool(processes=10)
     else:
-        pool = multiprocessing.Pool(processes=6)
+        pool = multiprocessing.Pool(processes=1)
     toolbox.register("map", pool.map)
 
     if not os.name == 'nt':
