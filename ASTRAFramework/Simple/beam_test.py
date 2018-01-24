@@ -6,28 +6,8 @@ beam = raf.beam()
 beam.slice_length = 0.025e-12
 #
 ''' Testing reading ASTRA file '''
-beam.read_astra_beam_file('best_0955/test.in.128.4929.128')
-import numpy as np
-sigmat = 1e12*np.std(beam.t)
-sigmap = np.std(beam.p)
-meanp = np.mean(beam.p)
-emitx = 1e6*beam.normalized_horizontal_emittance
-emity = 1e6*beam.normalized_vertical_emittance
-fitp = 100*sigmap/meanp
-fhcfield = 58
-peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = beam.sliceAnalysis()
-constraintsList = {
-    'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 20},
-    'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 3},
-    'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.25, 'weight': 2.5},
-    'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.25, 'weight': 2.5},
-    'peakIMomentum': {'type': 'greaterthan','value': 1e-6*peakIMomentum, 'limit': 210, 'weight': 10},
-    'linac fields': {'type': 'lessthan', 'value': max([1]), 'limit': 32, 'weight': 100},
-    '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 100},
-    'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 3},
-    'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 1, 'weight': 3},
-}
-print constraintsList
+beam.read_astra_beam_file("F:\My Documents\Mathematica\CLARA\CLARA_V12\Short_240_10k_noTDC\clara.4636.018")
+print beam.cpz/(2.998*10**8)*1.6*10**-19
 ''' Testing reading GDF file with pages '''
 # gdfbeam = beam.read_gdf_beam_file_object('gdf_test.gdf')
 # beam.read_gdf_beam_file(gdfbeam, block=0)
@@ -47,4 +27,4 @@ print constraintsList
 # print beam.horizontal_emittance
 # print beam.horizontal_emittance_corrected
 # beam.write_astra_beam_file('scapaS1.0150.001', normaliseZ=0)
-# beam.write_vsim_beam_file('W-END.vsim', normaliseT=True)
+beam.write_vsim_beam_file('clara.4636.018.vsim', normaliseT=True)

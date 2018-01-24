@@ -5,7 +5,9 @@ class constraintsClass():
     def lessthan(self, type, value, limit, weight=1):
         if abs(limit) > 0:
             weight = float(weight)/float(limit)
-        if value > limit:
+        if hasattr(value, '__iter__'):
+            return np.sum(map(lambda x: (weight*np.abs(x-limit))**2 if x > limit else 0, value))
+        elif value > limit:
             return (weight*np.abs(value - limit))**2
         else:
             return 0
@@ -13,7 +15,9 @@ class constraintsClass():
     def greaterthan(self, type, value, limit, weight=1):
         if abs(limit) > 0:
             weight = float(weight)/float(limit)
-        if value < limit:
+        if hasattr(value, '__iter__'):
+            return np.sum(map(lambda x: (weight*np.abs(x-limit))**2 if x < limit else 0, value))
+        elif value < limit:
             return (weight*np.abs(value - limit))**2
         else:
             return 0
@@ -21,7 +25,10 @@ class constraintsClass():
     def equalto(self, type, value, limit, weight=1):
         if abs(limit) > 0:
             weight = float(weight)/float(limit)
-        return (weight*np.abs(value - limit))**2
+        if hasattr(value, '__iter__'):
+            return np.sum(map(lambda x: (weight*np.abs(x-limit))**2, value))
+        else:
+            return (weight*np.abs(value - limit))**2
 
     def constraints(self, constraints={}):
         ans = 0
