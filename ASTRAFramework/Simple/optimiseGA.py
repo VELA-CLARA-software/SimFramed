@@ -49,7 +49,7 @@ class fitnessFunc():
         self.dirname = os.path.basename(self.tmpdir)
         astra = ASTRAInjector(self.dirname, overwrite=overwrite)
         if not os.name == 'nt':
-            astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2_Quiet.sh'])
+            astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
         astra.loadSettings('short_240.settings')
         astra.modifySetting('linac1_field', abs(linac1field))
         astra.modifySetting('linac1_phase', linac1phase)

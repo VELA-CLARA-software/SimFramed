@@ -1,5 +1,7 @@
-import os
+import os, math
 import numpy as np
+from scipy import interpolate
+import scipy.integrate as integrate
 import scipy.constants as constants
 if os.name == 'nt':
     import sdds
@@ -10,6 +12,13 @@ class twiss(dict):
     E0 = constants.m_e * constants.speed_of_light**2
     E0_eV = E0 / constants.elementary_charge
     q_over_c = (constants.e / constants.speed_of_light)
+
+    def find_nearest(self, array, value):
+        idx = np.searchsorted(array, value, side="left")
+        if idx > 0 and (idx == len(array) or math.fabs(value - array[idx-1]) < math.fabs(value - array[idx])):
+            return idx-1
+        else:
+            return idx
 
     def reset_dicts(self):
         self['z'] = []
@@ -105,6 +114,23 @@ class twiss(dict):
             self['sigma_z'] = np.concatenate([self['sigma_z'], rms_z])
             self['sigma_p'] = np.concatenate([self['sigma_p'], (rms_e / e_kin) * p])
             self['sigma_cp'] = np.concatenate([self['sigma_cp'], (rms_e / e_kin) * p])
+            self['mux'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)
+            self['muy'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_y'], initial=0)
+
+    def interpolate(self, z=None, value='z'):
+        f = interpolate.interp1d(self['z'], self[value], kind='linear')
+        if z is None:
+            return f
+        else:
+            if z > max(self['z']):
+                return 10**6
+            else:
+                return float(f(z))
+
+    def extract_values(self, array, start, end):
+        startidx = self.find_nearest(self['z'], start)
+        endidx = self.find_nearest(self['z'], end) + 1
+        return self[array][startidx:endidx]
 
     def covariance(self, u, up):
         u2 = u - np.mean(u)

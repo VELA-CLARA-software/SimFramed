@@ -46,6 +46,19 @@ class ASTRAInjector(object):
             stream = file(filename, 'r')
             settings = yaml.load(stream)
             stream.close()
+        self.settings = settings
+        self.globalSettings = settings['global']
+        self.fileSettings = settings['files']
+
+    def saveSettings(self, filename='example.settings'):
+        self.settings = {}
+        if isinstance(filename, dict):
+            settings = filename
+        else:
+            self.settingsFile = filename
+            stream = file(filename, 'r')
+            settings = yaml.load(stream)
+            stream.close()
         self.globalSettings = settings['global']
         self.fileSettings = settings['files']
 
@@ -117,14 +130,17 @@ class ASTRAInjector(object):
             stream.write(line)
         stream.close()
 
-    def applySettings(self):
+    def applySettings(self, filelines=None):
         if self.overwrite:
             for f, s in self.fileSettings.iteritems():
                 newfilename = f
                 # print 'newfilename = ', newfilename
                 if not newfilename[-3:-1] == '.in':
                     newfilename = newfilename+'.in'
-                lines = self.readFile(f)
+                if filelines is None:
+                    lines = self.readFile(f)
+                else:
+                    lines = filelines[f]
                 for var, val in s.iteritems():
                     lines = self.replaceString(lines, var, val)
                 for var, val in self.globalSettings.iteritems():
@@ -174,12 +190,10 @@ class ASTRAInjector(object):
     def getScreenFiles(self):
         self.screenpositions = {}
         for f, s in self.fileSettings.iteritems():
-            # os.chdir(self.subdirectory)
             filenumber = re.search('\d\d\d',f).group(0)
             files = glob.glob(self.subdir+'/'+'test.in.'+filenumber+'.????.'+filenumber)
             screenpositions = [re.search('\d\d\d\d',s).group(0) for s in files]
             self.screenpositions[filenumber] = screenpositions
-            # os.chdir(self.basedirectory)
         return self.screenpositions
 
     def createHDF5Summary(self, screens=None):
@@ -196,7 +210,6 @@ class ASTRAInjector(object):
         yemitgrp = f.create_group("Yemit")
         zemitgrp = f.create_group("Zemit")
         screengrp = f.create_group("screens")
-        # os.chdir(self.subdirectory)
         inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.subdir+'/'+self.globalSettings['initial_distribution']))
         for n, screens in screenpositions.iteritems():
             inputfile = file(self.subdir+'/'+'test.in.'+n+'.in','r')
@@ -210,7 +223,6 @@ class ASTRAInjector(object):
                 if screens == None or s in savescreens:
                     # print 'screen = ', s
                     screengrp.create_dataset(s,data=numpy.loadtxt(screenfile))
-        # os.chdir(self.basedirectory)
 
 class feltools(object):
 
@@ -326,16 +338,6 @@ class ASTRAGenerator(object):
         command = self.generatorCommand + [filename]
         with open(os.devnull, "w") as f:
             subprocess.call(command, stdout=f, cwd=self.subdir)
-
-    def fileAvailable(self, f):
-        if os.path.exists(f):
-            try:
-                os.rename(f, f)
-            except OSError as e:
-                return False
-            return True
-        else:
-            return True
 
     def defineGeneratorCommand(self,command=['generator']):
         self.generatorCommand = command

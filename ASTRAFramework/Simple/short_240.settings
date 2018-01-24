@@ -19,18 +19,18 @@ files:
     linac2_phase: -15
     linac3_field: 25.4558441227157
     linac3_phase: -15
-    quad_K: [0,0,0,0,0,0]
+    quad_K: [0,0,0,0,0,0] #6
     starting_distribution: test.1.0337.001
   test.3:
     4hc_field: 35.638181771802
     4hc_phase: 188
-    quad_K: [0,0,0,0,0,0,0,0]
+    quad_K: [0,0,0,0,0,0,0,0] #8
     starting_distribution: test.2.1620.001
   test.4:
-    quad_K: [1.92045, -0.104472]
+    quad_K: [-0.595761, 0.665759] #2
     starting_distribution: test.3.2433.001
   test.5:
     linac4_field: 25.4558441227157
     linac4_phase: 0
-    quad_K: [6.17833, -3.47131]
+    quad_K: [0.606265, -0.378705, 1.,-0.917,-1.,-1.,0.921,0.122,-0.038,-0.396,0.872,-0.401,-0.043] #13
     starting_distribution: test.4.3119.001

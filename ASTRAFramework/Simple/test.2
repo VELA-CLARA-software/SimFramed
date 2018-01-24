@@ -1,107 +1,108 @@
 &NEWRUN
-  Head='trial'
-  RUN=1
-  Loop=F,
-  Lprompt=F
-  Distribution = '$starting_distribution$', Xoff=0.0, Yoff=0.0
-  N_red = 1
-  Lmagnetized=.F
-  EmitS=.T
-  TR_emitS=F
+Head='trial'
+RUN=1
+Loop=F,
+Lprompt=F
+Distribution = '$starting_distribution$', Xoff=0.0, Yoff=0.0
+N_red = 1
+Lmagnetized=.F
+EmitS=.T
+TR_emitS=F
 
-  PhaseS=.T
-  TrackS=.F
-  RefS=.F
-  TcheckS=.F
-  CathodeS=.F
+PhaseS=.T
+TrackS=.F
+RefS=.F
+TcheckS=.F
+CathodeS=.F
 
-  TRACK_ALL=.T
-  PHASE_SCAN=.F
-  AUTO_PHASE=.T
-  check_ref_part=.F,
+TRACK_ALL=.T
+PHASE_SCAN=.F
+AUTO_PHASE=.T
+check_ref_part=.F,
 
-  ZSTART=3.3715,	ZSTOP=16.2003
-    Screen(1)=4.09
-    Screen(2)=5.011
-    Screen(3)=6.583
-    Screen(4)=11.91
+ZSTART=3.3715,	ZSTOP=16.2003
+Screen(1)=4.09
+Screen(2)=5.011
+Screen(3)=6.583
+Screen(4)=11.91
 
-    Zphase=1
-    Zemit=1050
-    H_max=0.0007
-    H_min=0.0007
+Zphase=1
+Zemit=1050
+H_max=0.0007
+H_min=0.0007
   !  XYrms=0.5
   !  Trms=0.001
     Qbunch=$charge$
-    High_res=.T
-
-
- /
+High_res=.T
+/
 
 &SCAN
-   LScan=.F.
-  /
+LScan=.F.
+/
 
 
 &CHARGE
-  Loop=F
-  LSPCH=True
-  LSPCH3D=True
-  Nrad=30, Nlong_in=45
-  Cell_var=2.0
-  min_grid=3.424657D-13
+Loop=F
+LSPCH=True
+LSPCH3D=True
+Nrad=30, Nlong_in=45
+Cell_var=2.0
+min_grid=3.424657D-13
 
-  Max_scale=0.1
-  Max_count=100
-  Lmirror=.F
-  Nxf=$SC_3D_Nxf$
-  Nyf=$SC_3D_Nyf$
-  Nzf=$SC_3D_Nzf$
+Max_scale=0.1
+Max_count=100
+Lmirror=.F
+Nxf=$SC_3D_Nxf$
+Nyf=$SC_3D_Nyf$
+Nzf=$SC_3D_Nzf$
 
-  Smooth_x=2
-  Smooth_y=2
-  Smooth_z=2
+Smooth_x=2
+Smooth_y=2
+Smooth_z=2
 /
 
 &Aperture
 /
 
 &FEM
- /
+/
 
 &CAVITY
-  Loop=.F,
-  LEFieLD=.T
+Loop=.F,
+LEFieLD=.T
 
-  FILE_EFieLD(1) = '../TWS_S-DL.dat' , Nue(1)=2.9985,
-  MaxE(1)=$linac2_field$,  Phi(1)=$linac2_phase$, C_pos(1)=6.789065, C_numb(1)=120, C_smooth(1)=10
-  FILE_EFieLD(2) = '../TWS_S-DL.dat' , Nue(2)=2.9985,
-  MaxE(2)=$linac3_field$,  Phi(2)=$linac3_phase$, C_pos(2)=12.091935226, C_numb(2)=120, C_smooth(2)=10
+FILE_EFieLD(1) = '../TWS_S-DL.dat' , Nue(1)=2.9985,
+MaxE(1)=$linac2_field$,  Phi(1)=$linac2_phase$,
+C_pos(1)=6.789065, C_numb(1)=120, C_smooth(1)=10
+
+FILE_EFieLD(2) = '../TWS_S-DL.dat' , Nue(2)=2.9985,
+MaxE(2)=$linac3_field$,  Phi(2)=$linac3_phase$,
+C_pos(2)=12.091935226, C_numb(2)=120, C_smooth(2)=10
 /
 
 &SOLENOID
-  Loop=F
-  LBfield=F
-
-/
- &QUADRUPOLE
- Loop=.F,
- LQUAD=.T
-  Q_K(1)=$quad_K$ , Q_length(1)=0.1007,
-  Q_pos(1)=3.527177, Q_smooth(1)=3, Q_bore(1)=0.003
-  Q_K(2)=$quad_K$ , Q_length(2)=0.1007,
-  Q_pos(2)=3.927177, Q_smooth(2)=3, Q_bore(2)=0.003
-  Q_K(3)=$quad_K$ , Q_length(3)=0.1007,
-  Q_pos(3)=5.227177, Q_smooth(3)=3, Q_bore(3)=0.003
-  Q_K(4)=$quad_K$ , Q_length(4)=0.1007,
-  Q_pos(4)=5.627177, Q_smooth(4)=3, Q_bore(4)=0.003
-  Q_K(5)=$quad_K$ , Q_length(5)=0.1007,
-  Q_pos(5)=6.440327, Q_smooth(5)=3, Q_bore(5)=0.003
-  Q_K(6)=$quad_K$ , Q_length(6)=0.162,
-  Q_pos(6)=11.466398226, Q_smooth(6)=3, Q_bore(6)=0.003
+Loop=F
+LBfield=F
 /
 
- &DIPOLE
- Loop=.F,
- LDipole=.T
+&QUADRUPOLE
+Loop=.F,
+LQUAD=.T
+Q_K(1)=$quad_K$ , Q_length(1)=0.1007,
+Q_pos(1)=3.527177, Q_smooth(1)=3, Q_bore(1)=0.003
+Q_K(2)=$quad_K$ , Q_length(2)=0.1007,
+Q_pos(2)=3.927177, Q_smooth(2)=3, Q_bore(2)=0.003
+Q_K(3)=$quad_K$ , Q_length(3)=0.1007,
+Q_pos(3)=5.227177, Q_smooth(3)=3, Q_bore(3)=0.003
+Q_K(4)=$quad_K$ , Q_length(4)=0.1007,
+Q_pos(4)=5.627177, Q_smooth(4)=3, Q_bore(4)=0.003
+Q_K(5)=$quad_K$ , Q_length(5)=0.1007,
+Q_pos(5)=6.440327, Q_smooth(5)=3, Q_bore(5)=0.003
+Q_K(6)=$quad_K$ , Q_length(6)=0.162,
+Q_pos(6)=11.466398226, Q_smooth(6)=3, Q_bore(6)=0.003
+/
+
+&DIPOLE
+Loop=.F,
+LDipole=.T
 /
