@@ -160,9 +160,11 @@ class beam(object):
             chargevector = np.full(len(self.x), self.beam['total_charge']/len(self.x))
         if normaliseT:
             tvector = self.t - np.mean(self.t)
+            zvector = self.z - np.mean(self.z)
         else:
             tvector = self.t
-        zvector = [t * (-1 * Bz * constants.speed_of_light) if z == 0 else z for z, t, Bz in zip(self.z, tvector, self.Bz)]
+            zvector = self.z
+        zvector = [t * (-1 * Bz * constants.speed_of_light) if z == 0 else z for z, t, Bz in zip(zvector, tvector, self.Bz)]
         ''' this is the VSIM array in all it's glory '''
         array = np.array([zvector, self.y, self.x, self.Bz*self.gamma*constants.speed_of_light, self.By*self.gamma*constants.speed_of_light, self.Bx*self.gamma*constants.speed_of_light]).transpose()
         ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
@@ -371,7 +373,7 @@ class beam(object):
     @property
     def slice_length(self):
         return self._slicelength
-        
+
     @slice_length.setter
     def slice_length(self, slicelength):
         self._slicelength = slicelength

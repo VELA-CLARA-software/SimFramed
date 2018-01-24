@@ -4,9 +4,11 @@ originals/
 v1/
 tmp*/
 test*/
-best*/
+*best*/
 match*/
 allinone*/
 example*/
 Short*/
 NORRAN
+*.gdf
+*.vsim
