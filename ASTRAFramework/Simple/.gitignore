@@ -1,0 +1,14 @@
+1/
+Backup/
+originals/
+v1/
+tmp*/
+test*/
+*best*/
+match*/
+allinone*/
+example*/
+Short*/
+NORRAN
+*.gdf
+*.vsim
