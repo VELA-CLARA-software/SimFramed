@@ -4,7 +4,10 @@ from scipy import interpolate
 import scipy.integrate as integrate
 import scipy.constants as constants
 if os.name == 'nt':
-    import sdds
+    try:
+        import sdds
+    except:
+        pass
 import read_gdf_file as rgf
 
 class twiss(dict):
@@ -23,6 +26,7 @@ class twiss(dict):
     def reset_dicts(self):
         self['z'] = []
         self['t'] = []
+        self['kinetic_energy'] = []
         self['gamma'] = []
         self['cp'] = []
         self['p'] = []
@@ -84,6 +88,7 @@ class twiss(dict):
             rms_x, rms_xp, rms_y, rms_yp, rms_z, rms_e = 1e-3*np.array([rms_x, rms_xp, rms_y, rms_yp, rms_z, rms_e])
             self['z'] = np.concatenate([self['z'],z])
             self['t'] = np.concatenate([self['t'],t])
+            self['kinetic_energy'] = np.concatenate([self['kinetic_energy'], e_kin])
             gamma = 1 + (e_kin / self.E0_eV)
             self['gamma'] = np.concatenate([self['gamma'], gamma])
             cp = np.sqrt(e_kin * (2 * self.E0_eV + e_kin))
@@ -112,7 +117,7 @@ class twiss(dict):
             self['sigma_x'] = np.concatenate([self['sigma_x'], rms_x])
             self['sigma_y'] = np.concatenate([self['sigma_y'], rms_y])
             self['sigma_z'] = np.concatenate([self['sigma_z'], rms_z])
-            self['sigma_p'] = np.concatenate([self['sigma_p'], (rms_e / e_kin) * p])
+            self['sigma_p'] = np.concatenate([self['sigma_p'], (rms_e / e_kin)])
             self['sigma_cp'] = np.concatenate([self['sigma_cp'], (rms_e / e_kin) * p])
             self['mux'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)
             self['muy'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_y'], initial=0)
