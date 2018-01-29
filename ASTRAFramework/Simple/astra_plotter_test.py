@@ -21,7 +21,7 @@ class mainWindow(QMainWindow):
     def __init__(self, parent = None, directory='.'):
         super(mainWindow, self).__init__(parent)
         global app
-        self.resize(1200,900)
+        self.resize(1800,900)
         self.centralWidget = QWidget()
         self.layout = QHBoxLayout()
         self.centralWidget.setLayout(self.layout)
@@ -90,11 +90,12 @@ class astraPlotWidget(QWidget):
                 self.plotWidget.nextRow()
             else:
                 p = self.plotWidget.addPlot(title=entry['name'])
+                p.showGrid(x=True, y=True)
                 p.vb.setYRange(*entry['range'])
                 latticePlot = ImageItem(self.latticePlotData)
                 latticePlot.setOpts(axisOrder='row-major')
                 p.vb.addItem(latticePlot)
-                latticePlot.setZValue(10)  # make sure this image is on top
+                latticePlot.setZValue(-1)  # make sure this image is on top
                 latticePlot.setOpacity(0.5)
                 scaleY = 0.05*(entry['range'][1] - entry['range'][0])
                 rect = QRectF(0, entry['range'][0] + scaleY, twiss['z'][-1], 4*scaleY)
