@@ -3,7 +3,10 @@ import numpy as np
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
 if os.name == 'nt':
-    import sdds
+    try:
+        import sdds
+    except:
+        pass
 import read_gdf_file as rgf
 
 class beam(object):
@@ -101,6 +104,56 @@ class beam(object):
         self.beam['Bz'] = self.vz / constants.speed_of_light
         self.beam['t'] = [time if status is -1 else 0 for time, status in zip(clock, status)]#self.z / (-1 * self.Bz * constants.speed_of_light)
         self.beam['total_charge'] = np.sum(self.beam['charge'])
+
+    def read_csrtrack_beam_file(self, file):
+        self.reset_dicts()
+        data = np.loadtxt(file, unpack=False)
+        z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
+        z = self.normalise_to_ref_particle(z, subtractmean=False)
+        cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
+        clock = self.normalise_to_ref_particle(clock, subtractmean=True)
+        cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
+        self.beam['x'] = x
+        self.beam['y'] = y
+        self.beam['z'] = z
+        self.beam['cpx'] = cpx
+        self.beam['cpy'] = cpy
+        self.beam['cpz'] = cpz
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
+        self.beam['cp'] = cp
+        self.beam['p'] = cp * self.q_over_c
+        self.beam['xp'] = np.arctan(self.px/self.pz)
+        self.beam['yp'] = np.arctan(self.py/self.pz)
+        self.beam['clock'] = np.full(len(self.x), 0)
+        self.beam['clock'][0] = data[0, 0] * 1e-9
+        # self.beam['charge'] = 1e-9*charge
+        self.beam['index'] = np.full(len(self.x), 5)
+        self.beam['status'] = np.full(len(self.x), 1)
+        self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
+        velocity_conversion = 1 / (constants.m_e * self.gamma)
+        self.beam['vx'] = velocity_conversion * self.px
+        self.beam['vy'] = velocity_conversion * self.py
+        self.beam['vz'] = velocity_conversion * self.pz
+        self.beam['Bx'] = self.vx / constants.speed_of_light
+        self.beam['By'] = self.vy / constants.speed_of_light
+        self.beam['Bz'] = self.vz / constants.speed_of_light
+        self.beam['t'] = [time if status is -1 else 0 for time, status in zip(clock, self.beam['status'])]#self.z / (-1 * self.Bz * constants.speed_of_light)
+        self.beam['charge'] = charge
+        self.beam['total_charge'] = np.sum(self.beam['charge'])
+
+
+    def convert_csrtrackfile_to_astrafile(self, csrtrackfile, astrafile):
+        data = np.loadtxt(csrtrackfile, unpack=False)
+        z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
+        clock0 = data[0, 0] * 1e-9
+        clock = np.full(len(x), 0)
+        clock[0] = clock0
+        index = np.full(len(x), 1)
+        status = np.full(len(x), 5)
+        array = np.array([x, y, z, cpx, cpy, cpz, clock, charge, index, status]).transpose()
+        np.savetxt(astrafile, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%d','%d'))
 
     def find_nearest_vector(self, nodes, node):
         return cdist([node], nodes).argmin()

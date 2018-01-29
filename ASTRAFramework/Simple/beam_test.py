@@ -6,8 +6,8 @@ beam = raf.beam()
 beam.slice_length = 0.025e-12
 #
 ''' Testing reading ASTRA file '''
-beam.read_astra_beam_file("F:\My Documents\Mathematica\CLARA\CLARA_V12\Short_240_10k_noTDC\clara.4636.018")
-print beam.cpz/(2.998*10**8)*1.6*10**-19
+beam.convert_csrtrackfile_to_astrafile( "C:\\anaconda32\\Work\\Online-Model\\ASTRAFramework\\SimpleNetwork\\twiss_best\\end.fmt2",
+                                        'C:\\anaconda32\\Work\\Online-Model\\ASTRAFramework\\SimpleNetwork\\twiss_best\\end.fmt2.astra')
 ''' Testing reading GDF file with pages '''
 # gdfbeam = beam.read_gdf_beam_file_object('gdf_test.gdf')
 # beam.read_gdf_beam_file(gdfbeam, block=0)
@@ -27,4 +27,4 @@ print beam.cpz/(2.998*10**8)*1.6*10**-19
 # print beam.horizontal_emittance
 # print beam.horizontal_emittance_corrected
 # beam.write_astra_beam_file('scapaS1.0150.001', normaliseZ=0)
-beam.write_vsim_beam_file('clara.4636.018.vsim', normaliseT=True)
+# beam.write_vsim_beam_file('clara.4636.018.vsim', normaliseT=True)
