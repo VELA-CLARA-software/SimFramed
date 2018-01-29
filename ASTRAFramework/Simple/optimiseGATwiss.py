@@ -5,6 +5,7 @@ import os
 import tempfile
 import copy
 import read_twiss_file as rtf
+import read_beam_file as raf
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -13,10 +14,12 @@ import multiprocessing
 from scoop import futures
 import operator
 import random
-
+from shutil import copyfile
 import csv
 
 twiss = rtf.twiss()
+beam = raf.beam()
+
 
 def merge_two_dicts(x, y):
     """Given two dicts, merge them into a new dict as a shallow copy."""
@@ -58,6 +61,7 @@ class fitnessFunc():
         astra = ASTRAInjector(self.dirname, overwrite=overwrite)
         if not os.name == 'nt':
             astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
+            self.csrTrackCommand = ['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh']
         else:
             astra.defineASTRACommand(['astra'])
         astra.loadSettings('short_240_12b3.settings')
@@ -68,23 +72,41 @@ class fitnessFunc():
         # print 'Creating Initial Distribution in folder:', self.tmpdir
         astra.createInitialDistribution(npart=npart, charge=250)
         # print 'Apply Settings in folder:', self.tmpdir
+        if not os.name == 'nt':
+            astra.fileSettings['test.5']['starting_distribution'] = 'end.fmt2.astra'
         astra.applySettings()
         # print 'Run ASTRA in folder:', self.tmpdir
-        astra.runASTRAFiles()
+        if not os.name == 'nt':
+            astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
+            try:
+                copyfile('csrtrk.in', self.dirname+'/'+'csrtrk.in')
+            except:
+                pass
+            self.runCSRTrackFiles('csrtrk.in')
+            beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
+
+            astra.runASTRAFiles(files=['test.5'])
+        else:
+            astra.runASTRAFiles()
         # ft = feltools(self.dirname)
         # sddsfile = ft.convertToSDDS('test.in.128.4929.128')
         # print 'Analysing Constraints in folder:', self.tmpdir
         self.cons = constraintsClass()
+
+    def runCSRTrackFiles(self, filename):
+        command = self.csrTrackCommand + [filename]
+        with open(os.devnull, "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.dirname)
 
     def calculateTwissParameters(self):
         constraintsList = {}
         # LINAC 2 and 3
         twiss.read_astra_emit_files(self.dirname+'/test.2.Zemit.001')
         constraintsList2 = {
-            'max_xrms_2': {'type': 'lessthan', 'value': 1e3*max(twiss['sigma_x']), 'limit': 1, 'weight': 10},
-            'max_yrms_2': {'type': 'lessthan', 'value': 1e3*max(twiss['sigma_y']), 'limit': 1, 'weight': 10},
-            'min_xrms_2': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_x']), 'limit': 0.3, 'weight': 10},
-            'min_yrms_2': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_y']), 'limit': 0.3, 'weight': 10},
+            'max_xrms_2': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
+            'max_yrms_2': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
+            'min_xrms_2': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.3, 'weight': 10},
+            'min_yrms_2': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.3, 'weight': 10},
             'last_exn_2': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 100},
             'last_eyn_2': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 100},
             'beta_x_2': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
@@ -94,10 +116,10 @@ class fitnessFunc():
         # 4HC
         twiss.read_astra_emit_files(self.dirname+'/test.3.Zemit.001')
         constraintsList3 = {
-            'max_xrms_3': {'type': 'lessthan', 'value': 1e3*max(twiss['sigma_x']), 'limit': 1, 'weight': 10},
-            'max_yrms_3': {'type': 'lessthan', 'value': 1e3*max(twiss['sigma_y']), 'limit': 1, 'weight': 10},
-            'min_xrms_3': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_x']), 'limit': 0.3, 'weight': 10},
-            'min_yrms_3': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_y']), 'limit': 0.3, 'weight': 10},
+            'max_xrms_3': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
+            'max_yrms_3': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
+            'min_xrms_3': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.2, 'weight': 20},
+            'min_yrms_3': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.2, 'weight': 20},
             'last_exn_3': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 100},
             'last_eyn_3': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 100},
             'beta_x_3': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
@@ -108,31 +130,37 @@ class fitnessFunc():
         # VBC
         twiss.read_astra_emit_files(self.dirname+'/test.4.Zemit.001')
         constraintsList4 = {
-            'min_xrms_4': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_x']), 'limit': 0.3, 'weight': 30},
-            'min_yrms_4': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_y']), 'limit': 0.3, 'weight': 50},
-            'last_yrms_4': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'][-1], 'limit': 0.4, 'weight': 30},
+            'min_xrms_4': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.2, 'weight': 50},
+            'min_yrms_4': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.2, 'weight': 50},
+            'last_yrms_4': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'][-1], 'limit': 0.4, 'weight': 60},
             'last_exn_4': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 100},
             'last_eyn_4': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 100},
             'beta_x_4': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
             'beta_y_4': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 50, 'weight': 10},
         }
-        constraintsList = merge_two_dicts(constraintsList, constraintsList4)
-        # LINAC 4 and TDC
+        ''' This doesn't make much sense with CSRTRack being used, but still... '''
+        # constraintsList = merge_two_dicts(constraintsList, constraintsList4)
+        # LINAC 4 and TDC (40.8012m) with screen (46.4378m) and Dechirper (44.03m)
         twiss.read_astra_emit_files(self.dirname+'/test.5.Zemit.001')
         constraintsList5 = {
-            'max_xrms_5': {'type': 'lessthan', 'value': 1e3*max(twiss['sigma_x']), 'limit': 1, 'weight': 10},
-            'max_yrms_5': {'type': 'lessthan', 'value': 1e3*max(twiss['sigma_y']), 'limit': 1, 'weight': 10},
-            'min_xrms_5': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_x']), 'limit': 0.3, 'weight': 20},
-            'min_yrms_5': {'type': 'greaterthan', 'value': 1e3*min(twiss['sigma_y']), 'limit': 0.3, 'weight': 20},
+            'max_xrms_5': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
+            'max_yrms_5': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
+            'min_xrms_5': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.3, 'weight': 20},
+            'min_yrms_5': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.3, 'weight': 20},
             'last_alpha_x_5': {'type': 'lessthan', 'value': abs(twiss['alpha_x'][-1]), 'limit': 2, 'weight': 10},
             'last_alpha_y_5': {'type': 'lessthan', 'value': abs(twiss['alpha_y'][-1]), 'limit': 2, 'weight': 10},
-            'last_beta_x_5': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 2},
+            'last_beta_x_5': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 30, 'weight': 2.},
+            'last_beta_y_5': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 30, 'weight': 2.},
             'tdc_phase_advance': {'type': 'equalto', 'value': twiss.interpolate(46.4378,'muy') - twiss.interpolate(40.8012,'muy'), 'limit': 0.25, 'weight': 500},
-            'tdc_beta_y_greaterthan': {'type': 'greaterthan', 'value': twiss.interpolate(40.8012, 'beta_y'), 'limit': 50, 'weight': 25},
-            'tdc_beta_y_lassthan': {'type': 'lessthan', 'value': twiss.interpolate(40.8012, 'beta_y'), 'limit': 100, 'weight': 25},
-            'tdc_screen_beta_y': {'type': 'greaterthan', 'value': twiss.extract_values('beta_y', 40.8012, 46.4378), 'limit': 3, 'weight': 50},
-            'screen_beta_x': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_x'), 'limit': 5, 'weight': 50},
-            'screen_beta_y': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_y'), 'limit': 5, 'weight': 50},
+            # 'tdc_beta_y_greaterthan': {'type': 'greaterthan', 'value': twiss.interpolate(40.8012, 'beta_y'), 'limit': 50, 'weight': 25},
+            # 'tdc_beta_y_lassthan': {'type': 'lessthan', 'value': twiss.interpolate(40.8012, 'beta_y'), 'limit': 100, 'weight': 25},
+            'tdc_screen_beta_y': {'type': 'greaterthan', 'value': twiss.extract_values('beta_y', 40.8012, 46.4378), 'limit': 5, 'weight': 50},
+            'screen_beta_x': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_x'), 'limit': 5, 'weight': 75},
+            'screen_beta_y': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_y'), 'limit': 5, 'weight': 75},
+            'dechirper_beta_x': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_x'), 'limit': 0.1, 'weight': 100},
+            'dechirper_beta_y': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_y'), 'limit': 0.1, 'weight': 100},
+            'last_exn_5': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 200},
+            'last_eyn_5': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 200},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsList5)
 
@@ -158,19 +186,23 @@ def optfunc(args, dir=None, **kwargs):
 #     os.chdir('/home/jkj62/ASTRAFramework/Simple')
 
 best = [
-    1.76571, -0.334896,
-    -2.38819, 3.60297, 5., -4., -3.29565, 3.38181, 1.52921, 2.22559, -2.95347, -1.71192, -5.98555, 7.72644, -5.24599
+-1.2379283065247337,0.3334741098271971,0.301800836132157,1.0302048786187044,0.8430805443454812,-0.8661180281795384,0.5231461371201584,0.14760850442189372,-0.4696623170443573,-0.224203308050976,0.25416019902940173,0.4855500026561579,0.5710635402568202,-0.18806962854157552,-0.4806964660854134,0.9677949566019728,0.8668078689384511,-0.470363079026056,2.891391766237616,-0.9448132755898974,-1.0887953929910517,-1.1743411633855374,0.9436400641772102,0.12759187373793662,-1.5995353479210808,-0.7686023258087982,0.7176429407516101,-0.6633543452355456,5.559806014997541
 ]
-best = [
--1.1064726647925567,0.34943073726251117,0.2780501399123354,0.956395872458506,0.9288971435495896,-0.9478525645198895,0.5084010114082405,0.1484344078686735,-0.5353285994944832,-0.20522038689863595,0.2468263103338443,0.47506625667283203,0.5714292900025801,-0.18868643055245587,-0.5291917111180696,0.8316156097533836,0.7622591282230657,-0.48506911614367176,2.4871759165171983,-1.01938602488482,-1.0574015079633572,-1.1372818058692027,1.1000087383054336,0.13236259746793175,-0.05202178491104155,-0.6041687837935128,0.7580437712597756,-0.7071647342418804,-0.03752131563991014
-]
-# print optfunc(best, dir=os.getcwd()+'/testing', npart=10, ncpu=20, overwrite=True, verbose=True)
+
+results = []
+
+with open('twiss_best_solutions.csv', 'r') as csvfile:
+  reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
+  for row in reader:
+    results.append(row)
+best = results[0]
+# print optfunc(best, dir=os.getcwd()+'/testing_csrtrack', npart=10000, ncpu=20, overwrite=True, verbose=True)
 # exit()
 
-best = [0 for x in best]
+# best = [0 for x in best]
 
-startranges = [[0.8*i, 1.4*i] if abs(i) > 0 else [-1,1] for i in best]
-
+startranges = [[0.8*i, 1.2*i] if abs(i) > 0 else [-1,1] for i in best]
+print 'Start Ranges = ', startranges
 generateHasBeenCalled = False
 def generate():
     global generateHasBeenCalled
@@ -232,7 +264,7 @@ if __name__ == "__main__":
     print logbook
     print hof
 
-    with open('best_solutions.csv','wb') as out:
+    with open('twiss_best_solutions.csv','wb') as out:
         csv_out=csv.writer(out)
         for row in hof:
             csv_out.writerow(row)
