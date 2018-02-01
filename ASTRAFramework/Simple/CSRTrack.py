@@ -24,9 +24,10 @@ class CSRTrack(object):
         self.CSRTrackCommand = command
 
     def runCSRTrackFile(self, filename):
-        command = self.CSRTrackCommand + [filename]
-        with open(os.devnull, "w") as f:
-            subprocess.call(command, stdout=f, cwd=self.subdir)
+        if self.overwrite:
+            command = self.CSRTrackCommand + [filename]
+            with open(os.devnull, "w") as f:
+                subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def csrtrackinputtext(self, ANGLE):
         return """io_path{logfile = log.txt}

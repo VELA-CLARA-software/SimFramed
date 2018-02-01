@@ -102,7 +102,7 @@ class beam(object):
         self.beam['Bx'] = self.vx / constants.speed_of_light
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
-        self.beam['t'] = [time if status is -1 else 0 for time, status in zip(clock, status)]#self.z / (-1 * self.Bz * constants.speed_of_light)
+        self.beam['t'] = self.z / (-1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
     def read_csrtrack_beam_file(self, file):
@@ -139,7 +139,7 @@ class beam(object):
         self.beam['Bx'] = self.vx / constants.speed_of_light
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
-        self.beam['t'] = [time if status is -1 else 0 for time, status in zip(clock, self.beam['status'])]#self.z / (-1 * self.Bz * constants.speed_of_light)
+        self.beam['t'] = self.z / (-1 * self.Bz * constants.speed_of_light)# [time if status is -1 else 0 for time, status in zip(clock, self.beam['status'])]
         self.beam['charge'] = charge
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
@@ -526,6 +526,9 @@ class beam(object):
     def z(self):
         return self.beam['z']
     @property
+    def zn(self):
+        return self.beam['z']-np.mean(self.beam['z'])
+    @property
     def px(self):
         return self.beam['px']
     @property
@@ -561,6 +564,9 @@ class beam(object):
     @property
     def gamma(self):
         return self.beam['gamma']
+    @property
+    def BetaGamma(self):
+        return self.beam['cp']/self.E0_eV
     @property
     def vx(self):
         return self.beam['vx']
