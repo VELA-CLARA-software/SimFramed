@@ -3,8 +3,14 @@ import numpy
 import h5py
 import glob
 from copy import deepcopy
+import numpy as np
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+
+def Cos(angle):
+    return np.cos(angle)
+def Sin(angle):
+    return np.sin(angle)
 
 def dict_representer(dumper, data):
     return dumper.represent_dict(data.iteritems())
@@ -40,6 +46,7 @@ class ASTRAInjector(object):
     def loadSettings(self, filename='short_240.settings'):
         self.settings = {}
         if isinstance(filename, dict):
+            self.settingsFile = self.runname
             settings = filename
         else:
             self.settingsFile = filename
@@ -104,7 +111,10 @@ class ASTRAInjector(object):
             if not i == None:
                 return line.replace('$'+findString+'$', str(replaceString[i]))
             else:
-                return line.replace('$'+findString+'$', str(replaceString))
+                if findString == "variable_bunch_compressor":
+                    return line.replace('$'+findString+'$', self.write_VBC_code(replaceString['angle'], replaceString['zstart']))
+                else:
+                    return line.replace('$'+findString+'$', str(replaceString))
         else:
             return line
 
@@ -163,35 +173,39 @@ class ASTRAInjector(object):
     def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None):
         self.globalSettings['npart'] = npart
         self.globalSettings['charge'] = charge/1000.0
-        if self.overwrite:
-            astragen = ASTRAGenerator(self.subdir, charge, npart)
-            if not generatorCommand is None:
-                astragen.defineGeneratorCommand(generatorCommand)
-            elif os.name == 'nt':
-                astragen.defineGeneratorCommand(['generator_7June2007'])
-            else:
-                astragen.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
-            inputfile = astragen.generateBeam()
-            self.setInitialDistribution(inputfile)
-            scgrid = getGrids(npart)
-            self.globalSettings['SC_2D_Nrad'] = max([scgrid.gridSizes,4])
-            self.globalSettings['SC_2D_Nlong'] = max([scgrid.gridSizes,4])
-            for scvar in ['SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
-                self.globalSettings[scvar] = scgrid.gridSizes
+        astragen = ASTRAGenerator(self.subdir, charge, npart, overwrite=self.overwrite)
+        if not generatorCommand is None:
+            astragen.defineGeneratorCommand(generatorCommand)
+        elif os.name == 'nt':
+            astragen.defineGeneratorCommand(['generator_7June2007'])
+        else:
+            astragen.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
+        inputfile = astragen.generateBeam()
+        self.setInitialDistribution(inputfile)
+        scgrid = getGrids(npart)
+        self.globalSettings['SC_2D_Nrad'] = max([scgrid.gridSizes,4])
+        self.globalSettings['SC_2D_Nlong'] = max([scgrid.gridSizes,4])
+        for scvar in ['SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
+            self.globalSettings[scvar] = scgrid.gridSizes
 
     def getScreenFiles(self):
         self.screenpositions = {}
         for f, s in self.fileSettings.iteritems():
-            filenumber = re.search('\d\d\d',f).group(0)
-            files = glob.glob(self.subdir+'/'+'test.in.'+filenumber+'.????.'+filenumber)
-            screenpositions = [re.search('\d\d\d\d',s).group(0) for s in files]
-            self.screenpositions[filenumber] = screenpositions
+            filename = f
+            runnumber = str(s['run']).zfill(3)
+            # print 'filename = ', filename
+            # print 'runnumber = ', runnumber
+            files = glob.glob(self.subdir+'/'+filename+'.????.'+runnumber)
+            # print 'files = ', files
+            screenpositions = [re.search('\d\d\d\d', s).group(0) for s in files]
+            # print 'screenpositions = ', screenpositions
+            self.screenpositions[filename] = {'filename': filename, 'run': runnumber, 'screenpositions': screenpositions}
         return self.screenpositions
 
-    def createHDF5Summary(self, screens=None):
+    def createHDF5Summary(self, screens=[]):
         savescreens = [str(s) for s in screens]
         screenpositions = self.getScreenFiles()
-        filename = '_'.join(map(str,[self.runname,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
+        filename = '_'.join(map(str,[self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
         # print filename
         f = h5py.File(filename, "w")
         inputgrp = f.create_group("Input")
@@ -203,18 +217,71 @@ class ASTRAInjector(object):
         zemitgrp = f.create_group("Zemit")
         screengrp = f.create_group("screens")
         inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.subdir+'/'+self.globalSettings['initial_distribution']))
-        for n, screens in screenpositions.iteritems():
-            inputfile = file(self.subdir+'/'+'test.in.'+n+'.in','r')
+        for n, screendict in screenpositions.iteritems():
+            inputfile = file(self.subdir+'/'+n+'.in','r')
             inputfilecontents = inputfile.read()
-            inputgrp.create_dataset(n,data=inputfilecontents)
+            inputgrp.create_dataset(n, data=inputfilecontents)
             for emit, grp in {'X': xemitgrp,'Y': yemitgrp,'Z': zemitgrp}.iteritems():
-                emitfile = self.subdir+'/'+'test.in.'+n+'.'+emit+'emit.'+n
-                grp.create_dataset(n,data=numpy.loadtxt(emitfile))
-            for s in screens:
-                screenfile = self.subdir+'/'+'test.in.'+n+'.'+s+'.'+n
-                if screens == None or s in savescreens:
-                    # print 'screen = ', s
-                    screengrp.create_dataset(s,data=numpy.loadtxt(screenfile))
+                emitfile = self.subdir+'/'+n+'.'+emit+'emit.'+screendict['run']
+                # print 'emitfile = ', emitfile
+                grp.create_dataset(n, data=numpy.loadtxt(emitfile))
+            for s in screendict['screenpositions']:
+                screenfile = self.subdir+'/'+n+'.'+s+'.'+screendict['run']
+                if screens == [] or s in savescreens:
+                    # print 's = ', screenfile
+                    screengrp.create_dataset(s, data=numpy.loadtxt(screenfile))
+
+    def write_VBC_code(self, ANGLE=0.105, zstart=24.326, dipolestart=1.642833):
+        return """
+&DIPOLE
+Loop=.F,
+LDipole=.T
+D_Type(1)='horizontal', D_Gap(1,1)=0.02,
+D_Gap(2,1)=0.02,
+D1(1)=("""+str(0.04019629503215602)+""","""+str(1.642833 + zstart)+"""),
+D3(1)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE))/ANGLE)+""","""+str(1.642833 + zstart + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
+D4(1)=("""+str((0.2009814751607801 - 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE))/ANGLE)+""","""+str(1.642833 + zstart + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
+D2(1)=("""+str(-0.04019629503215602)+""","""+str(1.642833 + zstart)+"""),
+D_radius(1)="""+str(-0.2009814751607801/ANGLE)+"""
+D_Type(2)='horizontal', D_Gap(1,2)=0.02,
+D_Gap(2,2)=0.02,
+D1(2)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
+str(1.642833 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
+D3(2)=("""+str((0.4019629503215602 + 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
+str(1.642833 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.4019629503215602*Sin(ANGLE))/ANGLE)+"""),
+D4(2)=("""+str((0.4019629503215602 - 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
+str(1.642833 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.4019629503215602*Sin(ANGLE))/ANGLE)+"""),
+D2(2)=("""+str((0.2009814751607801 - 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
+str(1.642833 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
+D_radius(2)="""+str(0.2009814751607801/ANGLE)+"""
+D_Type(3)='horizontal', D_Gap(1,3)=0.02,
+D_Gap(2,3)=0.02,
+D1(3)=("""+str((0.4019629503215602 + 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
+str(2.9428330000000003 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.4019629503215602*Sin(ANGLE))/ANGLE)+"""),
+D3(3)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.40196295032156015*Cos(ANGLE) + 0.2009814751607801*Cos(1.*ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+\
+""","""+str((ANGLE*(2.9428330000000003 + zstart) + 1.5067942970813246*ANGLE*Cos(ANGLE) + 0.4019629503215602*Sin(ANGLE) + 0.2009814751607801*Sin(1.*ANGLE))/ANGLE)+"""),
+D4(3)=("""+str((0.2009814751607801 - 0.04019629503215602*ANGLE - 0.40196295032156015*Cos(ANGLE) + 0.2009814751607801*Cos(1.*ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+\
+""","""+str((ANGLE*(2.9428330000000003 + zstart) + 1.5067942970813246*ANGLE*Cos(ANGLE) + 0.4019629503215602*Sin(ANGLE) + 0.2009814751607801*Sin(1.*ANGLE))/ANGLE)+"""),
+D2(3)=("""+str((0.4019629503215602 - 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+str(2.9428330000000003 +\
+zstart + 1.5067942970813246*Cos(ANGLE) + (0.4019629503215602*Sin(ANGLE))/ANGLE)+"""),
+D_radius(3)="""+str(0.2009814751607801/ANGLE)+"""
+D_Type(4)='horizontal', D_Gap(1,4)=0.02,
+D_Gap(2,4)=0.02,
+D1(4)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 0.2009814751607801*Cos(1.*ANGLE))/ANGLE)+""","""+str((ANGLE*(2.9428330000000003 +\
+zstart) + 1.5067942970813246*ANGLE*Cos(ANGLE) + 1.5067942970813246*ANGLE*Cos(1.*ANGLE) + 0.4019629503215602*Sin(ANGLE) + 0.2009814751607801*Sin(1.*ANGLE))/ANGLE)+"""),
+D3(4)=("""+str((0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 0.4019629503215602*Cos(1.*ANGLE) + 1.5067942970813248*ANGLE*Sin(ANGLE) -\
+1.5067942970813246*ANGLE*Sin(1.*ANGLE))/ANGLE)+""","""+str(2.9428330000000003 + 1.*zstart + 1.5067942970813248*Cos(ANGLE) + 1.5067942970813246*Cos(1.*ANGLE) +\
+(0.4019629503215602*Sin(ANGLE) + 0.4019629503215602*Sin(1.*ANGLE))/ANGLE)+"""),
+D4(4)=("""+str((-0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 0.4019629503215602*Cos(1.*ANGLE) + 1.5067942970813248*ANGLE*Sin(ANGLE) -\
+1.5067942970813246*ANGLE*Sin(1.*ANGLE))/ANGLE)+""","""+str(2.9428330000000003 + 1.*zstart + 1.5067942970813248*Cos(ANGLE) + 1.5067942970813246*Cos(1.*ANGLE) +\
+(0.4019629503215602*Sin(ANGLE) + 0.4019629503215602*Sin(1.*ANGLE))/ANGLE)+"""),
+D2(4)=("""+str((0.2009814751607801 - 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 0.2009814751607801*Cos(1.*ANGLE))/ANGLE)+""","""+\
+str((ANGLE*(2.9428330000000003 + zstart) + 1.5067942970813246*ANGLE*Cos(ANGLE) + 1.5067942970813246*ANGLE*Cos(1.*ANGLE) + 0.4019629503215602*Sin(ANGLE) +\
+0.2009814751607801*Sin(1.*ANGLE))/ANGLE)+"""),
+D_radius(4)="""+str(-0.2009814751607801/ANGLE)+"""
+
+/
+"""
 
 class feltools(object):
 
@@ -265,12 +332,13 @@ class feltools(object):
 
 class ASTRAGenerator(object):
 
-    def __init__(self, subdir='test', charge=250, npart=1000):
+    def __init__(self, subdir='test', charge=250, npart=1000, overwrite=None):
         super(ASTRAGenerator, self).__init__()
         self.lineIterator = 0
         self.generatorBaseFile = 'generator.in'
         self.charge = charge
         self.npart = npart
+        self.overwrite = overwrite
         self.generatorCommand = ['generator']
         self.basedirectory = os.getcwd()
         self.subdir = subdir
@@ -323,8 +391,9 @@ class ASTRAGenerator(object):
         lines = self.readFile(self.generatorBaseFile)
         for var, val in self.settings.iteritems():
             lines = self.replaceString(lines, var, val)
-        self.saveFile(lines, self.subdir+'/'+'generator.in')
-        self.runGenerator('generator.in')
+        if self.overwrite:
+            self.saveFile(lines, self.subdir+'/'+'generator.in')
+            self.runGenerator('generator.in')
 
     def runGenerator(self, filename=''):
         command = self.generatorCommand + [filename]
