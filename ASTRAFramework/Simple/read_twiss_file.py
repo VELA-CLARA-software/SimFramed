@@ -1,4 +1,4 @@
-import os, math
+import os, math, h5py
 import numpy as np
 from scipy import interpolate
 import scipy.integrate as integrate
@@ -74,13 +74,29 @@ class twiss(dict):
         else:
             if 'xemit' not in filename.lower():
                 filename = filename.replace('Yemit','Xemit').replace('Zemit','Xemit')
-            z, t, mean_x, rms_x, rms_xp, exn, mean_xxp = np.loadtxt(filename, unpack=True)
+            xemit = np.loadtxt(filename, unpack=False)
             if 'yemit' not in filename.lower():
                 filename = filename.replace('Xemit','Yemit').replace('Zemit','Yemit')
-            z, t, mean_y, rms_y, rms_yp, eyn, mean_yyp = np.loadtxt(filename, unpack=True)
+            yemit = np.loadtxt(filename, unpack=False)
             if 'zemit' not in filename.lower():
                 filename = filename.replace('Xemit','Zemit').replace('Yemit','Zemit')
-            z, t, e_kin, rms_z, rms_e, ezn, mean_zep = np.loadtxt(filename, unpack=True)
+            zemit = np.loadtxt(filename, unpack=False)
+            self.interpret_astra_data(xemit, yemit, zemit)
+
+    def read_hdf_summary(self, filename, reset=True):
+        if reset:
+            self.reset_dicts()
+        f = h5py.File(filename, "r")
+        xemit = f.get('Xemit')
+        yemit = f.get('Yemit')
+        zemit = f.get('Zemit')
+        for item, params in sorted(xemit.items()):
+            self.interpret_astra_data(np.array(xemit.get(item)), np.array(yemit.get(item)), np.array(zemit.get(item)))
+
+    def interpret_astra_data(self, xemit, yemit, zemit):
+            z, t, mean_x, rms_x, rms_xp, exn, mean_xxp = np.transpose(xemit)
+            z, t, mean_y, rms_y, rms_yp, eyn, mean_yyp = np.transpose(yemit)
+            z, t, e_kin, rms_z, rms_e, ezn, mean_zep = np.transpose(zemit)
             e_kin = 1e6 * e_kin
             t = 1e-9 * t
             exn = 1e-6*exn

@@ -9,16 +9,18 @@ global:
   initial_distribution: 1k-250pC-76fsrms-1mm_TE09fixN12.ini
 files:
   test.1:
+    run: 1
     gun_field: 70
     gun_phase: -16
-    linac1_field: 21
-    linac1_phase: -20
+    linac1_field: 21.400623994160444
+    linac1_phase: -16.55969620994231
     gun_sol_field: 0.237
   test.2:
-    linac2_field: 25.4558441227157
-    linac2_phase: -15
-    linac3_field: 25.4558441227157
-    linac3_phase: -15
+    run: 1
+    linac2_field: 29.287957969747083
+    linac2_phase: -23.786662293312006
+    linac3_field: 17.558361277790308
+    linac3_phase: -12.299336166149129
     quad_K:
     - -1.2747391669673418
     - 0.3830049571865556
@@ -28,8 +30,9 @@ files:
     - -0.9720612862134499
     starting_distribution: test.1.0337.001
   test.3:
-    4hc_field: 35.638181771802
-    4hc_phase: 188
+    run: 1
+    4hc_field: 23.967537037232802
+    4hc_phase: 184.4163061991109
     quad_K:
     - 0.6217982195782916
     - 0.16633386452405985
@@ -41,13 +44,18 @@ files:
     - -0.2687903605617848
     starting_distribution: test.2.1620.001
   test.4:
+    run: 1
     quad_K:
     - -0.7818223988190925
     - 1.2923782925872922
     starting_distribution: test.3.2433.001
+    variable_bunch_compressor:
+      angle: 0.105
+      zstart: 24.326
   test.5:
-    linac4_field: 25.4558441227157
-    linac4_phase: 0
+    run: 1
+    linac4_field: 25.857484094665274
+    linac4_phase: 2.769682559549861
     quad_K:
     - 1.0504973275937928
     - -0.4108394475196491

@@ -13,8 +13,10 @@ if not os.name == 'nt':
     astra.defineASTRACommand(['mpiexec','-np','6','/opt/ASTRA/astra_MPICH2.sh'])
 
 ''' Load a settings file '''
-astra.loadSettings('short_240.settings')
+astra.loadSettings('short_240_12b3.settings')
 # astra.modifySetting('linac4_field',6156)
+
+astra.fileSettings['test.4']['VBC_TEXT']['angle'] = 0.08
 
 ''' Create an initial distribution
     - charge is in pC!
@@ -25,9 +27,9 @@ astra.createInitialDistribution(npart=100, charge=250)
 astra.applySettings()
 
 ''' Run ASTRA '''
-# astra.runASTRAFiles()
+astra.runASTRAFiles()
 ''' The following only runs certain files - this may break if the correct input files do not exist! '''
-astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
+# astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
 
 ''' Run this to create a summary file with all required input files, and the consequent output files'''
 # astra.createHDF5Summary(screens=[4929])
