@@ -29,6 +29,7 @@ files:
   test.4:
     quad_K: [-0.595761, 0.665759] #2
     starting_distribution: test.3.2433.001
+    variable_bunch_compressor: {'angle': 0.105, 'zstart': 24.326}
   test.5:
     linac4_field: 25.4558441227157
     linac4_phase: 0

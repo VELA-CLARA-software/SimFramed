@@ -1,4 +1,5 @@
 from ASTRAInjector import *
+from CSRTrack import *
 import numpy as np
 from constraints import *
 import os
@@ -16,7 +17,7 @@ import operator
 import random
 from shutil import copyfile
 import csv
-
+import write_csrtrack_file as csrtrackwriter
 twiss = rtf.twiss()
 beam = raf.beam()
 
@@ -53,17 +54,19 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, npart=1000, ncpu=4, overwrite=True, verbose=False):
+    def __init__(self, args, tempdir, npart=1000, ncpu=4, overwrite=True, verbose=False, summary=False):
         self.tmpdir = tempdir
         self.verbose = verbose
         self.parameters = list(args)
         self.dirname = os.path.basename(self.tmpdir)
         astra = ASTRAInjector(self.dirname, overwrite=overwrite)
+        csrtrack = CSRTrack(self.dirname, overwrite=overwrite)
         if not os.name == 'nt':
             astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
-            self.csrTrackCommand = ['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh']
+            csrtrack.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         else:
             astra.defineASTRACommand(['astra'])
+            csrtrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
         astra.loadSettings('short_240_12b3.settings')
         astra.fileSettings['test.2']['quad_K'] = self.parameters[0:6]
         astra.fileSettings['test.3']['quad_K'] = self.parameters[6:14]
@@ -72,31 +75,22 @@ class fitnessFunc():
         # print 'Creating Initial Distribution in folder:', self.tmpdir
         astra.createInitialDistribution(npart=npart, charge=250)
         # print 'Apply Settings in folder:', self.tmpdir
-        if not os.name == 'nt':
-            astra.fileSettings['test.5']['starting_distribution'] = 'end.fmt2.astra'
+        astra.fileSettings['test.5']['starting_distribution'] = 'end.fmt2.astra'
+        ''' Create ASTRA files based on settings '''
         astra.applySettings()
-        # print 'Run ASTRA in folder:', self.tmpdir
-        if not os.name == 'nt':
-            astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
-            try:
-                copyfile('csrtrk.in', self.dirname+'/'+'csrtrk.in')
-            except:
-                pass
-            self.runCSRTrackFiles('csrtrk.in')
-            beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
-
-            astra.runASTRAFiles(files=['test.5'])
-        else:
-            astra.runASTRAFiles()
-        # ft = feltools(self.dirname)
-        # sddsfile = ft.convertToSDDS('test.in.128.4929.128')
-        # print 'Analysing Constraints in folder:', self.tmpdir
+        ''' Run ASTRA upto VBC '''
+        astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
+        ''' Write Out the CSRTrack file based on the BC angle (assumed to be 0.105) '''
+        csrtrack.writeCSRTrackFile('csrtrk.in', 0.105)
+        ''' Run CSRTrack'''
+        csrtrack.runCSRTrackFile('csrtrk.in')
+        ''' Convert CSRTrack output file back in to ASTRA format '''
+        beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
+        ''' Run the next section of the lattice in ASTRA, using the CSRTrack output as input '''
+        astra.runASTRAFiles(files=['test.5'])
         self.cons = constraintsClass()
-
-    def runCSRTrackFiles(self, filename):
-        command = self.csrTrackCommand + [filename]
-        with open(os.devnull, "w") as f:
-            subprocess.call(command, stdout=f, cwd=self.dirname)
+        if summary:
+            astra.createHDF5Summary()
 
     def calculateTwissParameters(self):
         constraintsList = {}
@@ -105,12 +99,12 @@ class fitnessFunc():
         constraintsList2 = {
             'max_xrms_2': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
             'max_yrms_2': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
-            'min_xrms_2': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.3, 'weight': 10},
-            'min_yrms_2': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.3, 'weight': 10},
+            'min_xrms_2': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.2, 'weight': 10},
+            'min_yrms_2': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.2, 'weight': 10},
             'last_exn_2': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 100},
             'last_eyn_2': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 100},
-            'beta_x_2': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
-            'beta_y_2': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 50, 'weight': 10},
+            # 'beta_x_2': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
+            # 'beta_y_2': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 50, 'weight': 10},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsList2)
         # 4HC
@@ -122,8 +116,8 @@ class fitnessFunc():
             'min_yrms_3': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.2, 'weight': 20},
             'last_exn_3': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 100},
             'last_eyn_3': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 100},
-            'beta_x_3': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
-            'beta_y_3': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 50, 'weight': 10},
+            # 'beta_x_3': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
+            # 'beta_y_3': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 50, 'weight': 10},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsList3)
 
@@ -135,8 +129,8 @@ class fitnessFunc():
             'last_yrms_4': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'][-1], 'limit': 0.4, 'weight': 60},
             'last_exn_4': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 100},
             'last_eyn_4': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 100},
-            'beta_x_4': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
-            'beta_y_4': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 50, 'weight': 10},
+            # 'beta_x_4': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 50, 'weight': 10},
+            # 'beta_y_4': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 50, 'weight': 10},
         }
         ''' This doesn't make much sense with CSRTRack being used, but still... '''
         # constraintsList = merge_two_dicts(constraintsList, constraintsList4)
@@ -145,20 +139,20 @@ class fitnessFunc():
         constraintsList5 = {
             'max_xrms_5': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
             'max_yrms_5': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
-            'min_xrms_5': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.3, 'weight': 20},
-            'min_yrms_5': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.3, 'weight': 20},
-            'last_alpha_x_5': {'type': 'lessthan', 'value': abs(twiss['alpha_x'][-1]), 'limit': 2, 'weight': 10},
-            'last_alpha_y_5': {'type': 'lessthan', 'value': abs(twiss['alpha_y'][-1]), 'limit': 2, 'weight': 10},
-            'last_beta_x_5': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 30, 'weight': 2.},
-            'last_beta_y_5': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 30, 'weight': 2.},
+            'min_xrms_5': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.2, 'weight': 20},
+            'min_yrms_5': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.2, 'weight': 20},
+            # 'last_alpha_x_5': {'type': 'lessthan', 'value': abs(twiss['alpha_x'][-1]), 'limit': 2, 'weight': 10},
+            # 'last_alpha_y_5': {'type': 'lessthan', 'value': abs(twiss['alpha_y'][-1]), 'limit': 2, 'weight': 10},
+            # 'last_beta_x_5': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 30, 'weight': 2.},
+            # 'last_beta_y_5': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 30, 'weight': 2.},
             'tdc_phase_advance': {'type': 'equalto', 'value': twiss.interpolate(46.4378,'muy') - twiss.interpolate(40.8012,'muy'), 'limit': 0.25, 'weight': 500},
             # 'tdc_beta_y_greaterthan': {'type': 'greaterthan', 'value': twiss.interpolate(40.8012, 'beta_y'), 'limit': 50, 'weight': 25},
             # 'tdc_beta_y_lassthan': {'type': 'lessthan', 'value': twiss.interpolate(40.8012, 'beta_y'), 'limit': 100, 'weight': 25},
             'tdc_screen_beta_y': {'type': 'greaterthan', 'value': twiss.extract_values('beta_y', 40.8012, 46.4378), 'limit': 5, 'weight': 50},
-            'screen_beta_x': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_x'), 'limit': 5, 'weight': 75},
-            'screen_beta_y': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_y'), 'limit': 5, 'weight': 75},
-            'dechirper_beta_x': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_x'), 'limit': 0.1, 'weight': 100},
-            'dechirper_beta_y': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_y'), 'limit': 0.1, 'weight': 100},
+            # 'screen_beta_x': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_x'), 'limit': 5, 'weight': 75},
+            # 'screen_beta_y': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_y'), 'limit': 5, 'weight': 75},
+            'dechirper_sigma_x': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_x'), 'limit': 0.1, 'weight': 100},
+            'dechirper_sigma_y': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_y'), 'limit': 0.1, 'weight': 100},
             'last_exn_5': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 200},
             'last_eyn_5': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 200},
         }
@@ -196,8 +190,8 @@ with open('twiss_best_solutions.csv', 'r') as csvfile:
   for row in reader:
     results.append(row)
 best = results[0]
-# print optfunc(best, dir=os.getcwd()+'/testing_csrtrack', npart=10000, ncpu=20, overwrite=True, verbose=True)
-# exit()
+print optfunc(best, dir=os.getcwd()+'/twiss_best', npart=50000, ncpu=20, overwrite=False, verbose=False, summary=True)
+exit()
 
 # best = [0 for x in best]
 
@@ -257,17 +251,23 @@ if __name__ == "__main__":
     stats.register("min", numpy.min)
     stats.register("max", numpy.max)
 
-    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=20,
+    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=50,
                             stats=stats, halloffame=hof)
 
     # print 'pop = ', pop
     print logbook
     print hof
 
-    with open('twiss_best_solutions.csv','wb') as out:
-        csv_out=csv.writer(out)
-        for row in hof:
-            csv_out.writerow(row)
+    try:
+        with open('twiss_best/twiss_best_solutions.csv','wb') as out:
+            csv_out=csv.writer(out)
+            for row in hof:
+                csv_out.writerow(row)
+    except:
+        with open('twiss_best/twiss_best_solutions.csv.tmp','wb') as out:
+            csv_out=csv.writer(out)
+            for row in hof:
+                csv_out.writerow(row)
     pool.close()
 
     print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/twiss_best', npart=50000, ncpu=40)
