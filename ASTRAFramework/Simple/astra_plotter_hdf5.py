@@ -1,33 +1,27 @@
 import sys, os, time, math, datetime, copy, h5py
-import glob
-from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF
-from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap
-from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, setConfigOptions, InfiniteLine, ImageItem
-from pyqtgraph.graphicsItems.LegendItem import ItemSample
 import argparse
-import imageio
+from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox
+from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout
+
+import astra_plotter_test as astraplotter
 import numpy as np
 import read_beam_file as raf
 import read_twiss_file as rtf
-
-beam = raf.beam()
-twiss = rtf.twiss()
 
 parser = argparse.ArgumentParser(description='Plot ASTRA Data Files')
 parser.add_argument('filename')
 
 
 class mainWindow(QMainWindow):
-    def __init__(self, parent = None, filename='.'):
-        super(mainWindow, self).__init__(parent)
-        global app
+    def __init__(self, app = None, filename='.'):
+        super(mainWindow, self).__init__()
         self.resize(1800,900)
         self.centralWidget = QWidget()
         self.layout = QHBoxLayout()
         self.centralWidget.setLayout(self.layout)
 
         self.tab = QTabWidget()
-        self.astraPlot = astraPlotWidget(filename)
+        self.astraPlot = astraHDFPlotWidget(filename)
 
         self.layout.addWidget(self.astraPlot)
 
@@ -48,83 +42,64 @@ class mainWindow(QMainWindow):
         exitAction.triggered.connect(app.quit)
         fileMenu.addAction(exitAction)
 
-class astraPlotWidget(QWidget):
+class astraHDFPlotWidget(astraplotter.astraPlotWidget):
 
-    twissLayout = [{'name': 'sigma_x', 'range': [0,1], 'scale': 1e3},
-                   {'name': 'sigma_y', 'range': [0,1], 'scale': 1e3},
-                   {'name': 'kinetic_energy', 'range': [0,250], 'scale': 1e-6},
-                   'next_row',
-                   {'name': 'sigma_p', 'range': [0,0.015], 'scale': 1e6},
-                   {'name': 'sigma_z', 'range': [0,0.6], 'scale': 1e3},
-                   {'name': 'enx', 'range': [0.5,1.5], 'scale': 1e6},
-                   'next_row',
-                   {'name': 'eny', 'range':  [0.5,1.5], 'scale': 1e6},
-                   {'name': 'beta_x', 'range': [0,150], 'scale': 1},
-                   {'name': 'beta_y', 'range': [0,150], 'scale': 1},
-                  ]
+    def __init__(self, filename=None, **kwargs):
+        super(astraHDFPlotWidget, self).__init__(**kwargs)
+        print 'filename = ', filename
+        self.folderButton.setText('Select File')
+        self.filename = filename
+        self.h5file = h5py.File(self.filename, "r")
+        self.changeDirectory(filename)
 
-    def __init__(self, filename='.', **kwargs):
-        super(astraPlotWidget, self).__init__(**kwargs)
-
-        self.plotWidget = GraphicsLayoutWidget()
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
-        self.layout.addWidget(self.plotWidget)
-        self.twissPlot = True
-        self.latticePlotData = imageio.imread('lattice_plot.png')
-        self.loadDataFile(filename)
-
-    def loadDataFile(self, filename):
-        if self.twissPlot:
-            twiss.read_hdf_summary(filename)
-            self.plotDataTwiss()
+    def changeDirectory(self, filename=None):
+        if filename == None or filename == False:
+            self.filename = str(QFileDialog.getOpenFileName(self, 'Select HDF file', '.', filter="HDF5 files (*.h5 *.hdf5);;", selectedFilter="HDF5 files (*.h5 *.hdf5)"))
         else:
-            beam.read_astra_beam_file(filename)
-            self.twissFile = False
-            self.beamFile = True
+            self.filename = filename
+        self.h5file = h5py.File(self.filename, "r")
+        self.folderLineEdit.setText(self.filename)
+        self.currentFileText = self.fileSelector.currentText()
+        self.currentScreenText = self.screenSelector.currentText()
+        self.getScreenFiles()
+        self.updateFileCombo()
+        self.updateScreenCombo()
+        self.loadDataFile()
 
-    def plotDataTwiss(self):
-        self.latticePlots = []
-        i = -1
-        for entry in self.twissLayout:
-            if entry == 'next_row':
-                self.plotWidget.nextRow()
+    def getScreenFiles(self):
+        try:
+            self.screenpositions = {}
+            h5screens = self.h5file.get('screens')
+            screenpositions = h5screens.keys()
+            self.screenpositions[self.filename] = {'screenpositions': screenpositions}
+        except:
+            pass
+
+    def changeScreen(self, i):
+        try:
+            h5screens = self.h5file.get('screens')
+            self.beamData = np.array(h5screens.get(str(self.screenSelector.currentText())))
+            self.loadDataFile()
+        except:
+            pass
+
+    def loadDataFile(self):
+        if os.path.isfile(self.filename):
+            if self.twissPlot:
+                self.twiss.read_hdf_summary(self.filename)
+                self.plotDataTwiss()
             else:
-                i += 1
-                p = self.plotWidget.addPlot(title=entry['name'])
-                p.showGrid(x=True, y=True)
-                vb = p.vb
-                vb.setYRange(*entry['range'])
-                latticePlot = ImageItem(self.latticePlotData)
-                latticePlot.setOpts(axisOrder='row-major')
-                vb.addItem(latticePlot)
-                latticePlot.setZValue(-1)  # make sure this image is on top
-                latticePlot.setOpacity(0.5)
-                scaleY = 0.05*(entry['range'][1] - entry['range'][0])
-                rect = QRectF(0, entry['range'][0] + scaleY, twiss['z'][-1], 4*scaleY)
-                latticePlot.setRect(rect)
-                # latticePlot.scale(scaleX, scaleY)
-                x = twiss['z']
-                y = twiss[entry['name']]*entry['scale']
-                plot = p.plot(x=x, y=y, pen=mkPen('b', width=3))
-                self.latticePlots[p.vb] = latticePlot
-                p.vb.sigRangeChanged.connect(self.scaleLattice)
-
-    def scaleLattice(self, vb, range):
-        range = range[1]
-        scaleY = 0.05*(range[1] - range[0])
-        rect = QRectF(0, range[0] + scaleY, twiss['z'][-1], 4*scaleY)
-        self.latticePlots[vb].setRect(rect)
+                self.beam.read_hdf5_beam(self.beamData)
+                self.plotDataBeam()
 
 def main():
-    global app
     args = parser.parse_args()
     app = QApplication(sys.argv)
     setConfigOptions(antialias=True)
     setConfigOption('background', 'w')
     setConfigOption('foreground', 'k')
     # app.setStyle(QStyleFactory.create("plastique"))
-    ex = mainWindow(filename=args.filename)
+    ex = mainWindow(app, filename=args.filename)
     ex.show()
     sys.exit(app.exec_())
 
