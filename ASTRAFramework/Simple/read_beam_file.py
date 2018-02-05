@@ -72,7 +72,15 @@ class beam(object):
 
     def read_astra_beam_file(self, file):
         self.reset_dicts()
-        x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.loadtxt(file, unpack=True)
+        data = np.loadtxt(file)
+        self.interpret_astra_data(data)
+
+    def read_hdf5_beam(self, data):
+        self.reset_dicts()
+        self.interpret_astra_data(data)
+
+    def interpret_astra_data(self, data):
+        x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.transpose(data)
         z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
         clock = self.normalise_to_ref_particle(clock, subtractmean=True)
@@ -460,25 +468,25 @@ class beam(object):
         # return [t.mean() for t in ]
     @property
     def slice_momentum(self):
-        if not hasattr(self,'_tbins'):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         self.slice['Momentum'] = np.array([cpbin.mean() for cpbin in self._cpbins])
         return self.slice['Momentum']
     @property
     def slice_momentum_spread(self):
-        if not hasattr(self,'_tbins'):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         self.slice['Momentum_Spread'] = np.array([cpbin.std() for cpbin in self._cpbins])
         return self.slice['Momentum_Spread']
     @property
     def slice_relative_momentum_spread(self):
-        if not hasattr(self,'_tbins'):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         self.slice['Relative_Momentum_Spread'] = np.array([100*cpbin.std()/cpbin.mean() for cpbin in self._cpbins])
         return self.slice['Relative_Momentum_Spread']
     @property
     def slice_normalized_horizontal_emittance(self):
-        if not hasattr(self,'_tbins'):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         xbins = [self.x[tbin] for tbin in self._tbins]
         xpbins = [self.xp[tbin] for tbin in self._tbins]
@@ -487,7 +495,7 @@ class beam(object):
         return self.slice['Normalized_Horizontal_Emittance']
     @property
     def slice_normalized_vertical_emittance(self):
-        if not hasattr(self,'_tbins'):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         ybins = [self.y[tbin] for tbin in self._tbins]
         ypbins = [self.yp[tbin] for tbin in self._tbins]

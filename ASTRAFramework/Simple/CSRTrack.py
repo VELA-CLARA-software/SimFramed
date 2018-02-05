@@ -29,7 +29,8 @@ class CSRTrack(object):
             with open(os.devnull, "w") as f:
                 subprocess.call(command, stdout=f, cwd=self.subdir)
 
-    def csrtrackinputtext(self, ANGLE):
+    def csrtrackinputtext(self, angle):
+        ANGLE = angle
         return """io_path{logfile = log.txt}
 
     lattice{
