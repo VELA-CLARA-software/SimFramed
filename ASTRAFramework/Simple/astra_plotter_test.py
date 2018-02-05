@@ -1,17 +1,15 @@
 import sys, os, time, math, datetime, copy, re
 import glob
 from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
-from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox
-from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout
+from PyQt4.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
+from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, \
+setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout, AxisItem, ViewBox, PlotDataItem, colorStr, mkColor
 from pyqtgraph.graphicsItems.LegendItem import ItemSample
 import argparse
 import imageio
 import numpy as np
 import read_beam_file as raf
 import read_twiss_file as rtf
-
-beam = raf.beam()
-twiss = rtf.twiss()
 
 parser = argparse.ArgumentParser(description='Plot ASTRA Data Files')
 parser.add_argument('-d', '--directory', default='.')
@@ -65,7 +63,11 @@ class astraPlotWidget(QWidget):
 
     def __init__(self, directory='.', **kwargs):
         super(astraPlotWidget, self).__init__(**kwargs)
+        self.beam = raf.beam()
+        self.twiss = rtf.twiss()
         self.directory = directory
+
+        ''' twissPlotWidget '''
         self.twissPlotView = GraphicsView(useOpenGL=True)
         self.twissPlotWidget = GraphicsLayout()
         self.twissPlotView.setCentralItem(self.twissPlotWidget)
@@ -91,6 +93,8 @@ class astraPlotWidget(QWidget):
                 self.twissPlots[entry['name']] = p.plot(pen=mkPen('b', width=3))
                 self.latticePlots[p.vb] = latticePlot
                 p.vb.sigRangeChanged.connect(self.scaleLattice)
+
+        ''' beamPlotWidget '''
         self.beamPlotWidget = QWidget()
         self.beamPlotLayout = QVBoxLayout()
         self.beamPlotWidget.setLayout(self.beamPlotLayout)
@@ -115,6 +119,63 @@ class astraPlotWidget(QWidget):
         # self.beamPlotYAxisCombo.setCurrentIndex(5)
         self.beamPlotLayout.addWidget(self.beamPlotAxisWidget)
         self.beamPlotLayout.addWidget(self.beamPlotView)
+
+        ''' slicePlotWidget '''
+        self.sliceParams = ['slice_normalized_horizontal_emittance','slice_normalized_vertical_emittance','slice_peak_current','slice_relative_momentum_spread']
+        self.slicePlotWidget = QWidget()
+        self.slicePlotLayout = QVBoxLayout()
+        self.slicePlotWidget.setLayout(self.slicePlotLayout)
+        # self.slicePlotView = GraphicsView(useOpenGL=True)
+        self.slicePlotWidgetGraphicsLayout = GraphicsLayoutWidget()
+        # self.slicePlots = {}
+        self.slicePlotCheckbox = {}
+        self.curve = {}
+        self.sliceaxis = {}
+        self.slicePlotCheckboxWidget = QWidget()
+        self.slicePlotCheckboxLayout = QVBoxLayout()
+        self.slicePlotCheckboxWidget.setLayout(self.slicePlotCheckboxLayout)
+        self.slicePlot = self.slicePlotWidgetGraphicsLayout.addPlot(title='Slice',row=0,col=50)
+        self.slicePlot.showAxis('left', False)
+        self.slicePlot.showGrid(x=True, y=True)
+        i = -1;
+        colors = ['b','r','g','k']
+        for param in self.sliceParams:
+            i += 1;
+            axis = AxisItem("left")
+            labelStyle = {'color': '#'+colorStr(mkColor(colors[i]))[0:-2]}
+            axis.setLabel(param,**labelStyle)
+            viewbox = ViewBox()
+            axis.linkToView(viewbox)
+            viewbox.setXLink(self.slicePlot.vb)
+            self.sliceaxis[param] = [axis, viewbox]
+            self.curve[param] = PlotDataItem(pen=colors[i], symbol='+')
+            viewbox.addItem(self.curve[param])
+            col = self.findFirstEmptyColumnInGraphicsLayout()
+            self.slicePlotWidgetGraphicsLayout.ci.addItem(axis, row = 0, col = col,  rowspan=1, colspan=1)
+            self.slicePlotWidgetGraphicsLayout.ci.addItem(viewbox, row=0, col=50)
+            p.showGrid(x=True, y=True)
+            # self.slicePlots[param] = self.slicePlot.plot(pen=colors[i], symbol='+')
+            self.slicePlotCheckbox[param] = QCheckBox(param)
+            self.slicePlotCheckboxLayout.addWidget(self.slicePlotCheckbox[param])
+            self.slicePlotCheckbox[param].stateChanged.connect(self.plotDataSlice)
+        # self.slicePlotView.setCentralItem(self.slicePlotWidgetGraphicsLayout)
+        self.slicePlotSliceWidthWidget = QSpinBox()
+        self.slicePlotSliceWidthWidget.setMaximum(1000)
+        self.slicePlotSliceWidthWidget.setValue(100)
+        self.slicePlotSliceWidthWidget.setSingleStep(10)
+        self.slicePlotSliceWidthWidget.setSuffix("fs")
+        self.slicePlotSliceWidthWidget.setSpecialValueText('Automatic')
+        self.slicePlotAxisWidget = QWidget()
+        self.slicePlotAxisLayout = QHBoxLayout()
+        self.slicePlotAxisWidget.setLayout(self.slicePlotAxisLayout)
+        self.slicePlotAxisLayout.addWidget(self.slicePlotCheckboxWidget)
+        self.slicePlotAxisLayout.addWidget(self.slicePlotSliceWidthWidget)
+        # self.slicePlotXAxisCombo.currentIndexChanged.connect(self.plotDataSlice)
+        self.slicePlotSliceWidthWidget.valueChanged.connect(self.changeSliceLength)
+        # self.beamPlotXAxisCombo.setCurrentIndex(2)
+        # self.beamPlotYAxisCombo.setCurrentIndex(5)
+        self.slicePlotLayout.addWidget(self.slicePlotAxisWidget)
+        self.slicePlotLayout.addWidget(self.slicePlotWidgetGraphicsLayout)
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -158,24 +219,34 @@ class astraPlotWidget(QWidget):
 
         self.tabWidget.addTab(self.twissPlotView,'Twiss Plots')
         self.tabWidget.addTab(self.beamPlotWidget,'Beam Plots')
+        self.tabWidget.addTab(self.slicePlotWidget,'Slice Beam Plots')
         self.tabWidget.currentChanged.connect(self.changeTab)
         self.layout.addWidget(self.folderBeamWidget)
         self.layout.addWidget(self.tabWidget)
 
-        self.twissPlot = True
+        self.plotType = 'Twiss'
         self.changeDirectory(self.directory)
+
+    def findFirstEmptyColumnInGraphicsLayout(self):
+            rowsfilled =  self.slicePlotWidgetGraphicsLayout.ci.rows.get(0, {}).keys()
+            for i in range(49):
+                if not i in rowsfilled:
+                    return i
 
     def changeTab(self, i):
         if self.tabWidget.tabText(i) == 'Beam Plots':
-            self.twissPlot = False
+            self.plotType = 'Beam'
+            self.beamWidget.setVisible(True)
+        if self.tabWidget.tabText(i) == 'Slice Beam Plots':
+            self.plotType = 'Slice'
             self.beamWidget.setVisible(True)
         else:
-            self.twissPlot = True
+            self.plotType = 'Twiss'
             self.beamWidget.setVisible(False)
         self.loadDataFile()
 
     def changeDirectory(self, directory=None):
-        if directory == None:
+        if directory == None or directory == False:
             self.directory = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.directory, QFileDialog.ShowDirsOnly))
         else:
             self.directory = directory
@@ -195,7 +266,7 @@ class astraPlotWidget(QWidget):
         for f, r in list(set(zip(filenames, runnumber))):
             files = glob.glob(self.directory+'/'+f+'.????.???')
             screenpositions = [re.search('\d\d\d\d', s).group(0) for s in files]
-            self.screenpositions[f] = {'screenpositions': screenpositions, 'run': r}
+            self.screenpositions[f] = {'screenpositions': sorted(screenpositions), 'run': r}
 
     def updateFileCombo(self):
         self.fileSelector.clear()
@@ -223,34 +294,56 @@ class astraPlotWidget(QWidget):
                 self.screenSelector.setCurrentIndex(i)
 
     def loadDataFile(self):
-        if self.twissPlot:
+        if self.plotType == 'Twiss':
             files = sorted(glob.glob(self.directory+"/*Xemit*"))
-            twiss.read_astra_emit_files(files)
+            self.twiss.read_astra_emit_files(files)
             self.plotDataTwiss()
-        else:
+        elif self.plotType == 'Beam' or self.plotType == 'Slice':
             if hasattr(self,'beamFileName') and os.path.isfile(self.directory+'/'+self.beamFileName):
-                beam.read_astra_beam_file(self.directory+'/'+self.beamFileName)
-                self.plotDataBeam()
+                self.beam.read_astra_beam_file(self.directory+'/'+self.beamFileName)
+                if self.plotType == 'Beam':
+                    self.plotDataBeam()
+                else:
+                    self.beam.bin_time()
+                    self.plotDataSlice()
 
     def plotDataTwiss(self):
-        # self.latticePlots = {}
-        # self.twissPlotWidget.clear()
-        # i = -1
         for entry in self.twissplotLayout:
             if entry == 'next_row':
                 pass
             else:
-                x = twiss['z']
-                y = twiss[entry['name']]*entry['scale']
+                x = self.twiss['z']
+                y = self.twiss[entry['name']]*entry['scale']
                 self.twissPlots[entry['name']].setData(x=x, y=y, pen=mkPen('b', width=3))
 
     def plotDataBeam(self):
-        self.beamPlot.setData(x=getattr(beam, str(self.beamPlotXAxisCombo.currentText())), y=getattr(beam, str(self.beamPlotYAxisCombo.currentText())), pen=None, symbol='+')
+        self.beamPlot.setData(x=getattr(self.beam, str(self.beamPlotXAxisCombo.currentText())), y=getattr(self.beam, str(self.beamPlotYAxisCombo.currentText())), pen=None, symbol='+')
+
+    def changeSliceLength(self):
+        self.beam.slice_length = self.slicePlotSliceWidthWidget.value()*1e-15
+        self.beam.bin_time()
+        self.plotDataSlice()
+
+    def plotDataSlice(self):
+        for p in self.sliceParams:
+            if self.slicePlotCheckbox[p].isChecked():
+                x = self.beam.slice_bins
+                self.slicePlot.setRange(xRange=[min(x),max(x)])
+                # self.plot.setRange(xRange=[-0.5,1.5])
+                y = getattr(self.beam, p)
+                self.curve[p].setData(x=x, y=y)
+                self.sliceaxis[p][0].setVisible(True)
+                # self.sliceaxis[p][1].setVisible(True)
+            else:
+                # pass
+                self.curve[p].setData(x=[], y=[])
+                self.sliceaxis[p][0].setVisible(False)
+                # self.sliceaxis[p][1].setVisible(False)
 
     def scaleLattice(self, vb, range):
         yrange = range[1]
         scaleY = 0.05*abs(yrange[1] - yrange[0])
-        rect = QRectF(0, yrange[0] + 2*scaleY, twiss['z'][-1], 4*scaleY)
+        rect = QRectF(0, yrange[0] + 2*scaleY, self.twiss['z'][-1], 4*scaleY)
         self.latticePlots[vb].setRect(rect)
 
 def main():

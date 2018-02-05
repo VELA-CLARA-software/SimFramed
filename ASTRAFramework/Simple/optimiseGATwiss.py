@@ -58,6 +58,7 @@ class fitnessFunc():
         self.tmpdir = tempdir
         self.verbose = verbose
         self.parameters = list(args)
+        # print [abs(p) for p in self.parameters]
         self.dirname = os.path.basename(self.tmpdir)
         astra = ASTRAInjector(self.dirname, overwrite=overwrite)
         csrtrack = CSRTrack(self.dirname, overwrite=overwrite)
@@ -81,7 +82,7 @@ class fitnessFunc():
         ''' Run ASTRA upto VBC '''
         astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
         ''' Write Out the CSRTrack file based on the BC angle (assumed to be 0.105) '''
-        csrtrack.writeCSRTrackFile('csrtrk.in', 0.105)
+        csrtrack.writeCSRTrackFile('csrtrk.in', astra.fileSettings['test.4']['variable_bunch_compressor']['angle'])
         ''' Run CSRTrack'''
         csrtrack.runCSRTrackFile('csrtrk.in')
         ''' Convert CSRTrack output file back in to ASTRA format '''
@@ -95,6 +96,11 @@ class fitnessFunc():
     def calculateTwissParameters(self):
         constraintsList = {}
         # LINAC 2 and 3
+        constraintsListQuads = {
+            'max_k': {'type': 'lessthan', 'value': [abs(p) for p in self.parameters], 'limit': 0.1, 'weight': 2},
+
+        }
+        constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
         twiss.read_astra_emit_files(self.dirname+'/test.2.Zemit.001')
         constraintsList2 = {
             'max_xrms_2': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
@@ -153,8 +159,8 @@ class fitnessFunc():
             # 'screen_beta_y': {'type': 'equalto', 'value': twiss.interpolate(46.4378, 'beta_y'), 'limit': 5, 'weight': 75},
             'dechirper_sigma_x': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_x'), 'limit': 0.1, 'weight': 100},
             'dechirper_sigma_y': {'type': 'lessthan', 'value': twiss.interpolate(44.03, 'sigma_y'), 'limit': 0.1, 'weight': 100},
-            'last_exn_5': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.8, 'weight': 200},
-            'last_eyn_5': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.8, 'weight': 200},
+            'last_exn_5': {'type': 'lessthan', 'value': 1e6*twiss['enx'], 'limit': 0.8, 'weight': 200},
+            'last_eyn_5': {'type': 'lessthan', 'value': 1e6*twiss['eny'], 'limit': 0.8, 'weight': 200},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsList5)
 
@@ -179,23 +185,28 @@ def optfunc(args, dir=None, **kwargs):
 # if not os.name == 'nt':
 #     os.chdir('/home/jkj62/ASTRAFramework/Simple')
 
-best = [
--1.2379283065247337,0.3334741098271971,0.301800836132157,1.0302048786187044,0.8430805443454812,-0.8661180281795384,0.5231461371201584,0.14760850442189372,-0.4696623170443573,-0.224203308050976,0.25416019902940173,0.4855500026561579,0.5710635402568202,-0.18806962854157552,-0.4806964660854134,0.9677949566019728,0.8668078689384511,-0.470363079026056,2.891391766237616,-0.9448132755898974,-1.0887953929910517,-1.1743411633855374,0.9436400641772102,0.12759187373793662,-1.5995353479210808,-0.7686023258087982,0.7176429407516101,-0.6633543452355456,5.559806014997541
-]
+# results = []
 
-results = []
+# with open('twiss_best/twiss_best_solutions.csv', 'r') as csvfile:
+#   reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
+#   for row in reader:
+#     results.append(row)
+# best = results[0]
+astra = ASTRAInjector('twiss_best', overwrite=False)
+astra.loadSettings('short_240_12b3.settings')
+parameters = []
+parameters.append(astra.fileSettings['test.2']['quad_K'])
+parameters.append(astra.fileSettings['test.3']['quad_K'])
+parameters.append(astra.fileSettings['test.4']['quad_K'])
+parameters.append(astra.fileSettings['test.5']['quad_K'])
+best = [item for sublist in parameters for item in sublist]
 
-with open('twiss_best_solutions.csv', 'r') as csvfile:
-  reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
-  for row in reader:
-    results.append(row)
-best = results[0]
-print optfunc(best, dir=os.getcwd()+'/twiss_best', npart=50000, ncpu=20, overwrite=False, verbose=False, summary=True)
-exit()
+# print optfunc(best, dir=os.getcwd()+'/twiss_best', npart=50000, ncpu=20, overwrite=False, verbose=False, summary=True)
+# exit()
 
 # best = [0 for x in best]
 
-startranges = [[0.8*i, 1.2*i] if abs(i) > 0 else [-1,1] for i in best]
+startranges = [[0.8*i, 1.2*i] if abs(i) > 0 else [-0.1,0.1] for i in best]
 print 'Start Ranges = ', startranges
 generateHasBeenCalled = False
 def generate():
@@ -221,9 +232,9 @@ toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
 if os.name == 'nt':
-    toolbox.register("evaluate", optfunc, npart=100)
+    toolbox.register("evaluate", optfunc, npart=2**7)
 else:
-    toolbox.register("evaluate", optfunc, npart=1000)
+    toolbox.register("evaluate", optfunc, npart=2**8)
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)
