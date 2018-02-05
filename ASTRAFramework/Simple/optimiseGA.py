@@ -1,8 +1,10 @@
 from ASTRAInjector import *
+from CSRTrack import *
 import numpy as np
 from constraints import *
 import os
-import read_beam_file as raf
+import read_twiss_file as rtf
+import read_beam_file as rbf
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -13,9 +15,15 @@ import multiprocessing
 from scoop import futures
 import csv
 
-
 import shutil
 import uuid
+
+def merge_two_dicts(x, y):
+    """Given two dicts, merge them into a new dict as a shallow copy."""
+    z = x.copy()
+    z.update(y)
+    return z
+
 class TemporaryDirectory(object):
     """Context manager for tempfile.mkdtemp() so it's usable with "with" statement."""
 
@@ -40,61 +48,103 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, npart=10000, ncpu=6, overwrite=True, verbose=False):
+    def __init__(self, args, tempdir, npart=10000, ncpu=6, overwrite=True, verbose=False, summary=False):
+        self.cons = constraintsClass()
+        self.beam = rbf.beam()
+        self.twiss = rtf.twiss()
         self.tmpdir = tempdir
         self.verbose = verbose
-        linac1field, linac1phase, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase = args
-        self.parameters = args
+        self.summary = summary
+
+        linac1field, linac1phase, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
+        self.parameters = dict(zip(['linac1field','linac1phase', 'linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
+        self.npart = npart
         self.linacfields = [linac1field, linac2field, linac3field, linac4field]
         self.dirname = os.path.basename(self.tmpdir)
-        astra = ASTRAInjector(self.dirname, overwrite=overwrite)
+        self.astra = ASTRAInjector(self.dirname, overwrite=overwrite)
+        self.csrtrack = CSRTrack(self.dirname, overwrite=overwrite)
         if not os.name == 'nt':
-            astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
-        astra.loadSettings('short_240_12b3.settings')
-        astra.modifySetting('linac1_field', abs(linac1field))
-        astra.modifySetting('linac1_phase', linac1phase)
-        astra.modifySetting('linac2_field', abs(linac2field))
-        astra.modifySetting('linac2_phase', linac2phase)
-        astra.modifySetting('linac3_field', abs(linac3field))
-        astra.modifySetting('linac3_phase', linac3phase)
-        astra.modifySetting('4hc_field', abs(fhcfield))
-        astra.modifySetting('4hc_phase', fhcphase)
-        astra.modifySetting('linac4_field', abs(linac4field))
-        astra.modifySetting('linac4_phase', linac4phase)
-        astra.createInitialDistribution(npart=npart, charge=250)
-        astra.applySettings()
-        astra.runASTRAFiles()
-        # ft = feltools(self.dirname)
-        # sddsfile = ft.convertToSDDS('test.5.3819.001')
-        self.cons = constraintsClass()
+            self.astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
+            self.csrtrack.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+        else:
+            self.astra.defineASTRACommand(['astra'])
+            self.csrtrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
+        self.astra.loadSettings('short_240_12b3.settings')
+        self.astra.modifySetting('linac1_field', abs(linac1field))
+        self.astra.modifySetting('linac1_phase', linac1phase)
+        self.astra.modifySetting('linac2_field', abs(linac2field))
+        self.astra.modifySetting('linac2_phase', linac2phase)
+        self.astra.modifySetting('linac3_field', abs(linac3field))
+        self.astra.modifySetting('linac3_phase', linac3phase)
+        self.astra.modifySetting('4hc_field', abs(fhcfield))
+        self.astra.modifySetting('4hc_phase', fhcphase)
+        self.astra.modifySetting('linac4_field', abs(linac4field))
+        self.astra.modifySetting('linac4_phase', linac4phase)
+        self.astra.fileSettings['test.4']['variable_bunch_compressor']['angle'] = abs(bcangle)
+
+    def between(self, value, minvalue, maxvalue, absolute=True):
+        if absolute:
+            result = max([minvalue,min([maxvalue,abs(value)])])
+        else:
+            result = np.sign(value)*max([minvalue,min([maxvalue,abs(value)])])
+        return result
 
     def calculateBeamParameters(self):
-        beam = raf.beam()
-        beam.slice_length = 0.1e-12
-        beam.read_astra_beam_file(self.dirname+'/test.5.4936.001')
-        sigmat = 1e12*np.std(beam.t)
-        sigmap = np.std(beam.p)
-        meanp = np.mean(beam.p)
-        emitx = 1e6*beam.normalized_horizontal_emittance
-        emity = 1e6*beam.normalized_vertical_emittance
-        fitp = 100*sigmap/meanp
-        fhcfield = self.parameters[6]
-        peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = beam.sliceAnalysis()
-        constraintsList = {
-            'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 20},
-            'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 3},
-            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.25, 'weight': 2.5},
-            'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.25, 'weight': 2.5},
-            'peakIMomentum': {'type': 'greaterthan','value': 1e-6*peakIMomentum, 'limit': 210, 'weight': 10},
-            'linac fields': {'type': 'lessthan', 'value': self.linacfields, 'limit': 32, 'weight': 100},
-            '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 100},
-            'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 4},
-            'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 1, 'weight': 4},
-        }
-        fitness = self.cons.constraints(constraintsList)
-        if self.verbose:
-            print self.cons.constraintsList(constraintsList)
-        return fitness
+        bcangle = float(self.astra.fileSettings['test.4']['variable_bunch_compressor']['angle'])
+        try:
+            if bcangle < 0.05 or bcangle > 0.12:
+                raise ValueError
+            self.astra.createInitialDistribution(npart=self.npart, charge=250)
+            ''' Modify the last file to use to CSRTrack output as input'''
+            self.astra.fileSettings['test.5']['starting_distribution'] = 'end.fmt2.astra'
+            self.astra.applySettings()
+            ''' Run ASTRA upto VBC '''
+            self.astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
+            ''' Write Out the CSRTrack file based on the BC angle (assumed to be 0.105) '''
+            self.csrtrack.writeCSRTrackFile('csrtrk.in', angle=bcangle)
+            ''' Run CSRTrack'''
+            self.csrtrack.runCSRTrackFile('csrtrk.in')
+            ''' Convert CSRTrack output file back in to ASTRA format '''
+            self.beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
+            ''' Run the next section of the lattice in ASTRA, using the CSRTrack output as input '''
+            self.astra.runASTRAFiles(files=['test.5'])
+
+            self.beam.read_astra_beam_file(self.dirname+'/test.5.4936.001')
+            self.beam.slice_length = 0.03e-12
+            self.beam.bin_time()
+            sigmat = 1e12*np.std(self.beam.t)
+            sigmap = np.std(self.beam.p)
+            meanp = np.mean(self.beam.p)
+            emitx = 1e6*self.beam.normalized_horizontal_emittance
+            emity = 1e6*self.beam.normalized_vertical_emittance
+            fitp = 100*sigmap/meanp
+            fhcfield = self.parameters['fhcfield']
+            peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = self.beam.sliceAnalysis()
+            constraintsList = {
+                'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 100},
+                'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.05, 'weight': 3},
+                'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 2.5},
+                'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 2.5},
+                'peakIMomentum': {'type': 'greaterthan','value': 1e-6*peakIMomentum, 'limit': 240, 'weight': 10},
+                'linac fields': {'type': 'lessthan', 'value': self.linacfields, 'limit': 32, 'weight': 100},
+                '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 100},
+                'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 4},
+                'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 1, 'weight': 4},
+            }
+            self.twiss.read_astra_emit_files(self.dirname+'/test.5.Zemit.001')
+            constraintsList5 = {
+                'last_exn_5': {'type': 'lessthan', 'value': 1e6*self.twiss['enx'], 'limit': 1, 'weight': 1},
+                'last_eyn_5': {'type': 'lessthan', 'value': 1e6*self.twiss['eny'], 'limit': 1, 'weight': 1},
+            }
+            constraintsList = merge_two_dicts(constraintsList, constraintsList5)
+            fitness = self.cons.constraints(constraintsList)
+            if self.verbose:
+                print self.cons.constraintsList(constraintsList)
+            if self.summary:
+                self.astra.createHDF5Summary()
+            return fitness
+        except:
+            return 1e6
 
 def optfunc(args, dir=None, **kwargs):
     if dir == None:
@@ -108,13 +158,23 @@ def optfunc(args, dir=None, **kwargs):
 
 # if not os.name == 'nt':
 #     os.chdir('/home/jkj62/ASTRAFramework/Simple')
+#
+# best = [21.400623994160444, -16.55969620994231, 29.287957969747083, -23.786662293312006, 17.558361277790308,
+#  -12.299336166149129, 23.967537037232802, 184.4163061991109, 25.857484094665274, 2.769682559549861, 0.075]
+results = []
 
-best = [20.715615124317853,-19.490448811248754,31.499129685645897,-27.463243697074024,16.912367920177985,-12.668172100137667,27.842335415412833,188.38675572505772,20.577934659165386,3.017649550471842]
-# print optfunc(best, dir=os.getcwd()+'/best_2013', npart=10000, ncpu=20, overwrite=True, verbose=True)
+with open('longitudinal_best/longitudinal_best_solutions.csv', 'r') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
+    for row in reader:
+        results.append(row)
+best = results[0]
+# best[-1] = 0.12
+
+# print optfunc(best, dir=os.getcwd()+'/longitudinal_best', npart=1000, ncpu=40, overwrite=True, verbose=True, summary=False)
 # exit()
 
-startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40]]
-startranges = [[0.8*i, 1.4*i] for i in best]
+startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40], [0.8,0.15]]
+startranges = [[0.8*i, 1.2*i] for i in best]
 generateHasBeenCalled = False
 def generate():
     global generateHasBeenCalled
@@ -138,7 +198,10 @@ toolbox.register("attr_bool", generate)
 toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
-toolbox.register("evaluate", optfunc, npart=1000)
+if os.name == 'nt':
+    toolbox.register("evaluate", optfunc, npart=500)
+else:
+    toolbox.register("evaluate", optfunc, npart=1000)
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)
@@ -149,15 +212,16 @@ if __name__ == "__main__":
 
     # Process Pool of 4 workers
     if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=10)
+        pool = multiprocessing.Pool(processes=12)
     else:
-        pool = multiprocessing.Pool(processes=1)
+        pool = multiprocessing.Pool(processes=3)
     toolbox.register("map", pool.map)
+    # toolbox.register("map", futures.map)
 
     if not os.name == 'nt':
-        pop = toolbox.population(n=30)
+        pop = toolbox.population(n=48)
     else:
-        pop = toolbox.population(n=18)
+        pop = toolbox.population(n=21)
     hof = tools.HallOfFame(10)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", numpy.mean)
@@ -172,10 +236,15 @@ if __name__ == "__main__":
     print logbook
     print hof
 
-    with open('best_solutions.csv','wb') as out:
-        csv_out=csv.writer(out)
-        for row in hof:
-            csv_out.writerow(row)
+    try:
+        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/longitudinal_best', npart=50000, ncpu=40, overwrite=True, verbose=True, summary=True)
+        with open('longitudinal_best/longitudinal_best_solutions.csv','wb') as out:
+            csv_out=csv.writer(out)
+            for row in hof:
+                csv_out.writerow(row)
+    except:
+        with open('longitudinal_best_solutions.csv.tmp','wb') as out:
+            csv_out=csv.writer(out)
+            for row in hof:
+                csv_out.writerow(row)
     pool.close()
-
-    print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best', npart=50000, ncpu=40)
