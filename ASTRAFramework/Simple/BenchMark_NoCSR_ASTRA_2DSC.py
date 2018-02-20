@@ -69,17 +69,12 @@ class fitnessFunc():
             self.astra.defineASTRACommand(['astra'])
             self.csrtrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
         self.astra.loadSettings('short_240_12b3.settings')
-        self.astra.modifySetting('linac1_field', abs(linac1field))
-        self.astra.modifySetting('linac1_phase', linac1phase)
-        self.astra.modifySetting('linac2_field', abs(linac2field))
-        self.astra.modifySetting('linac2_phase', linac2phase)
-        self.astra.modifySetting('linac3_field', abs(linac3field))
-        self.astra.modifySetting('linac3_phase', linac3phase)
-        self.astra.modifySetting('4hc_field', abs(fhcfield))
-        self.astra.modifySetting('4hc_phase', fhcphase)
         self.astra.modifySetting('linac4_field', abs(linac4field))
         self.astra.modifySetting('linac4_phase', linac4phase)
+        self.astra.fileSettings['vb']['starting_distribution'] = '../CSRTest_Base/test.4.2573.001'
         self.astra.fileSettings['vb']['variable_bunch_compressor']['angle'] = abs(bcangle)
+        self.astra.fileSettings['vb']['LSPCH'] = True
+        self.astra.fileSettings['vb']['LSPCH3D'] = False
 
     def between(self, value, minvalue, maxvalue, absolute=True):
         if absolute:
@@ -95,21 +90,21 @@ class fitnessFunc():
                 raise ValueError
             self.astra.createInitialDistribution(npart=self.npart, charge=250)
             ''' Modify the last file to use to CSRTrack output as input'''
-            self.astra.fileSettings['test.5']['starting_distribution'] = 'end.fmt2.astra'
+            # self.astra.fileSettings['test.5']['starting_distribution'] = 'end.fmt2.astra'
             self.astra.applySettings()
             ''' Run ASTRA upto VBC '''
-            self.astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
+            self.astra.runASTRAFiles(['vb','test.5'])
             ''' Write Out the CSRTrack file based on the BC angle (assumed to be 0.105) '''
-            self.csrtrack.writeCSRTrackFile('csrtrk.in', angle=bcangle, forces='projected')
+            # self.csrtrack.writeCSRTrackFile('csrtrk.in', angle=bcangle, forces='none')
             ''' Run CSRTrack'''
-            self.csrtrack.runCSRTrackFile('csrtrk.in')
+            # self.csrtrack.runCSRTrackFile('csrtrk.in')
             ''' Convert CSRTrack output file back in to ASTRA format '''
-            self.beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
+            # self.beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
             ''' Run the next section of the lattice in ASTRA, using the CSRTrack output as input '''
-            self.astra.runASTRAFiles(files=['test.5'])
+            # self.astra.runASTRAFiles(files=['test.5'])
 
             self.beam.read_astra_beam_file(self.dirname+'/test.5.4936.001')
-            self.beam.slice_length = 0.1e-12
+            self.beam.slice_length = 0.03e-12
             self.beam.bin_time()
             sigmat = 1e12*np.std(self.beam.t)
             sigmap = np.std(self.beam.p)
@@ -140,7 +135,7 @@ class fitnessFunc():
             if self.verbose:
                 print self.cons.constraintsList(constraintsList)
             if self.summary:
-                self.astra.createHDF5Summary(reference='Longitudinal_GA')
+                self.astra.createHDF5Summary(reference='NoCSR_ASTRA_2DSC')
             return fitness
         except:
             return 1e6
@@ -155,7 +150,14 @@ def optfunc(args, dir=None, **kwargs):
             fitvalue = fit.calculateBeamParameters()
     return (fitvalue,)
 
-astra = ASTRAInjector('longitudinal_best', overwrite=False)
+# results = []
+#
+# with open('longitudinal_best/longitudinal_best_solutions.csv', 'r') as csvfile:
+#     reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
+#     for row in reader:
+#         results.append(row)
+# best = results[0]
+astra = ASTRAInjector('twiss_best', overwrite=False)
 astra.loadSettings('short_240_12b3.settings')
 parameters = []
 parameters.append(astra.getSetting('linac1_field')[0][1])
@@ -170,79 +172,5 @@ parameters.append(astra.getSetting('linac4_field')[0][1])
 parameters.append(astra.getSetting('linac4_phase')[0][1])
 parameters.append(astra.fileSettings['vb']['variable_bunch_compressor']['angle'])
 best = parameters
-
-startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40], [0.8,0.15]]
-startranges = [[0.8*i, 1.2*i] for i in best]
-generateHasBeenCalled = False
-def generate():
-    global generateHasBeenCalled
-    if not generateHasBeenCalled:
-        generateHasBeenCalled = True
-        return creator.Individual(list(best))
-    else:
-        return creator.Individual(random.uniform(a,b) for a,b in startranges)
-
-# print generate()
-
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMin)
-
-toolbox = base.Toolbox()
-
-# Attribute generator
-toolbox.register("attr_bool", generate)
-
-# Structure initializers
-toolbox.register("Individual", generate)
-toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
-
-if os.name == 'nt':
-    toolbox.register("evaluate", optfunc, npart=500)
-else:
-    toolbox.register("evaluate", optfunc, npart=1000)
-toolbox.register("mate", tools.cxBlend, alpha=0.2)
-toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
-toolbox.register("select", tools.selTournament, tournsize=3)
-
-
-if __name__ == "__main__":
-    random.seed(64)
-
-    # Process Pool of 4 workers
-    if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=12)
-    else:
-        pool = multiprocessing.Pool(processes=3)
-    toolbox.register("map", pool.map)
-    # toolbox.register("map", futures.map)
-
-    if not os.name == 'nt':
-        pop = toolbox.population(n=48)
-    else:
-        pop = toolbox.population(n=6)
-    hof = tools.HallOfFame(10)
-    stats = tools.Statistics(lambda ind: ind.fitness.values)
-    stats.register("avg", numpy.mean)
-    stats.register("std", numpy.std)
-    stats.register("min", numpy.min)
-    stats.register("max", numpy.max)
-
-    pop, logbook = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=50,
-                            stats=stats, halloffame=hof)
-
-    # print 'pop = ', pop
-    print logbook
-    print hof
-
-    try:
-        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/longitudinal_best', npart=50000, ncpu=40, overwrite=True, verbose=True, summary=True)
-        with open('longitudinal_best/longitudinal_best_solutions.csv','wb') as out:
-            csv_out=csv.writer(out)
-            for row in hof:
-                csv_out.writerow(row)
-    except:
-        with open('longitudinal_best_solutions.csv.tmp','wb') as out:
-            csv_out=csv.writer(out)
-            for row in hof:
-                csv_out.writerow(row)
-    pool.close()
+print optfunc(best, dir=os.getcwd()+'/longitudinal_best_NoCSR_ASTRA_2DSC', npart=2**16, ncpu=20, overwrite=True, verbose=True, summary=True)
+exit()
