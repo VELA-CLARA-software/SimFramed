@@ -100,6 +100,13 @@ class ASTRAInjector(object):
         self.replaceKeyValue(self.fileSettings, key, value)
         self.replaceKeyValue(self.globalSettings, key, value)
 
+    def getSetting(self, key):
+        g = list(self.findKey(key, self.globalSettings))
+        if len(g) > 0:
+            return g
+        else:
+            return list(self.findKey(key, self.fileSettings))
+
     def readFile(self, fname=None):
         with open(fname) as f:
             content = f.readlines()
@@ -170,10 +177,10 @@ class ASTRAInjector(object):
     def setInitialDistribution(self, filename='../1k-250pC-76fsrms-1mm_TE09fixN12.ini'):
         self.globalSettings['initial_distribution'] = filename
 
-    def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None):
+    def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None, generatorFile='generator.in'):
         self.globalSettings['npart'] = npart
         self.globalSettings['charge'] = charge/1000.0
-        astragen = ASTRAGenerator(self.subdir, charge, npart, overwrite=self.overwrite)
+        astragen = ASTRAGenerator(self.subdir, charge, npart, overwrite=self.overwrite, generatorFile=generatorFile)
         if not generatorCommand is None:
             astragen.defineGeneratorCommand(generatorCommand)
         elif os.name == 'nt':
@@ -193,19 +200,19 @@ class ASTRAInjector(object):
         for f, s in self.fileSettings.iteritems():
             filename = f
             runnumber = str(s['run']).zfill(3)
-            # print 'filename = ', filename
-            # print 'runnumber = ', runnumber
             files = glob.glob(self.subdir+'/'+filename+'.????.'+runnumber)
-            # print 'files = ', files
             screenpositions = [re.search('\d\d\d\d', s).group(0) for s in files]
-            # print 'screenpositions = ', screenpositions
             self.screenpositions[filename] = {'filename': filename, 'run': runnumber, 'screenpositions': screenpositions}
         return self.screenpositions
 
-    def createHDF5Summary(self, screens=[]):
+    def createHDF5Summary(self, screens=[], reference=None):
         savescreens = [str(s) for s in screens]
         screenpositions = self.getScreenFiles()
-        filename = '_'.join(map(str,[self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
+        # print 'screenpositions = ', list(screenpositions.iteritems())
+        if reference is not None:
+            filename = '_'.join(map(str,[reference, self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
+        else:
+            filename = '_'.join(map(str,[self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
         # print filename
         f = h5py.File(filename, "w")
         inputgrp = f.create_group("Input")
@@ -216,35 +223,45 @@ class ASTRAInjector(object):
         yemitgrp = f.create_group("Yemit")
         zemitgrp = f.create_group("Zemit")
         screengrp = f.create_group("screens")
-        inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.subdir+'/'+self.globalSettings['initial_distribution']))
-        for n, screendict in screenpositions.iteritems():
-            inputfile = file(self.subdir+'/'+n+'.in','r')
-            inputfilecontents = inputfile.read()
-            inputgrp.create_dataset(n, data=inputfilecontents)
+        if os.path.isfile(self.subdir+'/'+self.globalSettings['initial_distribution']):
+            inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.subdir+'/'+self.globalSettings['initial_distribution']))
+        for n, screendict in sorted(screenpositions.iteritems()):
+            if os.path.isfile(self.subdir+'/'+n+'.in'):
+                inputfile = file(self.subdir+'/'+n+'.in','r')
+                inputfilecontents = inputfile.read()
+                inputgrp.create_dataset(n, data=inputfilecontents)
             for emit, grp in {'X': xemitgrp,'Y': yemitgrp,'Z': zemitgrp}.iteritems():
                 emitfile = self.subdir+'/'+n+'.'+emit+'emit.'+screendict['run']
-                # print 'emitfile = ', emitfile
-                grp.create_dataset(n, data=numpy.loadtxt(emitfile))
+                if os.path.isfile(emitfile):
+                    grp.create_dataset(n, data=numpy.loadtxt(emitfile))
             for s in screendict['screenpositions']:
                 screenfile = self.subdir+'/'+n+'.'+s+'.'+screendict['run']
                 if screens == [] or s in savescreens:
                     # print 's = ', screenfile
                     screengrp.create_dataset(s, data=numpy.loadtxt(screenfile))
+        csrtrackfiles = glob.glob(self.subdir+'/csrtrk.in')
+        for csrfile in csrtrackfiles:
+            inputfile = file(csrfile,'r')
+            inputfilecontents = inputfile.read()
+            inputgrp.create_dataset('csrtrack', data=inputfilecontents)
+            screenfile = self.subdir+'/end.fmt2.astra'
+            if os.path.isfile(screenfile):
+                screengrp.create_dataset(screenfile, data=numpy.loadtxt(screenfile))
 
     def write_VBC_code(self, ANGLE=0.105, zstart=24.326, dipolestart=1.642833):
         return """
 &DIPOLE
 Loop=.F,
 LDipole=.T
-D_Type(1)='horizontal', D_Gap(1,1)=0.02,
-D_Gap(2,1)=0.02,
+D_Type(1)='horizontal', D_Gap(1,1)=0.05,
+D_Gap(2,1)=0.05,
 D1(1)=("""+str(0.04019629503215602)+""","""+str(1.642833 + zstart)+"""),
 D3(1)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE))/ANGLE)+""","""+str(1.642833 + zstart + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
 D4(1)=("""+str((0.2009814751607801 - 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE))/ANGLE)+""","""+str(1.642833 + zstart + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
 D2(1)=("""+str(-0.04019629503215602)+""","""+str(1.642833 + zstart)+"""),
 D_radius(1)="""+str(-0.2009814751607801/ANGLE)+"""
-D_Type(2)='horizontal', D_Gap(1,2)=0.02,
-D_Gap(2,2)=0.02,
+D_Type(2)='horizontal', D_Gap(1,2)=0.05,
+D_Gap(2,2)=0.05,
 D1(2)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
 str(1.642833 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
 D3(2)=("""+str((0.4019629503215602 + 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
@@ -254,8 +271,8 @@ str(1.642833 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.4019629503215602*Sin(
 D2(2)=("""+str((0.2009814751607801 - 0.04019629503215602*ANGLE - 0.2009814751607801*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
 str(1.642833 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.2009814751607801*Sin(ANGLE))/ANGLE)+"""),
 D_radius(2)="""+str(0.2009814751607801/ANGLE)+"""
-D_Type(3)='horizontal', D_Gap(1,3)=0.02,
-D_Gap(2,3)=0.02,
+D_Type(3)='horizontal', D_Gap(1,3)=0.05,
+D_Gap(2,3)=0.05,
 D1(3)=("""+str((0.4019629503215602 + 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+\
 str(2.9428330000000003 + zstart + 1.5067942970813246*Cos(ANGLE) + (0.4019629503215602*Sin(ANGLE))/ANGLE)+"""),
 D3(3)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.40196295032156015*Cos(ANGLE) + 0.2009814751607801*Cos(1.*ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+\
@@ -265,8 +282,8 @@ D4(3)=("""+str((0.2009814751607801 - 0.04019629503215602*ANGLE - 0.4019629503215
 D2(3)=("""+str((0.4019629503215602 - 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 1.5067942970813246*ANGLE*Sin(ANGLE))/ANGLE)+""","""+str(2.9428330000000003 +\
 zstart + 1.5067942970813246*Cos(ANGLE) + (0.4019629503215602*Sin(ANGLE))/ANGLE)+"""),
 D_radius(3)="""+str(0.2009814751607801/ANGLE)+"""
-D_Type(4)='horizontal', D_Gap(1,4)=0.02,
-D_Gap(2,4)=0.02,
+D_Type(4)='horizontal', D_Gap(1,4)=0.05,
+D_Gap(2,4)=0.05,
 D1(4)=("""+str((0.2009814751607801 + 0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 0.2009814751607801*Cos(1.*ANGLE))/ANGLE)+""","""+str((ANGLE*(2.9428330000000003 +\
 zstart) + 1.5067942970813246*ANGLE*Cos(ANGLE) + 1.5067942970813246*ANGLE*Cos(1.*ANGLE) + 0.4019629503215602*Sin(ANGLE) + 0.2009814751607801*Sin(1.*ANGLE))/ANGLE)+"""),
 D3(4)=("""+str((0.04019629503215602*ANGLE - 0.4019629503215602*Cos(ANGLE) + 0.4019629503215602*Cos(1.*ANGLE) + 1.5067942970813248*ANGLE*Sin(ANGLE) -\
@@ -332,10 +349,10 @@ class feltools(object):
 
 class ASTRAGenerator(object):
 
-    def __init__(self, subdir='test', charge=250, npart=1000, overwrite=None):
+    def __init__(self, subdir='test', charge=250, npart=1000, overwrite=None, generatorFile='generator.in'):
         super(ASTRAGenerator, self).__init__()
         self.lineIterator = 0
-        self.generatorBaseFile = 'generator.in'
+        self.generatorBaseFile = generatorFile
         self.charge = charge
         self.npart = npart
         self.overwrite = overwrite
