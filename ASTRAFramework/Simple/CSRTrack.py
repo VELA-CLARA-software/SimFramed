@@ -29,30 +29,30 @@ class CSRTrack(object):
             with open(os.devnull, "w") as f:
                 subprocess.call(command, stdout=f, cwd=self.subdir)
 
-    def csrtrackinputtext(self, angle):
+    def csrtrackinputtext(self, angle, forces='projected', inputfile='./test.4.2573.001'):
         ANGLE = angle
         return """io_path{logfile = log.txt}
 
     lattice{
     dipole{
-    position{rho="""+str(25.96978776235)+""", psi=0.0, marker=d1a}
+    position{rho="""+str(25.969833)+""", psi=0.0, marker=d1a}
     properties{r="""+str(-0.2009814751607801/ANGLE)+"""}
-    position{rho="""+str(25.96978776235 + (0.2009814751607801*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d1b}
+    position{rho="""+str(25.969833 + (0.2009814751607801*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d1b}
     }
     dipole{
-    position{rho="""+str(25.96978776235 + 1.5067942970813246*np.cos(ANGLE) + (0.2009814751607801*np.sin(ANGLE))/ANGLE)+""", psi=0.0, marker=d2a}
+    position{rho="""+str(25.969833 + 1.5067942970813246*np.cos(ANGLE) + (0.2009814751607801*np.sin(ANGLE))/ANGLE)+""", psi=0.0, marker=d2a}
     properties{r="""+str(0.2009814751607801/ANGLE)+"""}
-    position{rho="""+str((25.96978776235*ANGLE + 1.5067942970813246*ANGLE*np.cos(ANGLE) + 0.2009814751607801*np.sin(ANGLE) + 0.2009814751607801*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d2b}
+    position{rho="""+str((25.969833*ANGLE + 1.5067942970813246*ANGLE*np.cos(ANGLE) + 0.2009814751607801*np.sin(ANGLE) + 0.2009814751607801*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d2b}
     }
     dipole{
-    position{rho="""+str(27.26978776235 + 1.5067942970813246*np.cos(ANGLE) + (0.4019629503215602*np.sin(ANGLE))/ANGLE)+""", psi=0.0, marker=d3a}
+    position{rho="""+str(1.3 + 25.969833 + 1.5067942970813246*np.cos(ANGLE) + (0.4019629503215602*np.sin(ANGLE))/ANGLE)+""", psi=0.0, marker=d3a}
     properties{r="""+str(0.2009814751607801/ANGLE)+"""}
     position{rho="""+str((27.26978776235*ANGLE + 1.5067942970813246*ANGLE*np.cos(ANGLE) + 0.4019629503215602*np.sin(ANGLE) + 0.2009814751607801*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d3b}
     }
     dipole{
-    position{rho="""+str((27.26978776235*ANGLE + 1.5067942970813246*ANGLE*np.cos(ANGLE) + 1.5067942970813246*ANGLE*np.cos(1.*ANGLE) + 0.4019629503215602*np.sin(ANGLE) + 0.2009814751607801*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d4a}
+    position{rho="""+str(((1.3 + 25.969833)*ANGLE + 1.5067942970813246*ANGLE*np.cos(ANGLE) + 1.5067942970813246*ANGLE*np.cos(1.*ANGLE) + 0.4019629503215602*np.sin(ANGLE) + 0.2009814751607801*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d4a}
     properties{r="""+str(-0.2009814751607801/ANGLE)+"""}
-    position{rho="""+str((27.26978776235*ANGLE + 1.5067942970813246*ANGLE*np.cos(ANGLE) + 1.5067942970813246*ANGLE*np.cos(1.*ANGLE) + 0.4019629503215602*np.sin(ANGLE) + 0.4019629503215602*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d4b}
+    position{rho="""+str(((1.3 + 25.969833)*ANGLE + 1.5067942970813246*ANGLE*np.cos(ANGLE) + 1.5067942970813246*ANGLE*np.cos(1.*ANGLE) + 0.4019629503215602*np.sin(ANGLE) + 0.4019629503215602*np.sin(1.*ANGLE))/ANGLE)+""", psi=0.0, marker=d4b}
     }
 
     }
@@ -61,30 +61,26 @@ class CSRTrack(object):
     reference_point_x   = 0.0
     reference_point_y   = 0.0
     reference_point_phi = 0.0
-    format = astra, array = #file{name=./test.4.2573.001}}
+    format = astra, array = #file{name="""+ inputfile + """}}
     online_monitor{name = sub_bunch.dat, type = subbunch
     start_time_c0 = now
-    end_time_marker = d4b, end_time_shift_c0 = 0.1
+    end_time_marker = d4b, end_time_shift_c0 = 0.116726
     time_step_c0    = all
     }
     online_monitor{name = steps.dat, type = steps
     start_time_c0 = now
-    end_time_marker = d4b, end_time_shift_c0 = 0.1
+    end_time_marker = d4b, end_time_shift_c0 = 0.116726
     time_step_c0 = all
     }
     online_monitor{name = p1.fmt2, type = phase, format = fmt2, particle = 1
     start_time_c0 = now
-    end_time_marker = d4b, end_time_shift_c0 = 0.1
+    end_time_marker = d4b, end_time_shift_c0 = 0.116726
     time_step_c0 = all
     }
-    !online_monitor{name = x_10.fmt2, type = phase, format = fmt2, particle = all
-    !start_time_c0 = now
-    !end_time_marker=d1a, end_time_shift_c0 = 0.1
-    !time_step_c0=0.010
-    !}
-    forces{type = projected
+    forces{type = """ + forces + """
     shape = ellipsoid
-    sigma_long = relative, relative_long = 0.1}track_step{ precondition=yes
+    sigma_long = relative, relative_long = 0.1}
+    track_step{ precondition=yes
     iterative=2
     error_per_ct=0.001
     error_weight_momentum=0.0
@@ -95,11 +91,11 @@ class CSRTrack(object):
     arc_factor=0.3
     duty_steps=yes}
 
-    tracker{end_time_marker = d4b, end_time_shift_c0 = 0.1}
+    tracker{end_time_marker = d4b, end_time_shift_c0 = 0.116726}
     monitor{format = fmt2, name = end.fmt2}
     exit
     """
 
-    def writeCSRTrackFile(self, filename, angle=0.105):
+    def writeCSRTrackFile(self, filename, angle=0.105, forces='projected', inputfile='./test.4.2573.001'):
         with file(self.subdir+'/'+filename, 'w') as f:
-            f.write(self.csrtrackinputtext(angle))
+            f.write(self.csrtrackinputtext(angle, forces=forces, inputfile=inputfile))

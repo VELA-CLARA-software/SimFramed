@@ -4,7 +4,7 @@ RUN=$run$
 Loop=F,
 Lprompt=F
 Distribution = '$starting_distribution$', Xoff=0.0, Yoff=0.0
-N_red = 1
+N_red = $N_red$
 Lmagnetized=.F
 EmitS=.T
 TR_emitS=F
@@ -22,6 +22,7 @@ check_ref_part=.F,
 
 ZSTART=24.326,	ZSTOP=25.73
 Screen(1)=25.08
+!Screen(2)=25.73
 
 Zphase=1
 Zemit=1050
@@ -63,8 +64,7 @@ Smooth_z=2
 &Aperture
 /
 
-&FEM
-/
+&FEM/
 &CAVITY
 Loop=.F,
 LEFieLD=.T
@@ -84,4 +84,4 @@ Q_pos(1)=24.638, Q_smooth(1)=3, Q_bore(1)=0.003
 Q_K(2)=$quad_K$, Q_length(2)=0.162,
 Q_pos(2)=25.387833, Q_smooth(2)=3, Q_bore(2)=0.003
 
-$variable_bunch_compressor$
+/
