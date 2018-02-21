@@ -68,7 +68,7 @@ class fitnessFunc():
         else:
             self.astra.defineASTRACommand(['astra'])
             self.csrtrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
-        self.astra.loadSettings('short_240_12b3.settings')
+        self.astra.loadSettings('short_240.settings')
         self.astra.modifySetting('linac1_field', abs(linac1field))
         self.astra.modifySetting('linac1_phase', linac1phase)
         self.astra.modifySetting('linac2_field', abs(linac2field))
@@ -156,7 +156,7 @@ def optfunc(args, dir=None, **kwargs):
     return (fitvalue,)
 
 astra = ASTRAInjector('longitudinal_best', overwrite=False)
-astra.loadSettings('short_240_12b3.settings')
+astra.loadSettings('short_240.settings')
 parameters = []
 parameters.append(astra.getSetting('linac1_field')[0][1])
 parameters.append(astra.getSetting('linac1_phase')[0][1])
@@ -235,13 +235,13 @@ if __name__ == "__main__":
     print hof
 
     try:
-        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/longitudinal_best', npart=50000, ncpu=40, overwrite=True, verbose=True, summary=True)
-        with open('longitudinal_best/longitudinal_best_solutions.csv','wb') as out:
+        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/longitudinal_best_Short_240', npart=50000, ncpu=40, overwrite=True, verbose=True, summary=True)
+        with open('longitudinal_best_Short_240/longitudinal_best_solutions.csv','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)
     except:
-        with open('longitudinal_best_solutions.csv.tmp','wb') as out:
+        with open('longitudinal_best_Short_240_solutions.csv.tmp','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)
