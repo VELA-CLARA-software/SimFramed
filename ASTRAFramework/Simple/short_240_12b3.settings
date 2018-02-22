@@ -13,16 +13,16 @@ files:
     N_red: 1
     gun_field: 70
     gun_phase: -16
-    linac1_field: 21.400623994160444
-    linac1_phase: -16.55969620994231
+    linac1_field: 20.266773676023924
+    linac1_phase: -17.397640210500704
     gun_sol_field: 0.237
   test.2:
     run: 1
     N_red: 1
-    linac2_field: 29.287957969747083
-    linac2_phase: -23.786662293312006
-    linac3_field: 17.558361277790308
-    linac3_phase: -12.299336166149129
+    linac2_field: 29.126584410539454
+    linac2_phase: -22.186526557967035
+    linac3_field: 19.252030225016153
+    linac3_phase: -11.00069570252777
     quad_K:
     - -1.2747391669673418
     - 0.3830049571865556
@@ -34,8 +34,8 @@ files:
   test.3:
     run: 1
     N_red: 1
-    4hc_field: 23.967537037232802
-    4hc_phase: 184.4163061991109
+    4hc_field: 18.760801056512708
+    4hc_phase: 179.8843310039993
     quad_K:
     - 0.6217982195782916
     - 0.16633386452405985
@@ -56,17 +56,17 @@ files:
   vb:
     run: 1
     N_red: 1
-    LSPCH: True
-    LSPCH3D: True
+    LSPCH: true
+    LSPCH3D: true
     starting_distribution: test.4.2573.001
     variable_bunch_compressor:
-      angle: 0.105
+      angle: 0.11493350891246876
       zstart: 24.327
   test.5:
     run: 1
     N_red: 1
-    linac4_field: 25.857484094665274
-    linac4_phase: 2.769682559549861
+    linac4_field: 27.548095406704213
+    linac4_phase: 2.730897213244438
     quad_K:
     - 1.0504973275937928
     - -0.4108394475196491

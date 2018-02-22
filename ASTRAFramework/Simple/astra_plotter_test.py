@@ -121,7 +121,11 @@ class astraPlotWidget(QWidget):
         self.beamPlotLayout.addWidget(self.beamPlotView)
 
         ''' slicePlotWidget '''
-        self.sliceParams = ['slice_normalized_horizontal_emittance','slice_normalized_vertical_emittance','slice_peak_current','slice_relative_momentum_spread']
+        self.sliceParams = [{'name': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'text': 'enx'},
+        {'name': 'slice_normalized_vertical_emittance', 'units': 'm-rad', 'text': 'eny'},
+        {'name': 'slice_peak_current', 'units': 'A', 'text': 'PeakI'},
+        {'name': 'slice_relative_momentum_spread', 'units': '%', 'text': 'sigma-p'},
+        ]
         self.slicePlotWidget = QWidget()
         self.slicePlotLayout = QVBoxLayout()
         self.slicePlotWidget.setLayout(self.slicePlotLayout)
@@ -143,21 +147,21 @@ class astraPlotWidget(QWidget):
             i += 1;
             axis = AxisItem("left")
             labelStyle = {'color': '#'+colorStr(mkColor(colors[i]))[0:-2]}
-            axis.setLabel(param,**labelStyle)
+            axis.setLabel(text=param['text'], units=param['units'],**labelStyle)
             viewbox = ViewBox()
             axis.linkToView(viewbox)
             viewbox.setXLink(self.slicePlot.vb)
-            self.sliceaxis[param] = [axis, viewbox]
-            self.curve[param] = PlotDataItem(pen=colors[i], symbol='+')
-            viewbox.addItem(self.curve[param])
+            self.sliceaxis[param['name']] = [axis, viewbox]
+            self.curve[param['name']] = PlotDataItem(pen=colors[i], symbol='+')
+            viewbox.addItem(self.curve[param['name']])
             col = self.findFirstEmptyColumnInGraphicsLayout()
             self.slicePlotWidgetGraphicsLayout.ci.addItem(axis, row = 0, col = col,  rowspan=1, colspan=1)
             self.slicePlotWidgetGraphicsLayout.ci.addItem(viewbox, row=0, col=50)
             p.showGrid(x=True, y=True)
             # self.slicePlots[param] = self.slicePlot.plot(pen=colors[i], symbol='+')
-            self.slicePlotCheckbox[param] = QCheckBox(param)
-            self.slicePlotCheckboxLayout.addWidget(self.slicePlotCheckbox[param])
-            self.slicePlotCheckbox[param].stateChanged.connect(self.plotDataSlice)
+            self.slicePlotCheckbox[param['name']] = QCheckBox(param['text'])
+            self.slicePlotCheckboxLayout.addWidget(self.slicePlotCheckbox[param['name']])
+            self.slicePlotCheckbox[param['name']].stateChanged.connect(self.plotDataSlice)
         # self.slicePlotView.setCentralItem(self.slicePlotWidgetGraphicsLayout)
         self.slicePlotSliceWidthWidget = QSpinBox()
         self.slicePlotSliceWidthWidget.setMaximum(1000)
@@ -225,7 +229,7 @@ class astraPlotWidget(QWidget):
         self.layout.addWidget(self.tabWidget)
 
         self.plotType = 'Twiss'
-        self.changeDirectory(self.directory)
+        # self.changeDirectory(self.directory)
 
     def findFirstEmptyColumnInGraphicsLayout(self):
             rowsfilled =  self.slicePlotWidgetGraphicsLayout.ci.rows.get(0, {}).keys()
@@ -237,7 +241,7 @@ class astraPlotWidget(QWidget):
         if self.tabWidget.tabText(i) == 'Beam Plots':
             self.plotType = 'Beam'
             self.beamWidget.setVisible(True)
-        if self.tabWidget.tabText(i) == 'Slice Beam Plots':
+        elif self.tabWidget.tabText(i) == 'Slice Beam Plots':
             self.plotType = 'Slice'
             self.beamWidget.setVisible(True)
         else:
@@ -325,19 +329,19 @@ class astraPlotWidget(QWidget):
         self.plotDataSlice()
 
     def plotDataSlice(self):
-        for p in self.sliceParams:
-            if self.slicePlotCheckbox[p].isChecked():
+        for param in self.sliceParams:
+            if self.slicePlotCheckbox[param['name']].isChecked():
                 x = self.beam.slice_bins
                 self.slicePlot.setRange(xRange=[min(x),max(x)])
                 # self.plot.setRange(xRange=[-0.5,1.5])
-                y = getattr(self.beam, p)
-                self.curve[p].setData(x=x, y=y)
-                self.sliceaxis[p][0].setVisible(True)
+                y = getattr(self.beam, param['name'])
+                self.curve[param['name']].setData(x=x, y=y)
+                self.sliceaxis[param['name']][0].setVisible(True)
                 # self.sliceaxis[p][1].setVisible(True)
             else:
                 # pass
-                self.curve[p].setData(x=[], y=[])
-                self.sliceaxis[p][0].setVisible(False)
+                self.curve[param['name']].setData(x=[], y=[])
+                self.sliceaxis[param['name']][0].setVisible(False)
                 # self.sliceaxis[p][1].setVisible(False)
 
     def scaleLattice(self, vb, range):
