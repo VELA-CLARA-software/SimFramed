@@ -229,7 +229,7 @@ class astraPlotWidget(QWidget):
         self.layout.addWidget(self.tabWidget)
 
         self.plotType = 'Twiss'
-        # self.changeDirectory(self.directory)
+        self.changeDirectory(self.directory)
 
     def findFirstEmptyColumnInGraphicsLayout(self):
             rowsfilled =  self.slicePlotWidgetGraphicsLayout.ci.rows.get(0, {}).keys()
@@ -337,12 +337,16 @@ class astraPlotWidget(QWidget):
                 y = getattr(self.beam, param['name'])
                 self.curve[param['name']].setData(x=x, y=y)
                 self.sliceaxis[param['name']][0].setVisible(True)
-                # self.sliceaxis[p][1].setVisible(True)
+                # currentrange = self.sliceaxis[param['name']][0].range
+                # print 'currentrange = ', currentrange
+                # self.sliceaxis[param['name']][0].setRange(0, currentrange[1])
             else:
                 # pass
                 self.curve[param['name']].setData(x=[], y=[])
                 self.sliceaxis[param['name']][0].setVisible(False)
-                # self.sliceaxis[p][1].setVisible(False)
+            self.sliceaxis[param['name']][1].autoRange()
+            currentrange = self.sliceaxis[param['name']][1].viewRange()
+            self.sliceaxis[param['name']][1].setYRange(0, currentrange[1][1])
 
     def scaleLattice(self, vb, range):
         yrange = range[1]
