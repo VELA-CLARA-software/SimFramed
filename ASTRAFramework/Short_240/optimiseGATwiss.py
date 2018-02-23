@@ -74,19 +74,19 @@ class fitnessFunc():
         astra.globalSettings['SC_2D_Nlong'] = max([scgrid.gridSizes, 4])
         for scvar in ['SC_3D_Nxf', 'SC_3D_Nyf', 'SC_3D_Nzf']:
             astra.globalSettings[scvar] = scgrid.gridSizes
-        astra.fileSettings['test.2']['quad_K'] = self.parameters[0:6]
-        astra.fileSettings['test.3']['quad_K'] = self.parameters[6:14]
-        astra.fileSettings['test.4']['quad_K'] = self.parameters[14:16]
-        astra.fileSettings['test.5']['quad_K'] = self.parameters[16:]
+        astra.fileSettings['short_240.2']['quad_K'] = self.parameters[0:6]
+        astra.fileSettings['short_240.3']['quad_K'] = self.parameters[6:14]
+        astra.fileSettings['short_240.4']['quad_K'] = self.parameters[14:16]
+        astra.fileSettings['short_240.5']['quad_K'] = self.parameters[16:]
         bcangle = float(astra.fileSettings['vb']['variable_bunch_compressor']['angle'])
         # print 'Creating Initial Distribution in folder:', self.tmpdir
         astra.createInitialDistribution(npart=npart, charge=250)
         # print 'Apply Settings in folder:', self.tmpdir
-        astra.fileSettings['test.5']['starting_distribution'] = 'end.fmt2.astra'
+        astra.fileSettings['short_240.5']['starting_distribution'] = 'end.fmt2.astra'
         ''' Create ASTRA files based on settings '''
         astra.applySettings()
         ''' Run ASTRA upto VBC '''
-        astra.runASTRAFiles(files=['test.1','test.2','test.3','test.4'])
+        astra.runASTRAFiles(files=['short_240.1','short_240.2','short_240.3','short_240.4'])
         ''' Write Out the CSRTrack file based on the BC angle (assumed to be 0.105) '''
         csrtrack.writeCSRTrackFile('csrtrk.in', angle=bcangle, forces='projected')
         ''' Run CSRTrack'''
@@ -94,7 +94,7 @@ class fitnessFunc():
         ''' Convert CSRTrack output file back in to ASTRA format '''
         beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
         ''' Run the next section of the lattice in ASTRA, using the CSRTrack output as input '''
-        astra.runASTRAFiles(files=['test.5'])
+        astra.runASTRAFiles(files=['short_240.5'])
         self.cons = constraintsClass()
         if summary:
             astra.createHDF5Summary()
@@ -107,7 +107,7 @@ class fitnessFunc():
 
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
-        twiss.read_astra_emit_files(self.dirname+'/test.2.Zemit.001')
+        twiss.read_astra_emit_files(self.dirname+'/short_240.2.Zemit.001')
         constraintsList2 = {
             'max_xrms_2': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
             'max_yrms_2': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
@@ -120,7 +120,7 @@ class fitnessFunc():
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsList2)
         # 4HC
-        twiss.read_astra_emit_files(self.dirname+'/test.3.Zemit.001')
+        twiss.read_astra_emit_files(self.dirname+'/short_240.3.Zemit.001')
         constraintsList3 = {
             'max_xrms_3': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
             'max_yrms_3': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
@@ -134,7 +134,7 @@ class fitnessFunc():
         constraintsList = merge_two_dicts(constraintsList, constraintsList3)
 
         # VBC
-        twiss.read_astra_emit_files(self.dirname+'/test.4.Zemit.001')
+        twiss.read_astra_emit_files(self.dirname+'/short_240.4.Zemit.001')
         constraintsList4 = {
             'min_xrms_4': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.2, 'weight': 50},
             'min_yrms_4': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.2, 'weight': 50},
@@ -147,7 +147,7 @@ class fitnessFunc():
         ''' This doesn't make much sense with CSRTRack being used, but still... '''
         # constraintsList = merge_two_dicts(constraintsList, constraintsList4)
         # LINAC 4 and TDC (40.8012m) with screen (46.4378m) and Dechirper (44.03m)
-        twiss.read_astra_emit_files(self.dirname+'/test.5.Zemit.001')
+        twiss.read_astra_emit_files(self.dirname+'/short_240.5.Zemit.001')
         constraintsList5 = {
             'max_xrms_5': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
             'max_yrms_5': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
@@ -201,10 +201,10 @@ def optfunc(args, dir=None, **kwargs):
 astra = ASTRAInjector('twiss_best', overwrite=False)
 astra.loadSettings('short_240_12b3.settings')
 parameters = []
-parameters.append(astra.fileSettings['test.2']['quad_K'])
-parameters.append(astra.fileSettings['test.3']['quad_K'])
-parameters.append(astra.fileSettings['test.4']['quad_K'])
-parameters.append(astra.fileSettings['test.5']['quad_K'])
+parameters.append(astra.fileSettings['short_240.2']['quad_K'])
+parameters.append(astra.fileSettings['short_240.3']['quad_K'])
+parameters.append(astra.fileSettings['short_240.4']['quad_K'])
+parameters.append(astra.fileSettings['short_240.5']['quad_K'])
 best = [item for sublist in parameters for item in sublist]
 
 # print optfunc(best, dir=os.getcwd()+'/twiss_best', npart=50000, ncpu=20, overwrite=False, verbose=False, summary=True)
