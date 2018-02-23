@@ -5,10 +5,10 @@ global:
   SC_3D_Nxf: 16
   SC_3D_Nyf: 16
   SC_3D_Nzf: 16
-  npart: 4096
-  initial_distribution: 4k-250pC-3ps-1mm_TE09.ini
+  npart: 32768
+  initial_distribution: 32k-250pC-3ps-1mm_TE09.ini
 files:
-  test.1:
+  short_240.1:
     run: 1
     N_red: 1
     gun_field: 120
@@ -16,7 +16,7 @@ files:
     linac1_field: 25.354646475053855
     linac1_phase: -21.268861812285554
     gun_sol_field: 0.345
-  test.2:
+  short_240.2:
     run: 1
     N_red: 1
     linac2_field: 31.319511988346704
@@ -30,8 +30,8 @@ files:
     - 1.006291540320582
     - 0.7543795054217858
     - -0.9499152912075803
-    starting_distribution: test.1.0337.001
-  test.3:
+    starting_distribution: short_240.1.0337.001
+  short_240.3:
     run: 1
     N_red: 1
     4hc_field: 21.487287973881525
@@ -45,24 +45,24 @@ files:
     - 0.4082872644768565
     - 0.4869079212923204
     - -0.2688791618265004
-    starting_distribution: test.2.1620.001
-  test.4:
+    starting_distribution: short_240.2.1620.001
+  short_240.4:
     run: 1
     N_red: 1
     quad_K:
     - -0.8096843991063067
     - 1.050727876692886
-    starting_distribution: test.3.2433.001
-  vb:
+    starting_distribution: short_240.3.2433.001
+  vb_short_240:
     run: 1
     N_red: 1
     LSPCH: true
     LSPCH3D: true
-    starting_distribution: test.4.2573.001
+    starting_distribution: short_240.4.2573.001
     variable_bunch_compressor:
       angle: 0.10540805164231651
       zstart: 24.327
-  test.5:
+  short_240.5:
     run: 1
     N_red: 1
     linac4_field: 27.873382652616996
@@ -81,4 +81,4 @@ files:
     - 0.5830680081689829
     - -0.5699673944764159
     - 4.058285343872561
-    starting_distribution: vb.3119.001
+    starting_distribution: vb_short_240.3119.001
