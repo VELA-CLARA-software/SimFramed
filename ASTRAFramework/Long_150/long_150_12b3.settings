@@ -1,0 +1,84 @@
+global:
+  charge: 0.25
+  SC_2D_Nrad: 16
+  SC_2D_Nlong: 16
+  SC_3D_Nxf: 16
+  SC_3D_Nyf: 16
+  SC_3D_Nzf: 16
+  npart: 32768
+  initial_distribution: 32k-250pC-3ps-1mm_TE09.ini
+files:
+  long_150.1:
+    run: 1
+    N_red: 1
+    gun_field: 120
+    gun_phase: -9
+    linac1_field: 14.8
+    linac1_phase: -20.0
+    gun_sol_field: 0.345
+  long_150.2:
+    run: 1
+    N_red: 1
+    linac2_field: 10.0
+    linac2_phase: -5.0
+    linac3_field: 10.0
+    linac3_phase: -5.0
+    quad_K:
+    - -1.5801660173913312
+    - 0.3804281714164798
+    - 0.31339017077293824
+    - 1.006291540320582
+    - 0.7543795054217858
+    - -0.9499152912075803
+    starting_distribution: long_150.1.0337.001
+  long_150.3:
+    run: 1
+    N_red: 1
+    4hc_field: 14.1
+    4hc_phase: 186.0
+    quad_K:
+    - 0.5479462860690492
+    - 0.16642613445499344
+    - -0.40717873717652475
+    - -0.21976971550653893
+    - 0.22715068633304106
+    - 0.4082872644768565
+    - 0.4869079212923204
+    - -0.2688791618265004
+    starting_distribution: long_150.2.1620.001
+  long_150.4:
+    run: 1
+    N_red: 1
+    quad_K:
+    - -0.8096843991063067
+    - 1.050727876692886
+    starting_distribution: long_150.3.2433.001
+  vb_long_150:
+    run: 1
+    N_red: 1
+    LSPCH: true
+    LSPCH3D: true
+    starting_distribution: long_150.4.2573.001
+    variable_bunch_compressor:
+      angle: 0.115
+      zstart: 24.327
+  long_150.5:
+    run: 1
+    N_red: 1
+    linac4_field: 10.0
+    linac4_phase: -0.0
+    quad_K:
+    - 1.012232876770792
+    - -0.38493488592856817
+    - 2.4052087580751813
+    - -0.7007375733802097
+    - -1.4669321881305337
+    - -0.9952855575355961
+    - 0.9426236985360111
+    - 0.13127844287252566
+    - -1.6388107244908254
+    - -0.8397104265236036
+    - 0.5830680081689829
+    - -0.5699673944764159
+    - 4.058285343872561
+    starting_distribution: vb_long_150.3119.001
