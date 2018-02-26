@@ -1,0 +1,37 @@
+global:
+  charge: 0.25
+  SC_2D_Nrad: 16
+  SC_2D_Nlong: 16
+  SC_3D_Nxf: 16
+  SC_3D_Nyf: 16
+  SC_3D_Nzf: 16
+  npart: 4096
+  initial_distribution: 4-250pC-3ps-1mm_TE09.ini
+files:
+  test.1:
+    gun_field: 70
+    gun_phase: -16
+    linac1_field: 21
+    linac1_phase: -20
+    gun_sol_field: 0.237
+  test.2:
+    linac2_field: 25.4558441227157
+    linac2_phase: -15
+    linac3_field: 25.4558441227157
+    linac3_phase: -15
+    quad_K: [0,0,0,0,0,0] #6
+    starting_distribution: test.1.0337.001
+  test.3:
+    4hc_field: 35.638181771802
+    4hc_phase: 188
+    quad_K: [0,0,0,0,0,0,0,0] #8
+    starting_distribution: test.2.1620.001
+  test.4:
+    quad_K: [-0.595761, 0.665759] #2
+    starting_distribution: test.3.2433.001
+    variable_bunch_compressor: {'angle': 0.105, 'zstart': 24.326}
+  test.5:
+    linac4_field: 25.4558441227157
+    linac4_phase: 0
+    quad_K: [0.606265, -0.378705, 1.,-0.917,-1.,-1.,0.921,0.122,-0.038,-0.396,0.872,-0.401,-0.043] #13
+    starting_distribution: test.4.3119.001
