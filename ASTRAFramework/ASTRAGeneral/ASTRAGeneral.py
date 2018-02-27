@@ -1,4 +1,4 @@
-import yaml, collections, subprocess, os
+import yaml, collections, subprocess, os, math
 import numpy as np
 from operator import add
 from ASTRAHelperFunctions import *
@@ -55,13 +55,29 @@ class ASTRA(object):
 
 
     def getElementsBetweenS(self, elementtype, output={}, zstart=None, zstop=None):
-        zstart = zstart if zstart is not None else getParameter(output,'zstart',default=0)
-        zstop = zstop if zstop is not None else getParameter(output,'zstop',default=0)
+        # zstart = zstart if zstart is not None else getParameter(output,'zstart',default=0)
+        if zstart is None:
+            zstart = getParameter(output,'zstart',default=None)
+            if zstart is None:
+                startelem = getParameter(output,'start_element',default=None)
+                if startelem is None or startelem not in self.elements:
+                    zstart = 0
+                else:
+                    zstart = self.elements[startelem]['position_start'][2]
+        # zstop = zstop if zstop is not None else getParameter(output,'zstop',default=0)
+        if zstop is None:
+            zstop = getParameter(output,'zstop',default=None)
+            if zstop is None:
+                endelem = getParameter(output,'end_element',default=None)
+                if endelem is None or endelem not in self.elements:
+                    zstop = 0
+                else:
+                    zstop = self.elements[endelem]['position_end'][2]
 
         elements = findSetting('type',elementtype,dictionary=self.elements)
-        elements = [s[0] for s in elements if s[1]['position_start'][2] >= zstart and s[1]['position_start'][2] <= zstop]
+        elements = sorted([[s[1]['position_start'][2],s[0]] for s in elements if s[1]['position_start'][2] >= zstart and s[1]['position_start'][2] <= zstop])
 
-        return elements
+        return [e[1] for e in elements]
 
     def getGroup(self, group=''):
         """return all elements in a group from the main elements dict"""
@@ -178,7 +194,8 @@ class ASTRA(object):
         chicanetext = ''
         dipoles = self.getGroup(group)
         if not dipoleangle is None:
-            dipoles = [self.setDipoleAngle(d,dipoleangle) for d in dipoles]
+            dipoleangle = float(dipoleangle)
+            dipoles = [self.setDipoleAngle(d, dipoleangle) for d in dipoles]
         dipoles = self.createDrifts(dipoles)
         dipolepos, localXYZ = self.elementPositions(dipoles)
         dipolepos = list(chunks(dipolepos,2))
@@ -197,7 +214,7 @@ class ASTRA(object):
             width = getParameter(d,'width',default=width)
             gap = getParameter(d,'gap',default=gap)
             rbend = 1 if d['type'] == 'rdipole' else 0
-            rho = d['length']/angle1 if 'length' in d and angle1 > 1e-9 else 0
+            rho = d['length']/angle1 if 'length' in d and abs(angle1) > 1e-9 else 0
             theta = -1*psi1+e1-rbend*rho*angle1/2.0
             corners[0] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
             corners[3] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
@@ -250,15 +267,16 @@ class ASTRA(object):
         length      =     getParameter(cav,'length')
         x,y,s       =     getParameter(cav,'position_start')
         amplitude   = str(float(getParameter(cav,'field_amplitude'))/1e6)
-        frequency   = str(float(getParameter(cav,'frequency'))/1e6)
+        frequency   = str(float(getParameter(cav,'frequency'))/1e9)
         phase       = str(getParameter(cav,'phase'))
         cells       =     getParameter(cav,'number_of_cells')
         celllength  =     getParameter(cav,'cell_length')
         if cells is 0 and celllength > 0:
                 cells = round((length-celllength)/celllength)
+                cells = cells - (cells % 3)
         smooth      = str(getParameter(cav,'smooth', default=10))
 
-        cavtext = 'FILE_EFieLD('+str(n)+')=\''+definition+'\', Nue('+str(n)+')='+str(frequency)+'\n'+\
+        cavtext = 'FILE_EFieLD('+str(n)+')=\''+definition+'\', Nue('+str(n)+')='+str(frequency)+',\n'+\
         'MaxE('+str(n)+')='+amplitude+', Phi('+str(n)+')='+phase+', \n'+\
         'C_pos('+str(n)+')='+str(s)+', C_xoff('+str(n)+')='+str(x)+', C_yoff('+str(n)+')='+str(y)+', C_smooth('+str(n)+')='+smooth
         if cells > 0:
@@ -287,7 +305,7 @@ class ASTRA(object):
             distribution = self.globalSettings['initial_distribution']
         else:
             distribution = self.subdir+'/'+distribution
-        print 'qbunch = ', getParameter([self.globalSettings,settings],'total_charge',default=250)
+        # print 'qbunch = ', getParameter([self.globalSettings,settings],'total_charge',default=250)
         Qbunch          = str(getParameter([self.globalSettings,settings],'total_charge',default=250))
         zstart          =     getParameter(settings,'zstart',default=0)
         zstop           =     getParameter(settings,'zstop',default=0)
@@ -312,8 +330,25 @@ class ASTRA(object):
         """Create an ASTRA OUTPUT Block string"""
 
         screens = self.getElementsBetweenS('screen', output=output)
-        print 'screens = ', screens
+        # print 'screens = ', screens
 
+        zstart = getParameter(output,'zstart',default=None)
+        if zstart is None:
+            startelem = getParameter(output,'start_element',default=None)
+            if startelem is None or startelem not in self.elements:
+                zstart = 0
+            else:
+                print self.elements[startelem]
+                zstart = self.elements[startelem]['position_start'][2]
+                output['zstart'] = zstart
+        zstop = getParameter(output,'zstop',default=None)
+        if zstop is None:
+            endelem = getParameter(output,'end_element',default=None)
+            if endelem is None or endelem not in self.elements:
+                zstop = 0
+            else:
+                zstop = self.elements[endelem]['position_end'][2]
+                output['zstop'] = zstop
         outputtext = '&OUTPUT\n'
         for var in ASTRARules['OUTPUT']:
             outputtext += createOptionalString([self.globalSettings['ASTRAsettings'],settings, output], var)
@@ -392,6 +427,8 @@ class ASTRA(object):
 
         cavities = self.getElementsBetweenS('cavity', output=output)
 
+        print 'cavities = ', cavities
+
         for i,s in enumerate(cavities):
             cavitytext += ' '+self.createASTRACavity(s,i+1)
         cavitytext += '/\n'
@@ -444,6 +481,9 @@ class ASTRA(object):
         solenoid = self.getFileSettings(file,'solenoid')
         quadrupole = self.getFileSettings(file,'quadrupole')
 
+        dipoles = self.getElementsBetweenS('dipole', output)
+        groups = self.getFileSettings(file,'groups')
+
         astrafiletext = ''
         astrafiletext += self.createASTRANewRunBlock(settings, input, charge)
         astrafiletext += self.createASTRAOutputBlock(output, settings)
@@ -453,6 +493,13 @@ class ASTRA(object):
         astrafiletext += self.createASTRACavityBlock(cavity, output)
         astrafiletext += self.createASTRASolenoidBlock(solenoid, output)
         astrafiletext += self.createASTRAQuadrupoleBlock(quadrupole, output)
+        for g in groups:
+            if g in self.groups:
+                # print 'group!'
+                if self.groups[g]['type'] == 'chicane':
+                    if all([i for i in self.groups[g] if i in dipoles]):
+                        astrafiletext += self.createASTRAChicane(g, **groups[g])
+
         return astrafiletext
 
     def createASTRAFiles(self):
@@ -460,4 +507,16 @@ class ASTRA(object):
             filename = self.subdirectory+'/'+f+'.in'
             print filename
             saveFile(filename, lines=self.createASTRAFileText(f))
-            self.runASTRA(filename)
+
+    def runASTRAFiles(self, files=None):
+        if isinstance(files, (list, tuple)):
+            for f in files:
+                if f in self.fileSettings.keys():
+                    filename = self.subdirectory+'/'+f+'.in'
+                    self.runASTRA(filename)
+                else:
+                    print 'File does not exist! - ', f
+        else:
+            for f in self.fileSettings.keys():
+                filename = self.subdirectory+'/'+f+'.in'
+                self.runASTRA(filename)
