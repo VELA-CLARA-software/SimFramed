@@ -29,7 +29,7 @@ class CSRTrack(object):
             with open(os.devnull, "w") as f:
                 subprocess.call(command, stdout=f, cwd=self.subdir)
 
-    def csrtrackinputtext(self, angle, forces='projected', inputfile='./test.4.2573.001'):
+    def csrtrackinputtext(self, angle, forces='projected', inputfile='./long_150.4.2573.001'):
         ANGLE = angle
         return """io_path{logfile = log.txt}
 
@@ -96,6 +96,6 @@ class CSRTrack(object):
     exit
     """
 
-    def writeCSRTrackFile(self, filename, angle=0.105, forces='projected', inputfile='./test.4.2573.001'):
+    def writeCSRTrackFile(self, filename, angle=0.105, forces='projected', inputfile='./long_150.4.2573.001'):
         with file(self.subdir+'/'+filename, 'w') as f:
             f.write(self.csrtrackinputtext(angle, forces=forces, inputfile=inputfile))
