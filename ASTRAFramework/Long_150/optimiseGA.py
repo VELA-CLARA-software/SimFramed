@@ -48,7 +48,7 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, npart=4096, ncpu=6, overwrite=True, verbose=False, summary=False):
+    def __init__(self, args, tempdir, npart=4096, ncpu=6, overwrite=True, verbose=True, summary=True):
         self.cons = constraintsClass()
         self.beam = rbf.beam()
         self.twiss = rtf.twiss()
@@ -68,7 +68,7 @@ class fitnessFunc():
         else:
             self.astra.defineASTRACommand(['astra'])
             self.csrtrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
-        self.astra.loadSettings('short_240_12b3.settings')
+        self.astra.loadSettings('long_150_12b3.settings')
         self.astra.modifySetting('linac1_field', abs(linac1field))
         self.astra.modifySetting('linac1_phase', linac1phase)
         self.astra.modifySetting('linac2_field', abs(linac2field))
@@ -79,7 +79,7 @@ class fitnessFunc():
         self.astra.modifySetting('4hc_phase', fhcphase)
         self.astra.modifySetting('linac4_field', abs(linac4field))
         self.astra.modifySetting('linac4_phase', linac4phase)
-        self.astra.fileSettings['vb_short_240']['variable_bunch_compressor']['angle'] = abs(bcangle)
+        self.astra.fileSettings['vb_long_150']['variable_bunch_compressor']['angle'] = abs(bcangle)
 
     def between(self, value, minvalue, maxvalue, absolute=True):
         if absolute:
@@ -89,16 +89,16 @@ class fitnessFunc():
         return result
 
     def calculateBeamParameters(self):
-        bcangle = float(self.astra.fileSettings['vb_short_240']['variable_bunch_compressor']['angle'])
+        bcangle = float(self.astra.fileSettings['vb_long_150']['variable_bunch_compressor']['angle'])
         try:
             if bcangle < 0.05 or bcangle > 0.12:
                 raise ValueError
             self.astra.createInitialDistribution(npart=self.npart, charge=250)
             ''' Modify the last file to use to CSRTrack output as input'''
-            self.astra.fileSettings['short_240.5']['starting_distribution'] = 'end.fmt2.astra'
+            self.astra.fileSettings['long_150.5']['starting_distribution'] = 'end.fmt2.astra'
             self.astra.applySettings()
             ''' Run ASTRA upto VBC '''
-            self.astra.runASTRAFiles(files=['short_240.1','short_240.2','short_240.3','short_240.4'])
+            self.astra.runASTRAFiles(files=['long_150.1','long_150.2','long_150.3','long_150.4'])
             ''' Write Out the CSRTrack file based on the BC angle (assumed to be 0.105) '''
             self.csrtrack.writeCSRTrackFile('csrtrk.in', angle=bcangle, forces='projected')
             ''' Run CSRTrack'''
@@ -106,9 +106,9 @@ class fitnessFunc():
             ''' Convert CSRTrack output file back in to ASTRA format '''
             self.beam.convert_csrtrackfile_to_astrafile(self.dirname+'/'+'end.fmt2', self.dirname+'/'+'end.fmt2.astra')
             ''' Run the next section of the lattice in ASTRA, using the CSRTrack output as input '''
-            self.astra.runASTRAFiles(files=['short_240.5'])
+            self.astra.runASTRAFiles(files=['long_150.5'])
 
-            self.beam.read_astra_beam_file(self.dirname+'/short_240.5.4936.001')
+            self.beam.read_astra_beam_file(self.dirname+'/long_150.5.4936.001')
             self.beam.slice_length = 0.1e-12
             self.beam.bin_time()
             sigmat = 1e12*np.std(self.beam.t)
@@ -130,7 +130,7 @@ class fitnessFunc():
                 'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 4},
                 'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 1, 'weight': 4},
             }
-            self.twiss.read_astra_emit_files(self.dirname+'/short_240.5.Zemit.001')
+            self.twiss.read_astra_emit_files(self.dirname+'/long_150.5.Zemit.001')
             constraintsList5 = {
                 'last_exn_5': {'type': 'lessthan', 'value': 1e6*self.twiss['enx'], 'limit': 1, 'weight': 1},
                 'last_eyn_5': {'type': 'lessthan', 'value': 1e6*self.twiss['eny'], 'limit': 1, 'weight': 1},
@@ -156,7 +156,7 @@ def optfunc(args, dir=None, **kwargs):
     return (fitvalue,)
 
 astra = ASTRAInjector('longitudinal_best', overwrite=False)
-astra.loadSettings('short_240_12b3.settings')
+astra.loadSettings('long_150_12b3.settings')
 parameters = []
 parameters.append(astra.getSetting('linac1_field')[0][1])
 parameters.append(astra.getSetting('linac1_phase')[0][1])
@@ -168,7 +168,7 @@ parameters.append(astra.getSetting('4hc_field')[0][1])
 parameters.append(astra.getSetting('4hc_phase')[0][1])
 parameters.append(astra.getSetting('linac4_field')[0][1])
 parameters.append(astra.getSetting('linac4_phase')[0][1])
-parameters.append(astra.fileSettings['vb_short_240']['variable_bunch_compressor']['angle'])
+parameters.append(astra.fileSettings['vb_long_150']['variable_bunch_compressor']['angle'])
 best = parameters
 print best
 startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40], [0.8,0.15]]
