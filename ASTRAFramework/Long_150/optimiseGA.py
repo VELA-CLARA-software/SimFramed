@@ -120,11 +120,11 @@ class fitnessFunc():
             fhcfield = self.parameters['fhcfield']
             peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = self.beam.sliceAnalysis()
             constraintsList = {
-                'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 100},
+                'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 160, 'weight': 100},
                 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.05, 'weight': 3},
                 'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 2.5},
                 'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 2.5},
-                'peakIMomentum': {'type': 'greaterthan','value': 1e-6*peakIMomentum, 'limit': 240, 'weight': 10},
+                'peakIMomentum': {'type': 'greaterthan','value': 1e-6*peakIMomentum, 'limit': 150, 'weight': 10},
                 'linac fields': {'type': 'lessthan', 'value': self.linacfields, 'limit': 32, 'weight': 100},
                 '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 100},
                 'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 4},
@@ -142,7 +142,8 @@ class fitnessFunc():
             if self.summary:
                 self.astra.createHDF5Summary(reference='Longitudinal_GA')
             return fitness
-        except:
+        except Exception as e:
+            print e
             return 1e6
 
 def optfunc(args, dir=None, **kwargs):
@@ -171,7 +172,7 @@ parameters.append(astra.getSetting('linac4_phase')[0][1])
 parameters.append(astra.fileSettings['vb_long_150']['variable_bunch_compressor']['angle'])
 best = parameters
 print best
-startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40], [0.8,0.15]]
+startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40], [0.8,0.12]]
 startranges = [[0.8*i, 1.2*i] for i in best]
 generateHasBeenCalled = False
 def generate():
