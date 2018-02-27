@@ -60,7 +60,7 @@ def chunks(l, n):
 
 def sortByPositionFunction(element):
     """Sort function for element positions"""
-    return float(element[1]['position'][2])
+    return float(element[1]['position_start'][2])
 
 def rotationMatrix(theta):
     """Simple 3D rotation matrix"""
