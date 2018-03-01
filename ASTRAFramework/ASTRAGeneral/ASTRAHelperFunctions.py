@@ -16,7 +16,7 @@ def findSetting(setting, value, dictionary={}):
     """Looks for a 'value' in 'setting' in dict 'dictionary'"""
     settings = []
     for l, e in dictionary.items():
-        if setting in e.keys() and value in e[setting]:
+        if isinstance(e,(dict)) and setting in e.keys() and value == e[setting]:
             settings.append([l,e])
     return settings
 

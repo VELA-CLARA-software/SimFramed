@@ -3,12 +3,13 @@ from ASTRAHelperFunctions import *
 
 class ASTRAGenerator(object):
 
-    def __init__(self, subdir='test', charge=250, npart=1000):
+    def __init__(self, subdir='test', charge=250, npart=1000, overwrite=None, generatorFile='generator.in'):
         super(ASTRAGenerator, self).__init__()
         self.lineIterator = 0
-        self.generatorBaseFile = 'generator.in'
+        self.generatorBaseFile = generatorFile
         self.charge = charge
         self.npart = npart
+        self.overwrite = overwrite
         self.generatorCommand = ['generator']
         self.basedirectory = os.getcwd()
         self.subdir = subdir
@@ -19,7 +20,27 @@ class ASTRAGenerator(object):
     def generateBeam(self):
         self.createSettings()
         self.createGeneratorInput()
-        return self.subdir+'/'+self.settings['filename'] #'../'+self.subdir+'/'+
+        return self.settings['filename']
+
+    def readFile(self, fname=None):
+        with open(fname) as f:
+            content = f.readlines()
+        return content
+
+    def lineReplaceFunction(self, line, findString, replaceString):
+        if findString in line:
+            return line.replace('$'+findString+'$', str(replaceString))
+        else:
+            return line
+
+    def replaceString(self, lines=[], findString=None, replaceString=None):
+        return [self.lineReplaceFunction(line, findString, replaceString) for line in lines]
+
+    def saveFile(self, lines=[], filename='generatortemp.in'):
+        stream = file(filename, 'w')
+        for line in lines:
+            stream.write(line)
+        stream.close()
 
     def particleSuffix(self):
         suffix = str(int(round(self.npart/1e9))) + 'G'
@@ -38,22 +59,17 @@ class ASTRAGenerator(object):
         self.settings['filename'] = self.particleSuffix() + '-' + str(self.charge) + 'pC-76fsrms-1mm_TE09fixN12.ini'
 
     def createGeneratorInput(self):
-        lines = readFile(self.generatorBaseFile)
-        os.chdir(self.subdirectory)
+        lines = self.readFile(self.generatorBaseFile)
         for var, val in self.settings.iteritems():
-            lines = replaceString(lines, var, val)
-        saveFile('generator.in', lines)
-        self.runGenerator('generator.in')
-        os.chdir(self.basedirectory)
+            lines = self.replaceString(lines, var, val)
+        if self.overwrite:
+            self.saveFile(lines, self.subdir+'/'+'generator.in')
+            self.runGenerator('generator.in')
 
     def runGenerator(self, filename=''):
         command = self.generatorCommand + [filename]
-        print command
-        comm = subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-        for line in iter(comm.stdout.readline,''):
-            if 'phase-space distribution saved to file' in line.rstrip():
-                comm.stdin.write('\n')
-        print 'here!'
+        with open(os.devnull, "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def defineGeneratorCommand(self,command=['generator']):
         self.generatorCommand = command

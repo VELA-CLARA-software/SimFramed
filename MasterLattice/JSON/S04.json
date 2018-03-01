@@ -1,0 +1,667 @@
+{
+    "elements": {
+        "CLA-S04-APER": {
+            "type": "aperture",
+            "shape": "rectangular",
+            "horizontal_size": 0.017,
+            "vertical_size": 0.017,
+            "position_end": [
+                0,
+                0,
+                15.7346
+            ],
+            "position_start": [
+                0,
+                0,
+                15.7346
+            ]
+        },
+        "CLA-S04-MARK-01": {
+            "type": "marker",
+            "fit_point": 1.0,
+            "position_end": [
+                0,
+                0,
+                15.7346
+            ],
+            "position_start": [
+                0,
+                0,
+                15.7346
+            ]
+        },
+        "CLA-S04-MAG-HVCOR-01": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                16.3102
+            ],
+            "buffer_start_length": 0.025,
+            "buffer_end_length": 0.01,
+            "position_end": [
+                0,
+                0,
+                15.8946
+            ],
+            "position_start": [
+                0,
+                0,
+                15.8446
+            ]
+        },
+        "CLA-S04-MAG-QUAD-01": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": 0.621798,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                16.3952
+            ],
+            "buffer_start_length": 0.023,
+            "buffer_end_length": 0.024,
+            "position_end": [
+                0,
+                0,
+                16.0566
+            ],
+            "position_start": [
+                0,
+                0,
+                15.8946
+            ]
+        },
+        "CLA-S04-DIA-BPM-01": {
+            "type": "beam_position_monitor",
+            "length": 0.21,
+            "position_end": [
+                0,
+                0,
+                16.3431
+            ],
+            "position_start": [
+                0,
+                0,
+                16.1331
+            ]
+        },
+        "CLA-S04-MAG-QUAD-02": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": 0.166334,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                16.9152
+            ],
+            "buffer_start_length": 0.023,
+            "buffer_end_length": 0.035,
+            "position_end": [
+                0,
+                0,
+                16.5296
+            ],
+            "position_start": [
+                0,
+                0,
+                16.3676
+            ]
+        },
+        "CLA-S04-DIA-SCR-01-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-S04-DIA-SCR-01.SDDS\"",
+            "position_end": [
+                0,
+                0,
+                16.7079
+            ],
+            "position_start": [
+                0,
+                0,
+                16.7079
+            ]
+        },
+        "CLA-S04-MAG-QUAD-03": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": -0.387754,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                17.4152
+            ],
+            "buffer_start_length": 0.023,
+            "buffer_end_length": 0.035,
+            "position_end": [
+                0,
+                0,
+                16.9716
+            ],
+            "position_start": [
+                0,
+                0,
+                16.8096
+            ]
+        },
+        "CLA-S04-DIA-BPM-02": {
+            "type": "beam_position_monitor",
+            "length": 0.21,
+            "position_end": [
+                0,
+                0,
+                17.1966
+            ],
+            "position_start": [
+                0,
+                0,
+                16.9866
+            ]
+        },
+        "CLA-S04-MAG-QUAD-04": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": -0.208383,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                17.9202
+            ],
+            "buffer_start_length": 0.018,
+            "buffer_end_length": 0.03,
+            "position_end": [
+                0,
+                0,
+                17.4186
+            ],
+            "position_start": [
+                0,
+                0,
+                17.2566
+            ]
+        },
+        "CLA-S04-MAG-HVCOR-02": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                18.3002
+            ],
+            "buffer_start_length": 0.025,
+            "buffer_end_length": 0.025,
+            "position_end": [
+                0,
+                0,
+                17.6386
+            ],
+            "position_start": [
+                0,
+                0,
+                17.5886
+            ]
+        },
+        "CLA-S04-DIA-SCR-02-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-S04-DIA-SCR-02.SDDS\"",
+            "buffer_start": [
+                0,
+                0,
+                17.6486
+            ],
+            "buffer_start_length": 0.043333,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                0,
+                0,
+                17.6919
+            ],
+            "position_start": [
+                0,
+                0,
+                17.6919
+            ]
+        },
+        "CLA-S04-MAG-DIP-01": {
+            "type": "dipole",
+            "length": 0.1,
+            "angle": 0.0001,
+            "exit_edge_angle": 0.0001,
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"CLA-S04-MAG-DIP-01.CSR\"",
+            "buffer_start": [
+                0,
+                0,
+                18.5302
+            ],
+            "buffer_start_length": 0.06,
+            "buffer_end_length": 0.05,
+            "position_end": [
+                5e-6,
+                0,
+                17.8686
+            ],
+            "position_start": [
+                0,
+                0,
+                17.7686
+            ]
+        },
+        "CLA-S04-MAG-DIP-02": {
+            "type": "dipole",
+            "length": 0.1,
+            "angle": -0.0001,
+            "entrance_edge_angle": -0.0001,
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"CLA-S04-MAG-DIP-02.CSR\"",
+            "buffer_start": [
+                3.5e-5,
+                0,
+                18.9902
+            ],
+            "buffer_start_length": 0.05,
+            "buffer_end_length": 0.05,
+            "position_end": [
+                3.5e-5,
+                0,
+                18.2186
+            ],
+            "position_start": [
+                3e-5,
+                0,
+                18.1186
+            ]
+        },
+        "CLA-S04-DIA-SCR-03-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-S04-DIA-SCR-03.SDDS\"",
+            "buffer_start": [
+                3.5e-5,
+                0,
+                18.2186
+            ],
+            "buffer_start_length": 0.043333,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                3.5e-5,
+                0,
+                18.2619
+            ],
+            "position_start": [
+                3.5e-5,
+                0,
+                18.2619
+            ]
+        },
+        "CLA-S04-MAG-HVCOR-03": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                4.5e-5,
+                0,
+                19.3102
+            ],
+            "buffer_start_length": 0.075,
+            "buffer_end_length": 0.05,
+            "position_end": [
+                3.5e-5,
+                0,
+                18.3886
+            ],
+            "position_start": [
+                3.5e-5,
+                0,
+                18.3386
+            ]
+        },
+        "CLA-S04-DIA-BPM-03": {
+            "type": "beam_position_monitor",
+            "length": 0.035,
+            "position_end": [
+                3.5e-5,
+                0,
+                18.4236
+            ],
+            "position_start": [
+                3.5e-5,
+                0,
+                18.3886
+            ]
+        },
+        "CLA-S04-MAG-LASER0-M": {
+            "type": "marker",
+            "fit_point": 1.0,
+            "position_end": [
+                3.5e-5,
+                0,
+                18.7811
+            ],
+            "position_start": [
+                3.5e-5,
+                0,
+                18.7811
+            ]
+        },
+        "CLA-S04-DIA-BPM-04": {
+            "type": "beam_position_monitor",
+            "length": 0.21,
+            "position_end": [
+                3.5e-5,
+                0,
+                19.3486
+            ],
+            "position_start": [
+                3.5e-5,
+                0,
+                19.1386
+            ]
+        },
+        "CLA-S04-DIA-SCR-04-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-S04-DIA-SCR-04.SDDS\"",
+            "buffer_start": [
+                3.5e-5,
+                0,
+                19.3486
+            ],
+            "buffer_start_length": 0.043333,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                3.5e-5,
+                0,
+                19.3919
+            ],
+            "position_start": [
+                3.5e-5,
+                0,
+                19.3919
+            ]
+        },
+        "CLA-S04-MAG-DIP-03": {
+            "type": "dipole",
+            "length": 0.1,
+            "angle": -0.0001,
+            "exit_edge_angle": -0.0001,
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"CLA-S04-MAG-DIP-03.CSR\"",
+            "buffer_start": [
+                4.5e-5,
+                0,
+                20.5652
+            ],
+            "buffer_start_length": 0.05,
+            "buffer_end_length": 0.05,
+            "position_end": [
+                3e-5,
+                0,
+                19.5686
+            ],
+            "position_start": [
+                3.5e-5,
+                0,
+                19.4686
+            ]
+        },
+        "CLA-S04-MAG-DIP-04": {
+            "type": "dipole",
+            "length": 0.1,
+            "angle": 0.0001,
+            "entrance_edge_angle": 0.0001,
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"CLA-S04-MAG-DIP-04.CSR\"",
+            "buffer_start": [
+                1e-5,
+                0,
+                21.0152
+            ],
+            "buffer_start_length": 0.05,
+            "buffer_end_length": 0.05,
+            "position_end": [
+                0,
+                0,
+                19.9186
+            ],
+            "position_start": [
+                5e-6,
+                0,
+                19.8186
+            ]
+        },
+        "CLA-S04-DIA-SCR-05-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-S04-DIA-SCR-05.SDDS\"",
+            "buffer_start": [
+                0,
+                0,
+                19.9752
+            ],
+            "buffer_start_length": 0.043333,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                0,
+                0,
+                20.0186
+            ],
+            "position_start": [
+                0,
+                0,
+                20.0186
+            ]
+        },
+        "CLA-S04-MAG-QUAD-05": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": 0.253635,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                21.4352
+            ],
+            "buffer_start_length": 0.018,
+            "buffer_end_length": 0.03,
+            "position_end": [
+                0,
+                0,
+                20.3006
+            ],
+            "position_start": [
+                0,
+                0,
+                20.1386
+            ]
+        },
+        "CLA-S04-MAG-HVCOR-04": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                21.6452
+            ],
+            "buffer_start_length": 0.06,
+            "buffer_end_length": 0.025,
+            "position_end": [
+                0,
+                0,
+                20.3506
+            ],
+            "position_start": [
+                0,
+                0,
+                20.3006
+            ]
+        },
+        "CLA-S04-MAG-QUAD-06": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": 0.433247,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                21.9352
+            ],
+            "buffer_start_length": 0.018,
+            "buffer_end_length": 0.03,
+            "position_end": [
+                0,
+                0,
+                20.6676
+            ],
+            "position_start": [
+                0,
+                0,
+                20.5056
+            ]
+        },
+        "CLA-S04-DIA-BPM-05": {
+            "type": "beam_position_monitor",
+            "length": 0.21,
+            "position_end": [
+                0,
+                0,
+                20.9276
+            ],
+            "position_start": [
+                0,
+                0,
+                20.7176
+            ]
+        },
+        "CLA-S04-MAG-QUAD-07": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": 0.521807,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                22.4052
+            ],
+            "buffer_start_length": 0.048,
+            "buffer_end_length": 0.03,
+            "position_end": [
+                0,
+                0,
+                21.0896
+            ],
+            "position_start": [
+                0,
+                0,
+                20.9276
+            ]
+        },
+        "CLA-S04-MAG-HVCOR-05": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                22.7402
+            ],
+            "buffer_start_length": 0.025,
+            "buffer_end_length": 0.025,
+            "position_end": [
+                0,
+                0,
+                21.2346
+            ],
+            "position_start": [
+                0,
+                0,
+                21.1846
+            ]
+        },
+        "CLA-S04-MAG-QUAD-08": {
+            "type": "quadrupole",
+            "length": 0.162,
+            "k1": -0.26879,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                22.9452
+            ],
+            "buffer_start_length": 0.018,
+            "buffer_end_length": 0.05,
+            "position_end": [
+                0,
+                0,
+                21.5016
+            ],
+            "position_start": [
+                0,
+                0,
+                21.3396
+            ]
+        },
+        "CLA-S04-DIA-BPM-06": {
+            "type": "beam_position_monitor",
+            "length": 0.21,
+            "position_end": [
+                0,
+                0,
+                21.7116
+            ],
+            "position_start": [
+                0,
+                0,
+                21.5016
+            ]
+        },
+        "CLA-S04-MARK-02": {
+            "type": "marker",
+            "fit_point": 1.0,
+            "position_end": [
+                0,
+                0,
+                21.7836
+            ],
+            "position_start": [
+                0,
+                0,
+                21.7836
+            ]
+        }
+    }
+}
