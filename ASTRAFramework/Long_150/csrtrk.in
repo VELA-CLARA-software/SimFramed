@@ -28,7 +28,7 @@ reference_momentum = reference_particle
 reference_point_x   = 0.0
 reference_point_y   = 0.0
 reference_point_phi = 0.0
-format = astra, array = #file{name=./short_240.4.2573.001}}
+format = astra, array = #file{name=./long_150.4.2573.001}}
 online_monitor{name = sub_bunch.dat, type = subbunch
 start_time_c0 = now
 end_time_marker = d1a, end_time_shift_c0 = 5.19944
