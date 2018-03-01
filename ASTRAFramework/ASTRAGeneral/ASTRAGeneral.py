@@ -17,17 +17,32 @@ def dict_constructor(loader, node):
 yaml.add_representer(collections.OrderedDict, dict_representer)
 yaml.add_constructor(_mapping_tag, dict_constructor)
 
+def merge_two_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return dict(z)
+
 class ASTRA(object):
 
-    def __init__(self, subdir='test'):
+    def __init__(self, subdir='test', overwrite=None, runname='CLARA_240'):
         super(ASTRA, self).__init__()
         self.lineIterator = 0
         self.astraCommand = ['astra']
         self.basedirectory = os.getcwd()
         self.subdir = subdir
+        self.overwrite = overwrite
+        self.runname = runname
         self.subdirectory = self.basedirectory+'/'+subdir
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
+        if self.overwrite == None:
+            if not os.path.exists(self.subdirectory):
+                os.makedirs(self.subdirectory)
+                self.overwrite = True
+            else:
+                response = raw_input('Overwrite existing directory ? [Y/n]')
+                self.overwrite = True if response in {'','y','Y','yes','Yes','YES'} else False
+        self.astraFiles = []
 
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
@@ -38,6 +53,12 @@ class ASTRA(object):
         self.elements = settings['elements']
         self.groups = settings['groups']
         stream.close()
+        if 'filename' in self.elements:
+            stream = file(self.elements['filename'], 'r')
+            elements = yaml.load(stream)
+            stream.close()
+            self.elements = merge_two_dicts(self.elements, elements['elements'])
+            # print self.elements
 
     def getFileSettings(self, file, block):
         """Return the correct settings 'block' from 'file' dict if exists else return empty dict"""
@@ -91,7 +112,8 @@ class ASTRA(object):
     def runASTRA(self, filename=''):
         """Run the ASTRA program with input 'filename'"""
         command = self.astraCommand + [filename]
-        subprocess.call(command)
+        with open(os.devnull, "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def defineASTRACommand(self,command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -101,20 +123,23 @@ class ASTRA(object):
         """Modify the 'initial_distribution' global setting"""
         self.globalSettings['initial_distribution'] = filename
 
-    def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None):
+    def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None, generatorFile='generator.in'):
         """Create an initiail dostribution of 'npart' particles of 'charge' pC"""
-        astragen = GenPart.ASTRAGenerator(self.subdir, charge, npart)
-        if not generatorCommand == None:
+        self.globalSettings['npart'] = npart
+        self.globalSettings['charge'] = charge/1000.0
+        astragen = GenPart.ASTRAGenerator(self.subdir, charge, npart, overwrite=self.overwrite, generatorFile=generatorFile)
+        if not generatorCommand is None:
             astragen.defineGeneratorCommand(generatorCommand)
         elif os.name == 'nt':
-            astragen.defineGeneratorCommand(['../generator_7June2007'])
+            astragen.defineGeneratorCommand(['generator_7June2007'])
         else:
-            astragen.defineGeneratorCommand(['/opt/ASTRA/generator'])
+            astragen.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
         inputfile = astragen.generateBeam()
         self.setInitialDistribution(inputfile)
-        self.globalSettings['total_charge'] = charge/1000.0
         scgrid = getGrids(npart)
-        for scvar in ['SC_2D_Nrad','SC_2D_Nlong','SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
+        self.globalSettings['SC_2D_Nrad'] = max([scgrid.gridSizes,4])
+        self.globalSettings['SC_2D_Nlong'] = max([scgrid.gridSizes,4])
+        for scvar in ['SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
             self.globalSettings[scvar] = scgrid.gridSizes
 
     def xform(self, theta, tilt, length, x, r):
@@ -152,11 +177,11 @@ class ASTRA(object):
         x1 = np.matrix(np.transpose([startpos]))
         x = [np.array(x1)]
         for name, d in elements:
-            angle = getParameter(d,'angle',default=1e-9)/180*np.pi
+            angle = getParameter(d,'angle',default=1e-9)
             anglesum.append(anglesum[-1]+angle)
             x1, localXYZ = self.xform(angle, 0, getParameter(d,'length'), x1, localXYZ)
             x.append(x1)
-        return zip(x, anglesum[1:], elements), localXYZ
+        return zip(x, anglesum[:-1], elements), localXYZ
 
     def createDrifts(self, elements, startpos=None):
         """Insert drifts into a sequence of 'elements'"""
@@ -186,6 +211,10 @@ class ASTRA(object):
     def setDipoleAngle(self, dipole, angle=0):
         """Set the dipole angle for a given 'dipole'"""
         name, d = dipole
+        if getParameter(d,'entrance_edge_angle') == 'angle':
+            d['entrance_edge_angle'] = np.sign(d['angle'])*angle
+        if getParameter(d,'exit_edge_angle') == 'angle':
+            d['exit_edge_angle'] = np.sign(d['angle'])*angle
         d['angle'] = np.sign(d['angle'])*angle
         return [name, d]
 
@@ -205,30 +234,31 @@ class ASTRA(object):
             dipoleno += 1
             p1, psi1, nameelem1 = elems[0]
             p2, psi2, nameelem2 = elems[1]
+            # print 'psi = ', psi1, psi2
             name, d = nameelem1
             angle1 = getParameter(nameelem1[1],'angle')
             angle2 = getParameter(nameelem2[1],'angle')
             length = getParameter(d,'length')
-            e1 = getParameter(d,'e1')
-            e2 = getParameter(d,'e2')
+            e1 = getParameter(d,'entrance_edge_angle')
+            e2 = getParameter(d,'exit_edge_angle')
             width = getParameter(d,'width',default=width)
             gap = getParameter(d,'gap',default=gap)
             rbend = 1 if d['type'] == 'rdipole' else 0
             rho = d['length']/angle1 if 'length' in d and abs(angle1) > 1e-9 else 0
-            theta = -1*psi1+e1-rbend*rho*angle1/2.0
-            corners[0] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
-            corners[3] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
-            theta = -1*psi2-e2-rbend*rho*angle1/2.0
-            corners[1] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
-            corners[2] = np.array(map(add,np.transpose(p2),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
+            theta = -1*psi1-e1-rbend*np.sign(rho)*angle1/2.0
+            corners[0] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
+            corners[3] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
+            theta = -1*psi2+e2-rbend*np.sign(rho)*angle1/2.0
+            corners[1] = np.array(map(add,np.transpose(p2),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
+            corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
             dipolenostr = str(dipoleno)
-            chicanetext += "D_Type("+dipolenostr+")='horizontal'\n"+\
+            chicanetext += "D_Type("+dipolenostr+")='horizontal',\n"+\
             "D_Gap(1,"+dipolenostr+")="+str(gap)+",\n"+\
             "D_Gap(2,"+dipolenostr+")="+str(gap)+",\n"+\
-            "D1("+dipolenostr+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
-            "D2("+dipolenostr+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
+            "D1("+dipolenostr+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
             "D3("+dipolenostr+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
-            "D4("+dipolenostr+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
+            "D4("+dipolenostr+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
+            "D2("+dipolenostr+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
             "D_radius("+dipolenostr+")="+str(rho)+"\n"
         return chicanetext
 
@@ -304,7 +334,7 @@ class ASTRA(object):
         if distribution == 'initial_distribution':
             distribution = self.globalSettings['initial_distribution']
         else:
-            distribution = self.subdir+'/'+distribution
+            distribution = distribution
         # print 'qbunch = ', getParameter([self.globalSettings,settings],'total_charge',default=250)
         Qbunch          = str(getParameter([self.globalSettings,settings],'total_charge',default=250))
         zstart          =     getParameter(settings,'zstart',default=0)
@@ -338,7 +368,7 @@ class ASTRA(object):
             if startelem is None or startelem not in self.elements:
                 zstart = 0
             else:
-                print self.elements[startelem]
+                # print self.elements[startelem]
                 zstart = self.elements[startelem]['position_start'][2]
                 output['zstart'] = zstart
         zstop = getParameter(output,'zstop',default=None)
@@ -427,8 +457,6 @@ class ASTRA(object):
 
         cavities = self.getElementsBetweenS('cavity', output=output)
 
-        print 'cavities = ', cavities
-
         for i,s in enumerate(cavities):
             cavitytext += ' '+self.createASTRACavity(s,i+1)
         cavitytext += '/\n'
@@ -470,6 +498,33 @@ class ASTRA(object):
 
         return quadrupoletext
 
+    def createASTRAChicaneBlock(self, groups, dipoles):
+        """Create an ASTRA DIPOLE Block string"""
+        loop = False
+        ldipole = False
+
+        for g in groups:
+            if g in self.groups:
+                # print 'group!'
+                if self.groups[g]['type'] == 'chicane':
+                    if all([i for i in self.groups[g] if i in dipoles]):
+                        ldipole = True
+
+        dipoletext = '&DIPOLE\n' +\
+        ' Loop='+str(loop)+'\n' +\
+        ' LDipole='+str(ldipole)+'\n'
+
+        for g in groups:
+            if g in self.groups:
+                # print 'group!'
+                if self.groups[g]['type'] == 'chicane':
+                    if all([i for i in self.groups[g] if i in dipoles]):
+                        dipoletext += self.createASTRAChicane(g, **groups[g])
+
+        dipoletext += '/\n'
+
+        return dipoletext
+
     def createASTRAFileText(self, file):
         settings = self.getFileSettings(file,'settings')
         input = self.getFileSettings(file,'input')
@@ -493,30 +548,27 @@ class ASTRA(object):
         astrafiletext += self.createASTRACavityBlock(cavity, output)
         astrafiletext += self.createASTRASolenoidBlock(solenoid, output)
         astrafiletext += self.createASTRAQuadrupoleBlock(quadrupole, output)
-        for g in groups:
-            if g in self.groups:
-                # print 'group!'
-                if self.groups[g]['type'] == 'chicane':
-                    if all([i for i in self.groups[g] if i in dipoles]):
-                        astrafiletext += self.createASTRAChicane(g, **groups[g])
+        astrafiletext += self.createASTRAChicaneBlock(groups, dipoles)
 
         return astrafiletext
 
     def createASTRAFiles(self):
         for f in self.fileSettings.keys():
             filename = self.subdirectory+'/'+f+'.in'
-            print filename
+            # print filename
             saveFile(filename, lines=self.createASTRAFileText(f))
 
     def runASTRAFiles(self, files=None):
         if isinstance(files, (list, tuple)):
             for f in files:
                 if f in self.fileSettings.keys():
-                    filename = self.subdirectory+'/'+f+'.in'
+                    filename = f+'.in'
+                    print 'Running file: ', f
                     self.runASTRA(filename)
                 else:
                     print 'File does not exist! - ', f
         else:
             for f in self.fileSettings.keys():
-                filename = self.subdirectory+'/'+f+'.in'
+                filename = f+'.in'
+                print 'Running file: ', f
                 self.runASTRA(filename)

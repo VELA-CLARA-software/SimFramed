@@ -1,0 +1,130 @@
+elements:
+  EBT-BA1-DIA-BPM-01:
+    type: beam_position_monitor
+    length: 0.235
+    position_end: [1.01303, 0, 20.7529]
+    position_start: [1.01303, 0, 20.5179]
+  EBT-BA1-DIA-YAG-01:
+    type: watch_point
+    output_filename: '"EBT-BA1-DIA-YAG-01.SDDS"'
+    position_end: [1.01303, 0, 20.7529]
+    position_start: [1.01303, 0, 20.7529]
+  EBT-BA1-MAG-QUAD-01:
+    type: quadrupole
+    length: 0.16
+    sr_enable: true
+    isr_enable: true
+    position_end: [1.01303, 0, 21.9139]
+    position_start: [1.01303, 0, 21.7539]
+  EBT-BA1-MAG-QUAD-02:
+    type: quadrupole
+    length: 0.16
+    sr_enable: true
+    isr_enable: true
+    position_end: [1.01303, 0, 22.3139]
+    position_start: [1.01303, 0, 22.1539]
+  EBT-BA1-DIA-BPM-02:
+    type: beam_position_monitor
+    length: 0.235
+    position_end: [1.01303, 0, 22.5489]
+    position_start: [1.01303, 0, 22.3139]
+  EBT-BA1-MAG-QUAD-03:
+    type: quadrupole
+    length: 0.16
+    sr_enable: true
+    isr_enable: true
+    position_end: [1.01303, 0, 22.7089]
+    position_start: [1.01303, 0, 22.5489]
+  EBT-BA1-LASERBOX-BEG:
+    type: marker
+    fit_point: 1.0
+    position_end: [1.01303, 0, 23.0489]
+    position_start: [1.01303, 0, 23.0489]
+  EBT-BA1-LASERBOX-END:
+    type: marker
+    fit_point: 1.0
+    position_end: [1.01303, 0, 23.6989]
+    position_start: [1.01303, 0, 23.6989]
+  EBT-BA1-COFFIN-BEG:
+    type: marker
+    fit_point: 1.0
+    position_end: [1.01303, 0, 23.7989]
+    position_start: [1.01303, 0, 23.7989]
+  EBT-BA1-COFFIN-FOC:
+    type: marker
+    fit_point: 1.0
+    position_end: [1.01303, 0, 24.8489]
+    position_start: [1.01303, 0, 24.8489]
+  EBT-BA1-COFFIN-END:
+    type: marker
+    fit_point: 1.0
+    position_end: [1.01303, 0, 26.1589]
+    position_start: [1.01303, 0, 26.1589]
+  EBT-BA1-DIA-BPM-03:
+    type: beam_position_monitor
+    length: 0.235
+    position_end: [1.01303, 0, 26.3939]
+    position_start: [1.01303, 0, 26.1589]
+  EBT-BA1-MAG-QUAD-04:
+    type: quadrupole
+    length: 0.16
+    sr_enable: true
+    isr_enable: true
+    position_end: [1.01303, 0, 26.5539]
+    position_start: [1.01303, 0, 26.3939]
+  EBT-BA1-MAG-QUAD-05:
+    type: quadrupole
+    length: 0.16
+    sr_enable: true
+    isr_enable: true
+    position_end: [1.01303, 0, 26.9869]
+    position_start: [1.01303, 0, 26.8269]
+  EBT-BA1-MAG-QUAD-06:
+    type: quadrupole
+    length: 0.16
+    sr_enable: true
+    isr_enable: true
+    position_end: [1.01303, 0, 27.4199]
+    position_start: [1.01303, 0, 27.2599]
+  EBT-BA1-DIA-YAG-02:
+    type: watch_point
+    output_filename: '"EBT-BA1-DIA-YAG-02.SDDS"'
+    position_end: [1.01303, 0, 27.5199]
+    position_start: [1.01303, 0, 27.5199]
+  EBT-BA1-MAG-DIP-01:
+    type: dipole
+    length: 0.500037
+    angle: 1.0472
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    csr_bins: 20.0
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: '"CLA-C2V-MAG-DIP-01-D.CSR"'
+    buffer_start: [1.25, 0, 28.4538]
+    buffer_start_length: 0.1
+    buffer_end_length: 0.1
+    position_end: [1.25178, 0, 28.2314]
+    position_start: [1.01303, 0, 27.8179]
+  EBT-BA1-MAG-QUAD-07:
+    type: quadrupole
+    length: 0.3
+    sr_enable: true
+    isr_enable: true
+    position_end: [1.74802, 0, 28.5179]
+    position_start: [1.48821, 0, 28.3679]
+  EBT-BA1-DIA-BPM-04:
+    type: beam_position_monitor
+    length: 0.235
+    position_end: [2.18796, 0, 28.7719]
+    position_start: [1.98444, 0, 28.6544]
+  EBT-BA1-DIA-YAG-03:
+    type: watch_point
+    output_filename: '"EBT-BA1-DIA-YAG-03.SDDS"'
+    position_end: [2.86779, 0, 29.1644]
+    position_start: [2.86779, 0, 29.1644]
+  EBT-BA1-DIA-FCUP-01:
+    type: watch_point
+    output_filename: '"EBT-BA1-DIA-FCUP-01.SDDS"'
+    position_end: [2.86779, 0, 29.1644]
+    position_start: [2.86779, 0, 29.1644]
