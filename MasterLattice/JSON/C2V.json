@@ -1,0 +1,218 @@
+{
+    "elements": {
+        "CLA-C2V-MARK-01": {
+            "type": "marker",
+            "fit_point": 1.0,
+            "position_end": [
+                0,
+                0,
+                5.52793
+            ],
+            "position_start": [
+                0,
+                0,
+                5.52793
+            ]
+        },
+        "CLA-C2V-MAG-DIP-01": {
+            "type": "dipole",
+            "length": 0.400003,
+            "angle": 0.785398,
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"C2V-MAG-DIP-01-D.CSR\"",
+            "buffer_start": [
+                0,
+                0,
+                5.72687
+            ],
+            "buffer_start_length": 0.1,
+            "buffer_end_length": 0.1,
+            "Controller_Name": "DIP01",
+            "Online_Model_Name": "CV-DIP01",
+            "PV": "CLA-C2V-MAG-DIP-01",
+            "position_end": [
+                0.149171,
+                0,
+                5.88806
+            ],
+            "position_start": [
+                0,
+                0,
+                5.52793
+            ]
+        },
+        "CLA-C2V-MAG-HVCOR-01": {
+            "type": "kicker",
+            "length": 0.21,
+            "sr_enable": true,
+            "isr_enable": true,
+            "Controller_Name": "COR1",
+            "Online_Model_Name": "CV-COR01",
+            "Horizontal_PV": "CLA-C2V-MAG-HCOR-01",
+            "Vertcal_PV": "CLA-C2V-MAG-VCOR-01",
+            "position_end": [
+                0.297702,
+                0,
+                6.03659
+            ],
+            "position_start": [
+                0.149209,
+                0,
+                5.8881
+            ]
+        },
+        "CLA-C2V-DIA-BPM-01": {
+            "type": "beam_position_monitor",
+            "Controller_Name": "BPM01",
+            "Online_Model_Name": "CV-BPM01",
+            "PV": "CLA-C2V-DIA-BPM-01",
+            "position_end": [
+                0.297702,
+                0,
+                6.03659
+            ],
+            "position_start": [
+                0.297702,
+                0,
+                6.03659
+            ]
+        },
+        "CLA-C2V-MAG-QUAD-01": {
+            "type": "quadrupole",
+            "length": 0.1007,
+            "k1": 55.9853,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0.368412,
+                0,
+                6.40624
+            ],
+            "buffer_start_length": 0.02252,
+            "buffer_end_length": 0.02252,
+            "Controller_Name": "C2V-QUAD1",
+            "Online_Model_Name": "CV-QUAD01",
+            "PV": "CLA-C2V-MAG-QUAD-01",
+            "position_end": [
+                0.368907,
+                0,
+                6.1078
+            ],
+            "position_start": [
+                0.297702,
+                0,
+                6.03659
+            ]
+        },
+        "CLA-C2V-MAG-QUAD-02": {
+            "type": "quadrupole",
+            "length": 0.1007,
+            "k1": -50.2792,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0.573473,
+                0,
+                6.6113
+            ],
+            "buffer_start_length": 0.02252,
+            "buffer_end_length": 0.02252,
+            "Controller_Name": "C2V-QUAD2",
+            "Online_Model_Name": "CV-QUAD02",
+            "PV": "CLA-C2V-MAG-QUAD-02",
+            "position_end": [
+                0.54212,
+                0,
+                6.28101
+            ],
+            "position_start": [
+                0.470914,
+                0,
+                6.2098
+            ]
+        },
+        "CLA-C2V-MAG-QUAD-03": {
+            "type": "quadrupole",
+            "length": 0.1007,
+            "k1": 55.9853,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0.778534,
+                0,
+                6.81636
+            ],
+            "buffer_start_length": 0.02252,
+            "buffer_end_length": 0.02252,
+            "Controller_Name": "C2V-QUAD1",
+            "Online_Model_Name": "CV-QUAD03",
+            "PV": "CLA-C2V-MAG-QUAD-03",
+            "position_end": [
+                0.715333,
+                0,
+                6.45422
+            ],
+            "position_start": [
+                0.644127,
+                0,
+                6.38302
+            ]
+        },
+        "CLA-C2V-DIA-SCR-01-W": {
+            "type": "screen",
+            "output_filename": "\"C2V-DIA-SCR-01.SDDS\"",
+            "buffer_start": [
+                0.747172,
+                0,
+                6.48606
+            ],
+            "buffer_start_length": 0.043333,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                0.777813,
+                0,
+                6.5167
+            ],
+            "position_start": [
+                0.777813,
+                0,
+                6.5167
+            ]
+        },
+        "CLA-C2V-MAG-DIP-02": {
+            "type": "dipole",
+            "length": 0.400003,
+            "angle": -0.785398,
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"CLA-C2V-MAG-DIP-02-D.CSR\"",
+            "buffer_start": [
+                1.03012,
+                0,
+                7.06795
+            ],
+            "buffer_start_length": 0.1,
+            "buffer_end_length": 0.1,
+            "Controller_Name": "DIP02",
+            "Online_Model_Name": "CV-DIP03",
+            "PV": "CLA-C2V-MAG-DIP-03",
+            "position_end": [
+                1.01303,
+                0,
+                6.96288
+            ],
+            "position_start": [
+                0.863864,
+                0,
+                6.60275
+            ]
+        }
+    }
+}

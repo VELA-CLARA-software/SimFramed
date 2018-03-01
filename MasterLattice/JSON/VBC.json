@@ -1,0 +1,203 @@
+{
+    "elements": {
+        "CLA-VBC-MAG-DIP-01": {
+            "type": "dipole",
+            "length": 0.200981,
+            "angle": -0.095,
+            "exit_edge_angle": "angle",
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"VBC-MAG-DIP-01.CSR\"",
+            "buffer_start": [
+                0,
+                0,
+                25.9651
+            ],
+            "buffer_start_length": 0.1,
+            "buffer_end_length": 0.100453,
+            "position_end": [
+                -0.00953944,
+                0,
+                24.0684
+            ],
+            "position_start": [
+                0,
+                0,
+                23.8677
+            ]
+        },
+        "CLA-VBC-MAG-DIP-02": {
+            "type": "dipole",
+            "length": 0.200981,
+            "angle": 0.095,
+            "entrance_edge_angle": "angle",
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"VBC-MAG-DIP-02.CSR\"",
+            "buffer_start": [
+                -0.142941,
+                0,
+                27.6658
+            ],
+            "buffer_start_length": 0.100453,
+            "buffer_end_length": 0.1,
+            "position_end": [
+                -0.142952,
+                0,
+                25.5691
+            ],
+            "position_start": [
+                -0.133412,
+                0,
+                25.3684
+            ]
+        },
+        "CLA-VBC-MAG-VCOR-01": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                -0.162009,
+                0,
+                28.1231
+            ],
+            "buffer_start_length": 0.14,
+            "buffer_end_length": 0.0426,
+            "position_end": [
+                -0.142952,
+                0,
+                25.6757
+            ],
+            "position_start": [
+                -0.142952,
+                0,
+                25.6257
+            ]
+        },
+        "CLA-VBC-DIA-BPM-01": {
+            "type": "beam_position_monitor",
+            "length": 0.0312,
+            "position_end": [
+                -0.142952,
+                0,
+                25.7069
+            ],
+            "position_start": [
+                -0.142952,
+                0,
+                25.6757
+            ]
+        },
+        "CLA-VBC-RCOL-01": {
+            "type": "collimator",
+            "length": 0.48,
+            "shape": "rectangular",
+            "horizontal_size": 0.01,
+            "vertical_size": 0.01,
+            "open_side": "\"+x\"",
+            "position_end": [
+                -0.142952,
+                0,
+                26.1993
+            ],
+            "position_start": [
+                -0.142952,
+                0,
+                25.7193
+            ]
+        },
+        "CLA-VBC-DIA-SCR-01-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-VBC-DIA-SCR-01.SDDS\"",
+            "buffer_start": [
+                -0.142952,
+                0,
+                26.1993
+            ],
+            "buffer_start_length": 0.025463,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                -0.142952,
+                0,
+                26.2248
+            ],
+            "position_start": [
+                -0.142952,
+                0,
+                26.2248
+            ]
+        },
+        "CLA-VBC-MAG-DIP-03": {
+            "type": "dipole",
+            "length": 0.200981,
+            "angle": 0.095,
+            "exit_edge_angle": "angle",
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"VBC-MAG-DIP-03.CSR\"",
+            "buffer_start": [
+                -0.162009,
+                0,
+                29.1664
+            ],
+            "buffer_start_length": 0.1,
+            "buffer_end_length": 0.100453,
+            "position_end": [
+                -0.133412,
+                0,
+                26.6872
+            ],
+            "position_start": [
+                -0.142952,
+                0,
+                26.4865
+            ]
+        },
+        "CLA-VBC-MAG-DIP-04": {
+            "type": "dipole",
+            "length": 0.200981,
+            "angle": -0.095,
+            "entrance_edge_angle": "angle",
+            "half_gap": 0.005,
+            "edge_field_integral": 0.4,
+            "csr_bins": 20.0,
+            "sr_enable": true,
+            "isr_enable": true,
+            "csr_output_filename": "\"VBC-MAG-DIP-04.CSR\"",
+            "position_end": [
+                0,
+                0,
+                28.1878
+            ],
+            "position_start": [
+                -0.00953944,
+                0,
+                27.9872
+            ]
+        },
+        "CLA-VBC-MARK-01": {
+            "type": "marker",
+            "fit_point": 1.0,
+            "position_end": [
+                0,
+                0,
+                28.1878
+            ],
+            "position_start": [
+                0,
+                0,
+                28.1878
+            ]
+        }
+    }
+}

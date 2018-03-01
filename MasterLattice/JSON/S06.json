@@ -1,0 +1,227 @@
+{
+    "elements": {
+        "CLA-S06-MARK-01": {
+            "type": "marker",
+            "fit_point": 1.0,
+            "position_end": [
+                0,
+                0,
+                28.1878
+            ],
+            "position_start": [
+                0,
+                0,
+                28.1878
+            ]
+        },
+        "CLA-S06-APER": {
+            "type": "aperture",
+            "shape": "rectangular",
+            "horizontal_size": 0.017,
+            "vertical_size": 0.017,
+            "position_end": [
+                0,
+                0,
+                28.1878
+            ],
+            "position_start": [
+                0,
+                0,
+                28.1878
+            ]
+        },
+        "CLA-S06-MAG-HVCOR-01": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                31.5578
+            ],
+            "buffer_start_length": 0.025,
+            "buffer_end_length": 0.025,
+            "position_end": [
+                0,
+                0,
+                28.5278
+            ],
+            "position_start": [
+                0,
+                0,
+                28.4778
+            ]
+        },
+        "CLA-S06-DIA-BPM-01": {
+            "type": "beam_position_monitor",
+            "length": 0.02,
+            "position_end": [
+                0,
+                0,
+                28.5478
+            ],
+            "position_start": [
+                0,
+                0,
+                28.5278
+            ]
+        },
+        "CLA-S06-MAG-QUAD-01": {
+            "type": "quadrupole",
+            "length": 0.15,
+            "k1": 1.0505,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                31.6778
+            ],
+            "buffer_start_length": 0.1,
+            "buffer_end_length": 0.1,
+            "position_end": [
+                0,
+                0,
+                28.6978
+            ],
+            "position_start": [
+                0,
+                0,
+                28.5478
+            ]
+        },
+        "CLA-S06-DIA-EOM-01": {
+            "type": "monitor",
+            "length": 0.2885,
+            "fit_point": 1.0,
+            "position_end": [
+                0,
+                0,
+                29.2078
+            ],
+            "position_start": [
+                0,
+                0,
+                28.9193
+            ]
+        },
+        "CLA-S06-MAG-QUAD-02": {
+            "type": "quadrupole",
+            "length": 0.15,
+            "k1": -0.410839,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                32.5378
+            ],
+            "buffer_start_length": 0.1,
+            "buffer_end_length": 0.1,
+            "position_end": [
+                0,
+                0,
+                29.3578
+            ],
+            "position_start": [
+                0,
+                0,
+                29.2078
+            ]
+        },
+        "CLA-S06-DIA-SCR-01-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-S06-DIA-SCR-01.SDDS\"",
+            "buffer_start": [
+                0,
+                0,
+                29.3578
+            ],
+            "buffer_start_length": 0.043333,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                0,
+                0,
+                29.4012
+            ],
+            "position_start": [
+                0,
+                0,
+                29.4012
+            ]
+        },
+        "CLA-S06-MAG-HVCOR-02": {
+            "type": "kicker",
+            "length": 0.05,
+            "sr_enable": true,
+            "isr_enable": true,
+            "buffer_start": [
+                0,
+                0,
+                33.775
+            ],
+            "buffer_start_length": 0.043,
+            "buffer_end_length": 0.007,
+            "position_end": [
+                0,
+                0,
+                30.295
+            ],
+            "position_start": [
+                0,
+                0,
+                30.245
+            ]
+        },
+        "CLA-S06-DIA-BPM-02": {
+            "type": "beam_position_monitor",
+            "length": 0.025,
+            "position_end": [
+                0,
+                0,
+                30.3618
+            ],
+            "position_start": [
+                0,
+                0,
+                30.3368
+            ]
+        },
+        "CLA-S06-DIA-SCR-02-W": {
+            "type": "screen",
+            "output_filename": "\"CLA-S06-DIA-SCR-02.SDDS\"",
+            "buffer_start": [
+                0,
+                0,
+                30.3618
+            ],
+            "buffer_start_length": 0.043333,
+            "buffer_end_length": 0.076667,
+            "position_end": [
+                0,
+                0,
+                30.4052
+            ],
+            "position_start": [
+                0,
+                0,
+                30.4052
+            ]
+        },
+        "CLA-S06-MARK-02": {
+            "type": "marker",
+            "fit_point": 1.0,
+            "position_end": [
+                0,
+                0,
+                30.538
+            ],
+            "position_start": [
+                0,
+                0,
+                30.538
+            ]
+        }
+    }
+}
