@@ -4,13 +4,13 @@ elements:
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
-    position_end: [0, 0, 15.7346]
-    position_start: [0, 0, 15.7346]
+    position_end: [0, 0, 16.2002]
+    position_start: [0, 0, 16.2002]
   CLA-S04-MARK-01:
     type: marker
     fit_point: 1.0
-    position_end: [0, 0, 15.7346]
-    position_start: [0, 0, 15.7346]
+    position_end: [0, 0, 16.2002]
+    position_start: [0, 0, 16.2002]
   CLA-S04-MAG-HVCOR-01:
     type: kicker
     length: 0.05
@@ -19,8 +19,8 @@ elements:
     buffer_start: [0, 0, 16.3102]
     buffer_start_length: 0.025
     buffer_end_length: 0.01
-    position_end: [0, 0, 15.8946]
-    position_start: [0, 0, 15.8446]
+    position_end: [0, 0, 16.3852]
+    position_start: [0, 0, 16.3352]
   CLA-S04-MAG-QUAD-01:
     type: quadrupole
     length: 0.162
@@ -30,13 +30,13 @@ elements:
     buffer_start: [0, 0, 16.3952]
     buffer_start_length: 0.023
     buffer_end_length: 0.024
-    position_end: [0, 0, 16.0566]
-    position_start: [0, 0, 15.8946]
+    position_end: [0, 0, 16.5802]
+    position_start: [0, 0, 16.4182]
   CLA-S04-DIA-BPM-01:
     type: beam_position_monitor
     length: 0.21
-    position_end: [0, 0, 16.3431]
-    position_start: [0, 0, 16.1331]
+    position_end: [0, 0, 16.8907]
+    position_start: [0, 0, 16.6807]
   CLA-S04-MAG-QUAD-02:
     type: quadrupole
     length: 0.162
@@ -46,13 +46,13 @@ elements:
     buffer_start: [0, 0, 16.9152]
     buffer_start_length: 0.023
     buffer_end_length: 0.035
-    position_end: [0, 0, 16.5296]
-    position_start: [0, 0, 16.3676]
+    position_end: [0, 0, 17.1002]
+    position_start: [0, 0, 16.9382]
   CLA-S04-DIA-SCR-01-W:
     type: screen
     output_filename: '"CLA-S04-DIA-SCR-01.SDDS"'
-    position_end: [0, 0, 16.7079]
-    position_start: [0, 0, 16.7079]
+    position_end: [0, 0, 17.3136]
+    position_start: [0, 0, 17.3136]
   CLA-S04-MAG-QUAD-03:
     type: quadrupole
     length: 0.162
@@ -62,13 +62,13 @@ elements:
     buffer_start: [0, 0, 17.4152]
     buffer_start_length: 0.023
     buffer_end_length: 0.035
-    position_end: [0, 0, 16.9716]
-    position_start: [0, 0, 16.8096]
+    position_end: [0, 0, 17.6002]
+    position_start: [0, 0, 17.4382]
   CLA-S04-DIA-BPM-02:
     type: beam_position_monitor
     length: 0.21
-    position_end: [0, 0, 17.1966]
-    position_start: [0, 0, 16.9866]
+    position_end: [0, 0, 17.8602]
+    position_start: [0, 0, 17.6502]
   CLA-S04-MAG-QUAD-04:
     type: quadrupole
     length: 0.162
@@ -78,8 +78,8 @@ elements:
     buffer_start: [0, 0, 17.9202]
     buffer_start_length: 0.018
     buffer_end_length: 0.03
-    position_end: [0, 0, 17.4186]
-    position_start: [0, 0, 17.2566]
+    position_end: [0, 0, 18.1002]
+    position_start: [0, 0, 17.9382]
   CLA-S04-MAG-HVCOR-02:
     type: kicker
     length: 0.05
@@ -88,16 +88,16 @@ elements:
     buffer_start: [0, 0, 18.3002]
     buffer_start_length: 0.025
     buffer_end_length: 0.025
-    position_end: [0, 0, 17.6386]
-    position_start: [0, 0, 17.5886]
+    position_end: [0, 0, 18.3752]
+    position_start: [0, 0, 18.3252]
   CLA-S04-DIA-SCR-02-W:
     type: screen
     output_filename: '"CLA-S04-DIA-SCR-02.SDDS"'
-    buffer_start: [0, 0, 17.6486]
+    buffer_start: [0, 0, 18.4102]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
-    position_end: [0, 0, 17.6919]
-    position_start: [0, 0, 17.6919]
+    position_end: [0, 0, 18.4536]
+    position_start: [0, 0, 18.4536]
   CLA-S04-MAG-DIP-01:
     type: dipole
     length: 0.1
@@ -112,8 +112,8 @@ elements:
     buffer_start: [0, 0, 18.5302]
     buffer_start_length: 0.06
     buffer_end_length: 0.05
-    position_end: [5.0e-06, 0, 17.8686]
-    position_start: [0, 0, 17.7686]
+    position_end: [5.0e-06, 0, 18.6902]
+    position_start: [0, 0, 18.5902]
   CLA-S04-MAG-DIP-02:
     type: dipole
     length: 0.1
@@ -128,16 +128,16 @@ elements:
     buffer_start: [3.5e-05, 0, 18.9902]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
-    position_end: [3.5e-05, 0, 18.2186]
-    position_start: [3.0e-05, 0, 18.1186]
+    position_end: [4.5e-05, 0, 19.1402]
+    position_start: [4.0e-05, 0, 19.0402]
   CLA-S04-DIA-SCR-03-W:
     type: screen
     output_filename: '"CLA-S04-DIA-SCR-03.SDDS"'
-    buffer_start: [3.5e-05, 0, 18.2186]
+    buffer_start: [4.5e-05, 0, 19.1902]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
-    position_end: [3.5e-05, 0, 18.2619]
-    position_start: [3.5e-05, 0, 18.2619]
+    position_end: [4.5e-05, 0, 19.2336]
+    position_start: [4.5e-05, 0, 19.2336]
   CLA-S04-MAG-HVCOR-03:
     type: kicker
     length: 0.05
@@ -146,31 +146,31 @@ elements:
     buffer_start: [4.5e-05, 0, 19.3102]
     buffer_start_length: 0.075
     buffer_end_length: 0.05
-    position_end: [3.5e-05, 0, 18.3886]
-    position_start: [3.5e-05, 0, 18.3386]
+    position_end: [4.5e-05, 0, 19.4352]
+    position_start: [4.5e-05, 0, 19.3852]
   CLA-S04-DIA-BPM-03:
     type: beam_position_monitor
     length: 0.035
-    position_end: [3.5e-05, 0, 18.4236]
-    position_start: [3.5e-05, 0, 18.3886]
+    position_end: [4.5e-05, 0, 19.5202]
+    position_start: [4.5e-05, 0, 19.4852]
   CLA-S04-MAG-LASER0-M:
     type: marker
     fit_point: 1.0
-    position_end: [3.5e-05, 0, 18.7811]
-    position_start: [3.5e-05, 0, 18.7811]
+    position_end: [4.5e-05, 0, 19.8777]
+    position_start: [4.5e-05, 0, 19.8777]
   CLA-S04-DIA-BPM-04:
     type: beam_position_monitor
     length: 0.21
-    position_end: [3.5e-05, 0, 19.3486]
-    position_start: [3.5e-05, 0, 19.1386]
+    position_end: [4.5e-05, 0, 20.4452]
+    position_start: [4.5e-05, 0, 20.2352]
   CLA-S04-DIA-SCR-04-W:
     type: screen
     output_filename: '"CLA-S04-DIA-SCR-04.SDDS"'
-    buffer_start: [3.5e-05, 0, 19.3486]
+    buffer_start: [4.5e-05, 0, 20.4452]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
-    position_end: [3.5e-05, 0, 19.3919]
-    position_start: [3.5e-05, 0, 19.3919]
+    position_end: [4.5e-05, 0, 20.4886]
+    position_start: [4.5e-05, 0, 20.4886]
   CLA-S04-MAG-DIP-03:
     type: dipole
     length: 0.1
@@ -185,8 +185,8 @@ elements:
     buffer_start: [4.5e-05, 0, 20.5652]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
-    position_end: [3.0e-05, 0, 19.5686]
-    position_start: [3.5e-05, 0, 19.4686]
+    position_end: [4.0e-05, 0, 20.7152]
+    position_start: [4.5e-05, 0, 20.6152]
   CLA-S04-MAG-DIP-04:
     type: dipole
     length: 0.1
@@ -201,16 +201,16 @@ elements:
     buffer_start: [1.0e-05, 0, 21.0152]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
-    position_end: [0, 0, 19.9186]
-    position_start: [5.0e-06, 0, 19.8186]
+    position_end: [0, 0, 21.1652]
+    position_start: [5.0e-06, 0, 21.0652]
   CLA-S04-DIA-SCR-05-W:
     type: screen
     output_filename: '"CLA-S04-DIA-SCR-05.SDDS"'
-    buffer_start: [0, 0, 19.9752]
+    buffer_start: [0, 0, 21.2719]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
-    position_end: [0, 0, 20.0186]
-    position_start: [0, 0, 20.0186]
+    position_end: [0, 0, 21.3152]
+    position_start: [0, 0, 21.3152]
   CLA-S04-MAG-QUAD-05:
     type: quadrupole
     length: 0.162
@@ -220,8 +220,8 @@ elements:
     buffer_start: [0, 0, 21.4352]
     buffer_start_length: 0.018
     buffer_end_length: 0.03
-    position_end: [0, 0, 20.3006]
-    position_start: [0, 0, 20.1386]
+    position_end: [0, 0, 21.6152]
+    position_start: [0, 0, 21.4532]
   CLA-S04-MAG-HVCOR-04:
     type: kicker
     length: 0.05
@@ -230,8 +230,8 @@ elements:
     buffer_start: [0, 0, 21.6452]
     buffer_start_length: 0.06
     buffer_end_length: 0.025
-    position_end: [0, 0, 20.3506]
-    position_start: [0, 0, 20.3006]
+    position_end: [0, 0, 21.7552]
+    position_start: [0, 0, 21.7052]
   CLA-S04-MAG-QUAD-06:
     type: quadrupole
     length: 0.162
@@ -241,13 +241,13 @@ elements:
     buffer_start: [0, 0, 21.9352]
     buffer_start_length: 0.018
     buffer_end_length: 0.03
-    position_end: [0, 0, 20.6676]
-    position_start: [0, 0, 20.5056]
+    position_end: [0, 0, 22.1152]
+    position_start: [0, 0, 21.9532]
   CLA-S04-DIA-BPM-05:
     type: beam_position_monitor
     length: 0.21
-    position_end: [0, 0, 20.9276]
-    position_start: [0, 0, 20.7176]
+    position_end: [0, 0, 22.4052]
+    position_start: [0, 0, 22.1952]
   CLA-S04-MAG-QUAD-07:
     type: quadrupole
     length: 0.162
@@ -257,8 +257,8 @@ elements:
     buffer_start: [0, 0, 22.4052]
     buffer_start_length: 0.048
     buffer_end_length: 0.03
-    position_end: [0, 0, 21.0896]
-    position_start: [0, 0, 20.9276]
+    position_end: [0, 0, 22.6152]
+    position_start: [0, 0, 22.4532]
   CLA-S04-MAG-HVCOR-05:
     type: kicker
     length: 0.05
@@ -267,8 +267,8 @@ elements:
     buffer_start: [0, 0, 22.7402]
     buffer_start_length: 0.025
     buffer_end_length: 0.025
-    position_end: [0, 0, 21.2346]
-    position_start: [0, 0, 21.1846]
+    position_end: [0, 0, 22.8152]
+    position_start: [0, 0, 22.7652]
   CLA-S04-MAG-QUAD-08:
     type: quadrupole
     length: 0.162
@@ -278,15 +278,15 @@ elements:
     buffer_start: [0, 0, 22.9452]
     buffer_start_length: 0.018
     buffer_end_length: 0.05
-    position_end: [0, 0, 21.5016]
-    position_start: [0, 0, 21.3396]
+    position_end: [0, 0, 23.1252]
+    position_start: [0, 0, 22.9632]
   CLA-S04-DIA-BPM-06:
     type: beam_position_monitor
     length: 0.21
-    position_end: [0, 0, 21.7116]
-    position_start: [0, 0, 21.5016]
+    position_end: [0, 0, 23.3852]
+    position_start: [0, 0, 23.1752]
   CLA-S04-MARK-02:
     type: marker
     fit_point: 1.0
-    position_end: [0, 0, 21.7836]
-    position_start: [0, 0, 21.7836]
+    position_end: [0, 0, 23.4572]
+    position_start: [0, 0, 23.4572]

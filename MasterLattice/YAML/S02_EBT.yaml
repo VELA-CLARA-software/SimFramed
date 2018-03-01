@@ -29,16 +29,16 @@ elements:
     Controller_Name: S02-QUAD1
     Online_Model_Name: C1-S02-QUAD01
     PV: CLA-S02-MAG-QUAD-01
-    position_end: [0, 0, 3.54878]
-    position_start: [0, 0, 3.44808]
+    position_end: [0, 0, 3.5775]
+    position_start: [0, 0, 3.4768]
   CLA-S02-DIA-BPM-01:
     type: beam_position_monitor
     length: 0.04528
     Controller_Name: BPM01
     Online_Model_Name: C1-S01-BPM01
     PV: CLA-S02-DIA-BPM-01
-    position_end: [0, 0, 3.59406]
-    position_start: [0, 0, 3.54878]
+    position_end: [0, 0, 3.62278]
+    position_start: [0, 0, 3.5775]
   CLA-S02-MAG-QUAD-02:
     type: quadrupole
     length: 0.1007
@@ -51,16 +51,16 @@ elements:
     Controller_Name: S02-QUAD2
     Online_Model_Name: C1-S02-QUAD02
     PV: CLA-S02-MAG-QUAD-02
-    position_end: [0, 0, 3.92006]
-    position_start: [0, 0, 3.81936]
+    position_end: [0, 0, 3.9775]
+    position_start: [0, 0, 3.8768]
   CLA-S02-DIA-SCR-01-W:
     type: screen
     output_filename: '"CLA-S02-DIA-SCR-01.SDDS"'
-    buffer_start: [0, 0, 3.96104]
+    buffer_start: [0, 0, 4.0465]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
-    position_end: [0, 0, 4.00437]
-    position_start: [0, 0, 4.00437]
+    position_end: [0, 0, 4.08983]
+    position_start: [0, 0, 4.08983]
   CLA-S02-MAG-HVCOR-02:
     type: kicker
     length: 0.03
@@ -70,38 +70,38 @@ elements:
     Online_Model_Name: C1-S02-COR02
     Horizontal_PV: CLA-S02-MAG-HCOR-02
     Vertcal_PV: CLA-S02-MAG-VCOR-02
-    position_end: [0, 0, 4.18261]
-    position_start: [0, 0, 4.15261]
+    position_end: [0, 0, 4.26807]
+    position_start: [0, 0, 4.23807]
   CLA-S02-COL-01:
     type: collimator
     length: 0.35
     shape: elliptical
     horizontal_size: 0.01
     vertical_size: 0.01
-    position_end: [0, 0, 4.60816]
-    position_start: [0, 0, 4.25816]
+    position_end: [0, 0, 4.69362]
+    position_start: [0, 0, 4.34362]
   CLA-S02-APER-02:
     type: aperture
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
-    position_end: [0, 0, 4.60816]
-    position_start: [0, 0, 4.60816]
+    position_end: [0, 0, 4.69362]
+    position_start: [0, 0, 4.69362]
   CLA-S02-MAG-HVCOR-03:
     type: kicker
     length: 0.03
     sr_enable: true
     isr_enable: true
-    position_end: [0, 0, 4.7601]
-    position_start: [0, 0, 4.7301]
+    position_end: [0, 0, 4.84556]
+    position_start: [0, 0, 4.81556]
   CLA-S02-DIA-SCR-02-W:
     type: screen
     output_filename: '"CLA-S02-DIA-SCR-02.SDDS"'
-    buffer_start: [0, 0, 4.88204]
+    buffer_start: [0, 0, 4.9675]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
-    position_end: [0, 0, 4.92537]
-    position_start: [0, 0, 4.92537]
+    position_end: [0, 0, 5.01083]
+    position_start: [0, 0, 5.01083]
   CLA-S02-MAG-QUAD-03:
     type: quadrupole
     length: 0.1007
@@ -114,8 +114,8 @@ elements:
     Controller_Name: S02-QUAD3
     Online_Model_Name: C1-S02-QUAD03
     PV: CLA-S02-MAG-QUAD-03
-    position_end: [0, 0, 5.16332]
-    position_start: [0, 0, 5.06262]
+    position_end: [0, 0, 5.2775]
+    position_start: [0, 0, 5.1768]
   CLA-S02-MAG-QUAD-04:
     type: quadrupole
     length: 0.1007
@@ -128,5 +128,5 @@ elements:
     Controller_Name: S02-QUAD4
     Online_Model_Name: C1-S02-QUAD04
     PV: CLA-S02-MAG-QUAD-04
-    position_end: [0, 0, 5.50658]
-    position_start: [0, 0, 5.40588]
+    position_end: [0, 0, 5.6775]
+    position_start: [0, 0, 5.5768]
