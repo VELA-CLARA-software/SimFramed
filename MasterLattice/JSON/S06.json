@@ -6,12 +6,12 @@
             "position_end": [
                 0,
                 0,
-                28.1878
+                31.2678
             ],
             "position_start": [
                 0,
                 0,
-                28.1878
+                31.2678
             ]
         },
         "CLA-S06-APER": {
@@ -22,12 +22,12 @@
             "position_end": [
                 0,
                 0,
-                28.1878
+                31.2678
             ],
             "position_start": [
                 0,
                 0,
-                28.1878
+                31.2678
             ]
         },
         "CLA-S06-MAG-HVCOR-01": {
@@ -45,12 +45,12 @@
             "position_end": [
                 0,
                 0,
-                28.5278
+                31.6328
             ],
             "position_start": [
                 0,
                 0,
-                28.4778
+                31.5828
             ]
         },
         "CLA-S06-DIA-BPM-01": {
@@ -59,12 +59,12 @@
             "position_end": [
                 0,
                 0,
-                28.5478
+                31.6778
             ],
             "position_start": [
                 0,
                 0,
-                28.5278
+                31.6578
             ]
         },
         "CLA-S06-MAG-QUAD-01": {
@@ -83,12 +83,12 @@
             "position_end": [
                 0,
                 0,
-                28.6978
+                31.9278
             ],
             "position_start": [
                 0,
                 0,
-                28.5478
+                31.7778
             ]
         },
         "CLA-S06-DIA-EOM-01": {
@@ -98,12 +98,12 @@
             "position_end": [
                 0,
                 0,
-                29.2078
+                32.5378
             ],
             "position_start": [
                 0,
                 0,
-                28.9193
+                32.2493
             ]
         },
         "CLA-S06-MAG-QUAD-02": {
@@ -122,12 +122,12 @@
             "position_end": [
                 0,
                 0,
-                29.3578
+                32.7878
             ],
             "position_start": [
                 0,
                 0,
-                29.2078
+                32.6378
             ]
         },
         "CLA-S06-DIA-SCR-01-W": {
@@ -136,19 +136,19 @@
             "buffer_start": [
                 0,
                 0,
-                29.3578
+                32.8878
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
                 0,
                 0,
-                29.4012
+                32.9311
             ],
             "position_start": [
                 0,
                 0,
-                29.4012
+                32.9311
             ]
         },
         "CLA-S06-MAG-HVCOR-02": {
@@ -166,12 +166,12 @@
             "position_end": [
                 0,
                 0,
-                30.295
+                33.868
             ],
             "position_start": [
                 0,
                 0,
-                30.245
+                33.818
             ]
         },
         "CLA-S06-DIA-BPM-02": {
@@ -180,12 +180,12 @@
             "position_end": [
                 0,
                 0,
-                30.3618
+                33.9418
             ],
             "position_start": [
                 0,
                 0,
-                30.3368
+                33.9168
             ]
         },
         "CLA-S06-DIA-SCR-02-W": {
@@ -194,19 +194,19 @@
             "buffer_start": [
                 0,
                 0,
-                30.3618
+                33.9418
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
                 0,
                 0,
-                30.4052
+                33.9851
             ],
             "position_start": [
                 0,
                 0,
-                30.4052
+                33.9851
             ]
         },
         "CLA-S06-MARK-02": {
@@ -215,12 +215,12 @@
             "position_end": [
                 0,
                 0,
-                30.538
+                34.118
             ],
             "position_start": [
                 0,
                 0,
-                30.538
+                34.118
             ]
         }
     }

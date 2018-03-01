@@ -4,8 +4,8 @@ elements:
     shape: rectangular
     horizontal_size: 0.0041195
     vertical_size: 0.0041195
-    position_end: [0, 0, 21.7836]
-    position_start: [0, 0, 21.7836]
+    position_end: [0, 0, 23.4572]
+    position_start: [0, 0, 23.4572]
   CLA-L4H-CAV:
     type: cavity
     length: 0.75
@@ -19,8 +19,8 @@ elements:
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
-    buffer_start: [0, 0, 21.7836]
+    buffer_start: [0, 0, 23.4572]
     buffer_start_length: 0.1075
     buffer_end_length: 0.1075
-    position_end: [0, 0, 22.6411]
-    position_start: [0, 0, 21.8911]
+    position_end: [0, 0, 24.3147]
+    position_start: [0, 0, 23.5647]
