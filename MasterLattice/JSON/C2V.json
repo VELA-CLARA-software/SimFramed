@@ -6,12 +6,12 @@
             "position_end": [
                 0,
                 0,
-                5.52793
+                5.72687
             ],
             "position_start": [
                 0,
                 0,
-                5.52793
+                5.72687
             ]
         },
         "CLA-C2V-MAG-DIP-01": {
@@ -37,12 +37,12 @@
             "position_end": [
                 0.149171,
                 0,
-                5.88806
+                6.187
             ],
             "position_start": [
                 0,
                 0,
-                5.52793
+                5.82687
             ]
         },
         "CLA-C2V-MAG-HVCOR-01": {
@@ -55,14 +55,14 @@
             "Horizontal_PV": "CLA-C2V-MAG-HCOR-01",
             "Vertcal_PV": "CLA-C2V-MAG-VCOR-01",
             "position_end": [
-                0.297702,
+                0.368412,
                 0,
-                6.03659
+                6.40624
             ],
             "position_start": [
-                0.149209,
+                0.21992,
                 0,
-                5.8881
+                6.25775
             ]
         },
         "CLA-C2V-DIA-BPM-01": {
@@ -71,14 +71,14 @@
             "Online_Model_Name": "CV-BPM01",
             "PV": "CLA-C2V-DIA-BPM-01",
             "position_end": [
-                0.297702,
+                0.368412,
                 0,
-                6.03659
+                6.40624
             ],
             "position_start": [
-                0.297702,
+                0.368412,
                 0,
-                6.03659
+                6.40624
             ]
         },
         "CLA-C2V-MAG-QUAD-01": {
@@ -98,14 +98,14 @@
             "Online_Model_Name": "CV-QUAD01",
             "PV": "CLA-C2V-MAG-QUAD-01",
             "position_end": [
-                0.368907,
+                0.455542,
                 0,
-                6.1078
+                6.49337
             ],
             "position_start": [
-                0.297702,
+                0.384336,
                 0,
-                6.03659
+                6.42217
             ]
         },
         "CLA-C2V-MAG-QUAD-02": {
@@ -125,14 +125,14 @@
             "Online_Model_Name": "CV-QUAD02",
             "PV": "CLA-C2V-MAG-QUAD-02",
             "position_end": [
-                0.54212,
+                0.660603,
                 0,
-                6.28101
+                6.69843
             ],
             "position_start": [
-                0.470914,
+                0.589397,
                 0,
-                6.2098
+                6.62723
             ]
         },
         "CLA-C2V-MAG-QUAD-03": {
@@ -152,35 +152,35 @@
             "Online_Model_Name": "CV-QUAD03",
             "PV": "CLA-C2V-MAG-QUAD-03",
             "position_end": [
-                0.715333,
+                0.865664,
                 0,
-                6.45422
+                6.90349
             ],
             "position_start": [
-                0.644127,
+                0.794458,
                 0,
-                6.38302
+                6.83229
             ]
         },
         "CLA-C2V-DIA-SCR-01-W": {
             "type": "screen",
             "output_filename": "\"C2V-DIA-SCR-01.SDDS\"",
             "buffer_start": [
-                0.747172,
+                0.913427,
                 0,
-                6.48606
+                6.95126
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
-                0.777813,
+                0.944068,
                 0,
-                6.5167
+                6.9819
             ],
             "position_start": [
-                0.777813,
+                0.944068,
                 0,
-                6.5167
+                6.9819
             ]
         },
         "CLA-C2V-MAG-DIP-02": {
@@ -204,14 +204,14 @@
             "Online_Model_Name": "CV-DIP03",
             "PV": "CLA-C2V-MAG-DIP-03",
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                6.96288
+                7.49879
             ],
             "position_start": [
-                0.863864,
+                1.10083,
                 0,
-                6.60275
+                7.13866
             ]
         }
     }

@@ -8,12 +8,12 @@
             "position_end": [
                 0,
                 0,
-                34.6878
+                38.2678
             ],
             "position_start": [
                 0,
                 0,
-                34.6878
+                38.2678
             ]
         },
         "CLA-S07-DIA-BPM-01": {
@@ -22,12 +22,12 @@
             "position_end": [
                 0,
                 0,
-                34.8978
+                38.4778
             ],
             "position_start": [
                 0,
                 0,
-                34.6878
+                38.2678
             ]
         },
         "CLA-S07-MAG-HVCOR-01": {
@@ -45,12 +45,12 @@
             "position_end": [
                 0,
                 0,
-                35.0728
+                38.6778
             ],
             "position_start": [
                 0,
                 0,
-                35.0228
+                38.6278
             ]
         },
         "CLA-S07-MAG-QUAD-01": {
@@ -69,12 +69,12 @@
             "position_end": [
                 0,
                 0,
-                35.2228
+                38.9278
             ],
             "position_start": [
                 0,
                 0,
-                35.0728
+                38.7778
             ]
         },
         "CLA-S07-MARK-01": {
@@ -83,12 +83,12 @@
             "position_end": [
                 0,
                 0,
-                35.2228
+                39.0278
             ],
             "position_start": [
                 0,
                 0,
-                35.2228
+                39.0278
             ]
         },
         "CLA-S07-MAG-QUAD-02": {
@@ -107,12 +107,12 @@
             "position_end": [
                 0,
                 0,
-                35.4728
+                39.3778
             ],
             "position_start": [
                 0,
                 0,
-                35.3228
+                39.2278
             ]
         },
         "CLA-S07-DIA-BPM-02": {
@@ -121,12 +121,12 @@
             "position_end": [
                 0,
                 0,
-                35.6828
+                39.6878
             ],
             "position_start": [
                 0,
                 0,
-                35.4728
+                39.4778
             ]
         },
         "CLA-S07-MAG-HVCOR-02": {
@@ -144,12 +144,12 @@
             "position_end": [
                 0,
                 0,
-                35.808
+                39.838
             ],
             "position_start": [
                 0,
                 0,
-                35.758
+                39.788
             ]
         },
         "CLA-S07-DIA-SCR-01-W": {
@@ -158,19 +158,19 @@
             "buffer_start": [
                 0,
                 0,
-                35.8328
+                39.8878
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
                 0,
                 0,
-                35.8762
+                39.9311
             ],
             "position_start": [
                 0,
                 0,
-                35.8762
+                39.9311
             ]
         },
         "CLA-S07-TDC-01-APER": {
@@ -181,12 +181,12 @@
             "position_end": [
                 0,
                 0,
-                35.9528
+                40.0078
             ],
             "position_start": [
                 0,
                 0,
-                35.9528
+                40.0078
             ]
         },
         "CLA-S07-TDC-01-R": {
@@ -196,19 +196,19 @@
             "buffer_start": [
                 0,
                 0,
-                35.9528
+                40.0078
             ],
             "buffer_start_length": 0.346666,
             "buffer_end_length": 0.303334,
             "position_end": [
                 0,
                 0,
-                36.7495
+                40.8045
             ],
             "position_start": [
                 0,
                 0,
-                36.2995
+                40.3545
             ]
         },
         "CLA-S07-APER-02": {
@@ -219,12 +219,12 @@
             "position_end": [
                 0,
                 0,
-                37.0528
+                41.1078
             ],
             "position_start": [
                 0,
                 0,
-                37.0528
+                41.1078
             ]
         },
         "CLA-S07-MAG-HVCOR-03": {
@@ -242,12 +242,12 @@
             "position_end": [
                 0,
                 0,
-                37.1778
+                41.2578
             ],
             "position_start": [
                 0,
                 0,
-                37.1278
+                41.2078
             ]
         },
         "CLA-S07-DIA-BPM-03": {
@@ -255,12 +255,12 @@
             "position_end": [
                 0,
                 0,
-                37.2028
+                41.3078
             ],
             "position_start": [
                 0,
                 0,
-                37.2028
+                41.3078
             ]
         },
         "CLA-S07-MAG-QUAD-03": {
@@ -279,12 +279,12 @@
             "position_end": [
                 0,
                 0,
-                37.3528
+                41.5578
             ],
             "position_start": [
                 0,
                 0,
-                37.2028
+                41.4078
             ]
         },
         "CLA-S07-MAG-QUAD-04": {
@@ -303,12 +303,12 @@
             "position_end": [
                 0,
                 0,
-                37.9028
+                42.3078
             ],
             "position_start": [
                 0,
                 0,
-                37.7528
+                42.1578
             ]
         },
         "CLA-S07-DIA-BPM-04": {
@@ -317,12 +317,12 @@
             "position_end": [
                 0,
                 0,
-                38.1128
+                42.6178
             ],
             "position_start": [
                 0,
                 0,
-                37.9028
+                42.4078
             ]
         },
         "CLA-S07-DIA-SCR-02-W": {
@@ -331,19 +331,19 @@
             "buffer_start": [
                 0,
                 0,
-                38.1128
+                42.6178
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
                 0,
                 0,
-                38.1562
+                42.6611
             ],
             "position_start": [
                 0,
                 0,
-                38.1562
+                42.6611
             ]
         },
         "CLA-S07-MAG-QUAD-05": {
@@ -362,12 +362,12 @@
             "position_end": [
                 0,
                 0,
-                38.3828
+                42.9878
             ],
             "position_start": [
                 0,
                 0,
-                38.2328
+                42.8378
             ]
         },
         "CLA-S07-MAG-HVCOR-04": {
@@ -385,12 +385,12 @@
             "position_end": [
                 0,
                 0,
-                38.478
+                43.208
             ],
             "position_start": [
                 0,
                 0,
-                38.428
+                43.158
             ]
         },
         "CLA-S07-DIA-CDR-01": {
@@ -400,12 +400,12 @@
             "position_end": [
                 0,
                 0,
-                38.778
+                43.525
             ],
             "position_start": [
                 0,
                 0,
-                38.478
+                43.225
             ]
         },
         "CLA-S07-MAG-QUAD-06": {
@@ -424,12 +424,12 @@
             "position_end": [
                 0,
                 0,
-                38.928
+                43.7378
             ],
             "position_start": [
                 0,
                 0,
-                38.778
+                43.5878
             ]
         },
         "CLA-S07-DCP-01": {
@@ -441,12 +441,12 @@
             "position_end": [
                 0,
                 0,
-                39.618
+                44.5278
             ],
             "position_start": [
                 0,
                 0,
-                39.022
+                43.9318
             ]
         },
         "CLA-S07-APER-03": {
@@ -457,12 +457,12 @@
             "position_end": [
                 0,
                 0,
-                39.618
+                44.5278
             ],
             "position_start": [
                 0,
                 0,
-                39.618
+                44.5278
             ]
         },
         "CLA-S07-DIA-BPM-05": {
@@ -471,12 +471,12 @@
             "position_end": [
                 0,
                 0,
-                39.828
+                44.7378
             ],
             "position_start": [
                 0,
                 0,
-                39.618
+                44.5278
             ]
         },
         "CLA-S07-MAG-QUAD-07": {
@@ -495,12 +495,12 @@
             "position_end": [
                 0,
                 0,
-                39.978
+                44.9878
             ],
             "position_start": [
                 0,
                 0,
-                39.828
+                44.8378
             ]
         },
         "CLA-S07-MAG-HVCOR-05": {
@@ -518,12 +518,12 @@
             "position_end": [
                 0,
                 0,
-                40.028
+                45.1628
             ],
             "position_start": [
                 0,
                 0,
-                39.978
+                45.1128
             ]
         },
         "CLA-S07-MAG-HVCOR-06": {
@@ -541,12 +541,12 @@
             "position_end": [
                 0,
                 0,
-                40.838
+                46.0228
             ],
             "position_start": [
                 0,
                 0,
-                40.788
+                45.9728
             ]
         },
         "CLA-S07-DIA-BPM-06": {
@@ -555,12 +555,12 @@
             "position_end": [
                 0,
                 0,
-                41.088
+                46.2978
             ],
             "position_start": [
                 0,
                 0,
-                41.038
+                46.2478
             ]
         },
         "CLA-S07-DIA-SCR-03-W": {
@@ -569,19 +569,19 @@
             "buffer_start": [
                 0,
                 0,
-                41.188
+                46.3978
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
                 0,
                 0,
-                41.2314
+                46.4411
             ],
             "position_start": [
                 0,
                 0,
-                41.2314
+                46.4411
             ]
         },
         "CLA-S07-MARK-02": {
@@ -590,12 +590,12 @@
             "position_end": [
                 0,
                 0,
-                41.308
+                46.5178
             ],
             "position_start": [
                 0,
                 0,
-                41.308
+                46.5178
             ]
         },
         "CLA-S07-MAG-QUAD-08": {
@@ -614,12 +614,12 @@
             "position_end": [
                 0,
                 0,
-                41.558
+                46.8678
             ],
             "position_start": [
                 0,
                 0,
-                41.408
+                46.7178
             ]
         },
         "CLA-S07-MAG-QUAD-09": {
@@ -638,12 +638,12 @@
             "position_end": [
                 0,
                 0,
-                41.92
+                47.4178
             ],
             "position_start": [
                 0,
                 0,
-                41.758
+                47.2558
             ]
         },
         "CLA-S07-DIA-BPM-07": {
@@ -652,12 +652,12 @@
             "position_end": [
                 0,
                 0,
-                42.13
+                47.7278
             ],
             "position_start": [
                 0,
                 0,
-                41.92
+                47.5178
             ]
         },
         "CLA-S07-MAG-HVCOR-07": {
@@ -675,12 +675,12 @@
             "position_end": [
                 0,
                 0,
-                42.18
+                47.8028
             ],
             "position_start": [
                 0,
                 0,
-                42.13
+                47.7528
             ]
         },
         "CLA-S07-DIA-SCR-04-W": {
@@ -689,19 +689,19 @@
             "buffer_start": [
                 0,
                 0,
-                42.18
+                47.8278
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
                 0,
                 0,
-                42.2234
+                47.8711
             ],
             "position_start": [
                 0,
                 0,
-                42.2234
+                47.8711
             ]
         },
         "CLA-S07-MAG-QUAD-10": {
@@ -720,12 +720,12 @@
             "position_end": [
                 0,
                 0,
-                42.462
+                48.1978
             ],
             "position_start": [
                 0,
                 0,
-                42.3
+                48.0358
             ]
         },
         "CLA-S07-MAG-QUAD-11": {
@@ -744,12 +744,12 @@
             "position_end": [
                 0,
                 0,
-                42.824
+                48.7478
             ],
             "position_start": [
                 0,
                 0,
-                42.662
+                48.5858
             ]
         },
         "CLA-S07-DIA-BPM-08": {
@@ -758,12 +758,12 @@
             "position_end": [
                 0,
                 0,
-                43.034
+                49.0578
             ],
             "position_start": [
                 0,
                 0,
-                42.824
+                48.8478
             ]
         },
         "CLA-S07-DIA-SCR-05-W": {
@@ -772,19 +772,19 @@
             "buffer_start": [
                 0,
                 0,
-                43.034
+                49.0578
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
             "position_end": [
                 0,
                 0,
-                43.0774
+                49.1011
             ],
             "position_start": [
                 0,
                 0,
-                43.0774
+                49.1011
             ]
         },
         "CLA-S07-MAG-HVCOR-08": {
@@ -802,12 +802,12 @@
             "position_end": [
                 0,
                 0,
-                43.204
+                49.2528
             ],
             "position_start": [
                 0,
                 0,
-                43.154
+                49.2028
             ]
         },
         "CLA-S07-MARK-03": {
@@ -816,12 +816,12 @@
             "position_end": [
                 0,
                 0,
-                43.204
+                49.2778
             ],
             "position_start": [
                 0,
                 0,
-                43.204
+                49.2778
             ]
         }
     }

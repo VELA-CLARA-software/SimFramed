@@ -4,28 +4,28 @@
             "type": "beam_position_monitor",
             "length": 0.235,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                20.7529
+                21.3888
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                20.5179
+                21.1538
             ]
         },
         "EBT-BA1-DIA-YAG-01": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-01.SDDS\"",
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                20.7529
+                21.3888
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                20.7529
+                21.3888
             ]
         },
         "EBT-BA1-MAG-QUAD-01": {
@@ -34,14 +34,14 @@
             "sr_enable": true,
             "isr_enable": true,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                21.9139
+                22.5498
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                21.7539
+                22.3898
             ]
         },
         "EBT-BA1-MAG-QUAD-02": {
@@ -50,28 +50,28 @@
             "sr_enable": true,
             "isr_enable": true,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                22.3139
+                22.9498
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                22.1539
+                22.7898
             ]
         },
         "EBT-BA1-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.235,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                22.5489
+                23.1848
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                22.3139
+                22.9498
             ]
         },
         "EBT-BA1-MAG-QUAD-03": {
@@ -80,98 +80,98 @@
             "sr_enable": true,
             "isr_enable": true,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                22.7089
+                23.3448
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                22.5489
+                23.1848
             ]
         },
         "EBT-BA1-LASERBOX-BEG": {
             "type": "marker",
             "fit_point": 1.0,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                23.0489
+                23.6848
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                23.0489
+                23.6848
             ]
         },
         "EBT-BA1-LASERBOX-END": {
             "type": "marker",
             "fit_point": 1.0,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                23.6989
+                24.3348
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                23.6989
+                24.3348
             ]
         },
         "EBT-BA1-COFFIN-BEG": {
             "type": "marker",
             "fit_point": 1.0,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                23.7989
+                24.4348
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                23.7989
+                24.4348
             ]
         },
         "EBT-BA1-COFFIN-FOC": {
             "type": "marker",
             "fit_point": 1.0,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                24.8489
+                25.4848
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                24.8489
+                25.4848
             ]
         },
         "EBT-BA1-COFFIN-END": {
             "type": "marker",
             "fit_point": 1.0,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                26.1589
+                26.7948
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                26.1589
+                26.7948
             ]
         },
         "EBT-BA1-DIA-BPM-03": {
             "type": "beam_position_monitor",
             "length": 0.235,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                26.3939
+                27.0298
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                26.1589
+                26.7948
             ]
         },
         "EBT-BA1-MAG-QUAD-04": {
@@ -180,14 +180,14 @@
             "sr_enable": true,
             "isr_enable": true,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                26.5539
+                27.1898
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                26.3939
+                27.0298
             ]
         },
         "EBT-BA1-MAG-QUAD-05": {
@@ -196,14 +196,14 @@
             "sr_enable": true,
             "isr_enable": true,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                26.9869
+                27.6228
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                26.8269
+                27.4628
             ]
         },
         "EBT-BA1-MAG-QUAD-06": {
@@ -212,28 +212,28 @@
             "sr_enable": true,
             "isr_enable": true,
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                27.4199
+                28.0558
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                27.2599
+                27.8958
             ]
         },
         "EBT-BA1-DIA-YAG-02": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-02.SDDS\"",
             "position_end": [
-                1.01303,
+                1.25,
                 0,
-                27.5199
+                28.1558
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                27.5199
+                28.1558
             ]
         },
         "EBT-BA1-MAG-DIP-01": {
@@ -254,14 +254,14 @@
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
             "position_end": [
-                1.25178,
+                1.48875,
                 0,
-                28.2314
+                28.9673
             ],
             "position_start": [
-                1.01303,
+                1.25,
                 0,
-                27.8179
+                28.5538
             ]
         },
         "EBT-BA1-MAG-QUAD-07": {
@@ -270,56 +270,56 @@
             "sr_enable": true,
             "isr_enable": true,
             "position_end": [
-                1.74802,
+                2.07159,
                 0,
-                28.5179
+                29.3038
             ],
             "position_start": [
-                1.48821,
+                1.81178,
                 0,
-                28.3679
+                29.1538
             ]
         },
         "EBT-BA1-DIA-BPM-04": {
             "type": "beam_position_monitor",
             "length": 0.235,
             "position_end": [
-                2.18796,
+                2.51153,
                 0,
-                28.7719
+                29.5578
             ],
             "position_start": [
-                1.98444,
+                2.30801,
                 0,
-                28.6544
+                29.4403
             ]
         },
         "EBT-BA1-DIA-YAG-03": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-03.SDDS\"",
             "position_end": [
-                2.86779,
+                3.19136,
                 0,
-                29.1644
+                29.9503
             ],
             "position_start": [
-                2.86779,
+                3.19136,
                 0,
-                29.1644
+                29.9503
             ]
         },
         "EBT-BA1-DIA-FCUP-01": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-FCUP-01.SDDS\"",
             "position_end": [
-                2.86779,
+                3.19136,
                 0,
-                29.1644
+                29.9503
             ],
             "position_start": [
-                2.86779,
+                3.19136,
                 0,
-                29.1644
+                29.9503
             ]
         }
     }
