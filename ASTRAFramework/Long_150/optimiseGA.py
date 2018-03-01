@@ -110,7 +110,7 @@ class fitnessFunc():
 
             self.beam.read_astra_beam_file(self.dirname+'/long_150.5.4936.001')
             self.beam.slice_length = 0.1e-12
-            self.beam.bin_time()
+            slicemomentum = self.beam.gamma * 0.511
             sigmat = 1e12*np.std(self.beam.t)
             sigmap = np.std(self.beam.p)
             meanp = np.mean(self.beam.p)
@@ -119,6 +119,10 @@ class fitnessFunc():
             fitp = 100*sigmap/meanp
             fhcfield = self.parameters['fhcfield']
             peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = self.beam.sliceAnalysis()
+            gamma = self.beam.gamma
+            bin_time = self.beam.bin_time
+            for j in bin_time:
+                print j
             constraintsList = {
                 'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 160, 'weight': 100},
                 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.05, 'weight': 3},
@@ -143,7 +147,7 @@ class fitnessFunc():
                 self.astra.createHDF5Summary(reference='Longitudinal_GA')
             return fitness
         except Exception as e:
-            print e
+            # print e
             return 1e6
 
 def optfunc(args, dir=None, **kwargs):

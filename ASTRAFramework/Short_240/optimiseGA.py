@@ -100,7 +100,7 @@ class fitnessFunc():
             ''' Run ASTRA upto VBC '''
             self.astra.runASTRAFiles(files=['short_240.1','short_240.2','short_240.3','short_240.4'])
             ''' Write Out the CSRTrack file based on the BC angle (assumed to be 0.105) '''
-            self.csrtrack.writeCSRTrackFile('csrtrk.in', angle=bcangle, forces='projected')
+            self.csrtrack.writeCSRTrackFile('csrtrk.in', angle=bcangle, forces='projected', inputfile='./short_240.4.2573.001')
             ''' Run CSRTrack'''
             self.csrtrack.runCSRTrackFile('csrtrk.in')
             ''' Convert CSRTrack output file back in to ASTRA format '''
@@ -111,6 +111,8 @@ class fitnessFunc():
             self.beam.read_astra_beam_file(self.dirname+'/short_240.5.4936.001')
             self.beam.slice_length = 0.1e-12
             self.beam.bin_time()
+            slicemomentum = self.beam.slice_momentum
+            slicepeakcurrent = self.beam.slice_peak_current
             sigmat = 1e12*np.std(self.beam.t)
             sigmap = np.std(self.beam.p)
             meanp = np.mean(self.beam.p)
@@ -119,6 +121,17 @@ class fitnessFunc():
             fitp = 100*sigmap/meanp
             fhcfield = self.parameters['fhcfield']
             peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = self.beam.sliceAnalysis()
+            self.slice_current_centroid_indices = []
+            self.slice_momentum_centroid = []
+            for index, slice_current in enumerate(slicepeakcurrent):
+                if abs(peakI - slice_current) < (peakI * 0.75):
+                    print index
+                    self.slice_current_centroid_indices.append(index)
+            for index in self.slice_current_centroid_indices:
+                self.slice_momentum_centroid.append(slicemomentum[index])
+                print slicemomentum[index]
+            self.chirp = (1e-18 * (self.slice_momentum_centroid[-1] - self.slice_momentum_centroid[0]) / (len(self.slice_momentum_centroid) * self.beam.slice_length))
+            print self.chirp
             constraintsList = {
                 'peakI': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 100},
                 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.05, 'weight': 3},
@@ -129,6 +142,7 @@ class fitnessFunc():
                 '4hc field': {'type': 'lessthan', 'value': fhcfield, 'limit': 35, 'weight': 100},
                 'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 1, 'weight': 4},
                 'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 1, 'weight': 4},
+                'chirp':{'type': 'lessthan', 'value': chirp, 'limit': 1, 'weight': 10}
             }
             self.twiss.read_astra_emit_files(self.dirname+'/short_240.5.Zemit.001')
             constraintsList5 = {
