@@ -56,7 +56,7 @@ class ASTRAGenerator(object):
         self.settings = {}
         self.settings['charge'] = self.charge/1000.0
         self.settings['number_particles'] = self.npart
-        self.settings['filename'] = self.particleSuffix() + '-' + str(self.charge) + 'pC-76fsrms-1mm_TE09fixN12.ini'
+        self.settings['filename'] = self.particleSuffix() + '-' + str(self.charge) + 'pC.ini'
 
     def createGeneratorInput(self):
         lines = self.readFile(self.generatorBaseFile)
