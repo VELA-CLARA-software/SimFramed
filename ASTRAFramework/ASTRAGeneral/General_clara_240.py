@@ -11,25 +11,6 @@ framework = Framework('2', overwrite=True)
 if not os.name == 'nt':
     framework.astra.defineASTRACommand(['mpiexec','-np','20','/opt/ASTRA/astra_MPICH2.sh'])
 framework.loadSettings('clara400_v12.def')
-# astra.elements['CLA-S02-MAG-QUAD-01']['K'] = input
-# print astra.createASTRAChicane('laser-heater',1)
-
-# print astra.createASTRAQuad('QUAD-01',1)
-
-# print astra.createASTRASolenoid('SOL-01',1)
-
-# print astra.createASTRACavity('GUN10',1)
-# print astra.createASTRACavity('LINAC-01',2)
-
-# print astra.createASTRAChargeBlock()
-
-# print astra.createASTRANewRunBlock()
-# print astra.createASTRAChargeBlock()
-# print astra.createASTRAScanBlock()
-# print astra.createASTRAApertureBlock()
-# print astra.createASTRACavityBlock()
-# print astra.createASTRASolenoidBlock()
-# print astra.createASTRAQuadrupoleBlock()
 framework.astra.createInitialDistribution(npart=npart,charge=250)
 gun = framework.getElement('CLA-HRG1-GUN-CAV')
 gun['phase'] = -5

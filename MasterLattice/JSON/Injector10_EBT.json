@@ -5,6 +5,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -27,6 +32,11 @@
                 0,
                 0
             ],
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -43,6 +53,11 @@
             "length": 0,
             "field_amplitude": 0.237,
             "field_definition": "../bas_sol.txt",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -59,6 +74,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -79,6 +99,11 @@
             "Online_Model_Name": "C1-COR01",
             "Horizontal_PV": "CLA-S01-MAG-HCOR-01",
             "Vertcal_PV": "CLA-S01-MAG-VCOR-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -96,6 +121,11 @@
             "Controller_Name": "WCM01",
             "Online_Model_Name": "C1-WCM01",
             "PV": "CLA-S01-DIA-WCM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -116,6 +146,11 @@
             "Online_Model_Name": "C1-COR02",
             "Horizontal_PV": "CLA-S01-MAG-HCOR-02",
             "Vertcal_PV": "CLA-S01-MAG-VCOR-02",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -133,6 +168,11 @@
             "Controller_Name": "BPM01",
             "Online_Model_Name": "C1-BPM01",
             "PV": "CLA-S01-DIA-BPM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -154,6 +194,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -170,6 +215,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -207,6 +257,11 @@
             "Controller_Name": "L01",
             "Online_Model_Name": "C1-L01",
             "PV": "CLA-L01-LRF-CTRL-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,

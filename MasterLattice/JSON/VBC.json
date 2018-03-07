@@ -18,6 +18,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.100453,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.00953944,
                 0,
@@ -47,6 +52,11 @@
             ],
             "buffer_start_length": 0.100453,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                -0.095
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -70,6 +80,11 @@
             ],
             "buffer_start_length": 0.14,
             "buffer_end_length": 0.0426,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -84,6 +99,11 @@
         "CLA-VBC-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.0312,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -102,6 +122,11 @@
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
             "open_side": "\"+x\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -123,6 +148,11 @@
             ],
             "buffer_start_length": 0.025463,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -152,6 +182,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.100453,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.15247,
                 0,
@@ -180,6 +215,11 @@
                 30.8671
             ],
             "buffer_start_length": 0.100453,
+            "global_rotation": [
+                0,
+                0,
+                0.095
+            ],
             "position_end": [
                 0,
                 0,
@@ -194,6 +234,11 @@
         "CLA-VBC-MARK-01": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,

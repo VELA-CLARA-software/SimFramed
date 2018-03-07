@@ -4,6 +4,7 @@ elements:
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.37147]
     position_start: [0, 0, 3.37147]
   CLA-S02-MAG-HVCOR-01:
@@ -15,6 +16,7 @@ elements:
     Online_Model_Name: C1-S02-COR01
     Horizontal_PV: CLA-S02-MAG-HCOR-01
     Vertcal_PV: CLA-S02-MAG-VCOR-01
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.44808]
     position_start: [0, 0, 3.37147]
   CLA-S02-MAG-QUAD-01:
@@ -29,6 +31,7 @@ elements:
     Controller_Name: S02-QUAD1
     Online_Model_Name: C1-S02-QUAD01
     PV: CLA-S02-MAG-QUAD-01
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.5775]
     position_start: [0, 0, 3.4768]
   CLA-S02-DIA-BPM-01:
@@ -37,6 +40,7 @@ elements:
     Controller_Name: BPM01
     Online_Model_Name: C1-S01-BPM01
     PV: CLA-S02-DIA-BPM-01
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.62278]
     position_start: [0, 0, 3.5775]
   CLA-S02-MAG-QUAD-02:
@@ -51,6 +55,7 @@ elements:
     Controller_Name: S02-QUAD2
     Online_Model_Name: C1-S02-QUAD02
     PV: CLA-S02-MAG-QUAD-02
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.9775]
     position_start: [0, 0, 3.8768]
   CLA-S02-DIA-SCR-01-W:
@@ -59,6 +64,7 @@ elements:
     buffer_start: [0, 0, 4.0465]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.08983]
     position_start: [0, 0, 4.08983]
   CLA-S02-MAG-HVCOR-02:
@@ -70,6 +76,7 @@ elements:
     Online_Model_Name: C1-S02-COR02
     Horizontal_PV: CLA-S02-MAG-HCOR-02
     Vertcal_PV: CLA-S02-MAG-VCOR-02
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.26807]
     position_start: [0, 0, 4.23807]
   CLA-S02-COL-01:
@@ -78,6 +85,7 @@ elements:
     shape: elliptical
     horizontal_size: 0.01
     vertical_size: 0.01
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.69362]
     position_start: [0, 0, 4.34362]
   CLA-S02-APER-02:
@@ -85,6 +93,7 @@ elements:
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.69362]
     position_start: [0, 0, 4.69362]
   CLA-S02-MAG-HVCOR-03:
@@ -92,6 +101,7 @@ elements:
     length: 0.03
     sr_enable: true
     isr_enable: true
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.84556]
     position_start: [0, 0, 4.81556]
   CLA-S02-DIA-SCR-02-W:
@@ -100,6 +110,7 @@ elements:
     buffer_start: [0, 0, 4.9675]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 5.01083]
     position_start: [0, 0, 5.01083]
   CLA-S02-MAG-QUAD-03:
@@ -114,6 +125,7 @@ elements:
     Controller_Name: S02-QUAD3
     Online_Model_Name: C1-S02-QUAD03
     PV: CLA-S02-MAG-QUAD-03
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 5.2775]
     position_start: [0, 0, 5.1768]
   CLA-S02-MAG-QUAD-04:
@@ -128,5 +140,6 @@ elements:
     Controller_Name: S02-QUAD4
     Online_Model_Name: C1-S02-QUAD04
     PV: CLA-S02-MAG-QUAD-04
+    global_rotation: [0, 0, 0]
     position_end: [0, 0, 5.6775]
     position_start: [0, 0, 5.5768]
