@@ -157,7 +157,7 @@ class beam(object):
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
         charge = -charge*1e9
         clock0 = (data[0, 0] / constants.speed_of_light) * 1e9
-        # print 'clock0 = ', clock0
+        print 'clock0 = ', clock0
         clock = np.full(len(x), 0)
         clock[0] = clock0
         index = np.full(len(x), 1)

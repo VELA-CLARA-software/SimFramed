@@ -1,4 +1,4 @@
-import yaml, collections, subprocess, os, math
+import yaml, collections, subprocess, os, math, re
 import numpy as np
 from operator import add
 from ASTRAHelperFunctions import *
@@ -44,21 +44,31 @@ class ASTRA(object):
                 self.overwrite = True if response in {'','y','Y','yes','Yes','YES'} else False
         self.astraFiles = []
 
+    def loadElementsFile(self, input):
+        if isinstance(input,(list,tuple)):
+            filename = input
+        else:
+            filename = [input]
+        for f in filename:
+            stream = file(f, 'r')
+            elements = yaml.load(stream)['elements']
+            stream.close()
+            if 'filename' in elements:
+                self.loadElementsFile(elements['filename'])
+            self.elements = merge_two_dicts(self.elements, elements)
+
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
         stream = file(filename, 'r')
         settings = yaml.load(stream)
         self.globalSettings = settings['global']
+        self.generatorFile = self.globalSettings['generatorFile'] if 'generatorFile' in self.globalSettings else None
         self.fileSettings = settings['files']
         self.elements = settings['elements']
         self.groups = settings['groups']
         stream.close()
         if 'filename' in self.elements:
-            stream = file(self.elements['filename'], 'r')
-            elements = yaml.load(stream)
-            stream.close()
-            self.elements = merge_two_dicts(self.elements, elements['elements'])
-            # print self.elements
+            self.loadElementsFile(self.elements['filename'])
 
     def getFileSettings(self, file, block):
         """Return the correct settings 'block' from 'file' dict if exists else return empty dict"""
@@ -123,10 +133,15 @@ class ASTRA(object):
         """Modify the 'initial_distribution' global setting"""
         self.globalSettings['initial_distribution'] = filename
 
-    def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None, generatorFile='generator.in'):
+    def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None, generatorFile=None):
         """Create an initiail dostribution of 'npart' particles of 'charge' pC"""
         self.globalSettings['npart'] = npart
         self.globalSettings['charge'] = charge/1000.0
+        if generatorFile is None:
+            if self.generatorFile is not None:
+                generatorFile = self.generatorFile
+            else:
+                generatorFile = 'generator.in'
         astragen = GenPart.ASTRAGenerator(self.subdir, charge, npart, overwrite=self.overwrite, generatorFile=generatorFile)
         if not generatorCommand is None:
             astragen.defineGeneratorCommand(generatorCommand)
@@ -324,7 +339,10 @@ class ASTRA(object):
         screentext = 'Screen('+str(n)+')='+str(s)+'\n'
         return screentext
 
-    def createASTRANewRunBlock(self, settings={}, input={}, charge={}):
+    def formatASTRAStartElement(self, name):
+        return str(int(round(self.elements[name]['position_end'][2]*100))).zfill(4)
+
+    def createASTRANewRunBlock(self, settings={}, input={}, output={}):
         """Create an ASTRA NEWRUN Block string"""
         title           = str(getParameter(settings,'title',default='trial'))
         runno           = str(getParameter(settings,'run_no',default=1))
@@ -334,7 +352,10 @@ class ASTRA(object):
         if distribution == 'initial_distribution':
             distribution = self.globalSettings['initial_distribution']
         else:
-            distribution = distribution
+            regex = re.compile('\$(.*)\$')
+            s = re.search(regex, distribution)
+            if s:
+                distribution = re.sub(regex, self.formatASTRAStartElement(eval(s.group(1))), distribution)
         # print 'qbunch = ', getParameter([self.globalSettings,settings],'total_charge',default=250)
         Qbunch          = str(getParameter([self.globalSettings,settings],'total_charge',default=250))
         zstart          =     getParameter(settings,'zstart',default=0)
@@ -540,7 +561,7 @@ class ASTRA(object):
         groups = self.getFileSettings(file,'groups')
 
         astrafiletext = ''
-        astrafiletext += self.createASTRANewRunBlock(settings, input, charge)
+        astrafiletext += self.createASTRANewRunBlock(settings, input, output)
         astrafiletext += self.createASTRAOutputBlock(output, settings)
         astrafiletext += self.createASTRAChargeBlock(charge, settings)
         astrafiletext += self.createASTRAScanBlock(scan, settings)
