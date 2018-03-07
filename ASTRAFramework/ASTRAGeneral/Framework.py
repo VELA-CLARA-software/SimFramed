@@ -245,7 +245,7 @@ class ASTRA(object):
         """Run the ASTRA program with input 'filename'"""
         command = self.astraCommand + [filename]
         with open(os.devnull, "w") as f:
-            subprocess.call(command, stdout=f, cwd=self.subdir)
+            subprocess.call(command,  cwd=self.subdir)
 
     def defineASTRACommand(self,command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -345,7 +345,7 @@ class ASTRA(object):
         amplitude   = str(getParameter(sol,'field_amplitude'))
         smooth      = str(getParameter(sol,'smooth', default=10))
 
-        soltext = 'FILE_BFieLD('+str(n)+')=\''+definition+'\', MaxB('+str(n)+')='+amplitude+',\n'+\
+        soltext = 'FILE_BFieLD('+str(n)+')=\''+definition+'\',\nMaxB('+str(n)+')='+amplitude+',\n'+\
         'S_pos('+str(n)+')='+str(s)+', S_xoff('+str(n)+')='+str(x)+', S_yoff('+str(n)+')='+str(y)+', S_smooth('+str(n)+')='+smooth+'\n'
         for var in ASTRARules['SOLENOID']:
             soltext += createOptionalString(sol, var, n)
@@ -371,7 +371,7 @@ class ASTRA(object):
         'MaxE('+str(n)+')='+amplitude+', Phi('+str(n)+')='+phase+', \n'+\
         'C_pos('+str(n)+')='+str(s)+', C_xoff('+str(n)+')='+str(x)+', C_yoff('+str(n)+')='+str(y)+', C_smooth('+str(n)+')='+smooth
         if cells > 0:
-            cavtext += ', C_numb('+str(n)+')='+str(cells)+'\n'
+            cavtext += ', C_numb('+str(n)+')='+str(int(cells))+'\n'
         cavtext += '\n'
         for var in ASTRARules['CAVITY']:
             cavtext += createOptionalString(cav, var, n)
