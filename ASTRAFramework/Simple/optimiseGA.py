@@ -109,7 +109,7 @@ class fitnessFunc():
             self.astra.runASTRAFiles(files=['test.5'])
 
             self.beam.read_astra_beam_file(self.dirname+'/test.5.4936.001')
-            self.beam.slice_length = 0.05e-12
+            self.beam.slice_length = 0.1e-12
             self.beam.bin_time()
             sigmat = 1e12*np.std(self.beam.t)
             sigmap = np.std(self.beam.p)
@@ -199,7 +199,7 @@ toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 if os.name == 'nt':
     toolbox.register("evaluate", optfunc, npart=500)
 else:
-    toolbox.register("evaluate", optfunc, npart=5000)
+    toolbox.register("evaluate", optfunc, npart=1000)
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)

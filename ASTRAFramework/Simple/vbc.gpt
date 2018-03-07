@@ -1,0 +1,22 @@
+# Basic beam parameters
+#time=3.53*1e-9;
+accuracy(5);
+position=0.;
+setfile("beam","vbc.astra");
+
+
+# Space-charge
+spacecharge3Dmesh() ;
+# dipoles
+bndCLAVBCMAGDIP01D = 2*0.957054643622762*tan(0.105/2) ;	# distance between intersect and edge of dip1
+ccs( "wcs", 0, 0, 0.24+bndCLAVBCMAGDIP01D, cos(0.105), 0, -sin(0.105), 0, 1, 0, "bend1" ) ;
+sectormagnet( "wcs", "bend1", 1.91410928724553, 0.280585624476756, 0., -0.105, 0., 0, 0 ) ;
+bndCLAVBCMAGDIP02D = 2*0.957054643622762*tan(0.105/2) ;	# distance between intersect and edge of dip1
+ccs( "bend1", 0, 0, 1.5068+bndCLAVBCMAGDIP02D+bndCLAVBCMAGDIP01D, cos(-0.105), 0, -sin(-0.105), 0, 1, 0, "bend2" ) ;
+sectormagnet( "bend1", "bend2", 1.91410928724553, 0.280585624476756, 0.105, 0., 0., 0, 0 ) ;
+bndCLAVBCMAGDIP03D = 2*0.957054643622762*tan(0.105/2) ;	# distance between intersect and edge of dip1
+ccs( "bend2", 0, 0, 1.3+bndCLAVBCMAGDIP03D+bndCLAVBCMAGDIP02D, cos(-0.105), 0, -sin(-0.105), 0, 1, 0, "bend3" ) ;
+sectormagnet( "bend2", "bend3", 1.91410928724553, 0.280585624476756, 0., 0.105, 0., 0, 0 ) ;
+bndCLAVBCMAGDIP04D = 2*0.957054643622762*tan(0.105/2) ;	# distance between intersect and edge of dip1
+ccs( "bend3", 0, 0, 1.5068+bndCLAVBCMAGDIP04D+bndCLAVBCMAGDIP03D, cos(0.105), 0, -sin(0.105), 0, 1, 0, "bend4" ) ;
+sectormagnet( "bend3", "bend4", 1.91410928724553, 0.280585624476756, -0.105, 0., 0., 0, 0 ) ;
