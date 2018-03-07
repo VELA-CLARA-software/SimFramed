@@ -3,13 +3,18 @@
         "EBT-BA1-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 21.3888
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 21.1538
             ]
@@ -17,13 +22,18 @@
         "EBT-BA1-DIA-YAG-01": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-01.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 21.3888
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 21.3888
             ]
@@ -33,13 +43,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 22.5498
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 22.3898
             ]
@@ -49,13 +64,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 22.9498
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 22.7898
             ]
@@ -63,13 +83,18 @@
         "EBT-BA1-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 23.1848
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 22.9498
             ]
@@ -79,13 +104,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 23.3448
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 23.1848
             ]
@@ -93,13 +123,18 @@
         "EBT-BA1-LASERBOX-BEG": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 23.6848
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 23.6848
             ]
@@ -107,13 +142,18 @@
         "EBT-BA1-LASERBOX-END": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 24.3348
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 24.3348
             ]
@@ -121,13 +161,18 @@
         "EBT-BA1-COFFIN-BEG": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 24.4348
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 24.4348
             ]
@@ -135,13 +180,18 @@
         "EBT-BA1-COFFIN-FOC": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 25.4848
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 25.4848
             ]
@@ -149,13 +199,18 @@
         "EBT-BA1-COFFIN-END": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 26.7948
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 26.7948
             ]
@@ -163,13 +218,18 @@
         "EBT-BA1-DIA-BPM-03": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 27.0298
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 26.7948
             ]
@@ -179,13 +239,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 27.1898
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 27.0298
             ]
@@ -195,13 +260,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 27.6228
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 27.4628
             ]
@@ -211,13 +281,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 28.0558
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 27.8958
             ]
@@ -225,13 +300,18 @@
         "EBT-BA1-DIA-YAG-02": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-02.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 28.1558
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 28.1558
             ]
@@ -253,13 +333,18 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.48875,
+                -1.48875,
                 0,
                 28.9673
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 28.5538
             ]
@@ -269,13 +354,18 @@
             "length": 0.3,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                2.07159,
+                -2.07159,
                 0,
                 29.3038
             ],
             "position_start": [
-                1.81178,
+                -1.81178,
                 0,
                 29.1538
             ]
@@ -283,13 +373,18 @@
         "EBT-BA1-DIA-BPM-04": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                2.51153,
+                -2.51153,
                 0,
                 29.5578
             ],
             "position_start": [
-                2.30801,
+                -2.30801,
                 0,
                 29.4403
             ]
@@ -297,13 +392,18 @@
         "EBT-BA1-DIA-YAG-03": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-03.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ],
             "position_start": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ]
@@ -311,13 +411,18 @@
         "EBT-BA1-DIA-FCUP-01": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-FCUP-01.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ],
             "position_start": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ]

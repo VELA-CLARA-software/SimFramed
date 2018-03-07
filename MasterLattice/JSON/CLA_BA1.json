@@ -5,6 +5,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -27,6 +32,11 @@
                 0,
                 0
             ],
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -43,6 +53,11 @@
             "length": 0,
             "field_amplitude": 0.237,
             "field_definition": "../bas_sol.txt",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -59,6 +74,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -79,6 +99,11 @@
             "Online_Model_Name": "C1-COR01",
             "Horizontal_PV": "CLA-S01-MAG-HCOR-01",
             "Vertcal_PV": "CLA-S01-MAG-VCOR-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -96,6 +121,11 @@
             "Controller_Name": "WCM01",
             "Online_Model_Name": "C1-WCM01",
             "PV": "CLA-S01-DIA-WCM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -116,6 +146,11 @@
             "Online_Model_Name": "C1-COR02",
             "Horizontal_PV": "CLA-S01-MAG-HCOR-02",
             "Vertcal_PV": "CLA-S01-MAG-VCOR-02",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -133,6 +168,11 @@
             "Controller_Name": "BPM01",
             "Online_Model_Name": "C1-BPM01",
             "PV": "CLA-S01-DIA-BPM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -154,6 +194,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -170,6 +215,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -207,6 +257,11 @@
             "Controller_Name": "L01",
             "Online_Model_Name": "C1-L01",
             "PV": "CLA-L01-LRF-CTRL-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -223,6 +278,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -243,6 +303,11 @@
             "Online_Model_Name": "C1-S02-COR01",
             "Horizontal_PV": "CLA-S02-MAG-HCOR-01",
             "Vertcal_PV": "CLA-S02-MAG-VCOR-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -270,6 +335,11 @@
             "Controller_Name": "S02-QUAD1",
             "Online_Model_Name": "C1-S02-QUAD01",
             "PV": "CLA-S02-MAG-QUAD-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -287,6 +357,11 @@
             "Controller_Name": "BPM01",
             "Online_Model_Name": "C1-S01-BPM01",
             "PV": "CLA-S02-DIA-BPM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -314,6 +389,11 @@
             "Controller_Name": "S02-QUAD2",
             "Online_Model_Name": "C1-S02-QUAD02",
             "PV": "CLA-S02-MAG-QUAD-02",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -335,6 +415,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -355,6 +440,11 @@
             "Online_Model_Name": "C1-S02-COR02",
             "Horizontal_PV": "CLA-S02-MAG-HCOR-02",
             "Vertcal_PV": "CLA-S02-MAG-VCOR-02",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -372,6 +462,11 @@
             "shape": "elliptical",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -388,6 +483,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -404,6 +504,11 @@
             "length": 0.03,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -425,6 +530,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -452,6 +562,11 @@
             "Controller_Name": "S02-QUAD3",
             "Online_Model_Name": "C1-S02-QUAD03",
             "PV": "CLA-S02-MAG-QUAD-03",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -479,6 +594,11 @@
             "Controller_Name": "S02-QUAD4",
             "Online_Model_Name": "C1-S02-QUAD04",
             "PV": "CLA-S02-MAG-QUAD-04",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -493,6 +613,11 @@
         "CLA-C2V-MARK-01": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -524,8 +649,13 @@
             "Controller_Name": "DIP01",
             "Online_Model_Name": "CV-DIP01",
             "PV": "CLA-C2V-MAG-DIP-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                0.149171,
+                -0.149171,
                 0,
                 6.187
             ],
@@ -544,13 +674,18 @@
             "Online_Model_Name": "CV-COR01",
             "Horizontal_PV": "CLA-C2V-MAG-HCOR-01",
             "Vertcal_PV": "CLA-C2V-MAG-VCOR-01",
+            "global_rotation": [
+                0,
+                0,
+                0.785398
+            ],
             "position_end": [
-                0.368412,
+                -0.368412,
                 0,
                 6.40624
             ],
             "position_start": [
-                0.21992,
+                -0.21992,
                 0,
                 6.25775
             ]
@@ -560,13 +695,18 @@
             "Controller_Name": "BPM01",
             "Online_Model_Name": "CV-BPM01",
             "PV": "CLA-C2V-DIA-BPM-01",
+            "global_rotation": [
+                0,
+                0,
+                0.785398
+            ],
             "position_end": [
-                0.368412,
+                -0.368412,
                 0,
                 6.40624
             ],
             "position_start": [
-                0.368412,
+                -0.368412,
                 0,
                 6.40624
             ]
@@ -587,13 +727,18 @@
             "Controller_Name": "C2V-QUAD1",
             "Online_Model_Name": "CV-QUAD01",
             "PV": "CLA-C2V-MAG-QUAD-01",
+            "global_rotation": [
+                0,
+                0,
+                0.785398
+            ],
             "position_end": [
-                0.455542,
+                -0.455542,
                 0,
                 6.49337
             ],
             "position_start": [
-                0.384336,
+                -0.384336,
                 0,
                 6.42217
             ]
@@ -614,13 +759,18 @@
             "Controller_Name": "C2V-QUAD2",
             "Online_Model_Name": "CV-QUAD02",
             "PV": "CLA-C2V-MAG-QUAD-02",
+            "global_rotation": [
+                0,
+                0,
+                0.785398
+            ],
             "position_end": [
-                0.660603,
+                -0.660603,
                 0,
                 6.69843
             ],
             "position_start": [
-                0.589397,
+                -0.589397,
                 0,
                 6.62723
             ]
@@ -641,13 +791,18 @@
             "Controller_Name": "C2V-QUAD1",
             "Online_Model_Name": "CV-QUAD03",
             "PV": "CLA-C2V-MAG-QUAD-03",
+            "global_rotation": [
+                0,
+                0,
+                0.785398
+            ],
             "position_end": [
-                0.865664,
+                -0.865664,
                 0,
                 6.90349
             ],
             "position_start": [
-                0.794458,
+                -0.794458,
                 0,
                 6.83229
             ]
@@ -662,13 +817,18 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0.785398
+            ],
             "position_end": [
-                0.944068,
+                -0.944068,
                 0,
                 6.9819
             ],
             "position_start": [
-                0.944068,
+                -0.944068,
                 0,
                 6.9819
             ]
@@ -693,13 +853,18 @@
             "Controller_Name": "DIP02",
             "Online_Model_Name": "CV-DIP03",
             "PV": "CLA-C2V-MAG-DIP-03",
+            "global_rotation": [
+                0,
+                0,
+                0.785398
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 7.49879
             ],
             "position_start": [
-                1.10083,
+                -1.10083,
                 0,
                 7.13866
             ]
@@ -707,13 +872,18 @@
         "EBT-INJ-DIA-YAG-05": {
             "type": "watch_point",
             "output_filename": "\"EBT-INJ-DIA-YAG-05.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 7.83179
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 7.83179
             ]
@@ -723,13 +893,18 @@
             "length": 0.064,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 8.16279
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 8.09879
             ]
@@ -740,13 +915,18 @@
             "k1": 17.0945,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 8.26279
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 8.16279
             ]
@@ -757,13 +937,18 @@
             "k1": -17.8686,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 8.53279
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 8.43279
             ]
@@ -771,13 +956,18 @@
         "EBT-INJ-DIA-YAG-06": {
             "type": "watch_point",
             "output_filename": "\"EBT-INJ-DIA-YAG-06.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 9.53979
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 9.53979
             ]
@@ -785,13 +975,18 @@
         "EBT-INJ-DIA-FCUP-02": {
             "type": "watch_point",
             "output_filename": "\"EBT-INJ-DIA-FCUP-02.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 9.88979
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 9.88979
             ]
@@ -801,13 +996,18 @@
             "length": 0.1825,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 10.3398
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 10.1573
             ]
@@ -818,13 +1018,18 @@
             "k1": 4.14677,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 10.4148
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 10.3398
             ]
@@ -832,13 +1037,18 @@
         "EBT-INJ-DIA-BPM-04": {
             "type": "beam_position_monitor",
             "length": 0.243,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 10.6578
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 10.4148
             ]
@@ -846,13 +1056,18 @@
         "EBT-INJ-DIA-YAG-07": {
             "type": "watch_point",
             "output_filename": "\"EBT-INJ-DIA-YAG-07.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 12.0898
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 12.0898
             ]
@@ -862,13 +1077,18 @@
             "length": 0.2,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 12.2898
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 12.0898
             ]
@@ -879,13 +1099,18 @@
             "k1": -4.2847,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 12.5668
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 12.4918
             ]
@@ -893,13 +1118,18 @@
         "EBT-INJ-DIA-BPM-05": {
             "type": "beam_position_monitor",
             "length": 0.2,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 14.0118
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 13.8118
             ]
@@ -910,13 +1140,18 @@
             "k1": 5.66182,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 14.7148
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 14.6398
             ]
@@ -924,13 +1159,18 @@
         "EBT-INJ-DIA-YAG-08": {
             "type": "watch_point",
             "output_filename": "\"EBT-INJ-DIA-YAG-08.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 15.5898
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 15.5898
             ]
@@ -940,13 +1180,18 @@
             "length": 0.1675,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 15.7573
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 15.5898
             ]
@@ -954,13 +1199,18 @@
         "EBT-INJ-DIA-ICT-03": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 17.1398
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 17.1398
             ]
@@ -968,13 +1218,18 @@
         "EBT-INJ-DIA-YAG-10": {
             "type": "watch_point",
             "output_filename": "\"EBT-INJ-DIA-YAG-10.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 17.1398
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 17.1398
             ]
@@ -985,13 +1240,18 @@
             "k1": 4.0731,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 17.8098
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 17.7348
             ]
@@ -999,13 +1259,18 @@
         "EBT-INJ-PSS-SHUT-02": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 18.2448
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 18.2448
             ]
@@ -1013,13 +1278,18 @@
         "EBT-BA1-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 21.3888
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 21.1538
             ]
@@ -1027,13 +1297,18 @@
         "EBT-BA1-DIA-YAG-01": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-01.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 21.3888
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 21.3888
             ]
@@ -1043,13 +1318,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 22.5498
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 22.3898
             ]
@@ -1059,13 +1339,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 22.9498
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 22.7898
             ]
@@ -1073,13 +1358,18 @@
         "EBT-BA1-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 23.1848
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 22.9498
             ]
@@ -1089,13 +1379,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 23.3448
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 23.1848
             ]
@@ -1103,13 +1398,18 @@
         "EBT-BA1-LASERBOX-BEG": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 23.6848
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 23.6848
             ]
@@ -1117,13 +1417,18 @@
         "EBT-BA1-LASERBOX-END": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 24.3348
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 24.3348
             ]
@@ -1131,13 +1436,18 @@
         "EBT-BA1-COFFIN-BEG": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 24.4348
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 24.4348
             ]
@@ -1145,13 +1455,18 @@
         "EBT-BA1-COFFIN-FOC": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 25.4848
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 25.4848
             ]
@@ -1159,13 +1474,18 @@
         "EBT-BA1-COFFIN-END": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 26.7948
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 26.7948
             ]
@@ -1173,13 +1493,18 @@
         "EBT-BA1-DIA-BPM-03": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 27.0298
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 26.7948
             ]
@@ -1189,13 +1514,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 27.1898
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 27.0298
             ]
@@ -1205,13 +1535,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 27.6228
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 27.4628
             ]
@@ -1221,13 +1556,18 @@
             "length": 0.16,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 28.0558
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 27.8958
             ]
@@ -1235,13 +1575,18 @@
         "EBT-BA1-DIA-YAG-02": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-02.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.25,
+                -1.25,
                 0,
                 28.1558
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 28.1558
             ]
@@ -1263,13 +1608,18 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
-                1.48875,
+                -1.48875,
                 0,
                 28.9673
             ],
             "position_start": [
-                1.25,
+                -1.25,
                 0,
                 28.5538
             ]
@@ -1279,13 +1629,18 @@
             "length": 0.3,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                2.07159,
+                -2.07159,
                 0,
                 29.3038
             ],
             "position_start": [
-                1.81178,
+                -1.81178,
                 0,
                 29.1538
             ]
@@ -1293,13 +1648,18 @@
         "EBT-BA1-DIA-BPM-04": {
             "type": "beam_position_monitor",
             "length": 0.235,
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                2.51153,
+                -2.51153,
                 0,
                 29.5578
             ],
             "position_start": [
-                2.30801,
+                -2.30801,
                 0,
                 29.4403
             ]
@@ -1307,13 +1667,18 @@
         "EBT-BA1-DIA-YAG-03": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-YAG-03.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ],
             "position_start": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ]
@@ -1321,13 +1686,18 @@
         "EBT-BA1-DIA-FCUP-01": {
             "type": "watch_point",
             "output_filename": "\"EBT-BA1-DIA-FCUP-01.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                1.0472
+            ],
             "position_end": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ],
             "position_start": [
-                3.19136,
+                -3.19136,
                 0,
                 29.9503
             ]
