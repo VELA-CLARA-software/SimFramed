@@ -15,7 +15,7 @@ elements:
     phase: 184
     longitudinal_wakefield_input: '"Sz20um25mmxband.sdds"'
     transverse_wakefield_input: '"Sx50um10mmxband.sdds"'
-    field_definition: ../TWS_X-DL.dat
+    field_definition: ../../../MasterLattice/Data_Files/TWS_X-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
