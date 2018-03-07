@@ -5,6 +5,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -39,6 +44,11 @@
             ],
             "buffer_start_length": 0.040538,
             "buffer_end_length": 0.0416666,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,

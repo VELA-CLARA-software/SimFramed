@@ -5,6 +5,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -27,6 +32,11 @@
                 0,
                 0
             ],
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -43,6 +53,11 @@
             "length": 0,
             "field_amplitude": 0.237,
             "field_definition": "../bas_sol.txt",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -59,6 +74,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -79,6 +99,11 @@
             "Online_Model_Name": "C1-COR01",
             "Horizontal_PV": "CLA-S01-MAG-HCOR-01",
             "Vertcal_PV": "CLA-S01-MAG-VCOR-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -96,6 +121,11 @@
             "Controller_Name": "WCM01",
             "Online_Model_Name": "C1-WCM01",
             "PV": "CLA-S01-DIA-WCM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -116,6 +146,11 @@
             "Online_Model_Name": "C1-COR02",
             "Horizontal_PV": "CLA-S01-MAG-HCOR-02",
             "Vertcal_PV": "CLA-S01-MAG-VCOR-02",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -133,6 +168,11 @@
             "Controller_Name": "BPM01",
             "Online_Model_Name": "C1-BPM01",
             "PV": "CLA-S01-DIA-BPM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -154,6 +194,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -170,6 +215,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -207,6 +257,11 @@
             "Controller_Name": "L01",
             "Online_Model_Name": "C1-L01",
             "PV": "CLA-L01-LRF-CTRL-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -223,6 +278,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -243,6 +303,11 @@
             "Online_Model_Name": "C1-S02-COR01",
             "Horizontal_PV": "CLA-S02-MAG-HCOR-01",
             "Vertcal_PV": "CLA-S02-MAG-VCOR-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -270,6 +335,11 @@
             "Controller_Name": "S02-QUAD1",
             "Online_Model_Name": "C1-S02-QUAD01",
             "PV": "CLA-S02-MAG-QUAD-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -287,6 +357,11 @@
             "Controller_Name": "BPM01",
             "Online_Model_Name": "C1-S01-BPM01",
             "PV": "CLA-S02-DIA-BPM-01",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -314,6 +389,11 @@
             "Controller_Name": "S02-QUAD2",
             "Online_Model_Name": "C1-S02-QUAD02",
             "PV": "CLA-S02-MAG-QUAD-02",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -335,6 +415,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -355,6 +440,11 @@
             "Online_Model_Name": "C1-S02-COR02",
             "Horizontal_PV": "CLA-S02-MAG-HCOR-02",
             "Vertcal_PV": "CLA-S02-MAG-VCOR-02",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -372,6 +462,11 @@
             "shape": "elliptical",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -388,6 +483,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -404,6 +504,11 @@
             "length": 0.03,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -425,6 +530,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -452,6 +562,11 @@
             "Controller_Name": "S02-QUAD3",
             "Online_Model_Name": "C1-S02-QUAD03",
             "PV": "CLA-S02-MAG-QUAD-03",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -479,6 +594,11 @@
             "Controller_Name": "S02-QUAD4",
             "Online_Model_Name": "C1-S02-QUAD04",
             "PV": "CLA-S02-MAG-QUAD-04",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -503,6 +623,11 @@
             ],
             "buffer_start_length": 0.02872,
             "buffer_end_length": 0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -517,6 +642,11 @@
         "CLA-S02-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.05135,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -538,6 +668,11 @@
             ],
             "buffer_start_length": 0.033333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -554,6 +689,11 @@
             "length": 0.0574,
             "sr_enable": true,
             "isr_enable": true,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -570,6 +710,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -604,6 +749,11 @@
             ],
             "buffer_start_length": 0.040538,
             "buffer_end_length": 0.0416666,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -620,6 +770,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -634,6 +789,11 @@
         "CLA-S03-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -658,6 +818,11 @@
             ],
             "buffer_start_length": 0.088,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -681,6 +846,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -702,6 +872,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -718,6 +893,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -752,6 +932,11 @@
             ],
             "buffer_start_length": 0.041667,
             "buffer_end_length": 0.0416666,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -768,6 +953,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -782,6 +972,11 @@
         "CLA-S04-MARK-01": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -805,6 +1000,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -829,6 +1029,11 @@
             ],
             "buffer_start_length": 0.023,
             "buffer_end_length": 0.024,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -843,6 +1048,11 @@
         "CLA-S04-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -867,6 +1077,11 @@
             ],
             "buffer_start_length": 0.023,
             "buffer_end_length": 0.035,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -881,6 +1096,11 @@
         "CLA-S04-DIA-SCR-01-W": {
             "type": "screen",
             "output_filename": "\"CLA-S04-DIA-SCR-01.SDDS\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -905,6 +1125,11 @@
             ],
             "buffer_start_length": 0.023,
             "buffer_end_length": 0.035,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -919,6 +1144,11 @@
         "CLA-S04-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -943,6 +1173,11 @@
             ],
             "buffer_start_length": 0.018,
             "buffer_end_length": 0.03,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -966,6 +1201,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -987,6 +1227,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1016,6 +1261,11 @@
             ],
             "buffer_start_length": 0.06,
             "buffer_end_length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 5e-6,
                 0,
@@ -1045,6 +1295,11 @@
             ],
             "buffer_start_length": 0.05,
             "buffer_end_length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                0.0001
+            ],
             "position_end": [
                 4.5e-5,
                 0,
@@ -1066,6 +1321,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 4.5e-5,
                 0,
@@ -1089,6 +1349,11 @@
             ],
             "buffer_start_length": 0.075,
             "buffer_end_length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 4.5e-5,
                 0,
@@ -1103,6 +1368,11 @@
         "CLA-S04-DIA-BPM-03": {
             "type": "beam_position_monitor",
             "length": 0.035,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 4.5e-5,
                 0,
@@ -1117,6 +1387,11 @@
         "CLA-S04-MAG-LASER0-M": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 4.5e-5,
                 0,
@@ -1131,6 +1406,11 @@
         "CLA-S04-DIA-BPM-04": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 4.5e-5,
                 0,
@@ -1152,6 +1432,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 4.5e-5,
                 0,
@@ -1181,6 +1466,11 @@
             ],
             "buffer_start_length": 0.05,
             "buffer_end_length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 4e-5,
                 0,
@@ -1210,6 +1500,11 @@
             ],
             "buffer_start_length": 0.05,
             "buffer_end_length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                -0.0001
+            ],
             "position_end": [
                 0,
                 0,
@@ -1231,6 +1526,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1255,6 +1555,11 @@
             ],
             "buffer_start_length": 0.018,
             "buffer_end_length": 0.03,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1278,6 +1583,11 @@
             ],
             "buffer_start_length": 0.06,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1302,6 +1612,11 @@
             ],
             "buffer_start_length": 0.018,
             "buffer_end_length": 0.03,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1316,6 +1631,11 @@
         "CLA-S04-DIA-BPM-05": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1340,6 +1660,11 @@
             ],
             "buffer_start_length": 0.048,
             "buffer_end_length": 0.03,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1363,6 +1688,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1387,6 +1717,11 @@
             ],
             "buffer_start_length": 0.018,
             "buffer_end_length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1401,6 +1736,11 @@
         "CLA-S04-DIA-BPM-06": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1415,6 +1755,11 @@
         "CLA-S04-MARK-02": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1431,6 +1776,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.0041195,
             "vertical_size": 0.0041195,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1465,6 +1815,11 @@
             ],
             "buffer_start_length": 0.1075,
             "buffer_end_length": 0.1075,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1481,6 +1836,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1505,6 +1865,11 @@
             ],
             "buffer_start_length": 0.121,
             "buffer_end_length": 0.0467,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1528,6 +1893,11 @@
             ],
             "buffer_start_length": 0.114,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1542,6 +1912,11 @@
         "CLA-S05-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.021,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1563,6 +1938,11 @@
             ],
             "buffer_start_length": 0.043273,
             "buffer_end_length": 0.0767,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1587,6 +1967,11 @@
             ],
             "buffer_start_length": 0.067,
             "buffer_end_length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1601,6 +1986,11 @@
         "CLA-S05-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1615,6 +2005,11 @@
         "CLA-S05-MARK-01": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1644,6 +2039,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.100453,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.00953944,
                 0,
@@ -1673,6 +2073,11 @@
             ],
             "buffer_start_length": 0.100453,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                -0.095
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -1696,6 +2101,11 @@
             ],
             "buffer_start_length": 0.14,
             "buffer_end_length": 0.0426,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -1710,6 +2120,11 @@
         "CLA-VBC-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.0312,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -1728,6 +2143,11 @@
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
             "open_side": "\"+x\"",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -1749,6 +2169,11 @@
             ],
             "buffer_start_length": 0.025463,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.162009,
                 0,
@@ -1778,6 +2203,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.100453,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 -0.15247,
                 0,
@@ -1806,6 +2236,11 @@
                 30.8671
             ],
             "buffer_start_length": 0.100453,
+            "global_rotation": [
+                0,
+                0,
+                0.095
+            ],
             "position_end": [
                 0,
                 0,
@@ -1820,6 +2255,11 @@
         "CLA-VBC-MARK-01": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1834,6 +2274,11 @@
         "CLA-S06-MARK-01": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1850,6 +2295,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1873,6 +2323,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1887,6 +2342,11 @@
         "CLA-S06-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.02,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1911,6 +2371,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1926,6 +2391,11 @@
             "type": "monitor",
             "length": 0.2885,
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1950,6 +2420,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1971,6 +2446,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -1994,6 +2474,11 @@
             ],
             "buffer_start_length": 0.043,
             "buffer_end_length": 0.007,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2008,6 +2493,11 @@
         "CLA-S06-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2029,6 +2519,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2043,6 +2538,11 @@
         "CLA-S06-MARK-02": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2059,6 +2559,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.01,
             "vertical_size": 0.01,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2093,6 +2598,11 @@
             ],
             "buffer_start_length": 0.0416666,
             "buffer_end_length": 0.0414916,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2109,6 +2619,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2123,6 +2638,11 @@
         "CLA-S07-DIA-BPM-01": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2146,6 +2666,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2170,6 +2695,11 @@
             ],
             "buffer_start_length": 0.075,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2184,6 +2714,11 @@
         "CLA-S07-MARK-01": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2208,6 +2743,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2222,6 +2762,11 @@
         "CLA-S07-DIA-BPM-02": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2245,6 +2790,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2266,6 +2816,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2282,6 +2837,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.005,
             "vertical_size": 0.005,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2304,6 +2864,11 @@
             ],
             "buffer_start_length": 0.346666,
             "buffer_end_length": 0.303334,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2320,6 +2885,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2343,6 +2913,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2356,6 +2931,11 @@
         },
         "CLA-S07-DIA-BPM-03": {
             "type": "beam_position_monitor",
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2380,6 +2960,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2404,6 +2989,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2418,6 +3008,11 @@
         "CLA-S07-DIA-BPM-04": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2439,6 +3034,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2463,6 +3063,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2486,6 +3091,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2501,6 +3111,11 @@
             "type": "monitor",
             "length": 0.3,
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2525,6 +3140,11 @@
             ],
             "buffer_start_length": 0.062792,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2542,6 +3162,11 @@
             "shape": "elliptical",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2558,6 +3183,11 @@
             "shape": "rectangular",
             "horizontal_size": 0.017,
             "vertical_size": 0.017,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2572,6 +3202,11 @@
         "CLA-S07-DIA-BPM-05": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2596,6 +3231,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2619,6 +3259,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2642,6 +3287,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2656,6 +3306,11 @@
         "CLA-S07-DIA-BPM-06": {
             "type": "beam_position_monitor",
             "length": 0.05,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2677,6 +3332,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2691,6 +3351,11 @@
         "CLA-S07-MARK-02": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2715,6 +3380,11 @@
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2739,6 +3409,11 @@
             ],
             "buffer_start_length": 0.088,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2753,6 +3428,11 @@
         "CLA-S07-DIA-BPM-07": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2776,6 +3456,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2797,6 +3482,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2821,6 +3511,11 @@
             ],
             "buffer_start_length": 0.088,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2845,6 +3540,11 @@
             ],
             "buffer_start_length": 0.088,
             "buffer_end_length": 0.1,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2859,6 +3559,11 @@
         "CLA-S07-DIA-BPM-08": {
             "type": "beam_position_monitor",
             "length": 0.21,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2880,6 +3585,11 @@
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2903,6 +3613,11 @@
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
@@ -2917,6 +3632,11 @@
         "CLA-S07-MARK-03": {
             "type": "marker",
             "fit_point": 1.0,
+            "global_rotation": [
+                0,
+                0,
+                0
+            ],
             "position_end": [
                 0,
                 0,
