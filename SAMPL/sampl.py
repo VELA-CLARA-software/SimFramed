@@ -109,12 +109,20 @@ class Setup(QThread):
         for i in beamLine.componentlist:
             if beamLine.componentlist.index(i) >= startIndex[0] and beamLine.componentlist.index(i) <= stopIndex[0]:
                 if 'SCR' in i.name or 'YAG' in i.name:
-                    caput('VM-' + self.elements[i.name]['camPV'] + ':ANA:X_RBV', i.x)
-                    caput('VM-' + self.elements[i.name]['camPV'] + ':ANA:Y_RBV', i.y)
-                    caput('VM-' + self.elements[i.name]['camPV'] +
-                          ':ANA::SigmaX_RBV', i.xSigma)
-                    caput('VM-' + self.elements[i.name]['camPV'] +
-                          ':ANA:SigmaY_RBV', i.ySigma)
+                    if 'CLA' in i.name:
+                        caput('VM-' + self.elements[i.name]['camPV'] + ':ANA:X_RBV', i.x)
+                        caput('VM-' + self.elements[i.name]['camPV'] + ':ANA:Y_RBV', i.y)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              ':ANA::SigmaX_RBV', i.xSigma)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              ':ANA:SigmaY_RBV', i.ySigma)
+                    else:
+                        caput('VM-' + self.elements[i.name]['camPV'] + ':X', i.x)
+                        caput('VM-' + self.elements[i.name]['camPV'] + ':Y', i.y)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              '::SigmaX', i.xSigma)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              ':SigmaY', i.ySigma)
                     print '    Written data for ', self.elements[i.name]['omName']
                 if 'BPM'in i.name:
                     caput('VM-' + self.elements[i.name]['pv'] + ':X', i.x)
