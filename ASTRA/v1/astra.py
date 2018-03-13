@@ -85,10 +85,10 @@ class Setup(QThread):
             parts = None
         return parts
     #Shell function to run AStra simulations in a thread is need. Using this 'shell' function alows me to pass in agurments
-    def go(self,startElement,stopElement,initDistrib,charge=0.25):
+    def go(self,startElement,stopElement,initDistribFile,charge=0.25):
             self.startElement = startElement
             self.stopElement = stopElement
-            self.initDistrib = initDistrib
+            self.initDistribFile = initDistribFile
             self.initCharge = charge# in nC
             #Run in Thread
             self.start()
@@ -124,10 +124,10 @@ class Setup(QThread):
                 elif section=='CV.in' and inFiles[i - 1]=='C1.in':
                     mi.makeIn(section, parts,self.startElement,self.stopElement, zStart_offset=-0.38845, charge=self.initCharge)#offset back by drift dipole and 2*D-Gap
             else:
-                mi.makeIn(section, parts,self.startElement,self.stopElement,initialDistrib='/home/vmsim/Desktop/V2/ASTRA/'+self.initDistrib)
+                mi.makeIn(section, parts,self.startElement,self.stopElement,initDistribFile='/home/vmsim/Desktop/V2/ASTRA/'+self.initDistribFile)
             #Once written copy the files to virtual Machine
             os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\temp-'+section+'"')
-            os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\'+self.initDistrib+'"')
+            os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\'+self.initDistribFile+'"')
 
         #Now run Python script in Virtual Machine to run ASTRA
         if self.showMessages==True:

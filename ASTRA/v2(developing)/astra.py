@@ -21,7 +21,7 @@ class Setup(QThread):
         self.CLA_L01_LLRF_Controller = L01_RF_Ctrl
         self.startElement = 'Null'
         self.stopElement = 'Null'
-        self.initDistrib = 'Null'
+        self.initDistribFile = 'Null'
         self.initCharge = 0.0
     #DESTRUCTOR
     def __del__(self):

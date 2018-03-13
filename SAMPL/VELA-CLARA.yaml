@@ -118,6 +118,8 @@ elements:
     solenoidMap1: adresss\to\find\field\map.csv
     solenoidMap2: adresss\to\find\field\map.csv
     length: 2.033333313
+    cell_length: 0.0333333
+    n_cells: 61
     global_position: [0,0,3.226903313]
     global_rotation: [0,0,0]
 #solenoids
@@ -437,7 +439,7 @@ elements:
 #Screens
   CLA-S01-DIA-SCR-01:
     name: YAG01
-    omName: C1-YAG01
+    omName: C1-S01-YAG01
     pv: CLA-S01-DIA-SCR-01
     camPV: CLA-S01-DIA-CAM-01
     type: screen
