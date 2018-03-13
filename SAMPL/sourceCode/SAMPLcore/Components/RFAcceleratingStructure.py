@@ -2,6 +2,7 @@ from ComponentBase import ComponentBase
 import MasterOscillator
 from ..SAMPLlab import PhysicalConstants
 import numpy
+import math
 
 
 class RFAcceleratingStructure(ComponentBase):
@@ -56,7 +57,7 @@ class RFAcceleratingStructure(ComponentBase):
                 r21 = -dE * logE / 4 / L / E1
                 r22 = E0 * (2 + logE) / 2 / E1
             elif self.structuretype == 'StandingWave':
-                L1 = PhyC.SpeedOfLight / 2 / f
+                L1 = PhysicalConstants.SpeedOfLight / 2 / f
                 if abs(L / L1 - 1) > 1e-2:
                     print('RFAcceleratingStructure:BadLength  ',
                           'RFAcceleratingStructure.length should be c/2f.')
@@ -83,15 +84,15 @@ class RFAcceleratingStructure(ComponentBase):
             # First, apply a drift map through L/2
             # to the longitudinal coordinate
             d1 = numpy.sqrt(1 - beam.px * beam.px - beam.py * beam.py +
-                           2 * beam.dp / beam.beta + beam.dp * beam.dp)
+                            2 * beam.dp / beam.beta + beam.dp * beam.dp)
             beam.ct = (beam.ct +
                        L * (1 - (1 + beam.beta * beam.dp) / d1) / beam.beta / 2)
 
             # Now apply the RF structure map to the transverse variables
             # and the momentum deviation
-            x1 = r11 * beam.x+ r12 * beam.px
-            beam.px = r21 *beam.x+ r22 * beam.px
-            beam.x= x1
+            x1 = r11 * beam.x + r12 * beam.px
+            beam.px = r21 * beam.x + r22 * beam.px
+            beam.x = x1
 
             y1 = r11 * beam.y + r12 * beam.py
             beam.py = r21 * beam.y + r22 * beam.py
@@ -108,14 +109,14 @@ class RFAcceleratingStructure(ComponentBase):
                          numpy.cos(2 * numpy.pi * f * t + self.phase) /
                          nc / PhysicalConstants.SpeedOfLight)
 
-           beam.dp = Edc / P0 - 1 / beam.beta
+            beam.dp = Edc / P0 - 1 / beam.beta
 
             # Finally, apply a drift map through L/2
             # to the longitudinal coordinate
-            d1 = numpy.sqrt(1 -beam.px*beam.px-beam.py*beam.py+
-                            2 *beam.dp/beam.beta+beam.dp* dp0)
-           beam.ct = beam.ct + (L * (1 - (1 + beam.beta* dp0) / d1)
-                                / beam.beta / 2)
+            d1 = numpy.sqrt(1 - beam.px * beam.px - beam.py * beam.py +
+                            2 * beam.dp / beam.beta + beam.dp * beam.dp)
+            beam.ct = beam.ct + (L * (1 - (1 + beam.beta * beam.dp) / d1)
+                                 / beam.beta / 2)
 
         # save
         self.lastTrackedBeam = beam
