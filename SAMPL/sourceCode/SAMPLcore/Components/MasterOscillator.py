@@ -1,4 +1,4 @@
-def SetFrequnecy(x):
+def SetFrequency(x):
     global frequency
     frequency = x
 

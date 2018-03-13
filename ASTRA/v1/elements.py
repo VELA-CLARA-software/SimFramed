@@ -191,15 +191,15 @@ class C1_Line():
 
         self.dipoles.append(dipole('CV-DIP01',self.magC2V.getMagObjConstRef("DIP01"),[0.0800007,5.72687],[-0.0800007,5.72687],[-0.0926015,6.14357],[-0.20574,6.03043],0.02,0.02))
 
-         self.correctors.append(corrector('C1-S01-HCOR01', self.magS01.getMagObjConstRef("S01-HCOR1"),0.35482,0.0,0.0))
+        self.correctors.append(corrector('C1-S01-HCOR01', self.magS01.getMagObjConstRef("S01-HCOR1"),0.35482,0.0,0.0))
         self.correctors.append(corrector('C1-S01-HCOR02', self.magS01.getMagObjConstRef("S01-HCOR2"),0.9377,0.0,0.0))
-         self.correctors.append(corrector('C1-S01-VCOR01', self.magS01.getMagObjConstRef("S01-VCOR1"),0.35482,0.0,0.0))
+        self.correctors.append(corrector('C1-S01-VCOR01', self.magS01.getMagObjConstRef("S01-VCOR1"),0.35482,0.0,0.0))
         self.correctors.append(corrector('C1-S01-VCOR02', self.magS01.getMagObjConstRef("S01-VCOR2"),0.9377,0.0,0.0))
 
-         self.correctors.append(corrector('C1-S02-HCOR01', self.magS02.getMagObjConstRef("S02-HCOR1"),3.448080313,0.0,0.0))
+        self.correctors.append(corrector('C1-S02-HCOR01', self.magS02.getMagObjConstRef("S02-HCOR1"),3.448080313,0.0,0.0))
         self.correctors.append(corrector('C1-S02-HCOR02', self.magS02.getMagObjConstRef("S02-HCOR2"),4.26807031299999,0.0,0.0))
         #self.correctors.append(corrector('C1-S02-HCOR03', self.magS02.getMagObjConstRef("S02-HCOR3"),4.84556031299999,0.0,0.0))
-         self.correctors.append(corrector('C1-S02-VCOR01', self.magS02.getMagObjConstRef("S02-VCOR1"),3.448080313,0.0,0.0))
+        self.correctors.append(corrector('C1-S02-VCOR01', self.magS02.getMagObjConstRef("S02-VCOR1"),3.448080313,0.0,0.0))
         self.correctors.append(corrector('C1-S02-VCOR02', self.magS02.getMagObjConstRef("S02-VCOR2"),4.26807031299999,0.0,0.0))
         #self.correctors.append(corrector('C1-S02-VCOR03', self.magS02.getMagObjConstRef("S02-HCOR3"),4.84556031299999,0.0,0.0))
 
@@ -244,7 +244,7 @@ class CV_Line():
         self.dipoles.append(dipole('CV-DIP01',self.mag.getMagObjConstRef('DIP01'),[0.0849-0.1775,-0.0283-0.38845],[-0.0283-0.1775,0.0849-0.38845],[0.2575-0.1775,0],[0.097-0.1775,0],0.02,0.02))
         self.dipoles.append(dipole('CV-DIP02',self.mag.getMagObjConstRef('DIP02'),[0.0800007,1.2458490646],[-0.0800007,1.2458490646],[0.20574,1.5494090646],[0.0926015,1.6625490646],0.02,0.02))
 
-         self.correctors.append(corrector('CV-HCOR01', self.mag.getMagObjConstRef("C2V-HCOR1"),0.2100545323,0.0,0.0))
+        self.correctors.append(corrector('CV-HCOR01', self.mag.getMagObjConstRef("C2V-HCOR1"),0.2100545323,0.0,0.0))
         self.correctors.append(corrector('CV-VCOR01', self.mag.getMagObjConstRef("C2V-VCOR1"),0.2100545323,0.0,0.0))
 class SP_Line():
     def __init__(self,magnetController,magnetController2):
@@ -262,5 +262,5 @@ class SP_Line():
 
         self.dipoles.append(dipole('V1-DIP01',self.C2Vmag.getMagObjConstRef("DIP02"),[0.0849-0.1775,-0.0283-0.38845],[-0.0283-0.1775,0.0849-0.38845],[0.2575-0.1775,0],[0.097-0.1775,0],0.02,0.02))
         #self.dipoles.append(dipole('V1-DIP01',self.mag.getMagObjConstRef("DIP01"),[0.0849-0.1775,-0.0283],[-0.0283-0.1775,0.0849],[0.2575-0.1775,0.38845],[0.097-0.1775,0.38845],0.04,0.04))
-         self.correctors.append(corrector('SP-HCOR05', self.mag.getMagObjConstRef("HCOR05"),0.2453,0.0,0.0))
+        self.correctors.append(corrector('SP-HCOR05', self.mag.getMagObjConstRef("HCOR05"),0.2453,0.0,0.0))
         self.correctors.append(corrector('SP-VCOR05', self.mag.getMagObjConstRef("VCOR05"),0.2453,0.0,0.0))
