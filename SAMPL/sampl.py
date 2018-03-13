@@ -32,6 +32,7 @@ class Setup(QThread):
         self.L01_RF_Ctrl = L01_RF_Ctrl
         self.startElement = None
         self.stopElement = None
+        self.initDistribFile = 'Null'
         self.initDistrib = None
         self.initCharge = 0.0
 
@@ -64,9 +65,13 @@ class Setup(QThread):
 
         print('1. Create a beam ...')
         createBeam = cb.createBeam()
-        xOffset = caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE8')
-        yOffset = caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE9')
-        self.initDistrib = createBeam.guassian(x=xOffset, y=yOffset)
+        if 'ini' in self.initDistribFile:
+            self.initDistrib = createBeam.useASTRAFile(self.initDistribFile)
+        else:
+            print('Creating default beam.')
+            xOffset = caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE8')
+            yOffset = caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE9')
+            self.initDistrib = createBeam.guassian(x=xOffset, y=yOffset)
 
         print('2. Create a beamline ...')
         selectedGroup = None
@@ -109,18 +114,22 @@ class Setup(QThread):
         for i in beamLine.componentlist:
             if beamLine.componentlist.index(i) >= startIndex[0] and beamLine.componentlist.index(i) <= stopIndex[0]:
                 if 'SCR' in i.name or 'YAG' in i.name:
-                    if 'CLA' in i.name:
-                        caput('VM-' + self.elements[i.name]['camPV'] + ':ANA:X_RBV', i.x)
-                        caput('VM-' + self.elements[i.name]['camPV'] + ':ANA:Y_RBV', i.y)
+                    if 'CLu' in i.name:
                         caput('VM-' + self.elements[i.name]['camPV'] +
-                              ':ANA::SigmaX_RBV', i.xSigma)
+                              ':ANA:X_RBV', i.x)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              ':ANA:Y_RBV', i.y)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              ':ANA:SigmaX_RBV', i.xSigma)
                         caput('VM-' + self.elements[i.name]['camPV'] +
                               ':ANA:SigmaY_RBV', i.ySigma)
                     else:
-                        caput('VM-' + self.elements[i.name]['camPV'] + ':X', i.x)
-                        caput('VM-' + self.elements[i.name]['camPV'] + ':Y', i.y)
                         caput('VM-' + self.elements[i.name]['camPV'] +
-                              '::SigmaX', i.xSigma)
+                              ':X', i.x)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              ':Y', i.y)
+                        caput('VM-' + self.elements[i.name]['camPV'] +
+                              ':SigmaX', i.xSigma)
                         caput('VM-' + self.elements[i.name]['camPV'] +
                               ':SigmaY', i.ySigma)
                     print '    Written data for ', self.elements[i.name]['omName']

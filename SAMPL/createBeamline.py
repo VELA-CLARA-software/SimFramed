@@ -8,6 +8,7 @@ from sourceCode.SAMPLcore.Components import Screen as S
 from sourceCode.SAMPLcore.Components import OrbitCorrector as C
 from sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
 from sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
+from sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
 from sourceCode.SAMPLcore.SAMPLlab import Beamline
 # from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
@@ -97,14 +98,20 @@ class createBeamline():
                 solenoid2 = elements[element['sol2']]
                 sol1 = self.getObject(solenoid1['name'], element['sol1'])
                 sol2 = self.getObject(solenoid2['name'], element['sol2'])
-                print linac.amp_MVM
-                print linac.phi_DEG
-                component = SARF.SolenoidAndRF(length=element['length'],
-                                               name='Linac1',
-                                               peakField=linac.amp_MVM,
-                                               phase=linac.phi_DEG,
-                                               solCurrent1=sol1.siWithPol,
-                                               solCurrent2=sol2.siWithPol)
+                print 'LINAC grad: ' + str(linac.amp_MVM)
+                print 'LINAC Phase: ' + str(linac.phi_DEG)
+            #    component = SARF.SolenoidAndRF(length=element['length'],
+            #                                   name='Linac1',
+            #                                   peakField=linac.amp_MVM,
+            #                                   phase=linac.phi_DEG,
+            #                                   solCurrent1=sol1.siWithPol,
+            #                                   solCurrent2=sol2.siWithPol)
+                component = RF.RFAcceleratingStructure(length=element['length'],
+                                                        name='Linac1',
+                                                        voltage=linac.amp_MVM * element['length'],
+                                                        phase=linac.phi_DEG,
+                                                        ncell=element['n_cells'])
+                component.setFrequency(2998500000.0)
             else:
                 component = d.Drift(name=name, length=element['length'])
                 print ('ERROR: This reader doesn\'t',

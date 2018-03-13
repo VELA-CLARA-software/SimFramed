@@ -94,6 +94,7 @@ class Beam(object):
                                      - (self.species.mass2 *
                                         PhysicalConstants.SpeedOfLight2)) /
                            self.species.charge)
+        #print (math.sqrt(energy**2 / PhysicalConstants.SpeedOfLight2 - (self.species.mass2 * PhysicalConstants.SpeedOfLight2)) /self.species.charge)
 
     @property
     def momentum(self):
