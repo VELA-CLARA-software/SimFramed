@@ -1,11 +1,12 @@
-import time
+import time, os
 import yaml
 import traceback
 import itertools
 import copy
 import collections
 import sqlite3
-conn = sqlite3.connect('elegant.db')
+print os.path.dirname(os.path.abspath(__file__))+'/'+'elegant.db'
+conn = sqlite3.connect(os.path.dirname(os.path.abspath(__file__))+'/'+'elegant.db')
 c = conn.cursor()
 
 def save_Elements_to_SQLite():
