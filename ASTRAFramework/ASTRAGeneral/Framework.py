@@ -1,10 +1,14 @@
-import yaml, collections, subprocess, os, math, re
+import yaml, collections, subprocess, os, math, re, sys
+from shutil import copyfile
 import numpy as np
 from operator import add
-from ASTRAHelperFunctions import *
+from FrameworkHelperFunctions import *
 import ASTRAGenerator as GenPart
 from ASTRARules import *
 from getGrids import *
+sys.path.append('..')
+import read_beam_file as rbf
+from collections import defaultdict
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -89,13 +93,54 @@ class Framework(object):
         else:
             return {}
 
-    def getElement(self, element=''):
+    def modifyFile(self, filename, setting, value):
+        if filename in self.fileSettings:
+            if isinstance(setting, (list,tuple)):
+                dic = self.fileSettings[filename]
+                for key in setting[:-1]:
+                    dic = dic.setdefault(key, {})
+                dic[setting[-1]] = value
+            elif not setting in self.fileSettings:
+                self.fileSettings[setting] = {}
+                self.fileSettings[filename][setting] = value
+
+    def getElement(self, element='', setting=None):
         """return 'element' from the main elements dict"""
         if element in self.elements:
-            return self.elements[element]
+            if setting is not None:
+                return self.elements[element][setting]
+            else:
+                return self.elements[element]
         else:
             return []
 
+    def modifyElement(self, element='', setting='', value=''):
+        """return 'element' from the main elements dict"""
+        element = self.getElement(element)
+        if setting in element:
+            element[setting] = value
+
+    def getElementType(self, type='', setting=None):
+        """return 'element' from the main elements dict"""
+        elems = []
+        for name, element in self.elements.viewitems():
+            if 'type' in element and element['type'] == type:
+                elems.append(name)
+                # print element
+        elems = sorted(elems, key=lambda x: self.elements[x]['position_start'][2])
+        if setting is not None:
+            return [self.elements[x][setting] for x in elems]
+        else:
+            return elems
+
+    def setElementType(self, type='', setting=None, values=[]):
+        """return 'element' from the main elements dict"""
+        elems = self.getElementType(type)
+        if len(elems) == len(values):
+            for e, v  in zip(elems, values):
+                self.elements[e][setting] = v
+        else:
+            raise ValueError
 
     def getElementsBetweenS(self, elementtype, output={}, zstart=None, zstop=None):
         # zstart = zstart if zstart is not None else getParameter(output,'zstart',default=0)
@@ -225,11 +270,14 @@ class Framework(object):
         for f in files:
             if f in self.fileSettings.keys():
                 filename = f+'.in'
-                print 'Running file: ', f
+                # print 'Running file: ', f
                 if 'code' in self.fileSettings[f]:
                     code = self.fileSettings[f]['code']
                     if code.upper() == 'ASTRA':
                         self.astra.runASTRA(filename)
+                    if code.upper() == 'CSRTRACK':
+                        self.CSRTrack.runCSRTrack(filename)
+                        self.CSRTrack.convertCSRTrackOutput(f)
             else:
                 print 'File does not exist! - ', f
 
@@ -245,7 +293,7 @@ class ASTRA(object):
         """Run the ASTRA program with input 'filename'"""
         command = self.astraCommand + [filename]
         with open(os.devnull, "w") as f:
-            subprocess.call(command,  cwd=self.subdir)
+            subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def defineASTRACommand(self,command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -459,6 +507,8 @@ class ASTRA(object):
         """Create an ASTRA CHARGE Block string"""
         loop        = str(getParameter(charge,'Loop',default=False))
         mode        = str(getParameter(charge,'space_charge_mode',default='2D'))
+        mirror_charge = str(getParameter(charge,'mirror_charge',default=False))
+
         lspch       = False if mode == False else True
         lspch2d     = True if lspch and mode != '3D' else False
         lspch3d     = True if lspch and not lspch2d else False
@@ -473,7 +523,8 @@ class ASTRA(object):
         chargetext = '&CHARGE\n' +\
         ' Loop='+str(loop)+'\n' + \
         ' LSPCH='+str(lspch)+'\n' + \
-        ' LSPCH3D='+str(lspch3d)+'\n'
+        ' LSPCH3D='+str(lspch3d)+'\n' + \
+        ' Lmirror='+str(mirror_charge)+'\n'
         if lspch and lspch2d:
             chargetext += ' Nrad='+nrad+', Nlong_in='+nlong+'\n'
         elif lspch and lspch3d:
@@ -570,6 +621,8 @@ class ASTRA(object):
         loop = False
         ldipole = False
 
+        # print 'groups = ', groups
+
         for g in groups:
             if g in self.parent.groups:
                 # print 'group!'
@@ -593,7 +646,7 @@ class ASTRA(object):
         return dipoletext
 
     def createASTRAFileText(self, file):
-        settings = self.parent.getFileSettings(file,'settings')
+        settings = self.parent.getFileSettings(file,'ASTRA_Options')
         input = self.parent.getFileSettings(file,'input')
         output = self.parent.getFileSettings(file,'output')
         charge = self.parent.getFileSettings(file,'charge')
@@ -630,17 +683,15 @@ class ASTRA(object):
             for f in files:
                 if f in self.fileSettings.keys():
                     filename = f+'.in'
-                    print 'Running file: ', f
+                    # print 'Running file: ', f
                     self.runASTRA(filename)
                 else:
                     print 'File does not exist! - ', f
         else:
             for f in self.fileSettings.keys():
                 filename = f+'.in'
-                print 'Running file: ', f
+                # print 'Running file: ', f
                 self.runASTRA(filename)
-
-
 
 class CSRTrack(object):
 
@@ -648,13 +699,36 @@ class CSRTrack(object):
         super(CSRTrack, self).__init__()
         self.subdir = directory
         self.parent = parent
+        self.beam = rbf.beam()
         self.CSRTrackCommand = ['csrtrack']
 
     def runCSRTrack(self, filename=''):
         """Run the CSRTrack program with input 'filename'"""
+        copyfile(self.subdir+'/'+filename, self.subdir+'/'+'csrtrk.in')
         command = self.CSRTrackCommand + [filename]
         with open(os.devnull, "w") as f:
             subprocess.call(command, stdout=f, cwd=self.subdir)
+
+    def convertCSRTrackOutput(self, f):
+        output = self.parent.getFileSettings(f,'output')
+        outputdistribution    = f+'.$output[\'end_element\']$.001'
+        regex = re.compile('\$(.*)\$')
+        s = re.search(regex, outputdistribution)
+        if s:
+            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            outputdistribution = re.sub(regex, sub, outputdistribution)
+
+        options = self.parent.getFileSettings(f,'CSRTrack_Options')
+        monitor = self.parent.getSettingsBlock(options,'monitor')
+        # print monitor
+        inputdistribution    = str(getParameter(monitor,'name',default=''))
+        regex = re.compile('\$(.*)\$')
+        s = re.search(regex, inputdistribution)
+        if s:
+            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            inputdistribution = re.sub(regex, sub, inputdistribution)
+        # print 'conversion = ', self.subdir+'/'+inputdistribution, self.subdir+'/'+outputdistribution
+        self.beam.convert_csrtrackfile_to_astrafile(self.subdir+'/'+inputdistribution, self.subdir+'/'+outputdistribution)
 
     def defineCSRTrackCommand(self, command=['csrtrack']):
         """Modify the defined ASTRA command variable"""
@@ -676,11 +750,11 @@ class CSRTrack(object):
         dipolepos = list(chunks(dipolepos,2))
         corners = [0,0,0,0]
         dipoleno = 0
+        lastangle = 0
         for elems in dipolepos:
             dipoleno += 1
             p1, psi1, nameelem1 = elems[0]
             p2, psi2, nameelem2 = elems[1]
-            # print 'p1 = ', p1[2][0]
             name, d = nameelem1
             angle1 = getParameter(nameelem1[1],'angle')
             angle2 = getParameter(nameelem2[1],'angle')
@@ -694,24 +768,31 @@ class CSRTrack(object):
             gap = getParameter(d,'gap',default=gap)
             rho = d['length']/angle1 if 'length' in d and abs(angle1) > 1e-9 else 0
             np.transpose(p1)
-            chicanetext += """\tdipole{
-\tposition{rho="""+str(p1[2,0])+""", psi="""+str(e1)+""", marker=d"""+str(dipoleno)+"""a}
-\tproperties{r="""+str(rho)+"""}
-\tposition{rho="""+str(p2[2,0])+""", psi="""+str(e2)+""", marker=d"""+str(dipoleno)+"""b}
-\t}
+            chicanetext += """    dipole{
+    position{rho="""+str(p1[2,0])+""", psi="""+str(chop(e1+psi1))+""", marker=d"""+str(dipoleno)+"""a}
+    properties{r="""+str(rho)+"""}
+    position{rho="""+str(p2[2,0])+""", psi="""+str(chop(e2-psi2))+""", marker=d"""+str(dipoleno)+"""b}
+    }
 """
         return chicanetext
 
-    def createCSRTrackParticlesBlock(self, particles={}):
+    def createCSRTrackParticlesBlock(self, particles={}, output={}):
         """Create an CSRTrack Particles Block string"""
 
+        distribution    = str(getParameter(particles,'array',default=''))
+        regex = re.compile('\$(.*)\$')
+        s = re.search(regex, distribution)
+        if s:
+            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            distribution = re.sub(regex, sub, distribution)
+
+        del particles['array']
         particlestext = ''
 
         particlestext += 'particles{\n'
-
         for param, val in particles.iteritems():
             particlestext+= str(param)+' = '+str(val)+'\n'
-
+        particlestext+= str('array')+' = '+str(distribution)+'\n'
         particlestext+= '}\n'
 
         return particlestext
@@ -758,13 +839,23 @@ class CSRTrack(object):
 
         return trackertext
 
-    def createCSRTrackMonitorBlock(self, monitor={}):
+    def createCSRTrackMonitorBlock(self, monitor={}, output={}):
         """Create an CSRTrack monitor Block string"""
 
         monitortext = ''
 
         monitortext += 'monitor{\n'
 
+        distribution    = str(getParameter(monitor,'name',default=''))
+        regex = re.compile('\$(.*)\$')
+        s = re.search(regex, distribution)
+        if s:
+            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            distribution = re.sub(regex, sub, distribution)
+
+        monitor = {i:monitor[i] for i in monitor if i!='name'}
+        self.monitorName = distribution
+        monitortext+= str('name')+' = '+str(distribution)+'\n'
         for param, val in monitor.iteritems():
             monitortext+= str(param)+' = '+str(val)+'\n'
 
@@ -799,7 +890,7 @@ class CSRTrack(object):
                     if all([i for i in self.parent.groups[g] if i in dipoles]):
                         ldipole = True
 
-        dipoletext = "lattice{\n"
+        dipoletext = "io_path{logfile = log.txt}\n\n    lattice{\n"
 
         for g in groups:
             if g in self.parent.groups:
@@ -808,12 +899,12 @@ class CSRTrack(object):
                     if all([i for i in self.parent.groups[g] if i in dipoles]):
                         dipoletext += self.createCSRTrackChicane(g, **groups[g])
 
-        dipoletext += "}\n"
+        dipoletext += "    }\n"
 
         return dipoletext
 
     def createCSRTrackFileText(self, file):
-        options = self.parent.getFileSettings(file,'CSRTrack_options')
+        options = self.parent.getFileSettings(file,'CSRTrack_Options')
         # input = self.parent.getFileSettings(file,'input')
         output = self.parent.getFileSettings(file,'output')
         online_monitors = self.parent.getSettingsBlock(options,'online_monitors')
@@ -829,11 +920,11 @@ class CSRTrack(object):
         CSRTrackfiletext = ''
         CSRTrackfiletext += self.createCSRTrackChicaneBlock(groups, dipoles)
         CSRTrackfiletext += self.createCSRTrackOnlineMonitorBlock(online_monitors)
-        CSRTrackfiletext += self.createCSRTrackParticlesBlock(particles)
+        CSRTrackfiletext += self.createCSRTrackParticlesBlock(particles, output)
         CSRTrackfiletext += self.createCSRTrackForcesBlock(forces)
         CSRTrackfiletext += self.createCSRTrackTrackStepBlock(trackstep)
         CSRTrackfiletext += self.createCSRTrackTrackerBlock(tracker)
-        CSRTrackfiletext += self.createCSRTrackMonitorBlock(monitor)
+        CSRTrackfiletext += self.createCSRTrackMonitorBlock(monitor, output)
         CSRTrackfiletext += 'exit\n'
         # print 'CSRTrackfiletext = ', CSRTrackfiletext
         return CSRTrackfiletext
@@ -849,12 +940,12 @@ class CSRTrack(object):
             for f in files:
                 if f in self.fileSettings.keys():
                     filename = f+'.in'
-                    print 'Running file: ', f
+                    # print 'Running file: ', f
                     self.runCSRTrack(filename)
                 else:
                     print 'File does not exist! - ', f
         else:
             for f in self.fileSettings.keys():
                 filename = f+'.in'
-                print 'Running file: ', f
+                # print 'Running file: ', f
                 self.runCSRTrack(filename)

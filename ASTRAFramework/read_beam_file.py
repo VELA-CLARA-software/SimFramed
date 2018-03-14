@@ -466,7 +466,6 @@ class beam(object):
         self._tbins = [[self._t_binned == i] for i in range(1, len(binst))]
         self._cpbins = [self.cp[tbin] for tbin in self._tbins]
 
-
     @property
     def slice_bins(self):
         if not hasattr(self,'slice'):
@@ -531,6 +530,22 @@ class beam(object):
             self.slice_normalized_horizontal_emittance[peakIPosition], \
             self.slice_normalized_vertical_emittance[peakIPosition], \
             self.slice_momentum[peakIPosition]
+
+    @property
+    def chirp(self):
+        self.bin_time()
+        slice_current_centroid_indices = []
+        slice_momentum_centroid = []
+        peakIPosition = self.slice_max_peak_current_slice
+        peakI = self.slice_peak_current[peakIPosition]
+        slicemomentum = self.slice_momentum
+        for index, slice_current in enumerate(self.slice_peak_current):
+            if abs(peakI - slice_current) < (peakI * 0.75):
+                slice_current_centroid_indices.append(index)
+        for index in slice_current_centroid_indices:
+            slice_momentum_centroid.append(slicemomentum[index])
+        chirp = (1e-18 * (slice_momentum_centroid[-1] - slice_momentum_centroid[0]) / (len(slice_momentum_centroid) * self.slice_length))
+        return chirp
 
     @property
     def x(self):

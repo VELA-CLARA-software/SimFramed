@@ -1,5 +1,5 @@
 import subprocess, os
-from ASTRAHelperFunctions import *
+from FrameworkHelperFunctions import *
 
 class ASTRAGenerator(object):
 

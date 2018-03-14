@@ -104,3 +104,17 @@ elements:
     PV: CLA-L01-LRF-CTRL-01
     position_end: [0, 0, 3.2269]
     position_start: [0, 0, 1.19357]
+  CLA-L01-CAV-SOL-01:
+    type: solenoid
+    length: 0
+    field_amplitude: 0.05
+    field_definition: ../../../MasterLattice/Data_Files/SwissFEL_linac_sols.dat
+    position_end: [0, 0, 2.7]
+    position_start: [0, 0, 1.70]
+  CLA-L01-CAV-SOL-02:
+    type: solenoid
+    length: 0
+    field_amplitude: -0.05
+    field_definition: ../../../MasterLattice/Data_Files/SwissFEL_linac_sols.dat
+    position_end: [0, 0, 3.7]
+    position_start: [0, 0, 2.70]
