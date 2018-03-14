@@ -41,7 +41,7 @@ class createBeam():
         # Read in file
         print ('Using an ASTRA *.ini file to create SAMPL distrtibution...')
         distribution = np.loadtxt(fileName)
-        charge = np.sum(distribution[:, 7]) * 1e-9
+        charge = abs(np.sum(distribution[:, 7]) * 1e-9)
         print('Charge of bunch is ' + str(charge) + ' nC.')
         print('No. of particle in bunch is ' + str(len(distribution)) + '.')
         if particle == 'Electron':
