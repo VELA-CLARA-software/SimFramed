@@ -2,10 +2,14 @@
 This Class is the one User's are to initialize in there code.
 You need to pass in your controllers, specifying which element of the machine it is for
 '''
-import makeIn as mi
-import elements as e
+#import makeIn as mi
+#import elements as e
+
 from PyQt4.QtCore import QThread
-import os,sys
+import os
+import sys
+import yaml
+import ..ASTRAFramework.ASTRAGeneral.ASTRAGeneral as ASTRAGeneral
 
 class Setup(QThread):
     #CONSTRUCTOR
@@ -23,9 +27,24 @@ class Setup(QThread):
         self.stopElement = 'Null'
         self.initDistribFile = 'Null'
         self.initCharge = 0.0
+
+        self.pathway = ASTRAGeneral.ASTRA(subdir='.', overwrite='overwrite')
     #DESTRUCTOR
     def __del__(self):
         self.wait()
+
+    def loadPathway(self):
+        stream = file(str(os.path.abspath(__file__)).split('astra')[0] +
+                      "\\..\\..\\MasterLattice\\YAML\\allPathways.yaml", 'r')
+        settings = yaml.load(stream)
+        for path in settings['pathways']:
+            hasStart = any(self.startElement in path.elements[s]['Online_Model_Name']
+                           for s in self.groups[line])
+            hasStop = any(self.stopElement in path.elements[s]['Online_Model_Name']
+                          for s in self.groups[line])
+            if (hasStart and hasStop):
+                self.pathway.loadSettings(filename=path)
+                print '    Loading pathway: ', path
 
     def createListOfINFilesToEdit(self):
         inFiles=[]
@@ -68,7 +87,8 @@ class Setup(QThread):
             print("ERROR: Stop Element is not Correct")
 
         return inFiles
-    def loadElements(self,section):
+
+    def loadElements(self, section):
         #Depending of the certain section of the beam line your simulating load a ceratin group of elements
         if section[:2]=='C1':
             parts = e.C1_Line(self.CLA_MAG_S01_Controller,self.CLA_MAG_S02_Controller,self.C2V_MAG_Controller,self.CLA_LLRF_Controller,self.CLA_L01_LLRF_Controller)
@@ -84,17 +104,19 @@ class Setup(QThread):
             print('Not selected a valid Section of Beam Line')
             parts = None
         return parts
-    #Shell function to run AStra simulations in a thread is need. Using this 'shell' function alows me to pass in agurments
-    def go(self,startElement,stopElement,initDistrib,charge=0.25):
+    # Shell function to run AStra simulations in a thread is need. Using this 'shell' function alows me to pass in agurments
+
+    def go(self, startElement, stopElement, initDistribFile, charge=0.25):
             self.startElement = startElement
             self.stopElement = stopElement
-            self.initDistrib = initDistrib
+            self.initDistribFile = initDistribFile
             self.initCharge = charge# in nC
             #Run in Thread
             self.start()
             #Don't run in thread
             #self.run()
-    #Main functions (has to be called run if I want to use in a thread)
+    # Main functions (has to be called run if I want to use in a thread)
+
     def run(self):
         #Create a list of infiles to use in ASTRA simulations
         inFiles = self.createListOfINFilesToEdit()
@@ -103,28 +125,21 @@ class Setup(QThread):
         print('-------------ASTRA------------')
         print('------NEW SIMULTAION RUN------')
         print('------------------------------')
+        print('1. Create Beam...')
+
+        print('2. Create a Beamline...')
+        print('    Find aproriate pathway...')
+        self.loadPathway()
+        print('    Modify pathway using Virtual EPICS...')
+        for key, value in self.pathway.elements.iteritems():
+            self.pathway.
+
+
 
         #Write .in files
         for i,section in enumerate(inFiles):
             #Determine which elements parts to use
-            print('Writing temp-'+section)
-            parts = self.loadElements(section)
-            #Make .in file (z offset vary if beam in passing through a certain straight or going round a bend)
-            if inFiles[0]!=section:
-                if section=='SP.in' and inFiles[i - 1]=='V1.in':
-                    mi.makeIn(section, parts,self.startElement,self.stopElement, zStart_offset=-0.38845, charge=self.initCharge)#-0.38845)
-                elif section=='SP.in' and inFiles[i - 1]=='CV.in':
-                    mi.makeIn(section, parts,self.startElement,self.stopElement, zStart_offset=-0.64, charge=self.initCharge)
-                elif section=='V2.in' and inFiles[i - 1]=='V1.in':
-                    mi.makeIn(section, parts,self.startElement,self.stopElement, zStart_offset=-0.64, charge=self.initCharge)
-                elif section=='V2.in' and inFiles[i - 1]=='CV.in':
-                    mi.makeIn(section, parts,self.startElement,self.stopElement, zStart_offset=-0.38845, charge=self.initCharge)
-                elif section=='C2.in' and inFiles[i - 1]=='C1.in':
-                    mi.makeIn(section, parts,self.startElement,self.stopElement, zStart_offset=-0.64, charge=self.initCharge)#-0.54
-                elif section=='CV.in' and inFiles[i - 1]=='C1.in':
-                    mi.makeIn(section, parts,self.startElement,self.stopElement, zStart_offset=-0.38845, charge=self.initCharge)#offset back by drift dipole and 2*D-Gap
-            else:
-                mi.makeIn(section, parts,self.startElement,self.stopElement,initialDistrib='/home/vmsim/Desktop/V2/ASTRA/'+self.initDistrib)
+
             #Once written copy the files to virtual Machine
             os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\temp-'+section+'"')
             os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\'+self.initDistrib+'"')

@@ -25,7 +25,9 @@ class SolenoidAndRF(ComponentBase):
         # print beam.particles
 
         rfAndSol = RFSolTracking.RFSolTracker(self.name, quiet=True)
+        print ('Peak field: ' + str(self.peakField))
         rfAndSol.setRFPeakField(self.peakField)
+
         rfAndSol.setRFPhase(self.phase)
         rfAndSol.setBuckingCoilCurrent(self.solCurrent1)
         rfAndSol.setSolenoidCurrent(self.solCurrent2)
@@ -50,11 +52,14 @@ class SolenoidAndRF(ComponentBase):
                         + beam.dp * beam.dp)
         beam.ct = beam.ct + self.length * (1 - (1 + beam.beta * beam.dp) / d1) / beam.beta
         print beam.momentum * PhysicalConstants.SpeedOfLight / PhysicalUnits.MeV
-        beam.momentum = (beam.momentum +
-                         rfAndSol.getFinalMomentum()
+        #beam.momentum = (beam.momentum +
+        #                 rfAndSol.getFinalMomentum()
+        #                 * PhysicalUnits.MeV / PhysicalConstants.SpeedOfLight)
+        beam.momentum = (rfAndSol.getFinalMomentum()
                          * PhysicalUnits.MeV / PhysicalConstants.SpeedOfLight)
         print beam.momentum * PhysicalConstants.SpeedOfLight / PhysicalUnits.MeV
         # savePhysicalUnits
         # print 'Paricle After:'
         # print beam.particles
+        print('Bunch energy: ' + str(beam.energy / PhysicalUnits.eV) + 'eV')
         self.lastTrackedBeam = beam

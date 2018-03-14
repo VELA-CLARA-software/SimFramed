@@ -1,6 +1,7 @@
 from ComponentBase import ComponentBase
 import MasterOscillator
 from ..SAMPLlab import PhysicalConstants
+from ..SAMPLlab import PhysicalUnits
 import numpy
 import math
 
@@ -31,6 +32,7 @@ class RFAcceleratingStructure(ComponentBase):
         return self.harmonic * MasterOscillator.GetFrequency()
 
     def Track(self, beam):
+        print ('Final energy after acceleration: '+str(beam.energy/PhysicalUnits.eV)+'eV')
         # RFAcceleratingStructure.Track(beam)
         # Applies the dynamical map for a linac structure to the particles
         # in beam.  The reference energy is changed by qV*cos(phase).
@@ -46,17 +48,18 @@ class RFAcceleratingStructure(ComponentBase):
         gt = beam.globaltime * self.globalclock
 
         dE = beam.species.charge * self.voltage * cosphi / nc
+        print(dE/PhysicalUnits.eV)
         E0 = beam.energy
         E1 = E0 + dE
 
         if abs(dE / E0) > 1e-6:
-            if self.structuretype == 'TravellingWave':
+            if self.structureType == 'TravellingWave':
                 logE = numpy.log(1 + dE / E0)
                 r11 = 1 - logE / 2
                 r12 = L * logE * E0 / dE
                 r21 = -dE * logE / 4 / L / E1
                 r22 = E0 * (2 + logE) / 2 / E1
-            elif self.structuretype == 'StandingWave':
+            elif self.structureType == 'StandingWave':
                 L1 = PhysicalConstants.SpeedOfLight / 2 / f
                 if abs(L / L1 - 1) > 1e-2:
                     print('RFAcceleratingStructure:BadLength  ',
@@ -72,7 +75,7 @@ class RFAcceleratingStructure(ComponentBase):
                        numpy.sqrt(2) * cosphi * numpy.sin(a)) * E0 / E1
             else:
                 print('RFAcceleratingStructure:UnrecognisedType  ',
-                      'RFAcceleratingStructure.structuretype should',
+                      'RFAcceleratingStructure.structureType should',
                       ' be StandingWave or TravellingWave.')
         else:
             r11 = 1
@@ -101,7 +104,7 @@ class RFAcceleratingStructure(ComponentBase):
             P0 = beam.momentum
             Edc = (beam.dp + 1 / beam.beta) * P0
 
-            beam.energy = E1
+            beam.energy = E1 + (n * dE)
             P0 = beam.momentum
 
             t = gt - beam.ct / PhysicalConstants.SpeedOfLight
@@ -119,4 +122,5 @@ class RFAcceleratingStructure(ComponentBase):
                                  / beam.beta / 2)
 
         # save
+        print ('Final energy after acceleration: '+str(beam.energy/PhysicalUnits.eV)+'eV')
         self.lastTrackedBeam = beam
