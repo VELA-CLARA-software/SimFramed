@@ -51,7 +51,7 @@ def chop(expr, delta=1e-8):
     if isinstance(expr, (int, float, complex)):
         return 0 if -delta <= expr <= delta else expr
     else:
-        return [chop(x) for x in expr]
+        return [chop(x, delta) for x in expr]
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -71,7 +71,7 @@ def getParameter(dicts, param, default=0):
     """Returns the values of 'param' in dict 'dict' if it exists, else returns default value. dict can be a list, the most important last."""
     param = param.lower()
     if isinstance(dicts,list) or isinstance(dicts, tuple):
-        val = None
+        val = default
         for d in dicts:
             if isinstance(d, dict) or isinstance(d, OrderedDict):
                 dset = {k.lower():v for k,v in d.items()}
@@ -80,8 +80,14 @@ def getParameter(dicts, param, default=0):
         return val
     elif isinstance(dicts, dict) or isinstance(dicts, OrderedDict):
         dset = {k.lower():v for k,v in dicts.items()}
-        return dset[param] if param in dset else default
+        # val = dset[param] if param in dset else default
+        if param in dset:
+            return dset[param]
+        else:
+            # print 'not here! returning ', default
+            return default
     else:
+        # print 'not here! returning ', default
         return default
 
 def formatOptionalString(parameter, string, n=None):
