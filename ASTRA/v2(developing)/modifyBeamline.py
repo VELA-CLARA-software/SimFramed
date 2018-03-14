@@ -1,15 +1,3 @@
-# import sys
-# import os
-# sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+'\\sourceCode\\')
-from sourceCode.SAMPLcore.Components import Drift as d
-from sourceCode.SAMPLcore.Components import Dipole as D
-from sourceCode.SAMPLcore.Components import Quadrupole as Q
-from sourceCode.SAMPLcore.Components import Screen as S
-from sourceCode.SAMPLcore.Components import OrbitCorrector as C
-from sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
-from sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
-from sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
-from sourceCode.SAMPLcore.SAMPLlab import Beamline
 # from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
 
@@ -65,16 +53,15 @@ class createBeamline():
         else:
             print ("Trying to get unrecognised object.")
 
-    def create(self, selectedGroup, elements):
+    def modfiy(self, pathway):
 
-        line = Beamline.Beamline(componentlist=[])
-        driftCounter = 0
-        for index, name in enumerate(selectedGroup):
-            element = elements[name]
+        for index, name in pathway.elements.iteritems():
+            element = pathway.elements[name]
             nickName = element['name']
             component = None
             # Check element type and add accordingly
             if element['type'] == 'dipole':
+                pathway.mod
                 component = self.addDipole(element, nickName, name)
             elif element['type'] == 'quadrupole':
                 component = self.addQuadrupole(element, nickName, name)
@@ -118,38 +105,12 @@ class createBeamline():
                 print ('ERROR: This reader doesn\'t',
                        'recognise element type of ', name)
 
-            if index != 0:
-                lastElement = elements[selectedGroup[index - 1]]
-                backOfLast = lastElement['global_position'][-1]
-                frontOfCurrent = element['global_position'][-1]
-                angle = element['global_rotation'][-1]
-                cosElementAngle = np.cos(angle * np.pi / 180)
-                if element['type'] == 'dipole':
-                    frontOfCurrent = element['global_front'][-1]
-                else:
-                    frontOfCurrent = (frontOfCurrent -
-                                      element['length'] * cosElementAngle)
-
-                if frontOfCurrent < backOfLast:
-                    print ('Elements ', selectedGroup[index - 1],
-                           ' and ', name, ' overlap!!')
-                elif frontOfCurrent > backOfLast:
-                    # Add a drift before adding component
-                    b = frontOfCurrent
-                    a = backOfLast
-                    driftCounter = driftCounter + 1
-                    driftComponent = d.Drift(name='drift' + str(driftCounter),
-                                             length=(b - a) / cosElementAngle)
-                    line.componentlist.append(driftComponent)
-                else:
-                    print 'No drift required', index
-
             # Append component
             line.componentlist.append(component)
         return line
 
 # Complicated adding
-    def addDipole(self, element, nickName, name):
+    def changeDipole(self, element, nickName, name):
         dip = self.getObject(nickName, name)
         angle = element['angle'] * (np.pi / 180)
         length = element['length']
@@ -163,7 +124,7 @@ class createBeamline():
 
         return D.Dipole(name=name, length=length, theta=angle, field=field)
 
-    def addQuadrupole(self, element, nickName, name):
+    def changeQuadrupole(self, element, nickName, name):
         print name
         quad = self.getObject(nickName, name)
         grad = 0.0
@@ -176,7 +137,7 @@ class createBeamline():
 
         return Q.Quadrupole(name=name, length=element['length'], gradient=grad)
 
-    def addCorrector(self, element, nickName, name):
+    def changeCorrector(self, element, nickName, name):
         print name
         vObj, hObj = self.getObject(nickName, name)
         vField = 0.0
