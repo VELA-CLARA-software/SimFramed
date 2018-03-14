@@ -46,12 +46,12 @@ def replaceString(lines=[], findString=None, replaceString=None):
         return [lineReplaceFunction(line, findString, replaceString) for line in lines]
 
 #
-def chop(expr, max=1e-9):
+def chop(expr, delta=1e-8):
     """Performs a chop on small numbers"""
-    if expr.shape[1] > 1:
-        return [[i if abs(i) > max else 0 for i in e] for e in expr]
+    if isinstance(expr, (int, float, complex)):
+        return 0 if -delta <= expr <= delta else expr
     else:
-        return [i if abs(i) > max else 0 for i in expr]
+        return [chop(x) for x in expr]
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
