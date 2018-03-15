@@ -5,6 +5,7 @@ import yaml
 import os
 from epics import caget, caput
 # from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
+'''Assumes  you have the a OnlineModel in you path directory'''
 from SimulationFramework import Framework
 
 
