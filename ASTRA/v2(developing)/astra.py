@@ -9,6 +9,7 @@ from PyQt4.QtCore import QThread
 import os
 import sys
 import yaml
+import modifyBeamline as mbl
 import ..ASTRAFramework.ASTRAGeneral.Framework as Framework
 
 class Setup(QThread):
@@ -120,34 +121,39 @@ class Setup(QThread):
     # Main functions (has to be called run if I want to use in a thread)
 
     def run(self):
-        #Create a list of infiles to use in ASTRA simulations
+        # Create a list of infiles to use in ASTRA simulations
         inFiles = self.createListOfINFilesToEdit()
 
         print('------------------------------')
         print('-------------ASTRA------------')
         print('------NEW SIMULTAION RUN------')
         print('------------------------------')
-        print('1. Create Beam...')
-
+        print('1. Define Beam...')
+        print('    Using file: ' + self.initDistribFile)
         print('2. Create a Beamline...')
         print('    Find aproriate pathway...')
         self.loadPathway()
         print('    Modify pathway using Virtual EPICS...')
-        for key, value in self.pathway.elements.iteritems():
-            self.pathway.
-
-
-
-        #Write .in files
-        for i,section in enumerate(inFiles):
-            #Determine which elements parts to use
-
-            #Once written copy the files to virtual Machine
+        modifier = mbl.beamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
+                                C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
+                                C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
+                                C2V_MAG_Ctrl=self.C2V_MAG_Ctrl,
+                                V_RF_Ctrl=self.V_RF_Ctrl,
+                                C_RF_Ctrl=self.C_RF_Ctrl,
+                                L01_RF_Ctrl=self.L01_RF_Ctrl)
+        modifier.modfiy(self.pathway)
+        print('    Creating .in files...')
+        # Write .in files
+        self.pathway.createInputFiles()
+        # Once written copy the files to virtual Machine
+        for section in self.pathway.fileSettings.keys():
             os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\temp-'+section+'"')
-            os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\'+self.initDistrib+'"')
+            os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto --username "vmsim" --password "password" --target-directory "/home/vmsim/Desktop/V2/ASTRA/" "'+os.getcwd()+'\\'+self.initDistribFile+'"')
 
-        #Now run Python script in Virtual Machine to run ASTRA
-        if self.showMessages==True:
-            os.system('VBoxManage --nologo guestcontrol "VE-11g" run "usr/bin/python" --username "vmsim" --password "password" -- /home/vmsim/Desktop/V2/ASTRA/runASTRA.py %s' % (','.join(inFiles)))
+        print('3. Running ASTRA simulation from ' +
+              self.startElement + ' to ' + self.stopElement)
+        # Now run Python script in Virtual Machine to run ASTRA
+        if self.showMessages is True:
+            os.system('VBoxManage --nologo guestcontrol "VE-11g" run "usr/bin/python" --username "vmsim" --password "password" -- /home/vmsim/Desktop/V2/ASTRA/runASTRA.py %s' % (','.join(self.pathway.fileSettings.keys())))
         else:
             os.system('VBoxManage --nologo guestcontrol "VE-11g" run "usr/bin/python" --username "vmsim" --password "password" -- /home/vmsim/Desktop/V2/ASTRA/runASTRA.py >> OverallSimMessages.txt %s' % (','.join(inFiles)))
