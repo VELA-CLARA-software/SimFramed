@@ -5,7 +5,7 @@ import itertools
 import copy
 import collections
 import sqlite3
-print os.path.dirname(os.path.abspath(__file__))+'/'+'elegant.db'
+
 conn = sqlite3.connect(os.path.dirname(os.path.abspath(__file__))+'/'+'elegant.db')
 c = conn.cursor()
 
@@ -69,7 +69,12 @@ class elegantLattice(object):
 
 
     def __getitem__(self,key):
-        return getattr(self,key.lower())
+        if key in self.elementObjects:
+            return self.elementObjects[key].properties
+        elif key in self.lineObjects:
+            return self.lineObjects[key].line
+        elif hasattr(self, key):
+            return getattr(self,key.lower())
 
     @property
     def elements(self):
@@ -90,19 +95,33 @@ class elegantLattice(object):
             else:
                 name = kwargs['name']
         element = elegantElement(name, **kwargs)
-        setattr(self,name,element)
+        # setattr(self,name,element)
         # setattr(self.parent,name,element)
-        self.elementObjects[name] = element.properties
+        self.elementObjects[name] = element
         return element
+
+    def getElement(self, element):
+        if element in self.elementObjects:
+            return self.elementObjects[element]
+        else:
+            print 'WARNING: Element ', element,' does not exist'
+            return {}
 
     def addLine(self, name=None, line=[]):
         if name == None:
             raise NameError('Line does not have a name')
         line = elegantLine(name, line)
-        setattr(self,name,line)
+        # setattr(self,name,line)
         # setattr(self.parent,name,line)
-        self.lineObjects[name] = line.line
+        self.lineObjects[name] = line
         return line
+
+    def getLine(self, line):
+        if line in self.lineObjects:
+            return self.lineObjects[line]
+        else:
+            print 'WARNING: Line ', line,' does not exist'
+            return {}
 
     def addCommand(self, name=None, **kwargs):
         if name == None:
@@ -138,8 +157,8 @@ class elegantLattice(object):
         file.close()
 
     def _getLinelements(self, lattice):
-        for element in getattr(self,lattice).line:
-            element = getattr(self,element)
+        for element in self.getLine(lattice).line:
+            element = self.getElement(element)
             if isinstance(element,(elegantLine)):
                 [element.name]+self.lineDefinitions
                 self._getLinelements(element.name)
@@ -174,13 +193,13 @@ class elegantLattice(object):
         self._doLineExpansion(lattice)
         self.elementDefinitions = reduce(lambda l, x: l if x in l else l+[x], self.elementDefinitions, [])
         for element in self.elementDefinitions:
-            file.write(getattr(self,element).write())
+            file.write(self.getElement(element).write())
 
     def writeLines(self, file, lattice):
         self._doLineExpansion(lattice)
         self.lineDefinitions = reduce(lambda l, x: l if x in l else l+[x], self.lineDefinitions, [])
         for line in self.lineDefinitions:
-            file.write(getattr(self,line).write())
+            file.write(self.getLine(line).write())
 
     def screensToWatch(self):
         self._doLineExpansion('cla-ebt')

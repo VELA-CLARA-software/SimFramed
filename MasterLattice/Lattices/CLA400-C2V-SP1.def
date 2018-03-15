@@ -51,7 +51,7 @@ files:
       cathode: False
       space_charge_mode: 3D
     input:
-      particle_definition: 'whatever'
+      particle_definition: 'initial_distribution'
     output:
       start_element: CLA-S02-APER-01
       end_element: CLA-C2V-MARK-01
@@ -63,11 +63,22 @@ files:
       cathode: False
       space_charge_mode: 3D
     input:
-      particle_definition: injector400.$output['start_element']$.001
+      particle_definition: s02.$output['start_element']$.001
     output:
       start_element: CLA-C2V-MARK-01
       end_element: CLA-C2V-DIA-SCR-01-W
-
+  vela:
+    global_offset: $self.parent.getElement('CLA-C2V-MAG-DIP-02','position_end')$
+    global_rotation: $-1*self.parent.getElement('CLA-C2V-MAG-DIP-02','angle')$
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: c2v.$output['start_element']$.001
+    output:
+      start_element: CLA-C2V-DIA-SCR-01-W
+      end_element: EBT-INJ-PSS-SHUT-02
 groups:
 elements:
-  filename: ['../../MasterLattice/YAML/Injector400.yaml', '../../MasterLattice/YAML/S02_EBT.yaml', '../../MasterLattice/YAML/C2V.yaml']
+  filename: ['../../MasterLattice/YAML/Injector400.yaml', '../../MasterLattice/YAML/S02_EBT.yaml', '../../MasterLattice/YAML/C2V.yaml', '../../MasterLattice/YAML/INJ.yaml']

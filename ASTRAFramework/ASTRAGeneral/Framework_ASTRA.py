@@ -113,7 +113,7 @@ class ASTRA(object):
         x,y,z       = getParameter(dipole,'position_start')
 
         corners = [0,0,0,0]
-        dipoles = self.parent.createDrifts([[dipolename, dipole]])
+        dipoles = self.parent.createDrifts([[dipolename, dipole]], zerolengthdrifts=True)
         dipolepos, localXYZ = self.parent.elementPositions(dipoles)#, startpos=[x,y,z])
         dipolepos = list(chunks(dipolepos,2))[0]
         p1, psi1, nameelem1 = dipolepos[0]
@@ -276,8 +276,8 @@ class ASTRA(object):
                 originaloutput['zstop'] = zstop[2]
         elif not isinstance(zstop, (list, tuple)):
             zstop = [0,0,zstop]
-        print 'zstart = ', zstart
-        print 'zstop = ', zstop
+        # print 'zstart = ', zstart
+        # print 'zstop = ', zstop
         zstart = self.rotateAndOffset(zstart, self.global_offset, self.global_rotation)
         output['zstart'] = zstart[2]
         # print 'zstop = ', self.parent.elements[endelem]['position_end']
