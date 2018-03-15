@@ -1,5 +1,5 @@
 elements:
-  CLA-LRG1-APER:
+  CLA-HRG1-APER:
     type: aperture
     shape: rectangular
     horizontal_size: 0.017

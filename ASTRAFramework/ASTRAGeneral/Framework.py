@@ -23,7 +23,7 @@ yaml.add_constructor(_mapping_tag, dict_constructor)
 def merge_two_dicts(x, y):
     z = x.copy()   # start with x's keys and values
     z.update(y)    # modifies z with y's keys and values & returns None
-    return dict(z)
+    return OrderedDict(z)
 
 class Framework(object):
 
@@ -37,7 +37,7 @@ class Framework(object):
         self.subdirectory = self.basedirectory+'/'+subdir
         self.globalSettings = dict()
         self.fileSettings = dict()
-        self.elements = dict()
+        self._elements = dict()
         self.groups = dict()
         self.astra = ASTRA(parent=self, directory=self.subdir)
         self.CSRTrack = CSRTrack(parent=self, directory=self.subdir)
@@ -63,7 +63,7 @@ class Framework(object):
             stream.close()
             if 'filename' in elements:
                 self.loadElementsFile(elements['filename'])
-            self.elements = merge_two_dicts(self.elements, elements)
+            self._elements = merge_two_dicts(self._elements, elements)
 
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
@@ -72,16 +72,19 @@ class Framework(object):
         self.globalSettings = settings['global']
         self.generatorFile = self.globalSettings['generatorFile'] if 'generatorFile' in self.globalSettings else None
         self.fileSettings = settings['files']
-        self.elements = settings['elements']
+        self._elements = settings['elements']
         self.groups = settings['groups']
         stream.close()
-        if 'filename' in self.elements:
-            self.loadElementsFile(self.elements['filename'])
-        elements = [k for k in self.elements if 'type' in self.elements[k]]
-        elements_ordered = OrderedDict()
-        for elem in sorted(elements, key=lambda x: self.elements[x]['position_start'][2]):
-            elements_ordered[elem] = self.elements[elem]
-        self.elements = elements_ordered
+        if 'filename' in self._elements:
+            self.loadElementsFile(self._elements['filename'])
+        for k in self._elements.keys():
+            if 'type' not in self._elements[k]:
+                del self._elements[k]
+        self.elementOrder = self._elements.keys()
+
+    @property
+    def elements(self):
+        return OrderedDict(((k, self._elements[k]) for k in self.elementOrder))
 
     def getFileSettings(self, file, block, default={}):
         """Return the correct settings 'block' from 'file' dict if exists else return empty dict"""
@@ -110,11 +113,11 @@ class Framework(object):
 
     def getElement(self, element='', setting=None):
         """return 'element' from the main elements dict"""
-        if element in self.elements:
+        if element in self._elements:
             if setting is not None:
-                return self.elements[element][setting]
+                return self._elements[element][setting]
             else:
-                return self.elements[element]
+                return self._elements[element]
         else:
             return []
 
@@ -127,13 +130,13 @@ class Framework(object):
     def getElementType(self, type='', setting=None):
         """return 'element' from the main elements dict"""
         elems = []
-        for name, element in self.elements.viewitems():
+        for name, element in self._elements.viewitems():
             if 'type' in element and element['type'] == type:
                 elems.append(name)
                 # print element
-        elems = sorted(elems, key=lambda x: self.elements[x]['position_start'][2])
+        elems = sorted(elems, key=lambda x: self._elements[x]['position_start'][2])
         if setting is not None:
-            return [self.elements[x][setting] for x in elems]
+            return [self._elements[x][setting] for x in elems]
         else:
             return elems
 
@@ -142,7 +145,7 @@ class Framework(object):
         elems = self.getElementType(type)
         if len(elems) == len(values):
             for e, v  in zip(elems, values):
-                self.elements[e][setting] = v
+                self._elements[e][setting] = v
         else:
             raise ValueError
 
@@ -152,21 +155,21 @@ class Framework(object):
             zstart = getParameter(output,'zstart',default=None)
             if zstart is None:
                 startelem = getParameter(output,'start_element',default=None)
-                if startelem is None or startelem not in self.elements:
+                if startelem is None or startelem not in self._elements:
                     zstart = 0
                 else:
-                    zstart = self.elements[startelem]['position_start'][2]
+                    zstart = self._elements[startelem]['position_start'][2]
         # zstop = zstop if zstop is not None else getParameter(output,'zstop',default=0)
         if zstop is None:
             zstop = getParameter(output,'zstop',default=None)
             if zstop is None:
                 endelem = getParameter(output,'end_element',default=None)
-                if endelem is None or endelem not in self.elements:
+                if endelem is None or endelem not in self._elements:
                     zstop = 0
                 else:
-                    zstop = self.elements[endelem]['position_end'][2]
+                    zstop = self._elements[endelem]['position_end'][2]
 
-        elements = findSetting('type',elementtype,dictionary=self.elements)
+        elements = findSetting('type',elementtype,dictionary=self._elements)
         elements = sorted([[s[1]['position_start'][2],s[0]] for s in elements if s[1]['position_start'][2] >= zstart and s[1]['position_start'][2] <= zstop])
 
         return [e[1] for e in elements]
@@ -221,10 +224,11 @@ class Framework(object):
             x.append(x1)
         return zip(x, anglesum[:-1], elements), localXYZ
 
-    def createDrifts(self, elements, startpos=None):
+    def createDrifts(self, elements, startpos=None, zerolengthdrifts=False):
         """Insert drifts into a sequence of 'elements'"""
         positions = []
         elementno = 0
+        newelements = OrderedDict()
         for name, e in elements:
             pos = np.array(e['position_start'])
             positions.append(pos)
@@ -234,19 +238,23 @@ class Framework(object):
             positions.prepend(startpos)
         else:
             positions = positions[1:]
-            positions.append(positions[-1]+[0,0,0.0001])
-        driftdata = list(chunks(positions, 2))
-        for d in driftdata:
+            positions.append(positions[-1])
+            positions[-1][2] + 1e-6
+        driftdata = zip(elements, list(chunks(positions, 2)))
+        # print 'driftdata = ', driftdata
+        for e, d in driftdata:
+            newelements[e[0]] = e[1]
             if len(d) > 1:
                 length = d[1][2] - d[0][2]
-                if length > 0:
+                if length > 0 or zerolengthdrifts is True:
                     elementno += 1
-                    elements.append(['drift'+str(elementno),
-                                {'length': length, 'type': 'drift',
-                                 'position_start': list(d[0]),
-                                 'position_end': list(d[1])
-                                }])
-        return sorted(elements, key=sortByPositionFunction)
+                    name = 'drift'+str(elementno)
+                    self._elements[name] = {'length': length, 'type': 'drift',
+                     'position_start': list(d[0]),
+                     'position_end': list(d[1])
+                    }
+                    newelements[name] = self._elements[name]
+        return newelements
 
     def setDipoleAngle(self, dipole, angle=0):
         """Set the dipole angle for a given 'dipole'"""
