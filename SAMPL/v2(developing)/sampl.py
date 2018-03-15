@@ -1,20 +1,11 @@
-'''
-test change 2
-This Class is the one User's are to initialize in there code.
-You need to pass in your controllers, specifying which element of the
-machine it is for
-'''
-
 from PyQt4.QtCore import QThread
 import createBeam as cb
 import createBeamline as cbl
 import yaml
-# import sys
 import os
-
 from epics import caget, caput
-# sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+'\\sourceCode\\')
 # from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
+from OnlineModel.ASTRA.ASTRAFramework.ASTRAGeneral import Framework
 
 
 class Setup(QThread):
@@ -36,33 +27,25 @@ class Setup(QThread):
         self.initDistribFile = 'Null'
         self.initDistrib = None
         self.initCharge = 0.0
-
-        self.selectedPathway
-
-        stream = file(str(os.path.abspath(__file__)).split('sampl')[0] +
-                      "VELA-CLARA.yaml", 'r')
-        settings = yaml.load(stream)
-        self.elements = settings['elements']
-        self.groups = settings['groups']
+        self.pathway = Framework.Framework(subdir='.', overwrite='overwrite')
 
     # DESTRUCTOR
     def __del__(self):
         self.wait()
 
     def loadPathway(self):
-        stream = file(str(os.path.abspath(__file__)).split('astra')[0] +
+        stream = file(str(os.path.abspath(__file__)).split('sampl')[0] +
                       "\\..\\..\\MasterLattice\\YAML\\allPathways.yaml", 'r')
         settings = yaml.load(stream)
         for path in settings['pathways']:
             hasStart = any(self.startElement in path.elements[s]['Online_Model_Name']
-                           for s in self.groups[line])
+                           for s, value in path.elements.iteritems())
             hasStop = any(self.stopElement in path.elements[s]['Online_Model_Name']
-                          for s in self.groups[line])
+                          for s, value in path.elements.iteritems())
             if (hasStart and hasStop):
-                self.selectedPathway = path
+                self.pathway.loadSettings(filename=path)
                 print '    Loading pathway: ', path
-    # Shell function to run AStra simulations in a thread is need.
-    # Using this 'shell' function alows me to pass in agurments
+
     def go(self, startElement, stopElement, initDistrib, charge=0.25):
             self.startElement = startElement
             self.stopElement = stopElement
@@ -71,7 +54,6 @@ class Setup(QThread):
             # Run in Thread
             self.start()
 
-    # Main functions (has to be called run if I want to use in a thread)
     def run(self):
         print('------------------------------')
         print('-------------SAMPL------------')
@@ -89,8 +71,7 @@ class Setup(QThread):
             self.initDistrib = createBeam.guassian(x=xOffset, y=yOffset)
 
         print('2. Create a beamline ...')
-        self.loadPathway()
-
+        self.pathway.loadPathway()
         lineCreator = cbl.createBeamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
                                          C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
                                          C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
@@ -98,14 +79,12 @@ class Setup(QThread):
                                          V_RF_Ctrl=self.V_RF_Ctrl,
                                          C_RF_Ctrl=self.C_RF_Ctrl,
                                          L01_RF_Ctrl=self.L01_RF_Ctrl)
-        beamLine = lineCreator.create(self.selectedPathway,
-                                      self.self.selectedPathway.elements)
-
+        beamLine = lineCreator.create(self.pathway, self.pathway.elements)
         # Run simulation
-        for key, value in self.elements.iteritems():
-            if value['omName'] == self.startElement:
+        for key, value in self.pathway.elements.iteritems():
+            if value['Online_Model_Name'] == self.startElement:
                 startName = key
-            if value['omName'] == self.stopElement:
+            if value['Online_Model_Name'] == self.stopElement:
                 stopName = key
 
         startIndex = [i for i, x in enumerate(beamLine.componentlist) if x.name == startName]
@@ -139,9 +118,9 @@ class Setup(QThread):
                               ':SigmaX', i.xSigma)
                         caput('VM-' + self.elements[i.name]['camPV'] +
                               ':SigmaY', i.ySigma)
-                    print '    Written data for ', self.elements[i.name]['omName']
+                    print '    Written data for ', self.elements[i.name]['Online_Model_Name']
                 if 'BPM'in i.name:
                     caput('VM-' + self.elements[i.name]['pv'] + ':X', i.x)
                     caput('VM-' + self.elements[i.name]['pv'] + ':Y', i.y)
                     print '    Written data for ', self.elements[i.name]['omName']
-                    print 'x Value:' , str(i.x)
+                    print 'x Value:', str(i.x)
