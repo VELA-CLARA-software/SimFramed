@@ -1,19 +1,13 @@
-'''
-This Class is the one User's are to initialize in there code.
-You need to pass in your controllers, specifying which element of the machine it is for
-'''
-#import makeIn as mi
-#import elements as e
-
 from PyQt4.QtCore import QThread
 import os
-import sys
 import yaml
-import ..ASTRAFramework.ASTRAGeneral.Framework as Framework
+import modifyELEGANTBeamline as mebl
+from OnlineModel.ASTRA.ASTRAFramework.ASTRAGeneral import Framework
+
 
 class Setup(QThread):
-    #CONSTRUCTOR
-    def __init__(self,V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
+    # CONSTRUCTOR
+    def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
                  C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None,
                  C_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
         QThread.__init__(self)
@@ -29,21 +23,21 @@ class Setup(QThread):
         self.stopElement = 'Null'
         self.initDistribFile = 'Null'
         self.initCharge = 0.0
-
         self.pathway = Framework.Framework(subdir='.', overwrite='overwrite')
-    #DESTRUCTOR
+
+    # DESTRUCTOR
     def __del__(self):
         self.wait()
 
     def loadPathway(self):
-        stream = file(str(os.path.abspath(__file__)).split('astra')[0] +
+        stream = file(str(os.path.abspath(__file__)).split('elegant')[0] +
                       "\\..\\..\\MasterLattice\\YAML\\allPathways.yaml", 'r')
         settings = yaml.load(stream)
         for path in settings['pathways']:
             hasStart = any(self.startElement in path.elements[s]['Online_Model_Name']
-                           for s in self.groups[line])
+                           for s, value in path.elements.iteritems())
             hasStop = any(self.stopElement in path.elements[s]['Online_Model_Name']
-                          for s in self.groups[line])
+                          for s, value in path.elements.iteritems())
             if (hasStart and hasStop):
                 self.pathway.loadSettings(filename=path)
                 print '    Loading pathway: ', path
@@ -57,29 +51,27 @@ class Setup(QThread):
             self.start()
             #Don't run in thread
             #self.run()
-    # Main functions (has to be called run if I want to use in a thread)
 
     def run(self):
-        #Create a list of infiles to use in ASTRA simulations
-        inFiles = self.createListOfINFilesToEdit()
-
         print('------------------------------')
         print('------------ELEGANT-----------')
         print('------NEW SIMULTAION RUN------')
         print('------------------------------')
+
         print('1. Define Beam...')
         print('    Using file: ' + self.initDistribFile)
+
         print('2. Create a Beamline...')
         print('    Find aproriate pathway...')
         self.loadPathway()
         print('    Modify pathway using Virtual EPICS...')
-        modifier = mbl.beamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
-                                C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
-                                C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
-                                C2V_MAG_Ctrl=self.C2V_MAG_Ctrl,
-                                V_RF_Ctrl=self.V_RF_Ctrl,
-                                C_RF_Ctrl=self.C_RF_Ctrl,
-                                L01_RF_Ctrl=self.L01_RF_Ctrl)
+        modifier = mebl.beamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
+                                 C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
+                                 C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
+                                 C2V_MAG_Ctrl=self.C2V_MAG_Ctrl,
+                                 V_RF_Ctrl=self.V_RF_Ctrl,
+                                 C_RF_Ctrl=self.C_RF_Ctrl,
+                                 L01_RF_Ctrl=self.L01_RF_Ctrl)
         modifier.modfiy(self.pathway)
         print('    Creating ELEGANT input files files...')
         self.pathway.createInputFiles()

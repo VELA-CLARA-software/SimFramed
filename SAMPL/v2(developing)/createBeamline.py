@@ -1,16 +1,13 @@
-# import sys
-# import os
-# sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+'\\sourceCode\\')
-from ..sourceCode.SAMPLcore.Components import Drift as d
-from ..sourceCode.SAMPLcore.Components import Dipole as D
-from ..sourceCode.SAMPLcore.Components import Quadrupole as Q
-from ..sourceCode.SAMPLcore.Components import Screen as S
-from ..sourceCode.SAMPLcore.Components import OrbitCorrector as C
-from ..sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
-from ..sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
-from ..sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
-from ..sourceCode.SAMPLcore.SAMPLlab import Beamline
-# from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Drift as d
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Dipole as D
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Quadrupole as Q
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Screen as S
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import OrbitCorrector as C
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
+# from ..sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
+from OnlineMode.SAMPL.sourceCode.SAMPLcore.SAMPLlab import Beamline
+# from OnlineMode.SAMPL.sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
 
 
@@ -91,28 +88,8 @@ class createBeamline():
                 component = d.Drift(name=name, length=element['length'])
             elif element['type'] == 'bam':
                 component = d.Drift(name=name, length=element['length'])
-            elif element['type'] == 'linac':
-                linac = self.getObject(nickName, name)
-                # get detials solnoids ascociated with the linac
-                solenoid1 = elements[element['sol1']]
-                solenoid2 = elements[element['sol2']]
-                sol1 = self.getObject(solenoid1['name'], element['sol1'])
-                sol2 = self.getObject(solenoid2['name'], element['sol2'])
-                print 'LINAC grad: ' + str(linac.amp_MVM)
-                print 'LINAC Phase: ' + str(linac.phi_DEG)
-                #    component = SARF.SolenoidAndRF(length=element['length'],
-                #                                   name='Linac1',
-                #                                   peakField=linac.amp_MVM,
-                #                                   phase=linac.phi_DEG,
-                #                                   solCurrent1=sol1.siWithPol,
-                #                                   solCurrent2=sol2.siWithPol)
-                component = RF.RFAcceleratingStructure(length=element['length'],
-                                                        name='Linac1',
-                                                        voltage=-linac.amp_MVM * 1e6 * element['length'],
-                                                        phase=linac.phi_DEG*(np.pi/180),
-                                                        ncell=element['n_cells'],
-                                                        structureType='TravellingWave')
-                component.setFrequency(2998500000.0)
+            elif element['type'] == 'cavity':
+                component = self.addAccerlatingRF(element, nickName, name)
             else:
                 component = d.Drift(name=name, length=element['length'])
                 print ('ERROR: This reader doesn\'t',
@@ -149,6 +126,36 @@ class createBeamline():
         return line
 
 # Complicated adding
+    def addAccerlatingRF(self, element, nickName, name):
+        rf = self.getObject(nickName, name)
+        # get detials solnoids ascociated with the linac
+        #solenoid1 = elements[element['sol1']]
+        #solenoid2 = elements[element['sol2']]
+        #sol1 = self.getObject(solenoid1['name'], element['sol1'])
+        #sol2 = self.getObject(solenoid2['name'], element['sol2'])
+        print 'rf grad: ' + str(rf.amp_MVM)
+        print 'rf Phase: ' + str(rf.phi_DEG)
+        structureType = 'Null'
+        if element['Structure_Type'] is 'TravellingWave':
+            structureType = 'TravellingWave'
+        elif element['Structure_Type'] is 'StandingWave':
+            structureType = 'StandingWave'
+        # component = SARF.SolenoidAndRF(length=element['length'],
+        #                                   name='Linac1',
+        #                                   peakField=linac.amp_MVM,
+        #                                   phase=linac.phi_DEG,
+        #                                   solCurrent1=sol1.siWithPol,
+        #                                   solCurrent2=sol2.siWithPol)
+        component = RF.RFAcceleratingStructure(length=element['length'],
+                                               name=nickName,
+                                               voltage=-(rf.amp_MVM * 1e6 *
+                                                         element['length']),
+                                               phase=rf.phi_DEG * (np.pi / 180),
+                                               ncell=element['n_cells'],
+                                               structureType=structureType)
+        component.setFrequency(element['frequency'])
+        return component
+
     def addDipole(self, element, nickName, name):
         dip = self.getObject(nickName, name)
         angle = element['angle'] * (np.pi / 180)
