@@ -1,9 +1,9 @@
-from sourceCode.SAMPLcore.SAMPLlab import Beam
-from sourceCode.SAMPLcore.Particles import Electron
-from sourceCode.SAMPLcore.Particles import Positron
+from ..sourceCode.SAMPLcore.SAMPLlab import Beam
+from ..sourceCode.SAMPLcore.Particles import Electron
+from ..sourceCode.SAMPLcore.Particles import Positron
 # from SAMMcore.Particles import Proton
-from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
-from sourceCode.SAMPLcore.SAMPLlab import PhysicalConstants
+from ..sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
+from ..sourceCode.SAMPLcore.SAMPLlab import PhysicalConstants
 import numpy as np
 import math
 

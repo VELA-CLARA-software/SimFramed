@@ -61,12 +61,12 @@ class createBeamline():
             component = None
             # Check element type and add accordingly
             if element['type'] == 'dipole':
-                pathway.mod
-                component = self.addDipole(element, nickName, name)
+                self.changeDipole(pathway, element, nickName, name)
             elif element['type'] == 'quadrupole':
-                component = self.addQuadrupole(element, nickName, name)
+                self.changeQuadrupole(pathway, element, nickName, name)
             elif element['type'] == 'kicker':
-                component = self.addCorrector(element, nickName, name)
+                self.changeCorrector(pathway, element, nickName, name)
+'''
             elif element['type'] == 'bpm':
                 component = BPM.BeamPositionMonitor(name=name,
                                                     length=element['length'])
@@ -78,84 +78,69 @@ class createBeamline():
                 component = d.Drift(name=name, length=element['length'])
             elif element['type'] == 'bam':
                 component = d.Drift(name=name, length=element['length'])
-            elif element['type'] == 'linac':
-                linac = self.getObject(nickName, name)
+'''
+            elif element['type'] == 'cavity':
+                cavity = self.getObject(nickName, name)
                 # get detials solnoids ascociated with the linac
                 solenoid1 = elements[element['sol1']]
                 solenoid2 = elements[element['sol2']]
                 sol1 = self.getObject(solenoid1['name'], element['sol1'])
                 sol2 = self.getObject(solenoid2['name'], element['sol2'])
-                print 'LINAC grad: ' + str(linac.amp_MVM)
-                print 'LINAC Phase: ' + str(linac.phi_DEG)
-                #    component = SARF.SolenoidAndRF(length=element['length'],
-                #                                   name='Linac1',
-                #                                   peakField=linac.amp_MVM,
-                #                                   phase=linac.phi_DEG,
-                #                                   solCurrent1=sol1.siWithPol,
-                #                                   solCurrent2=sol2.siWithPol)
-                component = RF.RFAcceleratingStructure(length=element['length'],
-                                                        name='Linac1',
-                                                        voltage=-linac.amp_MVM * 1e6 * element['length'],
-                                                        phase=linac.phi_DEG*(np.pi/180),
-                                                        ncell=element['n_cells'],
-                                                        structureType='TravellingWave')
-                component.setFrequency(2998500000.0)
+                print 'LINAC grad: ' + str(cavity.amp_MVM)
+                print 'LINAC Phase: ' + str(cavity.phi_DEG)
+                pathway.modifyElement(element=element,
+                                      setting='field_amplitude',
+                                      value=cavity.amp_MVM*1e6)
+                pathway.modifyElement(element=element,
+                                      setting='phase',
+                                      value=cavity.phi_DEG*1e6)
             else:
-                component = d.Drift(name=name, length=element['length'])
                 print ('ERROR: This reader doesn\'t',
                        'recognise element type of ', name)
-
             # Append component
             line.componentlist.append(component)
-        return line
 
 # Complicated adding
-    def changeDipole(self, element, nickName, name):
+    def changeDipole(self, pathway, element, nickName, name):
         dip = self.getObject(nickName, name)
-        angle = element['angle'] * (np.pi / 180)
-        length = element['length']
         field = 0.0
-
-        if dip.siWithPol != 0.0:
-            coeffs = dip.fieldIntegralCoefficients
-            absField = (np.polyval(coeffs, abs(dip.siWithPol)) /
-                        dip.magneticLength)
-            field = np.copysign(absField, dip.siWithPol)
-
-        return D.Dipole(name=name, length=length, theta=angle, field=field)
+        coeffs = dip.fieldIntegralCoefficients
+        absField = (np.polyval(coeffs, abs(dip.siWithPol)) /
+                    dip.magneticLength)
+        field = np.copysign(absField, dip.siWithPol)
+        pathway.modifyElement(element=element,
+                              setting='field',
+                              value=field)
 
     def changeQuadrupole(self, element, nickName, name):
-        print name
         quad = self.getObject(nickName, name)
         grad = 0.0
-
-        if quad.siWithPol != 0.0:
-            coeffs = quad.fieldIntegralCoefficients
-            absGrad = (np.polyval(coeffs, abs(quad.siWithPol)) /
-                       quad.magneticLength)
-            grad = 1000 * np.copysign(absGrad, quad.siWithPol)
-
-        return Q.Quadrupole(name=name, length=element['length'], gradient=grad)
+        coeffs = quad.fieldIntegralCoefficients
+        absGrad = (np.polyval(coeffs, abs(quad.siWithPol)) /
+                   quad.magneticLength)
+        grad = 1000 * np.copysign(absGrad, quad.siWithPol)
+        pathway.modifyElement(element=element,
+                              setting='k1',
+                              value=field)
 
     def changeCorrector(self, element, nickName, name):
         print name
         vObj, hObj = self.getObject(nickName, name)
         vField = 0.0
         hField = 0.0
+        coeffs = vObj.fieldIntegralCoefficients
+        absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
+                     vObj.magneticLength)
+        vField = 1000 * np.copysign(absVField, vObj.siWithPol)
 
-        if vObj.siWithPol != 0.0:
-            print vObj.magneticLength
-            coeffs = vObj.fieldIntegralCoefficients
-            absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
-                         vObj.magneticLength)
-            vField = 1000 * np.copysign(absVField, vObj.siWithPol)
+        coeffs = hObj.fieldIntegralCoefficients
+        absHField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
+                     hObj.magneticLength)
+        hField = 1000 * np.copysign(absVField, hObj.siWithPol)
 
-        if hObj.siWithPol != 0.0:
-            print hObj.magneticLength
-            coeffs = hObj.fieldIntegralCoefficients
-            absVField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
-                         hObj.magneticLength)
-            vField = 1000 * np.copysign(absVField, hObj.siWithPol)
-
-        return C.OrbitCorrector(name=name, field=[hField, vField],
-                                length=element['length'])
+        pathway.modifyElement(element=element,
+                              setting='H_Field',
+                              value=hField)
+        pathway.modifyElement(element=element,
+                              setting='V_Field',
+                              value=vField)
