@@ -3,8 +3,7 @@ from shutil import copyfile
 import numpy as np
 from FrameworkHelperFunctions import *
 from getGrids import *
-sys.path.append('..')
-import read_beam_file as rbf
+import SimulationFramework.Modules.read_beam_file as rbf
 from collections import defaultdict
 from Framework_ASTRA import ASTRA
 from Framework_CSRTrack import CSRTrack
@@ -149,7 +148,7 @@ class Framework(object):
         else:
             raise ValueError
 
-    def getElementsBetweenS(self, elementtype, output={}, zstart=None, zstop=None):
+    def getElementsBetweenS(self, elementtype=None, output={}, zstart=None, zstop=None):
         # zstart = zstart if zstart is not None else getParameter(output,'zstart',default=0)
         if zstart is None:
             zstart = getParameter(output,'zstart',default=None)
@@ -169,9 +168,12 @@ class Framework(object):
                 else:
                     zstop = self._elements[endelem]['position_end'][2]
 
-        elements = findSetting('type',elementtype,dictionary=self._elements)
-        elements = sorted([[s[1]['position_start'][2],s[0]] for s in elements if s[1]['position_start'][2] >= zstart and s[1]['position_start'][2] <= zstop])
+        if elementtype is not None:
+            elements = findSetting('type',elementtype,dictionary=self._elements)
+        else:
+            elements = list(self._elements.iteritems())
 
+        elements = sorted([[s[1]['position_start'][2],s[0]] for s in elements if s[1]['position_start'][2] >= zstart and s[1]['position_start'][2] <= zstop])
         return [e[1] for e in elements]
 
     def getGroup(self, group=''):
@@ -185,7 +187,7 @@ class Framework(object):
 
     def xform(self, theta, tilt, length, x, r):
         """Calculate the change on local coordinates through an element"""
-        theta = theta if abs(theta) > 1e-6 else 1e-6
+        theta = theta if abs(theta) > 1e-9 else 1e-9
         tiltMatrix = np.matrix([
             [np.cos(tilt), -np.sin(tilt), 0],
             [np.sin(tilt), np.cos(tilt), 0],
@@ -207,21 +209,24 @@ class Framework(object):
         rp = np.outer(np.dot(rt,n), n)*(1-np.cos(theta))+rt*np.cos(theta)+crossMatrix
         return [np.array(x + dx), np.array(np.transpose(rp))]
 
-    def elementPositions(self, elements, startpos=None):
+    def elementPositions(self, elements, startpos=None, startangle=0):
         """Calculate element positions for the given 'elements'"""
-        anglesum = [0]
+        anglesum = [startangle]
         localXYZ = np.identity(3)
-        if startpos == None:
-            startpos = elements[0][1]['position_start']
+        if startpos is None:
+            startpos = elements[elements.keys()[0]]['position_start']
             if len(startpos) == 1:
                 startpos = [0,0,startpos]
         x1 = np.matrix(np.transpose([startpos]))
         x = [np.array(x1)]
-        for name, d in elements:
-            angle = getParameter(d,'angle',default=1e-9)
+        if startangle is not 0:
+            localXYZ = self.xform(startangle, 0, 0, x1, localXYZ)[1]
+        for name, d in elements.iteritems():
+            angle = getParameter(d,'angle',default=0)
             anglesum.append(anglesum[-1]+angle)
             x1, localXYZ = self.xform(angle, 0, getParameter(d,'length'), x1, localXYZ)
             x.append(x1)
+        # print 'anglesum = ', anglesum
         return zip(x, anglesum[:-1], elements), localXYZ
 
     def createDrifts(self, elements, startpos=None, zerolengthdrifts=False):
