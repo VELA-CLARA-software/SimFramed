@@ -41,7 +41,7 @@ class ASTRA(object):
         if not generatorCommand is None:
             astragen.defineGeneratorCommand(generatorCommand)
         elif os.name == 'nt':
-            astragen.defineGeneratorCommand(['generator_7June2007'])
+            astragen.defineGeneratorCommand(['../../MasterLattice/ASTRA/generator_7June2007'])
         else:
             astragen.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
         inputfile = astragen.generateBeam()
@@ -114,7 +114,7 @@ class ASTRA(object):
 
         corners = [0,0,0,0]
         dipoles = self.parent.createDrifts([[dipolename, dipole]], zerolengthdrifts=True)
-        dipolepos, localXYZ = self.parent.elementPositions(dipoles)#, startpos=[x,y,z])
+        dipolepos, localXYZ = self.parent.elementPositions(dipoles, startangle=self.starting_rotation)
         dipolepos = list(chunks(dipolepos,2))[0]
         p1, psi1, nameelem1 = dipolepos[0]
         p2, psi2, nameelem2 = dipolepos[1]
@@ -459,20 +459,28 @@ class ASTRA(object):
 
     def createASTRAFileText(self, file):
         settings = self.parent.getFileSettings(file,'ASTRA_Options')
+        output = self.parent.getFileSettings(file,'output')
         self.global_offset = self.parent.getFileSettings(file,'global_offset', [0,0,0])
         if isinstance(self.global_offset,(str)):
             regex = re.compile('\$(.*)\$')
             s = re.search(regex, self.global_offset)
             if s:
                 self.global_offset = eval(s.group(1))
-        self.global_rotation = self.parent.getFileSettings(file,'global_rotation', 0)
-        if isinstance(self.global_rotation,(str)):
+        self.starting_rotation = self.parent.getFileSettings(file,'starting_rotation', 0)
+        if isinstance(self.starting_rotation,(str)):
             regex = re.compile('\$(.*)\$')
-            s = re.search(regex, self.global_rotation)
+            s = re.search(regex, self.starting_rotation)
             if s:
-                self.global_rotation = eval(s.group(1))
+                self.starting_rotation = eval(s.group(1))
+
+        dipoles = self.parent.getElementsBetweenS('dipole', output)
+        self.global_rotation = -self.starting_rotation
+        for d in dipoles:
+            self.global_rotation -= self.parent.getElement(d,'angle')
+        # print 'global_rotation = ', self.global_rotation
+
         input = self.parent.getFileSettings(file,'input')
-        output = self.parent.getFileSettings(file,'output')
+
         charge = self.parent.getFileSettings(file,'charge')
         scan = self.parent.getFileSettings(file,'scan')
         aperture = self.parent.getFileSettings(file,'aperture')
@@ -480,7 +488,7 @@ class ASTRA(object):
         solenoid = self.parent.getFileSettings(file,'solenoid')
         quadrupole = self.parent.getFileSettings(file,'quadrupole')
 
-        dipoles = self.parent.getElementsBetweenS('dipole', output)
+
         groups = self.parent.getFileSettings(file,'groups')
 
         astrafiletext = ''
