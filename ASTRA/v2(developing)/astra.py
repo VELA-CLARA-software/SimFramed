@@ -9,11 +9,13 @@ from PyQt4.QtCore import QThread
 import os
 import sys
 import yaml
-import ..ASTRAFramework.ASTRAGeneral.ASTRAGeneral as ASTRAGeneral
+import ..ASTRAFramework.ASTRAGeneral.Framework as Framework
 
 class Setup(QThread):
     #CONSTRUCTOR
-    def __init__(self,V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None, C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None, C_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
+    def __init__(self,V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
+                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None,
+                 C_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
         QThread.__init__(self)
         self.showMessages = messages
         self.VELA_MAG_Controller = V_MAG_Ctrl
@@ -28,7 +30,7 @@ class Setup(QThread):
         self.initDistribFile = 'Null'
         self.initCharge = 0.0
 
-        self.pathway = ASTRAGeneral.ASTRA(subdir='.', overwrite='overwrite')
+        self.pathway = Framework.Framework(subdir='.', overwrite='overwrite')
     #DESTRUCTOR
     def __del__(self):
         self.wait()

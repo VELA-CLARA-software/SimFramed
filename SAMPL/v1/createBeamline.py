@@ -1,15 +1,15 @@
 # import sys
 # import os
 # sys.path.append(str(os.path.dirname(os.path.abspath(__file__)))+'\\sourceCode\\')
-from sourceCode.SAMPLcore.Components import Drift as d
-from sourceCode.SAMPLcore.Components import Dipole as D
-from sourceCode.SAMPLcore.Components import Quadrupole as Q
-from sourceCode.SAMPLcore.Components import Screen as S
-from sourceCode.SAMPLcore.Components import OrbitCorrector as C
-from sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
-from sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
-from sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
-from sourceCode.SAMPLcore.SAMPLlab import Beamline
+from ..sourceCode.SAMPLcore.Components import Drift as d
+from ..sourceCode.SAMPLcore.Components import Dipole as D
+from ..sourceCode.SAMPLcore.Components import Quadrupole as Q
+from ..sourceCode.SAMPLcore.Components import Screen as S
+from ..sourceCode.SAMPLcore.Components import OrbitCorrector as C
+from ..sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
+from ..sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
+from ..sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
+from ..sourceCode.SAMPLcore.SAMPLlab import Beamline
 # from sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
 

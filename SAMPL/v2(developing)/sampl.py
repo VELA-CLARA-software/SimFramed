@@ -36,6 +36,8 @@ class Setup(QThread):
         self.initDistrib = None
         self.initCharge = 0.0
 
+        self.selectedPathway
+
         stream = file(str(os.path.abspath(__file__)).split('sampl')[0] +
                       "VELA-CLARA.yaml", 'r')
         settings = yaml.load(stream)
@@ -46,6 +48,18 @@ class Setup(QThread):
     def __del__(self):
         self.wait()
 
+    def loadPathway(self):
+        stream = file(str(os.path.abspath(__file__)).split('astra')[0] +
+                      "\\..\\..\\MasterLattice\\YAML\\allPathways.yaml", 'r')
+        settings = yaml.load(stream)
+        for path in settings['pathways']:
+            hasStart = any(self.startElement in path.elements[s]['Online_Model_Name']
+                           for s in self.groups[line])
+            hasStop = any(self.stopElement in path.elements[s]['Online_Model_Name']
+                          for s in self.groups[line])
+            if (hasStart and hasStop):
+                self.selectedPathway = path
+                print '    Loading pathway: ', path
     # Shell function to run AStra simulations in a thread is need.
     # Using this 'shell' function alows me to pass in agurments
     def go(self, startElement, stopElement, initDistrib, charge=0.25):
@@ -74,16 +88,7 @@ class Setup(QThread):
             self.initDistrib = createBeam.guassian(x=xOffset, y=yOffset)
 
         print('2. Create a beamline ...')
-        selectedGroup = None
-
-        for line in self.groups:
-            hasStart = any(self.startElement in self.elements[s]['omName']
-                           for s in self.groups[line])
-            hasStop = any(self.stopElement in self.elements[s]['omName']
-                          for s in self.groups[line])
-            if (hasStart and hasStop):
-                selectedGroup = self.groups[line]
-                print '    Using group: ', line
+        self.loadPathway()
 
         lineCreator = cbl.createBeamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
                                          C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
@@ -92,7 +97,8 @@ class Setup(QThread):
                                          V_RF_Ctrl=self.V_RF_Ctrl,
                                          C_RF_Ctrl=self.C_RF_Ctrl,
                                          L01_RF_Ctrl=self.L01_RF_Ctrl)
-        beamLine = lineCreator.create(selectedGroup, self.elements)
+        beamLine = lineCreator.create(self.selectedPathway,
+                                      self.self.selectedPathway.elements)
 
         # Run simulation
         for key, value in self.elements.iteritems():
@@ -137,3 +143,4 @@ class Setup(QThread):
                     caput('VM-' + self.elements[i.name]['pv'] + ':X', i.x)
                     caput('VM-' + self.elements[i.name]['pv'] + ':Y', i.y)
                     print '    Written data for ', self.elements[i.name]['omName']
+                    print 'x Value:' , str(i.x)

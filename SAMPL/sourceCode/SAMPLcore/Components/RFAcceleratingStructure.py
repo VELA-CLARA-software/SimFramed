@@ -104,7 +104,7 @@ class RFAcceleratingStructure(ComponentBase):
             P0 = beam.momentum
             Edc = (beam.dp + 1 / beam.beta) * P0
 
-            beam.energy = E1 + (n * dE)
+            beam.energy = E0 + (n * dE)
             P0 = beam.momentum
 
             t = gt - beam.ct / PhysicalConstants.SpeedOfLight
