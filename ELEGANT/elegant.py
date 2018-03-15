@@ -2,6 +2,7 @@ from PyQt4.QtCore import QThread
 import os
 import yaml
 import modifyELEGANTBeamline as mebl
+from SimulationFramework import Framework
 
 
 class Setup(QThread):
