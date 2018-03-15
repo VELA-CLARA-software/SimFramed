@@ -1,4 +1,15 @@
-from Framework import *
+# if __name__ == '__main__':
+#     if __package__ is None:
+#         import sys
+#         from os import path
+#         print path.dirname( path.abspath(__file__) )
+#         sys.path.append( path.dirname( path.dirname( path.abspath(__file__) ) ) )
+#         import Framework
+#     else:
+#         from .. import Framework
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
+from SimulationFramework.Framework import *
 # import numpy as np
 # import read_beam_file as rbf
 #

@@ -1,6 +1,6 @@
 import yaml, collections, subprocess, os, math, re, sys
 import numpy as np
-import read_beam_file as rbf
+import SimulationFramework.Modules.read_beam_file as rbf
 from FrameworkHelperFunctions import *
 
 class CSRTrack(object):
