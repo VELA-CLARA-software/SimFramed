@@ -1,3 +1,4 @@
+'''Assumes  you have the a OnlineModel in you path directory'''
 from SAMPL.sourceCode.SAMPLcore.Components import Drift as d
 from SAMPL.sourceCode.SAMPLcore.Components import Dipole as D
 from SAMPL.sourceCode.SAMPLcore.Components import Quadrupole as Q

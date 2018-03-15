@@ -1,3 +1,4 @@
+'''Assumes  you have the a OnlineModel in you path directory'''
 from PyQt4.QtCore import QThread
 import os
 import yaml
