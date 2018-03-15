@@ -2,7 +2,7 @@
 import numpy as np
 
 
-class beamline():
+class createBeamline():
 
     def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
                  C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None,
