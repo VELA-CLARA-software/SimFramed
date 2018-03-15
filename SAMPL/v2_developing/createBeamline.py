@@ -1,12 +1,12 @@
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Drift as d
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Dipole as D
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Quadrupole as Q
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import Screen as S
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import OrbitCorrector as C
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
+from SAMPL.sourceCode.SAMPLcore.Components import Drift as d
+from SAMPL.sourceCode.SAMPLcore.Components import Dipole as D
+from SAMPL.sourceCode.SAMPLcore.Components import Quadrupole as Q
+from SAMPL.sourceCode.SAMPLcore.Components import Screen as S
+from SAMPL.sourceCode.SAMPLcore.Components import OrbitCorrector as C
+from SAMPL.sourceCode.SAMPLcore.Components import BeamPositionMonitor as BPM
 # from ..sourceCode.SAMPLcore.Components import SolenoidAndRFClass as SARF
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
-from OnlineMode.SAMPL.sourceCode.SAMPLcore.SAMPLlab import Beamline
+from SAMPL.sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
+from SAMPL.sourceCode.SAMPLcore.SAMPLlab import Beamline
 # from OnlineMode.SAMPL.sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
 
