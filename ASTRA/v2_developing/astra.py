@@ -13,41 +13,54 @@ class Setup(QThread):
                  C_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
         QThread.__init__(self)
         self.showMessages = messages
-        self.VELA_MAG_Controller = V_MAG_Ctrl
-        self.CLA_MAG_S01_Controller = C_S01_MAG_Ctrl
-        self.CLA_MAG_S02_Controller = C_S02_MAG_Ctrl
-        self.C2V_MAG_Controller = C2V_MAG_Ctrl
-        self.VELA_LLRF_Controller = V_RF_Ctrl
-        self.CLA_LLRF_Controller = C_RF_Ctrl
-        self.CLA_L01_LLRF_Controller = L01_RF_Ctrl
+        self.V_MAG_Ctrl = V_MAG_Ctrl
+        self.C_S01_MAG_Ctrl = C_S01_MAG_Ctrl
+        self.C_S02_MAG_Ctrl = C_S02_MAG_Ctrl
+        self.C2V_MAG_Ctrl = C2V_MAG_Ctrl
+        self.V_RF_Ctrl = V_RF_Ctrl
+        self.C_RF_Ctrl = C_RF_Ctrl
+        self.L01_RF_Ctrl = L01_RF_Ctrl
         self.startElement = 'Null'
         self.stopElement = 'Null'
         self.initDistribFile = 'Null'
         self.initCharge = 0.0
         self.pathway = Framework.Framework(subdir='.', overwrite='overwrite')
 
+
     # DESTRUCTOR
     def __del__(self):
         self.wait()
 
     def loadPathway(self):
+        ans = False
         stream = file(str(os.path.abspath(__file__)).split('astra')[0] +
                       "\\..\\..\\MasterLattice\\Lattices\\allPathways.yaml", 'r')
         settings = yaml.load(stream)
         for path in settings['pathways']:
+            # print path
             currentDir = os.path.dirname(os.path.abspath(__file__))
-            self.pathway.loadSettings(currentDir +
+            self.pathway.loadSettings(filename=currentDir +
                                       '\\..\\..\\MasterLattice\\Lattices\\' +
                                       path)
-            hasStart = any(self.startElement in path.elements)
-            #[s]['Online_Model_Name']
-#               for s, value in path.elements.iteritems())
-            hasStop = any(self.stopElement in path.elements)#[s]['Online_Model_Name']
-#                          for s, value in path.elements.iteritems())
+            hasStart = False
+            hasStop = False
+            # print self.pathway.elements.keys()
+            for element in self.pathway.elements.keys():
+                #print element
+                if element == self.startElement:
+                    #print('found start')
+                    hasStart = True
+                if element == self.stopElement:
+                    #print ('found stop')
+                    hasStop = True
             if (hasStart and hasStop):
-                self.pathway.loadSettings(filename=path)
-                print '    Loading pathway: ', path
-                return
+                ans = True
+                print '    Loaded pathway: ', path
+                return ans
+            else:
+                print '    Could not find a pathway...'
+                print '    Exiting ...'
+                return ans
 
     def go(self, startElement, stopElement, initDistribFile, charge=0.25):
             self.startElement = startElement
@@ -71,7 +84,9 @@ class Setup(QThread):
 
         print('2. Create a Beamline...')
         print('    Find aproriate pathway...')
-        self.loadPathway()
+        sucessful = self.loadPathway()
+        if sucessful is False:
+            return
         print('    Modify pathway using Virtual EPICS...')
         modifier = mabl.beamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
                                  C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
