@@ -99,6 +99,7 @@ elements:
   CLA-S02-MAG-HVCOR-03:
     type: kicker
     length: 0.03
+    Controller_Name: COR3
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]

@@ -9,6 +9,7 @@ elements:
   CLA-HRG1-GUN-CAV:
     type: cavity
     length: 0
+    Controller_Name: GUN400
     field_amplitude: 120000000.0
     frequency: 2998500000.0
     phase: -9
