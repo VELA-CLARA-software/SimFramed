@@ -30,6 +30,7 @@ class Framework(object):
         super(Framework, self).__init__()
         self.lineIterator = 0
         self.basedirectory = os.getcwd()
+        self.filedirectory = os.path.dirname(os.path.abspath(__file__))
         self.subdir = subdir
         self.overwrite = overwrite
         self.runname = runname
@@ -57,7 +58,7 @@ class Framework(object):
         else:
             filename = [input]
         for f in filename:
-            stream = file(f, 'r')
+            stream = file(self.filedirectory + '\\..\\' + f, 'r')
             elements = yaml.load(stream)['elements']
             stream.close()
             if 'filename' in elements:
