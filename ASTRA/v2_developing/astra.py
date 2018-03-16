@@ -32,16 +32,22 @@ class Setup(QThread):
 
     def loadPathway(self):
         stream = file(str(os.path.abspath(__file__)).split('astra')[0] +
-                      "\\..\\..\\MasterLattice\\YAML\\allPathways.yaml", 'r')
+                      "\\..\\..\\MasterLattice\\Lattices\\allPathways.yaml", 'r')
         settings = yaml.load(stream)
         for path in settings['pathways']:
-            hasStart = any(self.startElement in path.elements[s]['Online_Model_Name']
-                           for s, value in path.elements.iteritems())
-            hasStop = any(self.stopElement in path.elements[s]['Online_Model_Name']
-                          for s, value in path.elements.iteritems())
+            currentDir = os.path.dirname(os.path.abspath(__file__))
+            self.pathway.loadSettings(currentDir +
+                                      '\\..\\..\\MasterLattice\\Lattices\\' +
+                                      path)
+            hasStart = any(self.startElement in path.elements)
+            #[s]['Online_Model_Name']
+#               for s, value in path.elements.iteritems())
+            hasStop = any(self.stopElement in path.elements)#[s]['Online_Model_Name']
+#                          for s, value in path.elements.iteritems())
             if (hasStart and hasStop):
                 self.pathway.loadSettings(filename=path)
                 print '    Loading pathway: ', path
+                return
 
     def go(self, startElement, stopElement, initDistribFile, charge=0.25):
             self.startElement = startElement
@@ -92,6 +98,7 @@ class Setup(QThread):
         print('3. Running ASTRA simulation from ' +
               self.startElement + ' to ' + self.stopElement)
         # Now run Python script in Virtual Machine to run ASTRA
+'''
         if self.showMessages is True:
             os.system('VBoxManage --nologo guestcontrol "VE-11g" run ' +
                       '"usr/bin/python" --username "vmsim" --password ' +
@@ -102,3 +109,4 @@ class Setup(QThread):
                       '"usr/bin/python" --username "vmsim" --password ' +
                       '"password" -- /home/vmsim/Desktop/V2/ASTRA/runASTRA.py' +
                       ' >> OverallSimMessages.txt %s' % (','.join(inFiles)))
+'''
