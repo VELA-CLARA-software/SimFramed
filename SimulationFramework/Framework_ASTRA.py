@@ -1,4 +1,4 @@
-import yaml, collections, subprocess, os, math, re, sys, copy
+import yaml, collections, subprocess, os, math, re, sys, copy, ast
 import numpy as np
 import ASTRAGenerator as GenPart
 from ASTRARules import *
@@ -98,7 +98,7 @@ class ASTRA(object):
 
     def rotateAndOffset(self, start_pos, offset, theta):
         rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
-        return chop(np.dot(np.array(start_pos)-np.array(offset), rotation_matrix))
+        return chop(np.dot(np.array(start_pos)-np.array(offset), rotation_matrix), 1e-6)
 
     def createASTRACorrector(self, kickername, n=1, width=0.2, gap=0.02):
         """Create an ASTRA dipole string"""
@@ -106,22 +106,22 @@ class ASTRA(object):
         length      = getParameter(kicker,'length')
         e1          = getParameter(kicker,'entrance_edge_angle')
         e2          = getParameter(kicker,'exit_edge_angle')
-        width       = getParameter(kicker,'width',default=width)
-        gap         = getParameter(kicker,'gap',default=gap)
-        plane       = getParameter(kicker,'plane',default=plane)
-        angle       = getParameter(kicker,'angle')
+        width       = getParameter(kicker,'width', default=width)
+        gap         = getParameter(kicker,'gap', default=gap)
+        plane       = getParameter(kicker,'plane', default='combined')
+        angle       = getParameter(kicker,'angle', default=0)
         x,y,z       = getParameter(kicker,'position_start')
         strength_H  = getParameter(kicker,'strength_H')# strength for horizontal kicker
         strength_V  = getParameter(kicker,'strength_V')# strength for vertical kicker
 
         corners = [0,0,0,0]
-        kickers = self.parent.createDrifts([[dipolename, dipole]], zerolengthdrifts=True)
-        kickerpos, localXYZ = self.parent.elementPositions(dipoles, startangle=self.starting_rotation)
+        kickers = self.parent.createDrifts([[kickername, kicker]], zerolengthdrifts=True)
+        kickerpos, localXYZ = self.parent.elementPositions(kickers, startangle=self.starting_rotation)
         kickerpos = list(chunks(kickerpos,2))[0]
-        p1, psi1, nameelem1 = dipolepos[0]
-        p2, psi2, nameelem2 = dipolepos[1]
+        p1, psi1, nameelem1 = kickerpos[0]
+        p2, psi2, nameelem2 = kickerpos[1]
         rbend = 1 if getParameter(kicker,'type') == 'rdipole' else 0
-        rho = getParameter(dipole,'length')/angle if getParameter(dipole,'length') is not None and abs(angle) > 1e-9 else 0
+        rho = getParameter(kicker,'length')/angle if getParameter(kicker,'length') is not None and abs(angle) > 1e-9 else 0
         theta = -1*psi1-e1-rbend*np.sign(rho)*angle/2.0
         corners[0] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[0] = self.rotateAndOffset(corners[0], self.global_offset, self.global_rotation)
@@ -133,23 +133,27 @@ class ASTRA(object):
         corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[2] = self.rotateAndOffset(corners[2], self.global_offset, self.global_rotation)
 
-        # print 'corners = ', corners
-        dipoletext = "D_Type("+str(n)+")='horizontal',\n"+\
-        "D_Gap(1,"+str(n)+")="+str(gap)+",\n"+\
-        "D_Gap(2,"+str(n)+")="+str(gap)+",\n"+\
-        "D1("+str(n)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
-        "D3("+str(n)+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
-        "D4("+str(n)+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
-        "D2("+str(n)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
-        "D_strength("+str(n)+")="+str(strength_H)+"\n"+\
-        "D_Type("+str(n+1)+")='vertical'',\n"+\
-        "D_Gap(1,"+str(n+1)+")="+str(gap)+",\n"+\
-        "D_Gap(2,"+str(n+1)+")="+str(gap)+",\n"+\
-        "D1("+str(n+1)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
-        "D3("+str(n+1)+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
-        "D4("+str(n+1)+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
-        "D2("+str(n+1)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
-        "D_strength("+str(n+1)+")="+str(strength_V)+"\n"
+        dipoletext = ""
+        if plane is 'horizontal' or plane is 'combined':
+            dipoletext += "D_Type("+str(n)+")='horizontal',\n"+\
+            "D_Gap(1,"+str(n)+")="+str(gap)+",\n"+\
+            "D_Gap(2,"+str(n)+")="+str(gap)+",\n"+\
+            "D1("+str(n)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
+            "D3("+str(n)+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
+            "D4("+str(n)+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
+            "D2("+str(n)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
+            "D_strength("+str(n)+")="+str(strength_H)+"\n"
+        if plane is 'vertical' or plane is 'combined':
+            dipoletext += "D_Type("+str(n+1)+")='vertical'',\n"+\
+            "D_Gap(1,"+str(n+1)+")="+str(gap)+",\n"+\
+            "D_Gap(2,"+str(n+1)+")="+str(gap)+",\n"+\
+            "D1("+str(n+1)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
+            "D3("+str(n+1)+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
+            "D4("+str(n+1)+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
+            "D2("+str(n+1)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
+            "D_strength("+str(n+1)+")="+str(strength_V)+"\n"
+
+        return dipoletext
 
     def createASTRADipole(self, dipolename, n=1, width=0.2, gap=0.02, plane='horizontal'):
         """Create an ASTRA dipole string"""
@@ -160,7 +164,7 @@ class ASTRA(object):
         width       = getParameter(dipole,'width',default=width)
         gap         = getParameter(dipole,'gap',default=gap)
         plane       = getParameter(dipole,'plane',default=plane)
-        angle       = getParameter(dipole,'angle')
+        angle       = self.parent.getElement(dipolename,'angle', default=0)
         x,y,z       = getParameter(dipole,'position_start')
 
         corners = [0,0,0,0]
@@ -493,7 +497,7 @@ class ASTRA(object):
         # Add in correctors
         kickers = self.parent.getElementsBetweenS('kicker', output=output)
         for i,s in enumerate(kickers):
-            dipoletext += ' '+self.createASTRACorrector(s, counter)
+            dipoletext += ' '+ self.createASTRACorrector(s, counter)
             counter += 2 # two dipole one horizontal one vertical
 
         dipoletext += '/\n'
@@ -539,8 +543,7 @@ class ASTRA(object):
         dipoles = self.parent.getElementsBetweenS('dipole', output)
         self.global_rotation = -self.starting_rotation
         for d in dipoles:
-            self.global_rotation -= float(self.parent.getElement(d,'angle'))
-        # print 'global_rotation = ', self.global_rotation
+            self.global_rotation -= self.parent.getElement(d,'angle')
 
         input = self.parent.getFileSettings(file,'input')
 
