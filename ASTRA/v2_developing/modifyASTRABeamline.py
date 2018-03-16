@@ -52,51 +52,55 @@ class beamline():
         else:
             print ("Trying to get unrecognised object.")
 
-    def modfiy(self, pathway):
-
+    def modfiy(self, pathway, startElement, stopElement):
+        mod = False
         for name, element in pathway.elements.iteritems():
-            print name
-            # element = pathway.elements[index]
-            nickName = element['Controller_Name']
-            component = None
-            # Check element type and add accordingly
-            if element['type'] == 'dipole':
-                self.changeDipole(pathway, element, nickName, name)
-            elif element['type'] == 'quadrupole':
-                self.changeQuadrupole(pathway, element, nickName, name)
-            elif element['type'] == 'kicker':
-                self.changeCorrector(pathway, element, nickName, name)
-            elif element['type'] == 'bpm':
-                component = BPM.BeamPositionMonitor(name=name,
-                                                    length=element['length'])
-        #    elif element['type'] == 'screen':
-        #        component = S.Screen(name=name)
-        #    elif element['type'] == 'wcm':
-        #        component = d.Drift(name=name, length=element['length'])
-        #    elif element['type'] == 'tdc':
-        #        component = d.Drift(name=name, length=element['length'])
-        #    elif element['type'] == 'bam':
-        #        component = d.Drift(name=name, length=element['length'])
-        #    elif element['type'] == 'cavity':
-                cavity = self.getObject(nickName, name)
-                # get detials solnoids ascociated with the linac
-                solenoid1 = elements[element['sol1']]
-                solenoid2 = elements[element['sol2']]
-                sol1 = self.getObject(solenoid1['name'], element['sol1'])
-                sol2 = self.getObject(solenoid2['name'], element['sol2'])
-                print 'LINAC grad: ' + str(cavity.amp_MVM)
-                print 'LINAC Phase: ' + str(cavity.phi_DEG)
-                pathway.modifyElement(element=element,
-                                      setting='field_amplitude',
-                                      value=cavity.amp_MVM*1e6)
-                pathway.modifyElement(element=element,
-                                      setting='phase',
-                                      value=cavity.phi_DEG*1e6)
-            else:
-                print ('ERROR: This reader doesn\'t',
-                       'recognise element type of ', name)
-            # Append component
-            line.componentlist.append(component)
+            if name == startElement:
+                mod = True
+
+            if mod is True:
+                print name
+                # Check element type and add accordingly
+                if element['type'] == 'dipole':
+                    self.changeDipole(pathway, element,
+                                      element['Controller_Name'], name)
+                elif element['type'] == 'quadrupole':
+                    self.changeQuadrupole(pathway, element,
+                                          element['Controller_Name'], name)
+                elif element['type'] == 'kicker':
+                    self.changeCorrector(pathway, element,
+                                         element['Controller_Name'], name)
+                # elif element['type'] == 'bpm':
+                #    component = BPM.BeamPositionMonitor(name=name,
+                #                                        length=element['length'])
+            #    elif element['type'] == 'screen':
+            #        component = S.Screen(name=name)
+            #    elif element['type'] == 'wcm':
+            #        component = d.Drift(name=name, length=element['length'])
+            #    elif element['type'] == 'tdc':
+            #        component = d.Drift(name=name, length=element['length'])
+            #    elif element['type'] == 'bam':
+            #        component = d.Drift(name=name, length=element['length'])
+                elif element['type'] == 'cavity':
+                    cavity = self.getObject(element['Controller_Name'], name)
+                    # get detials solnoids ascociated with the linac
+                    #solenoid1 = elements[element['sol1']]
+                    #solenoid2 = elements[element['sol2']]
+                    #sol1 = self.getObject(solenoid1['name'], element['sol1'])
+                    #sol2 = self.getObject(solenoid2['name'], element['sol2'])
+                    #print 'LINAC grad: ' + str(cavity.amp_MVM)
+                    #print 'LINAC Phase: ' + str(cavity.phi_DEG)
+                    pathway.modifyElement(element=name,
+                                          setting='field_amplitude',
+                                          value=cavity.amp_MVM*1e6)
+                    pathway.modifyElement(element=name,
+                                          setting='phase',
+                                          value=cavity.phi_DEG)
+            if name == stopElement:
+                mod = False
+                #else:
+                #    print ('sWARNING: This reader doesn\'t ' +
+                #           'recognise element type of ' + name)
 
 # Complicated adding
     def changeDipole(self, pathway, element, nickName, name):
@@ -106,22 +110,22 @@ class beamline():
         absField = (np.polyval(coeffs, abs(dip.siWithPol)) /
                     dip.magneticLength)
         field = np.copysign(absField, dip.siWithPol)
-        pathway.modifyElement(element=element,
+        pathway.modifyElement(element=name,
                               setting='field',
                               value=field)
 
-    def changeQuadrupole(self, element, nickName, name):
+    def changeQuadrupole(self, pathway, element, nickName, name):
         quad = self.getObject(nickName, name)
         grad = 0.0
         coeffs = quad.fieldIntegralCoefficients
         absGrad = (np.polyval(coeffs, abs(quad.siWithPol)) /
                    quad.magneticLength)
         grad = 1000 * np.copysign(absGrad, quad.siWithPol)
-        pathway.modifyElement(element=element,
+        pathway.modifyElement(element=name,
                               setting='k1',
-                              value=field)
+                              value=grad)
 
-    def changeCorrector(self, element, nickName, name):
+    def changeCorrector(self, pathway, element, nickName, name):
         print name
         vObj, hObj = self.getObject(nickName, name)
         vField = 0.0
@@ -136,9 +140,9 @@ class beamline():
                      hObj.magneticLength)
         hField = 1000 * np.copysign(absVField, hObj.siWithPol)
 
-        pathway.modifyElement(element=element,
-                              setting='H_Field',
+        pathway.modifyElement(element=name,
+                              setting='strength_H',
                               value=hField)
-        pathway.modifyElement(element=element,
-                              setting='V_Field',
+        pathway.modifyElement(element=name,
+                              setting='strength_V',
                               value=vField)

@@ -95,7 +95,7 @@ class Setup(QThread):
                                  V_RF_Ctrl=self.V_RF_Ctrl,
                                  C_RF_Ctrl=self.C_RF_Ctrl,
                                  L01_RF_Ctrl=self.L01_RF_Ctrl)
-        modifier.modfiy(self.pathway)
+        modifier.modfiy(self.pathway, self.startElement, self.stopElement)
         print('    Creating .in files...')
         # Write .in files
         self.pathway.createInputFiles()
