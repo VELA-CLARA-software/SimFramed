@@ -99,16 +99,7 @@ class Setup(QThread):
         print('    Creating .in files...')
         # Write .in files
         self.pathway.createInputFiles()
-        # Once written copy the files to virtual Machine
-        for section in self.pathway.fileSettings.keys():
-            os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto ' +
-                      '--username "vmsim" --password "password" ' +
-                      '--target-directory "/home/vmsim/Desktop/V2/ASTRA/" "' +
-                      os.getcwd() + '\\temp-' + section + '"')
-            os.system('VBoxManage --nologo guestcontrol "VE-11g" copyto ' +
-                      '--username "vmsim" --password "password" ' +
-                      '--target-directory "/home/vmsim/Desktop/V2/ASTRA/" "' +
-                      os.getcwd() + '\\' + self.initDistribFile + '"')
+
 
         print('3. Running ASTRA simulation from ' +
               self.startElement + ' to ' + self.stopElement)
