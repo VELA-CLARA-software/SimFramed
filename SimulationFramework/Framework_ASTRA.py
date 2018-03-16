@@ -8,10 +8,10 @@ from operator import add
 
 class ASTRA(object):
 
-    def __init__(self, parent=None, directory='test'):
+    def __init__(self, framework=None, directory='test'):
         super(ASTRA, self).__init__()
         self.subdir = directory
-        self.parent = parent
+        self.framework = framework
         self.astraCommand = ['astra']
 
     def runASTRA(self, filename=''):
@@ -26,18 +26,18 @@ class ASTRA(object):
 
     def setInitialDistribution(self, filename='../1k-250pC-76fsrms-1mm_TE09fixN12.ini'):
         """Modify the 'initial_distribution' global setting"""
-        self.parent.globalSettings['initial_distribution'] = filename
+        self.framework.globalSettings['initial_distribution'] = filename
 
     def createInitialDistribution(self, npart=1000, charge=250, generatorCommand=None, generatorFile=None):
         """Create an initiail dostribution of 'npart' particles of 'charge' pC"""
-        self.parent.globalSettings['npart'] = npart
-        self.parent.globalSettings['charge'] = charge/1000.0
+        self.framework.globalSettings['npart'] = npart
+        self.framework.globalSettings['charge'] = charge/1000.0
         if generatorFile is None:
-            if self.parent.generatorFile is not None:
-                generatorFile = self.parent.generatorFile
+            if self.framework.generatorFile is not None:
+                generatorFile = self.framework.generatorFile
             else:
                 generatorFile = 'generator.in'
-        astragen = GenPart.ASTRAGenerator(self.subdir, charge, npart, overwrite=self.parent.overwrite, generatorFile=generatorFile)
+        astragen = GenPart.ASTRAGenerator(self.subdir, charge, npart, overwrite=self.framework.overwrite, generatorFile=generatorFile)
         if not generatorCommand is None:
             astragen.defineGeneratorCommand(generatorCommand)
         elif os.name == 'nt':
@@ -47,20 +47,20 @@ class ASTRA(object):
         inputfile = astragen.generateBeam()
         self.setInitialDistribution(inputfile)
         scgrid = getGrids(npart)
-        self.parent.globalSettings['SC_2D_Nrad'] = max([scgrid.gridSizes,4])
-        self.parent.globalSettings['SC_2D_Nlong'] = max([scgrid.gridSizes,4])
+        self.framework.globalSettings['SC_2D_Nrad'] = max([scgrid.gridSizes,4])
+        self.framework.globalSettings['SC_2D_Nlong'] = max([scgrid.gridSizes,4])
         for scvar in ['SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
-            self.parent.globalSettings[scvar] = scgrid.gridSizes
+            self.framework.globalSettings[scvar] = scgrid.gridSizes
 
     def createASTRAChicane(self, group, dipoleangle=None, width=0.2, gap=0.02):
         """Create a 4 dipole chicane in ASTRA with the correct edge points"""
         chicanetext = ''
-        dipoles = self.parent.getGroup(group)
+        dipoles = self.framework.getGroup(group)
         if not dipoleangle is None:
             dipoleangle = float(dipoleangle)
-            dipoles = [self.parent.setDipoleAngle(d, dipoleangle) for d in dipoles]
-        dipoles = self.parent.createDrifts(dipoles)
-        dipolepos, localXYZ = self.parent.elementPositions(dipoles)
+            dipoles = [self.framework.setDipoleAngle(d, dipoleangle) for d in dipoles]
+        dipoles = self.framework.createDrifts(dipoles)
+        dipolepos, localXYZ = self.framework.elementPositions(dipoles)
         dipolepos = list(chunks(dipolepos,2))
         corners = [0,0,0,0]
         dipoleno = 0
@@ -102,7 +102,7 @@ class ASTRA(object):
 
     def createASTRACorrector(self, kickername, n=1, width=0.2, gap=0.02):
         """Create an ASTRA dipole string"""
-        kicker        = self.parent.getElement(kickername)
+        kicker        = self.framework.getElement(kickername)
         length      = getParameter(kicker,'length')
         e1          = getParameter(kicker,'entrance_edge_angle')
         e2          = getParameter(kicker,'exit_edge_angle')
@@ -117,22 +117,23 @@ class ASTRA(object):
         dipoletext = ""
 
         corners = [0,0,0,0]
-        kickers = self.parent.createDrifts([[kickername, kicker]], zerolengthdrifts=True)
-        kickerpos, localXYZ = self.parent.elementPositions(kickers, startangle=self.starting_rotation)
+        kickers = self.framework.createDrifts([[kickername, kicker]], zerolengthdrifts=True)
+        kickerpos, localXYZ = self.framework.elementPositions(kickers, startangle=self.starting_rotation)
         kickerpos = list(chunks(kickerpos,2))[0]
         p1, psi1, nameelem1 = kickerpos[0]
         p2, psi2, nameelem2 = kickerpos[1]
-        rbend = 1 if getParameter(kicker,'type') == 'rdipole' else 0
+
+        rbend = 0 #if getParameter(kicker,'type') == 'rdipole' else 0
         rho = getParameter(kicker,'length')/angle if getParameter(kicker,'length') is not None and abs(angle) > 1e-9 else 0
-        theta = -1*psi1-e1-rbend*np.sign(rho)*angle/2.0
-        corners[0] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
+        theta = -1*psi1 - e1 - rbend*np.sign(rho)*angle/2.0
+        corners[0] = np.array(map(add,np.transpose(p1),np.dot([-width,0,0], rotationMatrix(theta))))[0,0]
         corners[0] = self.rotateAndOffset(corners[0], self.global_offset, self.global_rotation)
-        corners[3] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
+        corners[3] = np.array(map(add,np.transpose(p1),np.dot([width,0,0], rotationMatrix(theta))))[0,0]
         corners[3] = self.rotateAndOffset(corners[3], self.global_offset, self.global_rotation)
         theta = -1*psi2+e2-rbend*np.sign(rho)*angle/2.0
-        corners[1] = np.array(map(add,np.transpose(p2),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
+        corners[1] = np.array(map(add,np.transpose(p2),np.dot([-width,0,0], rotationMatrix(theta))))[0,0]
         corners[1] = self.rotateAndOffset(corners[1], self.global_offset, self.global_rotation)
-        corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
+        corners[2] = np.array(map(add,np.transpose(p2),np.dot([width,0,0], rotationMatrix(theta))))[0,0]
         corners[2] = self.rotateAndOffset(corners[2], self.global_offset, self.global_rotation)
 
         if plane is 'horizontal' or plane is 'combined':
@@ -158,22 +159,23 @@ class ASTRA(object):
 
     def createASTRADipole(self, dipolename, n=1, width=0.2, gap=0.02, plane='horizontal'):
         """Create an ASTRA dipole string"""
-        dipole        = self.parent.getElement(dipolename)
+        dipole        = self.framework.getElement(dipolename)
         length      = getParameter(dipole,'length')
         e1          = getParameter(dipole,'entrance_edge_angle')
         e2          = getParameter(dipole,'exit_edge_angle')
         width       = getParameter(dipole,'width',default=width)
         gap         = getParameter(dipole,'gap',default=gap)
         plane       = getParameter(dipole,'plane',default=plane)
-        angle       = self.parent.getElement(dipolename,'angle', default=0)
+        angle       = self.framework.getElement(dipolename,'angle', default=0)
         x,y,z       = getParameter(dipole,'position_start')
 
         corners = [0,0,0,0]
-        dipoles = self.parent.createDrifts([[dipolename, dipole]], zerolengthdrifts=True)
-        dipolepos, localXYZ = self.parent.elementPositions(dipoles, startangle=self.starting_rotation)
+        dipoles = self.framework.createDrifts([[dipolename, dipole]], zerolengthdrifts=True)
+        dipolepos, localXYZ = self.framework.elementPositions(dipoles, startangle=self.starting_rotation)
         dipolepos = list(chunks(dipolepos,2))[0]
         p1, psi1, nameelem1 = dipolepos[0]
         p2, psi2, nameelem2 = dipolepos[1]
+        self.starting_rotation += angle
         rbend = 1 if getParameter(dipole,'type') == 'rdipole' else 0
         rho = getParameter(dipole,'length')/angle if getParameter(dipole,'length') is not None and abs(angle) > 1e-9 else 0
         theta = -1*psi1-e1-rbend*np.sign(rho)*angle/2.0
@@ -205,7 +207,7 @@ class ASTRA(object):
 
     def createASTRAQuad(self, quadname, n=1):
         """Create an ASTRA quadrupole string"""
-        quad        = self.parent.getElement(quadname)
+        quad        = self.framework.getElement(quadname)
         k1          = str(getParameter(quad,'k1'))
         length      = str(getParameter(quad,'length'))
         x,y,z       =     getParameter(quad,'position_start')
@@ -219,8 +221,9 @@ class ASTRA(object):
 
     def createASTRASolenoid(self, solname, n=1):
         """Create an ASTRA solenoid string"""
-        sol         = self.parent.getElement(solname)
+        sol         = self.framework.getElement(solname)
         definition  = str(getParameter(sol,'field_definition'))
+        definition = self.framework.expand_substitution(definition,{'master_lattice_location': self.framework.master_lattice_location})
         length      = str(getParameter(sol,'length'))
         x,y,z       =     getParameter(sol,'position_start')
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
@@ -235,8 +238,9 @@ class ASTRA(object):
 
     def createASTRACavity(self, cavname, n=1):
         """Create an ASTRA cavity string"""
-        cav         = self.parent.getElement(cavname)
+        cav         = self.framework.getElement(cavname)
         definition  = str(getParameter(cav,'field_definition'))
+        definition = self.framework.expand_substitution(definition,{'master_lattice_location': self.framework.master_lattice_location})
         length      =     getParameter(cav,'length')
         x,y,z       =     getParameter(cav,'position_start')
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
@@ -262,7 +266,7 @@ class ASTRA(object):
 
     def createASTRAScreen(self, screenname, n=1):
         """Create an ASTRA screen string"""
-        screen         = self.parent.getElement(screenname)
+        screen         = self.framework.getElement(screenname)
         x,y,z          =     getParameter(screen,'position_start')
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
 
@@ -270,7 +274,7 @@ class ASTRA(object):
         return screentext
 
     def formatASTRAStartElement(self, name):
-        return str(int(round(self.parent.elements[name]['position_end'][2]*100))).zfill(4)
+        return str(int(round(self.framework.elements[name]['position_end'][2]*100))).zfill(4)
 
     def createASTRANewRunBlock(self, settings={}, input={}, output={}):
         """Create an ASTRA NEWRUN Block string"""
@@ -280,17 +284,17 @@ class ASTRA(object):
         lprompt         = str(getParameter(settings,'Lprompt',default=False))
         distribution    = str(getParameter(input,'particle_definition',default=''))
         if distribution == 'initial_distribution':
-            distribution = self.parent.globalSettings['initial_distribution']
+            distribution = self.framework.globalSettings['initial_distribution']
         else:
             regex = re.compile('\$(.*)\$')
             s = re.search(regex, distribution)
             if s:
                 distribution = re.sub(regex, self.formatASTRAStartElement(eval(s.group(1))), distribution)
         # print 'qbunch = ', getParameter([self.globalSettings,settings],'total_charge',default=250)
-        Qbunch          = str(getParameter([self.parent.globalSettings,settings],'total_charge',default=250))
+        Qbunch          = str(getParameter([self.framework.globalSettings,settings],'total_charge',default=250))
         # zstart          =     getParameter(settings,'zstart',default=0)
         # zstop           =     getParameter(settings,'zstop',default=0)
-        accuracy        = str(getParameter([self.parent.globalSettings,settings],'accuracy',default=4))
+        accuracy        = str(getParameter([self.framework.globalSettings,settings],'accuracy',default=4))
         highres = True if accuracy > 4 else False
 
         newruntext = '&NEWRUN\n' +\
@@ -302,7 +306,7 @@ class ASTRA(object):
         ' high_res='+str(highres)+'\n' + \
         ' Qbunch='+str(Qbunch)+'\n'
         for var in ASTRARules['NEWRUN']:
-            newruntext += createOptionalString([self.parent.globalSettings['ASTRAsettings'],settings], var)
+            newruntext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings], var)
         newruntext += '/\n'
 
         return newruntext
@@ -311,27 +315,27 @@ class ASTRA(object):
         """Create an ASTRA OUTPUT Block string"""
 
         output = copy.deepcopy(originaloutput)
-        screens = self.parent.getElementsBetweenS('screen', output=output)
+        screens = self.framework.getElementsBetweenS('screen', output=output)
         # print 'screens = ', screens
 
         zstart = getParameter(output,'zstart',default=None)
         if zstart is None:
             startelem = getParameter(output,'start_element',default=None)
-            if startelem is None or startelem not in self.parent.elements:
+            if startelem is None or startelem not in self.framework.elements:
                 zstart = [0,0,0]
             else:
-                # print self.parent.elements[startelem]
-                zstart = self.parent.elements[startelem]['position_start']
+                # print self.framework.elements[startelem]
+                zstart = self.framework.elements[startelem]['position_start']
                 originaloutput['zstart'] = zstart[2]
         elif not isinstance(zstart, (list, tuple)):
             zstart = [0,0, zstart]
         zstop = getParameter(output,'zstop',default=None)
         if zstop is None:
             endelem = getParameter(output,'end_element',default=None)
-            if endelem is None or endelem not in self.parent.elements:
+            if endelem is None or endelem not in self.framework.elements:
                 zstop = [0,0,0]
             else:
-                zstop = self.parent.elements[endelem]['position_end']
+                zstop = self.framework.elements[endelem]['position_end']
                 originaloutput['zstop'] = zstop[2]
         elif not isinstance(zstop, (list, tuple)):
             zstop = [0,0,zstop]
@@ -339,13 +343,13 @@ class ASTRA(object):
         # print 'zstop = ', zstop
         zstart = self.rotateAndOffset(zstart, self.global_offset, self.global_rotation)
         output['zstart'] = zstart[2]
-        # print 'zstop = ', self.parent.elements[endelem]['position_end']
+        # print 'zstop = ', self.framework.elements[endelem]['position_end']
         zstop = self.rotateAndOffset(zstop, self.global_offset, self.global_rotation)
         # print 'zstop after = ', zstop
         output['zstop'] = zstop[2]
         outputtext = '&OUTPUT\n'
         for var in ASTRARules['OUTPUT']:
-            outputtext += createOptionalString([self.parent.globalSettings['ASTRAsettings'],settings, output], var)
+            outputtext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings, output], var)
         for i,s in enumerate(screens):
             outputtext += ' '+self.createASTRAScreen(s,i+1)
         outputtext += '/\n'
@@ -362,12 +366,12 @@ class ASTRA(object):
         lspch2d     = True if lspch and mode != '3D' else False
         lspch3d     = True if lspch and not lspch2d else False
         if lspch2d:
-            nrad    = str(getParameter([charge,self.parent.globalSettings],'SC_2D_Nrad',default=6))
-            nlong   = str(getParameter([charge,self.parent.globalSettings],'SC_2D_Nlong',default=6))
+            nrad    = str(getParameter([charge,self.framework.globalSettings],'SC_2D_Nrad',default=6))
+            nlong   = str(getParameter([charge,self.framework.globalSettings],'SC_2D_Nlong',default=6))
         else:
-            nxf     = str(getParameter([charge,self.parent.globalSettings],'SC_3D_Nxf',default=6))
-            nyf     = str(getParameter([charge,self.parent.globalSettings],'SC_3D_Nyf',default=6))
-            nzf     = str(getParameter([charge,self.parent.globalSettings],'SC_3D_Nzf',default=6))
+            nxf     = str(getParameter([charge,self.framework.globalSettings],'SC_3D_Nxf',default=6))
+            nyf     = str(getParameter([charge,self.framework.globalSettings],'SC_3D_Nyf',default=6))
+            nzf     = str(getParameter([charge,self.framework.globalSettings],'SC_3D_Nzf',default=6))
 
         chargetext = '&CHARGE\n' +\
         ' Loop='+str(loop)+'\n' + \
@@ -380,7 +384,7 @@ class ASTRA(object):
             chargetext += ' Nxf='+nxf+', Nyf='+nyf+', Nzf='+nzf+'\n'
 
         for var in ASTRARules['CHARGE']:
-            chargetext += createOptionalString([self.parent.globalSettings['ASTRAsettings'], settings, charge], var)
+            chargetext += createOptionalString([self.framework.globalSettings['ASTRAsettings'], settings, charge], var)
         chargetext += '/\n'
 
         return chargetext
@@ -395,7 +399,7 @@ class ASTRA(object):
         ' Loop='+str(loop)+'\n' +\
         ' LScan='+str(lscan)+'\n'
         for var in ASTRARules['SCAN']:
-            scantext += createOptionalString([self.parent.globalSettings['ASTRAsettings'], settings, scan], var)
+            scantext += createOptionalString([self.framework.globalSettings['ASTRAsettings'], settings, scan], var)
         scantext += '/\n'
 
         return scantext
@@ -411,14 +415,14 @@ class ASTRA(object):
         ' Loop='+str(loop)+'\n' +\
         ' LApert='+str(lapert)+'\n'
         for var in ASTRARules['APERTURE']:
-            aperturetext += createOptionalString([self.parent.globalSettings['ASTRAsettings'], settings, aperture], var)
+            aperturetext += createOptionalString([self.framework.globalSettings['ASTRAsettings'], settings, aperture], var)
         aperturetext += '/\n'
 
         return aperturetext
 
     def createASTRACavityBlock(self, cavity={}, output={}):
         """Create an ASTRA APERTURE Block string"""
-        cavities = self.parent.getElementsBetweenS('cavity', output=output)
+        cavities = self.framework.getElementsBetweenS('cavity', output=output)
 
         loop        = str(getParameter(cavity,'Loop',default=False))
         lefield = True if len(cavities) > 0 else False
@@ -437,7 +441,7 @@ class ASTRA(object):
 
     def createASTRASolenoidBlock(self, solenoid={}, output={}):
         """Create an ASTRA SOLENOID Block string"""
-        solenoids = self.parent.getElementsBetweenS('solenoid', output=output)
+        solenoids = self.framework.getElementsBetweenS('solenoid', output=output)
 
         loop        = str(getParameter(solenoid,'Loop',default=False))
         lbfield = True if len(solenoids) > 0 else False
@@ -457,7 +461,7 @@ class ASTRA(object):
 
     def createASTRAQuadrupoleBlock(self, quad={}, output={}):
         """Create an ASTRA QUADRUPOLE Block string"""
-        quadrupoles = self.parent.getElementsBetweenS('quadrupole', output=output)
+        quadrupoles = self.framework.getElementsBetweenS('quadrupole', output=output)
 
         loop        = str(getParameter(quad,'Loop',default=False))
         lquad = True if len(quadrupoles) > 0 else False
@@ -477,12 +481,15 @@ class ASTRA(object):
     def createASTRADipoleBlock(self, dipole={}, output={}, groups={}):
         """Create an ASTRA DIPOLE Block string"""
 
-        dipoles = self.parent.getElementsBetweenS('dipole', output=output)
-        kickers = self.parent.getElementsBetweenS('kicker', output=output)
+        dipoles = self.framework.getElementsBetweenS('dipole', output=output)
+        kickers = self.framework.getElementsBetweenS('kicker', output=output)
+        zerokickers = []
         for k in kickers:
-            if not abs(self.parent.getElement(k,'strength_H', 0)) > 0 and not abs(self.parent.getElement(k,'strength_V',0)) > 0:
-                kickers.remove(k)
-        print 'kickers = ', kickers
+            if not abs(self.framework.getElement(k,'strength_H', 0)) > 0 and not abs(self.framework.getElement(k,'strength_V',0)) > 0:
+                zerokickers.append(k)
+        # for k in zerokickers:
+        #     kickers.remove(k)
+
         loop        = str(getParameter(dipole,'Loop',default=False))
         ldipole = True if len(dipoles) > 0 or len(kickers) > 0 else False
         ldipole     = str(getParameter(dipole,'LDipole', default=ldipole))
@@ -491,13 +498,11 @@ class ASTRA(object):
         ' Loop='+str(loop)+'\n' +\
         ' LDipole='+str(ldipole)+'\n'
 
-
-
         for g in groups:
-            if g in self.parent.groups:
-                if self.parent.groups[g]['type'] == 'chicane':
-                    if all([i for i in self.parent.groups[g] if i in dipoles]):
-                        dipoles = [i for i in dipoles if i not in self.parent.groups[g]]
+            if g in self.framework.groups:
+                if self.framework.groups[g]['type'] == 'chicane':
+                    if all([i for i in self.framework.groups[g] if i in dipoles]):
+                        dipoles = [i for i in dipoles if i not in self.framework.groups[g]]
                         dipoletext += self.createASTRAChicane(g, **groups[g])
         counter = 1
         for i,s in enumerate(dipoles):
@@ -505,66 +510,40 @@ class ASTRA(object):
             counter += 1
 
         # Add in correctors
-        # for i,s in enumerate(kickers):
-        #     dipoletext += ' '+ self.createASTRACorrector(s, counter)
-        #     counter += 2 # two dipole one horizontal one vertical
+        for i,s in enumerate(kickers):
+            dipoletext += ' '+ self.createASTRACorrector(s, counter)
+            counter += 2 # two dipole one horizontal one vertical
 
         dipoletext += '/\n'
 
         return dipoletext
 
-    # def createASTRAChicaneBlock(self, groups, dipoles):
-    #     """Create an ASTRA DIPOLE Block string for a chicane"""
-    #     for g in groups:
-    #         if g in self.parent.groups:
-    #             # print 'group!'
-    #             if self.parent.groups[g]['type'] == 'chicane':
-    #                 if all([i for i in self.parent.groups[g] if i in dipoles]):
-    #                     ldipole = True
-    #
-    #     for g in groups:
-    #         if g in self.parent.groups:
-    #             # print 'group!'
-    #             if self.parent.groups[g]['type'] == 'chicane':
-    #                 if all([i for i in self.parent.groups[g] if i in dipoles]):
-    #                     dipoletext += self.createASTRAChicane(g, **groups[g])
-    #
-    #     dipoletext += '/\n'
-    #
-    #     return dipoletext
-
     def createASTRAFileText(self, file):
-        settings = self.parent.getFileSettings(file,'ASTRA_Options')
-        output = self.parent.getFileSettings(file,'output')
-        self.global_offset = self.parent.getFileSettings(file,'global_offset', [0,0,0])
-        if isinstance(self.global_offset,(str)):
-            regex = re.compile('\$(.*)\$')
-            s = re.search(regex, self.global_offset)
-            if s:
-                self.global_offset = eval(s.group(1))
-        self.starting_rotation = self.parent.getFileSettings(file,'starting_rotation', 0)
-        if isinstance(self.starting_rotation,(str)):
-            regex = re.compile('\$(.*)\$')
-            s = re.search(regex, self.starting_rotation)
-            if s:
-                self.starting_rotation = eval(s.group(1))
+        settings = self.framework.getFileSettings(file,'ASTRA_Options')
+        output = self.framework.getFileSettings(file,'output')
+        self.global_offset = self.framework.getFileSettings(file,'global_offset', [0,0,0])
+        self.global_offset = self.framework.expand_substitution(self.global_offset)
 
-        dipoles = self.parent.getElementsBetweenS('dipole', output)
+        self.starting_rotation = self.framework.getFileSettings(file,'starting_rotation', 0)
+        self.starting_rotation = self.framework.expand_substitution(self.starting_rotation)
+
+
+        dipoles = self.framework.getElementsBetweenS('dipole', output)
         self.global_rotation = -self.starting_rotation
         for d in dipoles:
-            self.global_rotation -= self.parent.getElement(d,'angle')
+            self.global_rotation -= self.framework.getElement(d,'angle')
 
-        input = self.parent.getFileSettings(file,'input')
+        input = self.framework.getFileSettings(file,'input')
 
-        charge = self.parent.getFileSettings(file,'charge')
-        scan = self.parent.getFileSettings(file,'scan')
-        aperture = self.parent.getFileSettings(file,'aperture')
-        cavity = self.parent.getFileSettings(file,'cavity')
-        solenoid = self.parent.getFileSettings(file,'solenoid')
-        quadrupole = self.parent.getFileSettings(file,'quadrupole')
+        charge = self.framework.getFileSettings(file,'charge')
+        scan = self.framework.getFileSettings(file,'scan')
+        aperture = self.framework.getFileSettings(file,'aperture')
+        cavity = self.framework.getFileSettings(file,'cavity')
+        solenoid = self.framework.getFileSettings(file,'solenoid')
+        quadrupole = self.framework.getFileSettings(file,'quadrupole')
 
 
-        groups = self.parent.getFileSettings(file,'groups')
+        groups = self.framework.getFileSettings(file,'groups')
 
         astrafiletext = ''
         astrafiletext += self.createASTRANewRunBlock(settings, input, output)
