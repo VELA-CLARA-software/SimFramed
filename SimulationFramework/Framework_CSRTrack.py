@@ -5,10 +5,10 @@ from FrameworkHelperFunctions import *
 
 class CSRTrack(object):
 
-    def __init__(self, parent=None, directory='test'):
+    def __init__(self, framework=None, directory='test'):
         super(CSRTrack, self).__init__()
         self.subdir = directory
-        self.parent = parent
+        self.framework = framework
         self.beam = rbf.beam()
         self.CSRTrackCommand = ['csrtrack']
 
@@ -20,22 +20,22 @@ class CSRTrack(object):
             subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def convertCSRTrackOutput(self, f):
-        output = self.parent.getFileSettings(f,'output')
+        output = self.framework.getFileSettings(f,'output')
         outputdistribution    = f+'.$output[\'end_element\']$.001'
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, outputdistribution)
         if s:
-            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            sub = self.framework.astra.formatASTRAStartElement(eval(s.group(1)))
             outputdistribution = re.sub(regex, sub, outputdistribution)
 
-        options = self.parent.getFileSettings(f,'CSRTrack_Options')
-        monitor = self.parent.getSettingsBlock(options,'monitor')
+        options = self.framework.getFileSettings(f,'CSRTrack_Options')
+        monitor = self.framework.getSettingsBlock(options,'monitor')
         # print monitor
         inputdistribution    = str(getParameter(monitor,'name',default=''))
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, inputdistribution)
         if s:
-            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            sub = self.framework.astra.formatASTRAStartElement(eval(s.group(1)))
             inputdistribution = re.sub(regex, sub, inputdistribution)
         # print 'conversion = ', self.subdir+'/'+inputdistribution, self.subdir+'/'+outputdistribution
         self.beam.convert_csrtrackfile_to_astrafile(self.subdir+'/'+inputdistribution, self.subdir+'/'+outputdistribution)
@@ -46,17 +46,17 @@ class CSRTrack(object):
 
     def setInitialDistribution(self, filename='../1k-250pC-76fsrms-1mm_TE09fixN12.ini'):
         """Modify the 'initial_distribution' global setting"""
-        self.parent.globalSettings['initial_distribution'] = filename
+        self.framework.globalSettings['initial_distribution'] = filename
 
     def createCSRTrackChicane(self, group, dipoleangle=None, width=0.2, gap=0.02):
         """Create a 4 dipole chicane in CSRTrack with the correct edge points"""
         chicanetext = ''
-        dipoles = self.parent.getGroup(group)
+        dipoles = self.framework.getGroup(group)
         if not dipoleangle is None:
             dipoleangle = float(dipoleangle)
-            dipoles = [self.parent.setDipoleAngle(d, dipoleangle) for d in dipoles]
-        dipoles = self.parent.createDrifts(dipoles)
-        dipolepos, localXYZ = self.parent.elementPositions(dipoles)
+            dipoles = [self.framework.setDipoleAngle(d, dipoleangle) for d in dipoles]
+        dipoles = self.framework.createDrifts(dipoles)
+        dipolepos, localXYZ = self.framework.elementPositions(dipoles)
         dipolepos = list(chunks(dipolepos,2))
         corners = [0,0,0,0]
         dipoleno = 0
@@ -93,7 +93,7 @@ class CSRTrack(object):
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, distribution)
         if s:
-            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            sub = self.framework.astra.formatASTRAStartElement(eval(s.group(1)))
             distribution = re.sub(regex, sub, distribution)
 
         del particles['array']
@@ -160,7 +160,7 @@ class CSRTrack(object):
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, distribution)
         if s:
-            sub = self.parent.astra.formatASTRAStartElement(eval(s.group(1)))
+            sub = self.framework.astra.formatASTRAStartElement(eval(s.group(1)))
             distribution = re.sub(regex, sub, distribution)
 
         monitor = {i:monitor[i] for i in monitor if i!='name'}
@@ -194,19 +194,19 @@ class CSRTrack(object):
         ldipole = False
 
         for g in groups:
-            if g in self.parent.groups:
+            if g in self.framework.groups:
                 # print 'group!'
-                if self.parent.groups[g]['type'] == 'chicane':
-                    if all([i for i in self.parent.groups[g] if i in dipoles]):
+                if self.framework.groups[g]['type'] == 'chicane':
+                    if all([i for i in self.framework.groups[g] if i in dipoles]):
                         ldipole = True
 
         dipoletext = "io_path{logfile = log.txt}\n\n    lattice{\n"
 
         for g in groups:
-            if g in self.parent.groups:
+            if g in self.framework.groups:
                 # print 'group!'
-                if self.parent.groups[g]['type'] == 'chicane':
-                    if all([i for i in self.parent.groups[g] if i in dipoles]):
+                if self.framework.groups[g]['type'] == 'chicane':
+                    if all([i for i in self.framework.groups[g] if i in dipoles]):
                         dipoletext += self.createCSRTrackChicane(g, **groups[g])
 
         dipoletext += "    }\n"
@@ -214,18 +214,18 @@ class CSRTrack(object):
         return dipoletext
 
     def createCSRTrackFileText(self, file):
-        options = self.parent.getFileSettings(file,'CSRTrack_Options')
-        # input = self.parent.getFileSettings(file,'input')
-        output = self.parent.getFileSettings(file,'output')
-        online_monitors = self.parent.getSettingsBlock(options,'online_monitors')
-        particles = self.parent.getSettingsBlock(options,'particles')
-        forces = self.parent.getSettingsBlock(options,'forces')
-        trackstep = self.parent.getSettingsBlock(options,'track_step')
-        tracker = self.parent.getSettingsBlock(options,'tracker')
-        monitor = self.parent.getSettingsBlock(options,'monitor')
+        options = self.framework.getFileSettings(file,'CSRTrack_Options')
+        # input = self.framework.getFileSettings(file,'input')
+        output = self.framework.getFileSettings(file,'output')
+        online_monitors = self.framework.getSettingsBlock(options,'online_monitors')
+        particles = self.framework.getSettingsBlock(options,'particles')
+        forces = self.framework.getSettingsBlock(options,'forces')
+        trackstep = self.framework.getSettingsBlock(options,'track_step')
+        tracker = self.framework.getSettingsBlock(options,'tracker')
+        monitor = self.framework.getSettingsBlock(options,'monitor')
 
-        dipoles = self.parent.getElementsBetweenS('dipole', output)
-        groups = self.parent.getFileSettings(file,'groups')
+        dipoles = self.framework.getElementsBetweenS('dipole', output)
+        groups = self.framework.getFileSettings(file,'groups')
 
         CSRTrackfiletext = ''
         CSRTrackfiletext += self.createCSRTrackChicaneBlock(groups, dipoles)
