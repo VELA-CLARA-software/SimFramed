@@ -44,14 +44,13 @@ files:
       zstart: 0
       end_element: CLA-S02-APER-01
   s02:
-    global_offset: $self.parent.getElement('CLA-S02-APER-01','position_end')$
     global_rotation: 0
     code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
     input:
-      particle_definition: 'initial_distribution'
+      particle_definition: injector400.$output['start_element']$.001
     output:
       start_element: CLA-S02-APER-01
       end_element: CLA-C2V-MARK-01
