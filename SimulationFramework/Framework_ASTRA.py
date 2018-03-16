@@ -114,6 +114,8 @@ class ASTRA(object):
         strength_H  = getParameter(kicker,'strength_H')# strength for horizontal kicker
         strength_V  = getParameter(kicker,'strength_V')# strength for vertical kicker
 
+        dipoletext = ""
+
         corners = [0,0,0,0]
         kickers = self.parent.createDrifts([[kickername, kicker]], zerolengthdrifts=True)
         kickerpos, localXYZ = self.parent.elementPositions(kickers, startangle=self.starting_rotation)
@@ -133,7 +135,6 @@ class ASTRA(object):
         corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[2] = self.rotateAndOffset(corners[2], self.global_offset, self.global_rotation)
 
-        dipoletext = ""
         if plane is 'horizontal' or plane is 'combined':
             dipoletext += "D_Type("+str(n)+")='horizontal',\n"+\
             "D_Gap(1,"+str(n)+")="+str(gap)+",\n"+\
@@ -401,8 +402,9 @@ class ASTRA(object):
 
     def createASTRAApertureBlock(self, aperture={}, settings={}):
         """Create an ASTRA APERTURE Block string"""
+
         loop        = str(getParameter(aperture,'Loop',default=False))
-        lapert = True if len(aperture) > 0 else False
+        lapert = True if len(aperture.keys()) > 0 else False
         lapert      = str(getParameter(aperture,'LApert',default=lapert))
 
         aperturetext = '&APERTURE\n' +\
@@ -416,15 +418,16 @@ class ASTRA(object):
 
     def createASTRACavityBlock(self, cavity={}, output={}):
         """Create an ASTRA APERTURE Block string"""
+        cavities = self.parent.getElementsBetweenS('cavity', output=output)
+
         loop        = str(getParameter(cavity,'Loop',default=False))
-        lefield = True if len(cavity) > 0 else False
+        lefield = True if len(cavities) > 0 else False
         lefield        = str(getParameter(cavity,'LEField',default=lefield))
 
         cavitytext = '&CAVITY\n' +\
         ' Loop='+str(loop)+'\n' +\
         ' LEField='+str(lefield)+'\n'
 
-        cavities = self.parent.getElementsBetweenS('cavity', output=output)
 
         for i,s in enumerate(cavities):
             cavitytext += ' '+self.createASTRACavity(s,i+1)
@@ -434,8 +437,10 @@ class ASTRA(object):
 
     def createASTRASolenoidBlock(self, solenoid={}, output={}):
         """Create an ASTRA SOLENOID Block string"""
+        solenoids = self.parent.getElementsBetweenS('solenoid', output=output)
+
         loop        = str(getParameter(solenoid,'Loop',default=False))
-        lbfield = True if len(solenoid) > 0 else False
+        lbfield = True if len(solenoids) > 0 else False
         lbfield        = str(getParameter(solenoid,'LBField',default=lbfield))
 
 
@@ -443,7 +448,6 @@ class ASTRA(object):
         ' Loop='+str(loop)+'\n' +\
         ' LBField='+str(lbfield)+'\n'
 
-        solenoids = self.parent.getElementsBetweenS('solenoid', output=output)
 
         for i,s in enumerate(solenoids):
             solenoidtext += ' '+self.createASTRASolenoid(s,i+1)
@@ -453,15 +457,16 @@ class ASTRA(object):
 
     def createASTRAQuadrupoleBlock(self, quad={}, output={}):
         """Create an ASTRA QUADRUPOLE Block string"""
+        quadrupoles = self.parent.getElementsBetweenS('quadrupole', output=output)
+
         loop        = str(getParameter(quad,'Loop',default=False))
-        lquad = True if len(quad) > 0 else False
+        lquad = True if len(quadrupoles) > 0 else False
         lquad        = str(getParameter(quad,'LQuad',default=lquad))
 
         quadrupoletext = '&QUADRUPOLE\n' +\
         ' Loop='+str(loop)+'\n' +\
         ' LQuad='+str(lquad)+'\n'
 
-        quadrupoles = self.parent.getElementsBetweenS('quadrupole', output=output)
 
         for i,s in enumerate(quadrupoles):
             quadrupoletext += ' '+self.createASTRAQuad(s,i+1)
@@ -471,15 +476,22 @@ class ASTRA(object):
 
     def createASTRADipoleBlock(self, dipole={}, output={}, groups={}):
         """Create an ASTRA DIPOLE Block string"""
+
+        dipoles = self.parent.getElementsBetweenS('dipole', output=output)
+        kickers = self.parent.getElementsBetweenS('kicker', output=output)
+        for k in kickers:
+            if not abs(self.parent.getElement(k,'strength_H', 0)) > 0 and not abs(self.parent.getElement(k,'strength_V',0)) > 0:
+                kickers.remove(k)
+        print 'kickers = ', kickers
         loop        = str(getParameter(dipole,'Loop',default=False))
-        ldipole = True if len(dipole) > 0 else False
+        ldipole = True if len(dipoles) > 0 or len(kickers) > 0 else False
         ldipole     = str(getParameter(dipole,'LDipole', default=ldipole))
 
         dipoletext = '&DIPOLE\n' +\
         ' Loop='+str(loop)+'\n' +\
         ' LDipole='+str(ldipole)+'\n'
 
-        dipoles = self.parent.getElementsBetweenS('dipole', output=output)
+
 
         for g in groups:
             if g in self.parent.groups:
@@ -492,13 +504,10 @@ class ASTRA(object):
             dipoletext += ' '+self.createASTRADipole(s,counter)
             counter += 1
 
-        dipoletext += '/\n'
-
         # Add in correctors
-        kickers = self.parent.getElementsBetweenS('kicker', output=output)
-        for i,s in enumerate(kickers):
-            dipoletext += ' '+ self.createASTRACorrector(s, counter)
-            counter += 2 # two dipole one horizontal one vertical
+        # for i,s in enumerate(kickers):
+        #     dipoletext += ' '+ self.createASTRACorrector(s, counter)
+        #     counter += 2 # two dipole one horizontal one vertical
 
         dipoletext += '/\n'
 
