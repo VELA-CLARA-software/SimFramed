@@ -9,6 +9,7 @@ elements:
     type: dipole
     length: 0.400003
     angle: 0.785398
+    design_angle: 0.785398
     half_gap: 0.005
     edge_field_integral: 0.4
     csr_bins: 20.0
