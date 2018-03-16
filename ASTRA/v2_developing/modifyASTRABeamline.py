@@ -65,20 +65,18 @@ class beamline():
                 self.changeQuadrupole(pathway, element, nickName, name)
             elif element['type'] == 'kicker':
                 self.changeCorrector(pathway, element, nickName, name)
-'''
             elif element['type'] == 'bpm':
                 component = BPM.BeamPositionMonitor(name=name,
                                                     length=element['length'])
-            elif element['type'] == 'screen':
-                component = S.Screen(name=name)
-            elif element['type'] == 'wcm':
-                component = d.Drift(name=name, length=element['length'])
-            elif element['type'] == 'tdc':
-                component = d.Drift(name=name, length=element['length'])
-            elif element['type'] == 'bam':
-                component = d.Drift(name=name, length=element['length'])
-'''
-            elif element['type'] == 'cavity':
+        #    elif element['type'] == 'screen':
+        #        component = S.Screen(name=name)
+        #    elif element['type'] == 'wcm':
+        #        component = d.Drift(name=name, length=element['length'])
+        #    elif element['type'] == 'tdc':
+        #        component = d.Drift(name=name, length=element['length'])
+        #    elif element['type'] == 'bam':
+        #        component = d.Drift(name=name, length=element['length'])
+        #    elif element['type'] == 'cavity':
                 cavity = self.getObject(nickName, name)
                 # get detials solnoids ascociated with the linac
                 solenoid1 = elements[element['sol1']]
