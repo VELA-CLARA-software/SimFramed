@@ -1,6 +1,6 @@
 global:
   total_charge: 0.25
-  generatorFile: ../../MasterLattice/ASTRA/generator400.in
+  generatorFile: ASTRA/generator400.in
   SC_2D_Nrad: 30
   SC_2D_Nlong: 45
   SC_3D_Nxf: 8
@@ -44,6 +44,7 @@ files:
       zstart: 0
       end_element: CLA-S02-APER-01
   s02:
+    global_offset: $self.getElement('CLA-S02-APER-01','position_end')$
     global_rotation: 0
     code: ASTRA
     charge:
@@ -55,7 +56,7 @@ files:
       start_element: CLA-S02-APER-01
       end_element: CLA-C2V-MARK-01
   c2v:
-    global_offset: $self.parent.getElement('CLA-C2V-MAG-DIP-01','position_end')$
+    global_offset: $self.getElement('CLA-C2V-MAG-DIP-01','position_end')$
     starting_rotation: 0
     code: ASTRA
     charge:
@@ -67,8 +68,8 @@ files:
       start_element: CLA-C2V-MARK-01
       end_element: CLA-C2V-DIA-SCR-01-W
   vela:
-    global_offset: $self.parent.getElement('CLA-C2V-MAG-DIP-02','position_end')$
-    starting_rotation: $self.parent.getElement('CLA-C2V-MAG-DIP-01','angle')$
+    global_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
+    starting_rotation: $self.getElement('CLA-C2V-MAG-DIP-01','angle')$
     code: ASTRA
     charge:
       cathode: False
@@ -80,4 +81,4 @@ files:
       end_element: EBT-INJ-PSS-SHUT-02
 groups:
 elements:
-  filename: ['../../MasterLattice/YAML/Injector400.yaml', '../../MasterLattice/YAML/S02_EBT.yaml', '../../MasterLattice/YAML/C2V.yaml', '../../MasterLattice/YAML/INJ.yaml']
+  filename: ['YAML/Injector400.yaml', 'YAML/S02_EBT.yaml', 'YAML/C2V.yaml', 'YAML/INJ.yaml']
