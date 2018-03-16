@@ -11,9 +11,9 @@ framework = Framework('C2V', overwrite=True)
 
 ''' You need to define the location of your astra command!'''
 ''' This is the default for windows...'''
-framework.astra.defineASTRACommand(['../../MasterLattice/ASTRA/astra.exe'])
+# framework.astra.defineASTRACommand(['../../MasterLattice/ASTRA/astra.exe'])
 
-framework.loadSettings('../../MasterLattice/Lattices/CLA400-C2V-INJ.def')
+framework.loadSettings('Lattices/CLA400-C2V-INJ.def')
 framework.astra.createInitialDistribution(npart=npart,charge=250)
 framework.createInputFiles()
-framework.runInputFiles()
+# framework.runInputFiles()

@@ -26,10 +26,15 @@ def merge_two_dicts(x, y):
 
 class Framework(object):
 
-    def __init__(self, subdir='test', overwrite=None, runname='CLARA_240'):
+    def __init__(self, subdir='test', overwrite=None, runname='CLARA_240', master_lattice_location=None):
         super(Framework, self).__init__()
         self.lineIterator = 0
         self.basedirectory = os.getcwd()
+        if master_lattice_location is None:
+            self.master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
+            # print 'self.master_lattice_location = ', self.master_lattice_location
+        else:
+            self.master_lattice_location = master_lattice_location
         self.filedirectory = os.path.dirname(os.path.abspath(__file__))
         self.subdir = subdir
         self.overwrite = overwrite
@@ -39,8 +44,8 @@ class Framework(object):
         self.fileSettings = dict()
         self._elements = dict()
         self.groups = dict()
-        self.astra = ASTRA(parent=self, directory=self.subdir)
-        self.CSRTrack = CSRTrack(parent=self, directory=self.subdir)
+        self.astra = ASTRA(framework=self, directory=self.subdir)
+        self.CSRTrack = CSRTrack(framework=self, directory=self.subdir)
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
         if self.overwrite == None:
@@ -58,28 +63,50 @@ class Framework(object):
         else:
             filename = [input]
         for f in filename:
-            stream = file(self.filedirectory + '\\..\\' + f, 'r')
+            stream = file(self.master_lattice_location + f, 'r')
             elements = yaml.load(stream)['elements']
             stream.close()
             for name, elem in elements.iteritems():
                 self.addElement(name, elem)
 
+    def isevaluable(self, s):
+        try:
+            eval(s)
+            return True
+        except:
+            return False
+
+    def expand_substitution(self, param, subs={}):
+        if isinstance(param,(str)):
+            regex = re.compile('\$(.*)\$')
+            s = re.search(regex, param)
+            if s:
+                if self.isevaluable(s.group(1)) is True:
+                    replaced_str = eval(re.sub(regex, s.group(1), param))
+                else:
+                    replaced_str = re.sub(regex, s.group(1), param)
+                for key in subs:
+                    replaced_str = replaced_str.replace(key, subs[key])
+                return replaced_str
+            else:
+                return param
+        else:
+            return param
+
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
         self._elements = OrderedDict()
         self.elementOrder = []
-        stream = file(filename, 'r')
+        stream = file(self.master_lattice_location+filename, 'r')
         settings = yaml.load(stream)
         self.globalSettings = settings['global']
-        self.generatorFile = self.globalSettings['generatorFile'] if 'generatorFile' in self.globalSettings else None
+        self.generatorFile = self.master_lattice_location + self.globalSettings['generatorFile'] if 'generatorFile' in self.globalSettings else None
         self.fileSettings = settings['files']
         elements = settings['elements']
         self.groups = settings['groups']
         stream.close()
         for name, elem in elements.iteritems():
             self.addElement(name, elem)
-        # self.elementOrder = self._elements.keys()
-        print 'self.elementOrder = ', self.elementOrder
 
     def addElement(self, name, element, subelement=False):
         if name == 'filename':
