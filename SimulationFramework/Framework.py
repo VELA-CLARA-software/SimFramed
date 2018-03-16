@@ -110,15 +110,22 @@ class Framework(object):
                 self.fileSettings[setting] = {}
                 self.fileSettings[filename][setting] = value
 
-    def getElement(self, element='', setting=None):
+    def getElement(self, element='', setting=None, default=[]):
         """return 'element' from the main elements dict"""
         if element in self._elements:
             if setting is not None:
-                return self._elements[element][setting]
+                if setting in self._elements[element]:
+                    setvalue = self._elements[element][setting]
+                    if isinstance(setvalue, str):
+                        return eval(setvalue)
+                    else:
+                        return setvalue
+                else:
+                    return default
             else:
                 return self._elements[element]
         else:
-            return []
+            return default
 
     def modifyElement(self, element='', setting='', value=''):
         """return 'element' from the main elements dict"""
@@ -222,7 +229,7 @@ class Framework(object):
         if startangle is not 0:
             localXYZ = self.xform(startangle, 0, 0, x1, localXYZ)[1]
         for name, d in elements.iteritems():
-            angle = getParameter(d,'angle',default=0)
+            angle = self.getElement(name,'angle', default=0)
             anglesum.append(anglesum[-1]+angle)
             x1, localXYZ = self.xform(angle, 0, getParameter(d,'length'), x1, localXYZ)
             x.append(x1)
