@@ -1,6 +1,7 @@
 elements:
   EBT-INJ-DIA-YAG-05:
     type: watch_point
+    Controller_Name: YAG05
     output_filename: '"EBT-INJ-DIA-YAG-05.SDDS"'
     global_rotation: [0, 0, 0]
     position_end: [-1.25, 0, 7.83179]
@@ -8,6 +9,7 @@ elements:
   EBT-INJ-MAG-HVCOR-06:
     type: kicker
     length: 0.064
+    #Controller_Name: COR6
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
@@ -16,6 +18,7 @@ elements:
   EBT-INJ-MAG-QUAD-07:
     type: quadrupole
     length: 0.1
+    #Controller_Name: QUAD-07
     k1: 17.0945
     sr_enable: true
     isr_enable: true
