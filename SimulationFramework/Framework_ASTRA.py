@@ -100,6 +100,57 @@ class ASTRA(object):
         rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
         return chop(np.dot(np.array(start_pos)-np.array(offset), rotation_matrix))
 
+    def createASTRACorrector(self, kickername, n=1, width=0.2, gap=0.02):
+        """Create an ASTRA dipole string"""
+        kicker        = self.parent.getElement(kickername)
+        length      = getParameter(kicker,'length')
+        e1          = getParameter(kicker,'entrance_edge_angle')
+        e2          = getParameter(kicker,'exit_edge_angle')
+        width       = getParameter(kicker,'width',default=width)
+        gap         = getParameter(kicker,'gap',default=gap)
+        plane       = getParameter(kicker,'plane',default=plane)
+        angle       = getParameter(kicker,'angle')
+        x,y,z       = getParameter(kicker,'position_start')
+        strength_H  = getParameter(kicker,'strength_H')# strength for horizontal kicker
+        strength_V  = getParameter(kicker,'strength_V')# strength for vertical kicker
+
+        corners = [0,0,0,0]
+        kickers = self.parent.createDrifts([[dipolename, dipole]], zerolengthdrifts=True)
+        kickerpos, localXYZ = self.parent.elementPositions(dipoles, startangle=self.starting_rotation)
+        kickerpos = list(chunks(kickerpos,2))[0]
+        p1, psi1, nameelem1 = dipolepos[0]
+        p2, psi2, nameelem2 = dipolepos[1]
+        rbend = 1 if getParameter(kicker,'type') == 'rdipole' else 0
+        rho = getParameter(dipole,'length')/angle if getParameter(dipole,'length') is not None and abs(angle) > 1e-9 else 0
+        theta = -1*psi1-e1-rbend*np.sign(rho)*angle/2.0
+        corners[0] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
+        corners[0] = self.rotateAndOffset(corners[0], self.global_offset, self.global_rotation)
+        corners[3] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
+        corners[3] = self.rotateAndOffset(corners[3], self.global_offset, self.global_rotation)
+        theta = -1*psi2+e2-rbend*np.sign(rho)*angle/2.0
+        corners[1] = np.array(map(add,np.transpose(p2),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
+        corners[1] = self.rotateAndOffset(corners[1], self.global_offset, self.global_rotation)
+        corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
+        corners[2] = self.rotateAndOffset(corners[2], self.global_offset, self.global_rotation)
+
+        # print 'corners = ', corners
+        dipoletext = "D_Type("+str(n)+")='horizontal',\n"+\
+        "D_Gap(1,"+str(n)+")="+str(gap)+",\n"+\
+        "D_Gap(2,"+str(n)+")="+str(gap)+",\n"+\
+        "D1("+str(n)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
+        "D3("+str(n)+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
+        "D4("+str(n)+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
+        "D2("+str(n)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
+        "D_strength("+str(n)+")="+str(strength_H)+"\n"+\
+        "D_Type("+str(n+1)+")='vertical'',\n"+\
+        "D_Gap(1,"+str(n+1)+")="+str(gap)+",\n"+\
+        "D_Gap(2,"+str(n+1)+")="+str(gap)+",\n"+\
+        "D1("+str(n+1)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
+        "D3("+str(n+1)+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
+        "D4("+str(n+1)+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
+        "D2("+str(n+1)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
+        "D_strength("+str(n+1)+")="+str(strength_V)+"\n"
+
     def createASTRADipole(self, dipolename, n=1, width=0.2, gap=0.02, plane='horizontal'):
         """Create an ASTRA dipole string"""
         dipole        = self.parent.getElement(dipolename)
@@ -432,9 +483,18 @@ class ASTRA(object):
                     if all([i for i in self.parent.groups[g] if i in dipoles]):
                         dipoles = [i for i in dipoles if i not in self.parent.groups[g]]
                         dipoletext += self.createASTRAChicane(g, **groups[g])
-
+        counter = 1
         for i,s in enumerate(dipoles):
-            dipoletext += ' '+self.createASTRADipole(s,i+1)
+            dipoletext += ' '+self.createASTRADipole(s,counter)
+            counter += 1
+
+        dipoletext += '/\n'
+
+        # Add in correctors
+        kickers = self.parent.getElementsBetweenS('kicker', output=output)
+        for i,s in enumerate(kickers):
+            dipoletext += ' '+self.createASTRACorrector(s, counter)
+            counter += 2 # two dipole one horizontal one vertical
 
         dipoletext += '/\n'
 
