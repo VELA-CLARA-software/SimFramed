@@ -54,9 +54,10 @@ class beamline():
 
     def modfiy(self, pathway):
 
-        for index, name in pathway.elements.iteritems():
-            element = pathway.elements[name]
-            nickName = element['name']
+        for name, element in pathway.elements.iteritems():
+            print name
+            # element = pathway.elements[index]
+            nickName = element['Controller_Name']
             component = None
             # Check element type and add accordingly
             if element['type'] == 'dipole':

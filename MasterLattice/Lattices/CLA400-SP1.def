@@ -81,4 +81,4 @@ files:
       end_element: EBT-INJ-PSS-SHUT-02
 groups:
 elements:
-  filename: ['../../MasterLattice/YAML/Injector400.yaml', '../../MasterLattice/YAML/S02_EBT.yaml', '../../MasterLattice/YAML/C2V.yaml', '../../MasterLattice/YAML/INJ.yaml']
+  filename: ['MasterLattice\YAML\Injector400.yaml', 'MasterLattice\YAML\S02_EBT.yaml', 'MasterLattice\YAML\C2V.yaml', 'MasterLattice\YAML\INJ.yaml']
