@@ -139,8 +139,11 @@ class ASTRA(object):
         "D1("+str(n)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
         "D3("+str(n)+")=("+str(corners[2][0])+","+str(corners[2][2])+"),\n"+\
         "D4("+str(n)+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
-        "D2("+str(n)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
-        "D_radius("+str(n)+")="+str(rho)+"\n"
+        "D2("+str(n)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"
+        if abs(getParameter(dipole,'strength')) > 0:
+            dipoletext += "D_strength("+str(n)+")="+str(getParameter(dipole,'strength'))+"\n"
+        else:
+            dipoletext += "D_radius("+str(n)+")="+str(rho)+"\n"
 
         return dipoletext
 
@@ -476,7 +479,7 @@ class ASTRA(object):
         dipoles = self.parent.getElementsBetweenS('dipole', output)
         self.global_rotation = -self.starting_rotation
         for d in dipoles:
-            self.global_rotation -= self.parent.getElement(d,'angle')
+            self.global_rotation -= float(self.parent.getElement(d,'angle'))
         # print 'global_rotation = ', self.global_rotation
 
         input = self.parent.getFileSettings(file,'input')
