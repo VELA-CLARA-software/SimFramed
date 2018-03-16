@@ -41,7 +41,7 @@ class ASTRA(object):
         if not generatorCommand is None:
             astragen.defineGeneratorCommand(generatorCommand)
         elif os.name == 'nt':
-            astragen.defineGeneratorCommand(['../../MasterLattice/ASTRA/generator_7June2007'])
+            astragen.defineGeneratorCommand(['../../ASTRA/generator_7June2007'])
         else:
             astragen.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
         inputfile = astragen.generateBeam()
