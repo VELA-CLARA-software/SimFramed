@@ -61,30 +61,61 @@ class Framework(object):
             stream = file(self.filedirectory + '\\..\\' + f, 'r')
             elements = yaml.load(stream)['elements']
             stream.close()
-            if 'filename' in elements:
-                self.loadElementsFile(elements['filename'])
-            self._elements = merge_two_dicts(self._elements, elements)
+            for name, elem in elements.iteritems():
+                self.addElement(name, elem)
 
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
+        self._elements = OrderedDict()
+        self.elementOrder = []
         stream = file(filename, 'r')
         settings = yaml.load(stream)
         self.globalSettings = settings['global']
         self.generatorFile = self.globalSettings['generatorFile'] if 'generatorFile' in self.globalSettings else None
         self.fileSettings = settings['files']
-        self._elements = settings['elements']
+        elements = settings['elements']
         self.groups = settings['groups']
         stream.close()
-        if 'filename' in self._elements:
-            self.loadElementsFile(self._elements['filename'])
-        for k in self._elements.keys():
-            if 'type' not in self._elements[k]:
-                del self._elements[k]
-        self.elementOrder = self._elements.keys()
+        for name, elem in elements.iteritems():
+            self.addElement(name, elem)
+        # self.elementOrder = self._elements.keys()
+        print 'self.elementOrder = ', self.elementOrder
+
+    def addElement(self, name, element, subelement=False):
+        if name == 'filename':
+            self.loadElementsFile(element)
+        else:
+            self._elements[name] = element
+            if subelement:
+                return [name]
+            if 'sub_elements' in element:
+                subelements = [name]
+                for name, elem in element['sub_elements'].iteritems():
+                    subelements += self.addElement(name, elem, True)
+                self.elementOrder.append(subelements)
+            else:
+                self.elementOrder.append(name)
 
     @property
     def elements(self):
-        return OrderedDict(((k, self._elements[k]) for k in self.elementOrder))
+        elements = OrderedDict()
+        for k in self.elementOrder:
+            if isinstance(k, (list, tuple)):
+                for s in k:
+                    elements[s] = self._elements[s]
+            else:
+                elements[k] = self._elements[k]
+        return elements
+
+    @property
+    def master_elements(self):
+        elements = OrderedDict()
+        for k in self.elementOrder:
+            if isinstance(k, (list, tuple)):
+                elements[k[0]] = self._elements[k[0]]
+            else:
+                elements[k] = self._elements[k]
+        return elements
 
     def getFileSettings(self, file, block, default={}):
         """Return the correct settings 'block' from 'file' dict if exists else return empty dict"""

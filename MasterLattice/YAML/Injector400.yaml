@@ -10,19 +10,20 @@ elements:
     type: cavity
     length: 0
     field_amplitude: 120000000.0
-    frequency: 2997443100.0
+    frequency: 2998500000.0
     phase: -9
     field_definition: ../../../MasterLattice/Data_Files/HRRG_1D_RF.dat
     lsc_cutoff_high: [0, 0]
     position_end: [0, 0, 0]
     position_start: [0, 0, 0]
-  CLA-LRG1-GUN-SOL:
-    type: solenoid
-    length: 0
-    field_amplitude: 0.345
-    field_definition: ../../../MasterLattice/Data_Files/HRRG_combined_sols_100mm_onaxis.dat
-    position_end: [0, 0, 0]
-    position_start: [0, 0, 0]
+    sub_elements:
+      CLA-LRG1-GUN-SOL:
+        type: solenoid
+        length: 0
+        field_amplitude: 0.345
+        field_definition: ../../../MasterLattice/Data_Files/HRRG_combined_sols_100mm_onaxis.dat
+        position_end: [0, 0, 0]
+        position_start: [0, 0, 0]
   CLA-S01-APER:
     type: aperture
     shape: rectangular
@@ -104,17 +105,18 @@ elements:
     PV: CLA-L01-LRF-CTRL-01
     position_end: [0, 0, 3.2269]
     position_start: [0, 0, 1.19357]
-  CLA-L01-CAV-SOL-01:
-    type: solenoid
-    length: 0
-    field_amplitude: 0.05
-    field_definition: ../../../MasterLattice/Data_Files/SwissFEL_linac_sols.dat
-    position_end: [0, 0, 2.7]
-    position_start: [0, 0, 1.70]
-  CLA-L01-CAV-SOL-02:
-    type: solenoid
-    length: 0
-    field_amplitude: -0.05
-    field_definition: ../../../MasterLattice/Data_Files/SwissFEL_linac_sols.dat
-    position_end: [0, 0, 3.7]
-    position_start: [0, 0, 2.70]
+    sub_elements:
+      CLA-L01-CAV-SOL-01:
+        type: solenoid
+        length: 0
+        field_amplitude: 0.05
+        field_definition: ../../../MasterLattice/Data_Files/SwissFEL_linac_sols.dat
+        position_end: [0, 0, 2.7]
+        position_start: [0, 0, 1.70]
+      CLA-L01-CAV-SOL-02:
+        type: solenoid
+        length: 0
+        field_amplitude: -0.05
+        field_definition: ../../../MasterLattice/Data_Files/SwissFEL_linac_sols.dat
+        position_end: [0, 0, 3.7]
+        position_start: [0, 0, 2.70]
