@@ -38,6 +38,7 @@ class Beamline(object):
             if m == 0:
                 m = nmax
             # break
+
             self.componentlist[n].Track(beam)
             beam.globaltime = beam.globaltime + self.componentlist[n].length / (beam.beta * PhyC.SpeedOfLight)
             inbeam = self.find(beam.distance[1], 1)

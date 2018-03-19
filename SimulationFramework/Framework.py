@@ -7,6 +7,7 @@ import SimulationFramework.Modules.read_beam_file as rbf
 from collections import defaultdict
 from Framework_ASTRA import ASTRA
 from Framework_CSRTrack import CSRTrack
+from collections import Iterable
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -123,8 +124,17 @@ class Framework(object):
             else:
                 self.elementOrder.append(name)
 
+    def flatten(self, coll):
+        for i in coll:
+                if isinstance(i, Iterable) and not isinstance(i, basestring):
+                    for subc in self.flatten(i):
+                        yield subc
+                else:
+                    yield i
+
     def elementIndex(self, element):
-        flatelementOrder = [item for sublist in self.elementOrder for item in sublist]
+        flatelementOrder = list(self.flatten(self.elementOrder))
+        #print flatelementOrder
         if element in flatelementOrder:
             return flatelementOrder.index(element)
         else:
@@ -132,7 +142,7 @@ class Framework(object):
             return -1
 
     def getElementAt(self, index):
-        flatelementOrder = [item for sublist in self.elementOrder for item in sublist]
+        flatelementOrder = list(self.flatten(self.elementOrder))
         element = flatelementOrder[index]
         data = self.elements[element]
         return [element, data]

@@ -23,7 +23,7 @@ elements:
       CLA-HRG1-GUN-SOL:
         type: solenoid
         Controller_Name: SOL1
-        length: 0.15
+        length: 0.0
         field_amplitude: 0.345
         field_definition: $master_lattice_location$/Data_Files/HRRG_combined_sols_100mm_onaxis.dat
         position_end: [0, 0, 0.15]
