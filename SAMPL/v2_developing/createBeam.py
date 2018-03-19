@@ -39,11 +39,11 @@ class createBeam():
 
     def useASTRAFile(self, fileName='None', particle='Electron'):
         # Read in file
-        print ('Using an ASTRA *.ini file to create SAMPL distrtibution...')
+        print ('    Using an ASTRA *.ini file to create SAMPL distrtibution...')
         distribution = np.loadtxt(fileName)
         charge = abs(np.sum(distribution[:, 7]) * 1e-9)
-        print('Charge of bunch is ' + str(charge) + ' nC.')
-        print('No. of particle in bunch is ' + str(len(distribution)) + '.')
+        print('    Charge of bunch is ' + str(charge) + ' nC.')
+        print('    No. of particles in bunch is ' + str(len(distribution)) + '.')
         if particle == 'Electron':
             beam = Beam.Beam(species=Electron.Electron,
                              bunchcharge=charge)
@@ -57,7 +57,7 @@ class createBeam():
                                 (distribution[0][5] * PhysicalUnits.eV)**2 +
                                 (distribution[0][4] * PhysicalUnits.eV)**2 +
                                 (distribution[0][3] * PhysicalUnits.eV)**2)
-        print('Bunch energy: ' + str(beam.energy / PhysicalUnits.eV) + 'eV')
+        print('    Bunch energy: ' + str(beam.energy / PhysicalUnits.eV) + 'eV')
         # Generate particles
         distribution[0][5] = 0.0
         xArray = distribution[:, 0]
