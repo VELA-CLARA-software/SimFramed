@@ -1,4 +1,5 @@
 import os, time, csv
+import h5py
 import numpy as np
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
@@ -11,12 +12,16 @@ import read_gdf_file as rgf
 
 class beam(object):
 
-    E0 = constants.m_e * constants.speed_of_light**2
+    particle_mass = constants.m_e
+    E0 = particle_mass * constants.speed_of_light**2
     E0_eV = E0 / constants.elementary_charge
     q_over_c = (constants.e / constants.speed_of_light)
 
     def __init__(self):
         self.beam = {}
+
+    def set_particle_mass(self, mass=constants.m_e):
+        self.particle_mass = mass
 
     def normalise_to_ref_particle(self, array, index=0,subtractmean=False):
         array[1:] = array[0] + array[1:]
@@ -44,6 +49,7 @@ class beam(object):
         for param in self.sdds.columnName:
             if isinstance(self.beam[param][0], (float, long)):
                 self.SDDSparameterNames.append(param)
+        self.beam['code'] = "SDDS"
         self.beam['cp'] = self.beam['p'] * self.E0_eV
         self.beam['cpz'] = np.sqrt(self.cp / (self.xp**2 + self.yp**2 + 1))
         self.beam['cpx'] = self.xp * self.beam['cpz']
@@ -70,13 +76,21 @@ class beam(object):
     def set_beam_charge(self, charge):
         self.beam['total_charge'] = charge
 
+    def read_csv_file(self, file):
+        with open(file, 'r') as f:
+            data = np.array([l for l in csv.reader(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)])
+        return data
+
+    def write_csv_file(self, file, data):
+        with open(file, 'wb') as f:
+            writer = csv.writer(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)
+            [writer.writerow(l) for l in data]
+
     def read_astra_beam_file(self, file):
         starttime = time.time()
         self.reset_dicts()
-        with open(file, 'r') as f:
-            data = np.array([l for l in csv.reader(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)])
+        data = self.read_csv_file(file)
         # datanp = np.loadtxt(file)
-        # data = pd.read_csv(file, delim_whitespace=True, quoting=csv.QUOTE_NONNUMERIC).values
         self.interpret_astra_data(data)
 
     def read_hdf5_beam(self, data):
@@ -85,6 +99,8 @@ class beam(object):
 
     def interpret_astra_data(self, data):
         x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.transpose(data)
+        self.beam['code'] = "ASTRA"
+        self.beam['reference_particle'] = data[0]
         z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
         clock = self.normalise_to_ref_particle(clock, subtractmean=True)
@@ -114,12 +130,14 @@ class beam(object):
         self.beam['Bx'] = self.vx / constants.speed_of_light
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
-        self.beam['t'] = self.z / (-1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
+        self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
     def read_csrtrack_beam_file(self, file):
         self.reset_dicts()
-        data = np.loadtxt(file, unpack=False)
+        data = self.read_csv_file(file)
+        self.beam['code'] = "CSRTrack"
+        self.beam['reference_particle'] = data[0]
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
         z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
@@ -157,7 +175,7 @@ class beam(object):
 
 
     def convert_csrtrackfile_to_astrafile(self, csrtrackfile, astrafile):
-        data = np.loadtxt(csrtrackfile, unpack=False)
+        data = self.read_csv_file(file)
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
         charge = -charge*1e9
         clock0 = (data[0, 0] / constants.speed_of_light) * 1e9
@@ -167,7 +185,8 @@ class beam(object):
         index = np.full(len(x), 1)
         status = np.full(len(x), 5)
         array = np.array([x, y, z, cpx, cpy, cpz, clock, charge, index, status]).transpose()
-        np.savetxt(astrafile, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%d'))
+        # np.savetxt(astrafile, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%d'))
+        self.write_csv_file(astrafile, array)
 
     def find_nearest_vector(self, nodes, node):
         return cdist([node], nodes).argmin()
@@ -194,20 +213,25 @@ class beam(object):
         ''' if a particle is emitting from the cathode it's z value is 0 and it's clock value is finite, otherwise z is finite and clock is irrelevant (thus zero) '''
         zvector = [0 if status == -1 and t == 0 else z for status, z, t in zip(statusvector, self.z, self.t)]
         ''' if the clock value is finite, we calculate it from the z value, using Betaz '''
-        clockvector = [z / (-1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
+        clockvector = [1e9*z / (-1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
         ''' this is the ASTRA array in all it's glory '''
-        array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
-        ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
-        rms_vector = [a if abs(a) > 0 else 1 for a in self.rms(array, axis=0)]
-        ''' normalise the array '''
-        norm_array = array / rms_vector
-        ''' take the meen of the normalised array '''
-        mean_vector = np.mean(norm_array, axis=0)
-        ''' find the index of the vector that is closest to the mean - if you read in an ASTRA file, this should actually return the reference particle! '''
-        nearest_idx = self.find_nearest_vector(norm_array, mean_vector)
-        ref_particle = array[nearest_idx]
-        ''' set the closest mean vector to be in position 0 in the array '''
-        array = np.roll(array, -1*nearest_idx, axis=0)
+        array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, 1e9*chargevector, indexvector, statusvector]).transpose()
+        if 'reference_particle' in self.beam:
+            ref_particle = self.beam['reference_particle']
+        else:
+            ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
+            rms_vector = [a if abs(a) > 0 else 1 for a in self.rms(array, axis=0)]
+            ''' normalise the array '''
+            norm_array = array / rms_vector
+            ''' take the meen of the normalised array '''
+            mean_vector = np.mean(norm_array, axis=0)
+            ''' find the index of the vector that is closest to the mean - if you read in an ASTRA file, this should actually return the reference particle! '''
+            nearest_idx = self.find_nearest_vector(norm_array, mean_vector)
+            ref_particle = array[nearest_idx]
+            ''' set the closest mean vector to be in position 0 in the array '''
+            array = np.roll(array, -1*nearest_idx, axis=0)
+        print 'ref_particle = ', ref_particle
+
         ''' normalise Z to the reference particle '''
         array[1:,2] = array[1:,2] - ref_particle[2]
         ''' should we leave Z as the reference value, set it to 0, or set it to be some offset? '''
@@ -273,6 +297,7 @@ class beam(object):
                 block = None
         if position is None and time is None and block is None:
             gdfbeamdata = gdfbeam.get_grab(0)
+        self.beam['code'] = "GPT"
         self.beam['x'] = gdfbeamdata.x
         self.beam['y'] = gdfbeamdata.y
         self.beam['Bx'] = gdfbeamdata.Bx
@@ -308,57 +333,34 @@ class beam(object):
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
 
-    def write_HDF5_beam_file(self, filein, fileout):
-        savescreens = [str(s) for s in screens]
-        screenpositions = self.getScreenFiles()
-        # print 'screenpositions = ', list(screenpositions.iteritems())
-        if reference is not None:
-            filename = '_'.join(map(str,[reference, self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
-        else:
-            filename = '_'.join(map(str,[self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
-        # print filename
-        f = h5py.File(filename, "w")
-        inputgrp = f.create_group("Input")
-        inputgrp['charge'] = self.globalSettings['charge']
-        inputgrp['npart'] = self.globalSettings['npart']
-        inputgrp['subdirectory'] = self.subdirectory
-        xemitgrp = f.create_group("Xemit")
-        yemitgrp = f.create_group("Yemit")
-        zemitgrp = f.create_group("Zemit")
-        screengrp = f.create_group("screens")
-        if os.path.isfile(self.subdir+'/'+self.globalSettings['initial_distribution']):
-            inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.subdir+'/'+self.globalSettings['initial_distribution']))
-        for n, screendict in sorted(screenpositions.iteritems()):
-            if os.path.isfile(self.subdir+'/'+n+'.in'):
-                inputfile = file(self.subdir+'/'+n+'.in','r')
-                inputfilecontents = inputfile.read()
-                inputgrp.create_dataset(n, data=inputfilecontents)
-            for emit, grp in {'X': xemitgrp,'Y': yemitgrp,'Z': zemitgrp}.iteritems():
-                emitfile = self.subdir+'/'+n+'.'+emit+'emit.'+screendict['run']
-                if os.path.isfile(emitfile):
-                    grp.create_dataset(n, data=numpy.loadtxt(emitfile))
-            for s in screendict['screenpositions']:
-                screenfile = self.subdir+'/'+n+'.'+s+'.'+screendict['run']
-                if screens == [] or s in savescreens:
-                    # print 's = ', screenfile
-                    screengrp.create_dataset(s, data=numpy.loadtxt(screenfile))
-        csrtrackfiles = glob.glob(self.subdir+'/csrtrk.in')
-        for csrfile in csrtrackfiles:
-            inputfile = file(csrfile,'r')
-            inputfilecontents = inputfile.read()
-            inputgrp.create_dataset('csrtrack', data=inputfilecontents)
-            screenfile = self.subdir+'/end.fmt2.astra'
-            if os.path.isfile(screenfile):
-                screengrp.create_dataset(screenfile, data=numpy.loadtxt(screenfile))
+    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None):
+        with h5py.File(filename, "w") as f:
+            inputgrp = f.create_group("Parameters")
+            if not 'total_charge' in self.beam or self.beam['total_charge'] == 0:
+                self.beam['total_charge'] = np.sum(self.beam['charge'])
+            if sourcefilename is not None:
+                inputgrp['Source'] = sourcefilename
+            if pos is not None:
+                inputgrp['Starting_Position'] = pos
+            inputgrp['total_charge'] = self.beam['total_charge']
+            inputgrp['npart'] = len(self.x)
+            inputgrp['centered'] = centered
+            inputgrp['code'] = self.beam['code']
+            inputgrp['particle_mass'] = mass
+            beamgrp = f.create_group("beam")
+            if 'reference_particle' in self.beam:
+                beamgrp['reference_particle'] = self.beam['reference_particle']
+            if len(self.beam['charge']) == len(self.x):
+                chargevector = self.beam['charge']
+            else:
+                chargevector = np.full(len(self.x), self.charge/len(self.x))
+            array = np.array([self.x, self.y, self.z, self.cpx, self.cpy, self.cpz, self.t, chargevector])
+            beamgrp['columns'] = ("x","y","z","cpx","cpy","cpz","t","q")
+            beamgrp['units'] = ("m","m","m","eV","eV","eV","s","e")
+            beamgrp.create_dataset("beam", data=array)
 
 
-
-
-
-
-
-
-
+    ''' ********************  Statistical Parameters  ************************* '''
 
     def covariance(self, u, up):
         u2 = u - np.mean(u)
