@@ -12,16 +12,16 @@ from SimulationFramework import Framework
 class Setup(QThread):
     # CONSTRUCTOR
     def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
-                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None,
-                 C_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
+                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, LRRG_RF_Ctrl=None,
+                 HRRG_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
         QThread.__init__(self)
         self.showMessages = messages
         self.V_MAG_Ctrl = V_MAG_Ctrl
         self.C_S01_MAG_Ctrl = C_S01_MAG_Ctrl
         self.C_S02_MAG_Ctrl = C_S02_MAG_Ctrl
         self.C2V_MAG_Ctrl = C2V_MAG_Ctrl
-        self.V_RF_Ctrl = V_RF_Ctrl
-        self.C_RF_Ctrl = C_RF_Ctrl
+        self.HRRG_RF_Ctrl = HRRG_RF_Ctrl
+        self.LRRG_RF_Ctrl = LRRG_RF_Ctrl
         self.L01_RF_Ctrl = L01_RF_Ctrl
         self.startElement = None
         self.stopElement = None
@@ -92,8 +92,8 @@ class Setup(QThread):
                                          C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
                                          C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
                                          C2V_MAG_Ctrl=self.C2V_MAG_Ctrl,
-                                         V_RF_Ctrl=self.V_RF_Ctrl,
-                                         C_RF_Ctrl=self.C_RF_Ctrl,
+                                         HRRG_RF_Ctrl=self.HRRG_RF_Ctrl,
+                                         LRRG_RF_Ctrl=self.LRRG_RF_Ctrl,
                                          L01_RF_Ctrl=self.L01_RF_Ctrl)
         beamLine = lineCreator.create(self.pathway, self.startElement, self.stopElement)
         # Run simulation
@@ -116,26 +116,26 @@ class Setup(QThread):
             if beamLine.componentlist.index(i) >= 0 and beamLine.componentlist.index(i) <= numberOfElements - 1:
                 if 'SCR' in i.name or 'YAG' in i.name:
                     if 'CLu' in i.name:
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':ANA:X_RBV', i.x)
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':ANA:Y_RBV', i.y)
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':ANA:SigmaX_RBV', i.xSigma)
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':ANA:SigmaY_RBV', i.ySigma)
                     else:
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':X', i.x)
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':Y', i.y)
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':SigmaX', i.xSigma)
-                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camera_PV'] +
                               ':SigmaY', i.ySigma)
-                    print '    Written data for ', self.pathway.elements[i.name][0]
+                    print '    Written data for ', i.name
                 if 'BPM'in i.name:
                     caput('VM-' + self.pathway.elements[i.name]['PV'] + ':X', i.x)
                     caput('VM-' + self.pathway.elements[i.name]['PV'] + ':Y', i.y)
-                    print '    Written data for ', self.pathway.elements[i.name][0]
+                    print '    Written data for ', i.name
                     print 'x Value:', str(i.x)
