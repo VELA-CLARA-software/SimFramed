@@ -35,17 +35,32 @@ class Setup(QThread):
         self.wait()
 
     def loadPathway(self):
+        ans = False
         stream = file(str(os.path.abspath(__file__)).split('sampl')[0] +
-                      "\\..\\..\\MasterLattice\\YAML\\allPathways.yaml", 'r')
+                      "\\..\\..\\MasterLattice\\Lattices\\allPathways.yaml", 'r')
         settings = yaml.load(stream)
         for path in settings['pathways']:
-            hasStart = any(self.startElement in path.elements[s]['Online_Model_Name']
-                           for s, value in path.elements.iteritems())
-            hasStop = any(self.stopElement in path.elements[s]['Online_Model_Name']
-                          for s, value in path.elements.iteritems())
+            # print path
+            self.pathway.loadSettings(filename='\\Lattices\\' + path)
+            hasStart = False
+            hasStop = False
+            # print self.pathway.elements.keys()
+            for element in self.pathway.elements.keys():
+                #print element
+                if element == self.startElement:
+                    #print('found start')
+                    hasStart = True
+                if element == self.stopElement:
+                    #print ('found stop')
+                    hasStop = True
             if (hasStart and hasStop):
-                self.pathway.loadSettings(filename=path)
-                print '    Loading pathway: ', path
+                ans = True
+                print '    Loaded pathway: ', path
+                return ans
+            else:
+                print '    Could not find a pathway...'
+                print '    Exiting ...'
+                return ans
 
     def go(self, startElement, stopElement, initDistrib, charge=0.25):
             self.startElement = startElement
@@ -72,7 +87,7 @@ class Setup(QThread):
             self.initDistrib = createBeam.guassian(x=xOffset, y=yOffset)
 
         print('2. Create a beamline ...')
-        self.pathway.loadPathway()
+        self.loadPathway()
         lineCreator = cbl.createBeamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
                                          C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
                                          C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
@@ -82,11 +97,11 @@ class Setup(QThread):
                                          L01_RF_Ctrl=self.L01_RF_Ctrl)
         beamLine = lineCreator.create(self.pathway, self.pathway.elements)
         # Run simulation
-        for key, value in self.pathway.elements.iteritems():
-            if value['Online_Model_Name'] == self.startElement:
-                startName = key
-            if value['Online_Model_Name'] == self.stopElement:
-                stopName = key
+        for element in self.pathway.elements.keys():
+            if element == self.startElement:
+                startName = element
+            if element == self.stopElement:
+                stopName = element
 
         startIndex = [i for i, x in enumerate(beamLine.componentlist) if x.name == startName]
         stopIndex = [i for i, x in enumerate(beamLine.componentlist) if x.name == stopName]
