@@ -1,5 +1,5 @@
 import os, time, csv
-import numpy as np, pandas as pd
+import numpy as np
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
 if os.name == 'nt':
@@ -73,10 +73,10 @@ class beam(object):
     def read_astra_beam_file(self, file):
         starttime = time.time()
         self.reset_dicts()
-        # with open(file, 'r') as f:
-        #     data = np.array([l for l in csv.reader(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)])
+        with open(file, 'r') as f:
+            data = np.array([l for l in csv.reader(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)])
         # datanp = np.loadtxt(file)
-        data = pd.read_csv(file, delim_whitespace=True, quoting=csv.QUOTE_NONNUMERIC).values
+        # data = pd.read_csv(file, delim_whitespace=True, quoting=csv.QUOTE_NONNUMERIC).values
         self.interpret_astra_data(data)
 
     def read_hdf5_beam(self, data):
@@ -307,6 +307,58 @@ class beam(object):
         self.beam['cp'] = self.p / self.q_over_c
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
+
+    def write_HDF5_beam_file(self, filein, fileout):
+        savescreens = [str(s) for s in screens]
+        screenpositions = self.getScreenFiles()
+        # print 'screenpositions = ', list(screenpositions.iteritems())
+        if reference is not None:
+            filename = '_'.join(map(str,[reference, self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
+        else:
+            filename = '_'.join(map(str,[self.settingsFile,self.globalSettings['charge'],self.globalSettings['npart']])) + '.hdf5'
+        # print filename
+        f = h5py.File(filename, "w")
+        inputgrp = f.create_group("Input")
+        inputgrp['charge'] = self.globalSettings['charge']
+        inputgrp['npart'] = self.globalSettings['npart']
+        inputgrp['subdirectory'] = self.subdirectory
+        xemitgrp = f.create_group("Xemit")
+        yemitgrp = f.create_group("Yemit")
+        zemitgrp = f.create_group("Zemit")
+        screengrp = f.create_group("screens")
+        if os.path.isfile(self.subdir+'/'+self.globalSettings['initial_distribution']):
+            inputgrp.create_dataset('initial_distribution',data=numpy.loadtxt(self.subdir+'/'+self.globalSettings['initial_distribution']))
+        for n, screendict in sorted(screenpositions.iteritems()):
+            if os.path.isfile(self.subdir+'/'+n+'.in'):
+                inputfile = file(self.subdir+'/'+n+'.in','r')
+                inputfilecontents = inputfile.read()
+                inputgrp.create_dataset(n, data=inputfilecontents)
+            for emit, grp in {'X': xemitgrp,'Y': yemitgrp,'Z': zemitgrp}.iteritems():
+                emitfile = self.subdir+'/'+n+'.'+emit+'emit.'+screendict['run']
+                if os.path.isfile(emitfile):
+                    grp.create_dataset(n, data=numpy.loadtxt(emitfile))
+            for s in screendict['screenpositions']:
+                screenfile = self.subdir+'/'+n+'.'+s+'.'+screendict['run']
+                if screens == [] or s in savescreens:
+                    # print 's = ', screenfile
+                    screengrp.create_dataset(s, data=numpy.loadtxt(screenfile))
+        csrtrackfiles = glob.glob(self.subdir+'/csrtrk.in')
+        for csrfile in csrtrackfiles:
+            inputfile = file(csrfile,'r')
+            inputfilecontents = inputfile.read()
+            inputgrp.create_dataset('csrtrack', data=inputfilecontents)
+            screenfile = self.subdir+'/end.fmt2.astra'
+            if os.path.isfile(screenfile):
+                screengrp.create_dataset(screenfile, data=numpy.loadtxt(screenfile))
+
+
+
+
+
+
+
+
+
 
     def covariance(self, u, up):
         u2 = u - np.mean(u)
