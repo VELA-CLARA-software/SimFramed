@@ -70,14 +70,16 @@ class createBeamline():
         line = Beamline.Beamline(componentlist=[])
         driftCounter = 0
         mod = False
-
+        #print pathway.elementOrder
+        for name, element in pathway.elements.iteritems():
+            print name
         for name, element in pathway.elements.iteritems():
             if name == startElement:
                 mod = True
 
             if mod is True:
                 print name
-                print element['type']
+                #print element['type']
                 # Check element type and add accordingly
                 if element['type'] == 'dipole':
                     component = self.addDipole(element, element['Controller_Name'], name)
@@ -106,8 +108,8 @@ class createBeamline():
                                            setting='length',
                                            default=0)
                     component = d.Drift(name=name, length=length)
-                    print ('WARNING: This reader doesn\'t' +
-                           'recognise element type of ' + name)
+                    # print (' ARNING: This reader doesn\'t' +
+                    #       'recognise element type of ' + name)
 
                 if name != startElement:
                     previousElement = pathway.previousElement(name)
@@ -128,12 +130,12 @@ class createBeamline():
                     cosElementAngle = np.cos(angle)
                     if element['type'] == 'dipole':
                         frontOfCurrent = element['buffer_start'][-1]
-                    else:
-                        length = pathway.getElement(element=name,
-                                                    setting='length',
-                                                    default=0)
-                        frontOfCurrent = (frontOfCurrent -
-                                          length * cosElementAngle)
+                    #else:
+                #        length = pathway.getElement(element=name,
+                #                                    setting='length',
+                #                                    default=0)
+                #        frontOfCurrent = (frontOfCurrent -
+                #                          length * cosElementAngle)
 
                     if frontOfCurrent < backOfLast:
                         print ('Elements ' + lastElementName +
@@ -176,12 +178,13 @@ class createBeamline():
         #                                   phase=linac.phi_DEG,
         #                                   solCurrent1=sol1.siWithPol,
         #                                   solCurrent2=sol2.siWithPol)
+        print rf.amp_MVM * 1e6 * element['length']
         component = RF.RFAcceleratingStructure(length=element['length'],
                                                name=nickName,
                                                voltage=-(rf.amp_MVM * 1e6 *
                                                          element['length']),
                                                phase=rf.phi_DEG * (np.pi / 180),
-                                               ncell=m.floor(element['n_cells']),
+                                               ncell=int(element['n_cells']),
                                                structureType=structureType)
         component.setFrequency(element['frequency'])
         return component
