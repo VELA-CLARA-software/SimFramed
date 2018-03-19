@@ -124,19 +124,17 @@ class Framework(object):
                 self.elementOrder.append(name)
 
     def elementIndex(self, element):
-        if element in self.elementOrder:
-            return self.elementOrder.index(element)
+        flatelementOrder = [item for sublist in self.elementOrder for item in sublist]
+        if element in flatelementOrder:
+            return flatelementOrder.index(element)
         else:
+            raise NameError
             return -1
 
     def getElementAt(self, index):
-        element = self.elementOrder[index]
-        data = []
-        if type(element)==type([]):
-            for i in element:
-                data.append(self.elements[i])
-        else:
-            data = self.elements[element]
+        flatelementOrder = [item for sublist in self.elementOrder for item in sublist]
+        element = flatelementOrder[index]
+        data = self.elements[element]
         return [element, data]
 
     def previousElement(self, element):
