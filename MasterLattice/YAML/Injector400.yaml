@@ -9,6 +9,8 @@ elements:
   CLA-HRG1-GUN-CAV:
     type: cavity
     length: 0
+    n_cells: 2.5
+    Structure_Type: 'StandingWave'
     Controller_Name: GUN400
     field_amplitude: 120000000.0
     frequency: 2998500000.0
@@ -18,8 +20,9 @@ elements:
     position_end: [0, 0, 0]
     position_start: [0, 0, 0]
     sub_elements:
-      CLA-LRG1-GUN-SOL:
+      CLA-HRG1-GUN-SOL:
         type: solenoid
+        Controller_Name: SOL1
         length: 0
         field_amplitude: 0.345
         field_definition: $master_lattice_location$/Data_Files/HRRG_combined_sols_100mm_onaxis.dat
@@ -88,7 +91,9 @@ elements:
   CLA-L01-CAV:
     type: cavity
     length: 2.03333
+    Structure_Type: 'TravellingWave'
     cell_length: 0.0333333
+    n_cells: 61
     field_amplitude: 21000000.0
     frequency: 2998500000.0
     phase: -16

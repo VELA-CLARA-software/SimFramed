@@ -81,7 +81,7 @@ class Setup(QThread):
         if 'ini' in self.initDistribFile:
             self.initDistrib = createBeam.useASTRAFile(self.initDistribFile)
         else:
-            print('Creating default beam.')
+            print('    Creating default beam.')
             xOffset = caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE8')
             yOffset = caget('VM-EBT-INJ-DIA-DUMMY-01:DDOUBLE9')
             self.initDistrib = createBeam.guassian(x=xOffset, y=yOffset)
@@ -95,7 +95,7 @@ class Setup(QThread):
                                          V_RF_Ctrl=self.V_RF_Ctrl,
                                          C_RF_Ctrl=self.C_RF_Ctrl,
                                          L01_RF_Ctrl=self.L01_RF_Ctrl)
-        beamLine = lineCreator.create(self.pathway, self.pathway.elements)
+        beamLine = lineCreator.create(self.pathway, self.startElement, self.stopElement)
         # Run simulation
         for element in self.pathway.elements.keys():
             if element == self.startElement:
@@ -103,40 +103,39 @@ class Setup(QThread):
             if element == self.stopElement:
                 stopName = element
 
-        startIndex = [i for i, x in enumerate(beamLine.componentlist) if x.name == startName]
-        stopIndex = [i for i, x in enumerate(beamLine.componentlist) if x.name == stopName]
         print('3. Running SAMPL simulation from ' +
               startName + ' to ' + stopName + '.')
-        beamLine.TrackMatlab([startIndex[0], stopIndex[0]], self.initDistrib)
+        numberOfElements = len(beamLine.componentlist)
+        beamLine.TrackMatlab([0, numberOfElements - 1], self.initDistrib)
 
         # SAMPL to EPICS (look how short it is it is!!!!!!)
         # this take the most time to complete
         print('4. Writing data to EPICS ...')
         """CHANGED FOR NEW CAMER PVs"""
         for i in beamLine.componentlist:
-            if beamLine.componentlist.index(i) >= startIndex[0] and beamLine.componentlist.index(i) <= stopIndex[0]:
+            if beamLine.componentlist.index(i) >= 0 and beamLine.componentlist.index(i) <= numberOfElements - 1:
                 if 'SCR' in i.name or 'YAG' in i.name:
                     if 'CLu' in i.name:
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':ANA:X_RBV', i.x)
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':ANA:Y_RBV', i.y)
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':ANA:SigmaX_RBV', i.xSigma)
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':ANA:SigmaY_RBV', i.ySigma)
                     else:
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':X', i.x)
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':Y', i.y)
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':SigmaX', i.xSigma)
-                        caput('VM-' + self.elements[i.name]['camPV'] +
+                        caput('VM-' + self.pathway.elements[i.name]['camPV'] +
                               ':SigmaY', i.ySigma)
-                    print '    Written data for ', self.elements[i.name]['Online_Model_Name']
+                    print '    Written data for ', self.pathway.elements[i.name][0]
                 if 'BPM'in i.name:
-                    caput('VM-' + self.elements[i.name]['pv'] + ':X', i.x)
-                    caput('VM-' + self.elements[i.name]['pv'] + ':Y', i.y)
-                    print '    Written data for ', self.elements[i.name]['omName']
+                    caput('VM-' + self.pathway.elements[i.name]['PV'] + ':X', i.x)
+                    caput('VM-' + self.pathway.elements[i.name]['PV'] + ':Y', i.y)
+                    print '    Written data for ', self.pathway.elements[i.name][0]
                     print 'x Value:', str(i.x)

@@ -130,15 +130,22 @@ class Framework(object):
             return -1
 
     def getElementAt(self, index):
-        return [self.elementOrder[index],self.elements[self.elementOrder[index]]]
+        element = self.elementOrder[index]
+        data = []
+        if type(element)==type([]):
+            for i in element:
+                data.append(self.elements[i])
+        else:
+            data = self.elements[element]
+        return [element, data]
 
     def previousElement(self, element):
         index = self.elementIndex(element)
-        return self.getElementAt(index-1)
+        return self.getElementAt(index - 1)
 
     def nextElement(self, element):
         index = self.elementIndex(element)
-        return self.getElementAt(index+1)
+        return self.getElementAt(index + 1)
 
     @property
     def elements(self):
