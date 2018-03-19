@@ -10,19 +10,19 @@ from SAMPL.sourceCode.SAMPLcore.Components import RFAcceleratingStructure as RF
 from SAMPL.sourceCode.SAMPLcore.SAMPLlab import Beamline
 # from OnlineMode.SAMPL.sourceCode.SAMPLcore.SAMPLlab import PhysicalUnits
 import numpy as np
-
+import math as m
 
 class createBeamline():
 
     def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
-                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None,
-                 C_RF_Ctrl=None, L01_RF_Ctrl=None):
+                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, LRRG_RF_Ctrl=None,
+                 HRRG_RF_Ctrl=None, L01_RF_Ctrl=None):
         self.V_MAG_Ctrl = V_MAG_Ctrl
         self.C_S01_MAG_Ctrl = C_S01_MAG_Ctrl
         self.C_S02_MAG_Ctrl = C_S02_MAG_Ctrl
         self.C2V_MAG_Ctrl = C2V_MAG_Ctrl
-        self.V_RF_Ctrl = V_RF_Ctrl
-        self.C_RF_Ctrl = C_RF_Ctrl
+        self.LRRG_RF_Ctrl = LRRG_RF_Ctrl
+        self.HRRG_RF_Ctrl = HRRG_RF_Ctrl
         self.L01_RF_Ctrl = L01_RF_Ctrl
 
     def getObject(self, nickName, name):
@@ -58,8 +58,10 @@ class createBeamline():
                 return self.C2V_MAG_Ctrl.getMagObjConstRef(nickName)
         elif 'L01' in name:
             return self.L01_RF_Ctrl.getLLRFObjConstRef()
-        elif 'GUN' in name:
-            return self.V_RF_Ctrl.getLLRFObjConstRef()
+        elif 'GUN' in name and 'L' in name:
+            return self.LRRG_RF_Ctrl.getLLRFObjConstRef()
+        elif 'GUN' in name and 'H' in name:
+            return self.HRRG_RF_Ctrl.getLLRFObjConstRef()
         else:
             print ("Trying to get unrecognised object.")
 
@@ -75,6 +77,7 @@ class createBeamline():
 
             if mod is True:
                 print name
+                print element['type']
                 # Check element type and add accordingly
                 if element['type'] == 'dipole':
                     component = self.addDipole(element, element['Controller_Name'], name)
@@ -83,8 +86,11 @@ class createBeamline():
                 elif element['type'] == 'kicker':
                     component = self.addCorrector(element, element['Controller_Name'], name)
                 elif element['type'] == 'beam_position_monitor':
+                    length = pathway.getElement(element=name,
+                                           setting='length',
+                                           default=0)
                     component = BPM.BeamPositionMonitor(name=name,
-                                                        length=element['length'])
+                                                        length=length)
                 elif element['type'] == 'screen':
                     component = S.Screen(name=name)
                 elif element['type'] == 'wcm':
@@ -96,10 +102,10 @@ class createBeamline():
                 elif element['type'] == 'cavity':
                     component = self.addAccerlatingRF(element, element['Controller_Name'], name)
                 else:
-                    L = pathway.getElement(element=name,
+                    length = pathway.getElement(element=name,
                                            setting='length',
                                            default=0)
-                    component = d.Drift(name=name, length=L)
+                    component = d.Drift(name=name, length=length)
                     print ('WARNING: This reader doesn\'t' +
                            'recognise element type of ' + name)
 
@@ -175,7 +181,7 @@ class createBeamline():
                                                voltage=-(rf.amp_MVM * 1e6 *
                                                          element['length']),
                                                phase=rf.phi_DEG * (np.pi / 180),
-                                               ncell=element['n_cells'],
+                                               ncell=m.floor(element['n_cells']),
                                                structureType=structureType)
         component.setFrequency(element['frequency'])
         return component
@@ -195,7 +201,7 @@ class createBeamline():
         return D.Dipole(name=name, length=length, theta=angle, field=field)
 
     def addQuadrupole(self, element, nickName, name):
-        print name
+        # print name
         quad = self.getObject(nickName, name)
         grad = 0.0
 
@@ -208,20 +214,20 @@ class createBeamline():
         return Q.Quadrupole(name=name, length=element['length'], gradient=grad)
 
     def addCorrector(self, element, nickName, name):
-        print name
+        # print name
         vObj, hObj = self.getObject(nickName, name)
         vField = 0.0
         hField = 0.0
 
-        if vObj.siWithPol != 0.0:
-            print vObj.magneticLength
+        if vObj.siWithPol != 0.0 and vObj.siWithPol != -999.999:
+            #print vObj.magneticLength
             coeffs = vObj.fieldIntegralCoefficients
             absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
                          vObj.magneticLength)
             vField = 1000 * np.copysign(absVField, vObj.siWithPol)
 
-        if hObj.siWithPol != 0.0:
-            print hObj.magneticLength
+        if hObj.siWithPol != 0.0 and hObj.siWithPol != -999.999:
+            #print hObj.magneticLength
             coeffs = hObj.fieldIntegralCoefficients
             absVField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
                          hObj.magneticLength)
