@@ -32,6 +32,7 @@ class RFAcceleratingStructure(ComponentBase):
         return self.harmonic * MasterOscillator.GetFrequency()
 
     def Track(self, beam):
+        print self.name
         print ('Energy before acceleration: '+str(beam.energy/PhysicalUnits.eV)+'eV')
         # RFAcceleratingStructure.Track(beam)
         # Applies the dynamical map for a linac structure to the particles
