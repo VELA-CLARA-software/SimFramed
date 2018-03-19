@@ -74,8 +74,9 @@ class RFAcceleratingStructure(ComponentBase):
                 r22 = (numpy.cos(a) +
                        numpy.sqrt(2) * cosphi * numpy.sin(a)) * E0 / E1
             else:
-                print('RFAcceleratingStructure:UnrecognisedType  ',
-                      'RFAcceleratingStructure.structureType should',
+                print self.structureType
+                print('RFAcceleratingStructure:UnrecognisedType  ' +
+                      'RFAcceleratingStructure.structureType should' +
                       ' be StandingWave or TravellingWave.')
         else:
             r11 = 1

@@ -75,15 +75,14 @@ class createBeamline():
 
             if mod is True:
                 print name
-                nickName = element['Controller_Name']
                 # Check element type and add accordingly
                 if element['type'] == 'dipole':
-                    component = self.addDipole(element, nickName, name)
+                    component = self.addDipole(element, element['Controller_Name'], name)
                 elif element['type'] == 'quadrupole':
-                    component = self.addQuadrupole(element, nickName, name)
+                    component = self.addQuadrupole(element, element['Controller_Name'], name)
                 elif element['type'] == 'kicker':
-                    component = self.addCorrector(element, nickName, name)
-                elif element['type'] == 'bpm':
+                    component = self.addCorrector(element, element['Controller_Name'], name)
+                elif element['type'] == 'beam_position_monitor':
                     component = BPM.BeamPositionMonitor(name=name,
                                                         length=element['length'])
                 elif element['type'] == 'screen':
@@ -95,27 +94,44 @@ class createBeamline():
                 elif element['type'] == 'bam':
                     component = d.Drift(name=name, length=element['length'])
                 elif element['type'] == 'cavity':
-                    component = self.addAccerlatingRF(element, nickName, name)
+                    component = self.addAccerlatingRF(element, element['Controller_Name'], name)
                 else:
-                    component = d.Drift(name=name, length=element['length'])
-                    print ('ERROR: This reader doesn\'t',
-                           'recognise element type of ', name)
+                    L = pathway.getElement(element=name,
+                                           setting='length',
+                                           default=0)
+                    component = d.Drift(name=name, length=L)
+                    print ('WARNING: This reader doesn\'t' +
+                           'recognise element type of ' + name)
 
-                if index != 0:
-                    lastElement = elements[selectedGroup[index - 1]]
-                    backOfLast = lastElement['global_position'][-1]
-                    frontOfCurrent = element['global_position'][-1]
-                    angle = element['global_rotation'][-1]
-                    cosElementAngle = np.cos(angle * np.pi / 180)
-                    if element['type'] == 'dipole':
-                        frontOfCurrent = element['global_front'][-1]
+                if name != startElement:
+                    previousElement = pathway.previousElement(name)
+                    # is a list
+                    if type(previousElement[0])==type([]):
+                        lastElementName = previousElement[0][0]
+                        lastElement = previousElement[1][0]
                     else:
+                        lastElementName = previousElement[0]
+                        lastElement = previousElement[1]
+                    #print lastElement
+                    backOfLast = lastElement['position_end'][-1]
+                    frontOfCurrent = element['position_start'][-1]
+                    global_rotation = pathway.getElement(element=name,
+                                                         setting='global_rotation',
+                                                         default=[0, 0, 0])
+                    angle = global_rotation[-1]
+                    cosElementAngle = np.cos(angle)
+                    if element['type'] == 'dipole':
+                        frontOfCurrent = element['buffer_start'][-1]
+                    else:
+                        length = pathway.getElement(element=name,
+                                                    setting='length',
+                                                    default=0)
                         frontOfCurrent = (frontOfCurrent -
-                                          element['length'] * cosElementAngle)
+                                          length * cosElementAngle)
 
                     if frontOfCurrent < backOfLast:
-                        print ('Elements ', selectedGroup[index - 1],
-                               ' and ', name, ' overlap!!')
+                        print ('Elements ' + lastElementName +
+                               ' and ' + name + ' overlap!!')
                     elif frontOfCurrent > backOfLast:
                         # Add a drift before adding component
                         b = frontOfCurrent
@@ -125,7 +141,8 @@ class createBeamline():
                                                  length=(b - a) / cosElementAngle)
                         line.componentlist.append(driftComponent)
                     else:
-                        print 'No drift required', index
+                        print ('No drift required between ' + lastElementName +
+                               ' and ' + name)
                     # Append component
                     line.componentlist.append(component)
                 if name == stopElement:
@@ -143,9 +160,9 @@ class createBeamline():
         print 'rf grad: ' + str(rf.amp_MVM)
         print 'rf Phase: ' + str(rf.phi_DEG)
         structureType = 'Null'
-        if element['Structure_Type'] is 'TravellingWave':
+        if element['Structure_Type'] == 'TravellingWave':
             structureType = 'TravellingWave'
-        elif element['Structure_Type'] is 'StandingWave':
+        elif element['Structure_Type'] == 'StandingWave':
             structureType = 'StandingWave'
         # component = SARF.SolenoidAndRF(length=element['length'],
         #                                   name='Linac1',
