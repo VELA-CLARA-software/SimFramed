@@ -4,9 +4,12 @@ import ASTRAGenerator as GenPart
 from ASTRARules import *
 from getGrids import *
 from FrameworkHelperFunctions import *
+import SimulationFramework.Modules.read_beam_file as rbf
 from operator import add
 
 class ASTRA(object):
+
+    beam = rbf.beam()
 
     def __init__(self, framework=None, directory='test'):
         super(ASTRA, self).__init__()
@@ -19,6 +22,18 @@ class ASTRA(object):
         command = self.astraCommand + [filename]
         with open(os.devnull, "w") as f:
             subprocess.call(command, stdout=f, cwd=self.subdir)
+
+    def postProcesssASTRA(self):
+        if hasattr(self, 'screens'):
+            for s in self.screens:
+                self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, s, self.runno)
+        self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, self.zstop, self.runno)
+
+    def convert_astra_beam_to_HDF5_beam(self, subdir, filename, pos, runno=1):
+        astrabeamfilename = filename + '.' + str(int(round(pos[2]*100))).zfill(4) + '.' + str(runno.zfill(3))
+        self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename)
+        HDF5filename = filename + '.' + str(int(round(pos[2]*100))).zfill(4) + '.hdf5'
+        self.beam.write_HDF5_beam_file(subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=pos)
 
     def defineASTRACommand(self,command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -268,18 +283,24 @@ class ASTRA(object):
         """Create an ASTRA screen string"""
         screen         = self.framework.getElement(screenname)
         x,y,z          =     getParameter(screen,'position_start')
+        self.screens.append([x,y,z])
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
 
         screentext = 'Screen('+str(n)+')='+str(z)+'\n'
+
         return screentext
 
+    def formatASTRAZValue(self, z, fill=4):
+        return str(int(round(z))).zfill(fill)
+
     def formatASTRAStartElement(self, name):
-        return str(int(round(self.framework.elements[name]['position_end'][2]*100))).zfill(4)
+        return self.formatASTRAZValue(self.framework.elements[name]['position_end'][2]*100)
 
     def createASTRANewRunBlock(self, settings={}, input={}, output={}):
         """Create an ASTRA NEWRUN Block string"""
         title           = str(getParameter(settings,'title',default='trial'))
         runno           = str(getParameter(settings,'run_no',default=1))
+        self.runno = runno
         loop            = str(getParameter(settings,'Loop',default=False))
         lprompt         = str(getParameter(settings,'Lprompt',default=False))
         distribution    = str(getParameter(input,'particle_definition',default=''))
@@ -316,7 +337,7 @@ class ASTRA(object):
 
         output = copy.deepcopy(originaloutput)
         screens = self.framework.getElementsBetweenS('screen', output=output)
-        # print 'screens = ', screens
+        self.screens = []# print 'screens = ', screens
 
         zstart = getParameter(output,'zstart',default=None)
         if zstart is None:
@@ -347,6 +368,8 @@ class ASTRA(object):
         zstop = self.rotateAndOffset(zstop, self.global_offset, self.global_rotation)
         # print 'zstop after = ', zstop
         output['zstop'] = zstop[2]
+
+        self.zstop = zstop
         outputtext = '&OUTPUT\n'
         for var in ASTRARules['OUTPUT']:
             outputtext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings, output], var)
@@ -519,6 +542,7 @@ class ASTRA(object):
         return dipoletext
 
     def createASTRAFileText(self, file):
+        self.filename = file
         settings = self.framework.getFileSettings(file,'ASTRA_Options')
         output = self.framework.getFileSettings(file,'output')
         self.global_offset = self.framework.getFileSettings(file,'global_offset', [0,0,0])

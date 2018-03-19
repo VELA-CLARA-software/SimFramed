@@ -24,6 +24,15 @@ def merge_two_dicts(x, y):
     z.update(y)    # modifies z with y's keys and values & returns None
     return OrderedDict(z)
 
+from collections import Iterable
+def flatten(coll):
+    for i in coll:
+            if isinstance(i, Iterable) and not isinstance(i, basestring):
+                for subc in flatten(i):
+                    yield subc
+            else:
+                yield i
+
 class Framework(object):
 
     def __init__(self, subdir='test', overwrite=None, runname='CLARA_240', master_lattice_location=None):
@@ -124,7 +133,7 @@ class Framework(object):
                 self.elementOrder.append(name)
 
     def elementIndex(self, element):
-        flatelementOrder = [item for sublist in self.elementOrder for item in sublist]
+        flatelementOrder = list(flatten(self.elementOrder))
         if element in flatelementOrder:
             return flatelementOrder.index(element)
         else:
@@ -132,7 +141,7 @@ class Framework(object):
             return -1
 
     def getElementAt(self, index):
-        flatelementOrder = [item for sublist in self.elementOrder for item in sublist]
+        flatelementOrder = list(flatten(self.elementOrder))
         element = flatelementOrder[index]
         data = self.elements[element]
         return [element, data]
@@ -370,6 +379,17 @@ class Framework(object):
                     saveFile(filename, lines=self.CSRTrack.createCSRTrackFileText(f))
             else:
                 saveFile(filename, lines=self.astra.createASTRAFileText(f))
+
+    def postProcessInputFiles(self):
+        for f in self.fileSettings.keys():
+            if 'code' in self.fileSettings[f]:
+                code = self.fileSettings[f]['code']
+                if code.upper() == 'ASTRA':
+                    self.astra.createASTRAFileText(f)
+                    self.astra.postProcesssASTRA()
+                if code.upper() == 'CSRTRACK':
+                    self.CSRTrack.createCSRTrackFileText(f)
+                    self.CSRTrack.postProcesssCSRTrack()
 
     def runInputFiles(self, files=None):
         if not isinstance(files, (list, tuple)):
