@@ -63,67 +63,73 @@ class createBeamline():
         else:
             print ("Trying to get unrecognised object.")
 
-    def create(self, selectedGroup, elements):
+    def create(self, pathway, startElement, stopElement):
 
         line = Beamline.Beamline(componentlist=[])
         driftCounter = 0
-        for index, name in enumerate(selectedGroup):
-            element = elements[name]
-            nickName = element['name']
-            component = None
-            # Check element type and add accordingly
-            if element['type'] == 'dipole':
-                component = self.addDipole(element, nickName, name)
-            elif element['type'] == 'quadrupole':
-                component = self.addQuadrupole(element, nickName, name)
-            elif element['type'] == 'kicker':
-                component = self.addCorrector(element, nickName, name)
-            elif element['type'] == 'bpm':
-                component = BPM.BeamPositionMonitor(name=name,
-                                                    length=element['length'])
-            elif element['type'] == 'screen':
-                component = S.Screen(name=name)
-            elif element['type'] == 'wcm':
-                component = d.Drift(name=name, length=element['length'])
-            elif element['type'] == 'tdc':
-                component = d.Drift(name=name, length=element['length'])
-            elif element['type'] == 'bam':
-                component = d.Drift(name=name, length=element['length'])
-            elif element['type'] == 'cavity':
-                component = self.addAccerlatingRF(element, nickName, name)
-            else:
-                component = d.Drift(name=name, length=element['length'])
-                print ('ERROR: This reader doesn\'t',
-                       'recognise element type of ', name)
+        mod = False
 
-            if index != 0:
-                lastElement = elements[selectedGroup[index - 1]]
-                backOfLast = lastElement['global_position'][-1]
-                frontOfCurrent = element['global_position'][-1]
-                angle = element['global_rotation'][-1]
-                cosElementAngle = np.cos(angle * np.pi / 180)
+        for name, element in pathway.elements.iteritems():
+            if name == startElement:
+                mod = True
+
+            if mod is True:
+                print name
+                nickName = element['Controller_Name']
+                # Check element type and add accordingly
                 if element['type'] == 'dipole':
-                    frontOfCurrent = element['global_front'][-1]
+                    component = self.addDipole(element, nickName, name)
+                elif element['type'] == 'quadrupole':
+                    component = self.addQuadrupole(element, nickName, name)
+                elif element['type'] == 'kicker':
+                    component = self.addCorrector(element, nickName, name)
+                elif element['type'] == 'bpm':
+                    component = BPM.BeamPositionMonitor(name=name,
+                                                        length=element['length'])
+                elif element['type'] == 'screen':
+                    component = S.Screen(name=name)
+                elif element['type'] == 'wcm':
+                    component = d.Drift(name=name, length=element['length'])
+                elif element['type'] == 'tdc':
+                    component = d.Drift(name=name, length=element['length'])
+                elif element['type'] == 'bam':
+                    component = d.Drift(name=name, length=element['length'])
+                elif element['type'] == 'cavity':
+                    component = self.addAccerlatingRF(element, nickName, name)
                 else:
-                    frontOfCurrent = (frontOfCurrent -
-                                      element['length'] * cosElementAngle)
+                    component = d.Drift(name=name, length=element['length'])
+                    print ('ERROR: This reader doesn\'t',
+                           'recognise element type of ', name)
 
-                if frontOfCurrent < backOfLast:
-                    print ('Elements ', selectedGroup[index - 1],
-                           ' and ', name, ' overlap!!')
-                elif frontOfCurrent > backOfLast:
-                    # Add a drift before adding component
-                    b = frontOfCurrent
-                    a = backOfLast
-                    driftCounter = driftCounter + 1
-                    driftComponent = d.Drift(name='drift' + str(driftCounter),
-                                             length=(b - a) / cosElementAngle)
-                    line.componentlist.append(driftComponent)
-                else:
-                    print 'No drift required', index
+                if index != 0:
+                    lastElement = elements[selectedGroup[index - 1]]
+                    backOfLast = lastElement['global_position'][-1]
+                    frontOfCurrent = element['global_position'][-1]
+                    angle = element['global_rotation'][-1]
+                    cosElementAngle = np.cos(angle * np.pi / 180)
+                    if element['type'] == 'dipole':
+                        frontOfCurrent = element['global_front'][-1]
+                    else:
+                        frontOfCurrent = (frontOfCurrent -
+                                          element['length'] * cosElementAngle)
 
-            # Append component
-            line.componentlist.append(component)
+                    if frontOfCurrent < backOfLast:
+                        print ('Elements ', selectedGroup[index - 1],
+                               ' and ', name, ' overlap!!')
+                    elif frontOfCurrent > backOfLast:
+                        # Add a drift before adding component
+                        b = frontOfCurrent
+                        a = backOfLast
+                        driftCounter = driftCounter + 1
+                        driftComponent = d.Drift(name='drift' + str(driftCounter),
+                                                 length=(b - a) / cosElementAngle)
+                        line.componentlist.append(driftComponent)
+                    else:
+                        print 'No drift required', index
+                    # Append component
+                    line.componentlist.append(component)
+                if name == stopElement:
+                    mod = False
         return line
 
 # Complicated adding
