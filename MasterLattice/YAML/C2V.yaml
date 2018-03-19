@@ -93,6 +93,7 @@ elements:
   CLA-C2V-DIA-SCR-01-W:
     type: screen
     output_filename: '"C2V-DIA-SCR-01.SDDS"'
+    camera_PV: CLA-C2V-DIA-CAM-01
     buffer_start: [0.913427, 0, 6.95126]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
