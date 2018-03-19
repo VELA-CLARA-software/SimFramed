@@ -333,25 +333,32 @@ class beam(object):
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
 
-    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e):
+    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None):
         with h5py.File(filename, "w") as f:
             inputgrp = f.create_group("Parameters")
             if not 'total_charge' in self.beam or self.beam['total_charge'] == 0:
                 self.beam['total_charge'] = np.sum(self.beam['charge'])
+            if sourcefilename is not None:
+                inputgrp['Source'] = sourcefilename
+            if pos is not None:
+                inputgrp['Starting_Position'] = pos
             inputgrp['total_charge'] = self.beam['total_charge']
             inputgrp['npart'] = len(self.x)
             inputgrp['centered'] = centered
             inputgrp['code'] = self.beam['code']
             inputgrp['particle_mass'] = mass
             beamgrp = f.create_group("beam")
+            if 'reference_particle' in self.beam:
+                beamgrp['reference_particle'] = self.beam['reference_particle']
             if len(self.beam['charge']) == len(self.x):
                 chargevector = self.beam['charge']
             else:
                 chargevector = np.full(len(self.x), self.charge/len(self.x))
-            array = np.array([self.x, self.y, self.z, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
+            array = np.array([self.x, self.y, self.z, self.cpx, self.cpy, self.cpz, self.t, chargevector])
             beamgrp['columns'] = ("x","y","z","cpx","cpy","cpz","t","q")
             beamgrp['units'] = ("m","m","m","eV","eV","eV","s","e")
             beamgrp.create_dataset("beam", data=array)
+
 
     ''' ********************  Statistical Parameters  ************************* '''
 
