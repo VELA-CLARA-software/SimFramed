@@ -123,6 +123,23 @@ class Framework(object):
             else:
                 self.elementOrder.append(name)
 
+    def elementIndex(self, element):
+        if element in self.elementOrder:
+            return self.elementOrder.index(element)
+        else:
+            return -1
+
+    def getElementAt(self, index):
+        return [self.elementOrder[index],self.elements[self.elementOrder[index]]]
+
+    def previousElement(self, element):
+        index = self.elementIndex(element)
+        return self.getElementAt(index-1)
+
+    def nextElement(self, element):
+        index = self.elementIndex(element)
+        return self.getElementAt(index+1)
+
     @property
     def elements(self):
         elements = OrderedDict()
