@@ -385,8 +385,11 @@ class Framework(object):
             if 'code' in self.fileSettings[f]:
                 code = self.fileSettings[f]['code']
                 if code.upper() == 'ASTRA':
-                    self.astra.createASTRAFileText(f)
-                    self.astra.postProcesssASTRA()
+                    try:
+                        self.astra.createASTRAFileText(f)
+                        self.astra.postProcesssASTRA()
+                    except:
+                        pass
                 if code.upper() == 'CSRTRACK':
                     self.CSRTrack.createCSRTrackFileText(f)
                     self.CSRTrack.postProcesssCSRTrack()
