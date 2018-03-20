@@ -23,16 +23,30 @@ class ASTRA(object):
         with open(os.devnull, "w") as f:
             subprocess.call(command, stdout=f, cwd=self.subdir)
 
+    def preProcesssASTRA(self):
+        if self.zstart[0] is not None:
+            self.convert_HDF5_beam_to_astra_beam(self.subdir, self.filename, self.zstart)
+
     def postProcesssASTRA(self):
         if hasattr(self, 'screens'):
             for s in self.screens:
                 self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, s, self.runno)
         self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, self.zstop, self.runno)
 
-    def convert_astra_beam_to_HDF5_beam(self, subdir, filename, pos, runno=1):
+    def convert_HDF5_beam_to_astra_beam(self, subdir, filename, screen):
+        name, pos = screen
+        HDF5filename = name + '.hdf5'
+        astrabeamfilename = name + '.astra'
+        self.beam.read_HDF5_beam_file(subdir + '/' + HDF5filename)
+        if abs(self.global_rotation) > 0:
+            self.beam.rotate_beamXZ(-1.*self.global_rotation, self.global_offset)
+        self.beam.write_astra_beam_file(subdir + '/' + astrabeamfilename)
+
+    def convert_astra_beam_to_HDF5_beam(self, subdir, filename, screen, runno=1):
+        name, pos = screen
         astrabeamfilename = filename + '.' + str(int(round(pos[2]*100))).zfill(4) + '.' + str(runno.zfill(3))
         self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename)
-        HDF5filename = filename + '.' + str(int(round(pos[2]*100))).zfill(4) + '.hdf5'
+        HDF5filename = name + '.hdf5'
         self.beam.write_HDF5_beam_file(subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=pos)
 
     def defineASTRACommand(self,command=['astra']):
@@ -349,13 +363,18 @@ class ASTRA(object):
             startelem = getParameter(output,'start_element',default=None)
             if startelem is None or startelem not in self.framework.elements:
                 zstart = [0,0,0]
+                self.zstart = [None, zstart]
             else:
                 # print self.framework.elements[startelem]
                 zstart = self.framework.elements[startelem]['position_start']
                 originaloutput['zstart'] = zstart[2]
+                self.zstart = [startelem, zstart]
         elif not isinstance(zstart, (list, tuple)):
             zstart = [0,0, zstart]
-        zstop = getParameter(output,'zstop',default=None)
+            self.zstart = [None, zstart]
+        else:
+            self.zstart = [None, zstart]
+        zstop = None#getParameter(output,'zstop',default=None)
         if zstop is None:
             endelem = getParameter(output,'end_element',default=None)
             if endelem is None or endelem not in self.framework.elements:
@@ -365,13 +384,10 @@ class ASTRA(object):
                 originaloutput['zstop'] = zstop[2]
         elif not isinstance(zstop, (list, tuple)):
             zstop = [0,0,zstop]
-        # print 'zstart = ', zstart
-        # print 'zstop = ', zstop
+
         zstart = self.rotateAndOffset(zstart, self.global_offset, self.global_rotation)
         output['zstart'] = zstart[2]
-        # print 'zstop = ', self.framework.elements[endelem]['position_end']
         zstop = self.rotateAndOffset(zstop, self.global_offset, self.global_rotation)
-        # print 'zstop after = ', zstop
         output['zstop'] = zstop[2]
 
         self.zstop = zstop
