@@ -376,7 +376,7 @@ class Framework(object):
                 if code.upper() == 'ASTRA':
                     saveFile(filename, lines=self.astra.createASTRAFileText(f))
                     self.astra.preProcesssASTRA()
-                    # self.astra.runASTRA(filename)
+                    self.astra.runASTRA(filename)
                     self.astra.postProcesssASTRA()
 
     def createInputFiles(self):
