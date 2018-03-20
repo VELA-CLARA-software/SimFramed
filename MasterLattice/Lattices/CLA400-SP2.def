@@ -1,6 +1,6 @@
 global:
   total_charge: 0.25
-  generatorFile: ASTRA/generator400.in
+  generatorFile: generator400.in
   SC_2D_Nrad: 30
   SC_2D_Nlong: 45
   SC_3D_Nxf: 8
@@ -41,11 +41,9 @@ files:
     input:
       particle_definition: 'initial_distribution'
     output:
-      start_element: CLA-HRG1-APER
+      zstart: 0
       end_element: CLA-S02-APER-01
-  s02:
-    global_offset: $self.getElement('CLA-S02-APER-01','position_end')$
-    global_rotation: 0
+  S02:
     code: ASTRA
     charge:
       cathode: False
@@ -54,32 +52,165 @@ files:
       particle_definition: injector400.$output['start_element']$.001
     output:
       start_element: CLA-S02-APER-01
-      end_element: CLA-C2V-MARK-01
-  c2v:
-    global_offset: $self.getElement('CLA-C2V-MAG-DIP-01','position_end')$
-    starting_rotation: 0
+      end_element: CLA-L02-APER
+  L02:
     code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
     input:
-      particle_definition: s02.$output['start_element']$.001
+      particle_definition: S02.$output['start_element']$.001
     output:
-      start_element: CLA-C2V-MARK-01
-      end_element: CLA-C2V-DIA-SCR-01-W
-  vela:
-    global_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
-    starting_rotation: $self.getElement('CLA-C2V-MAG-DIP-01','angle')$
+      start_element: CLA-L02-APER
+      end_element: CLA-S03-APER
+  S03:
     code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
     input:
-      particle_definition: c2v.$output['start_element']$.001
+      particle_definition: L02.$output['start_element']$.001
     output:
-      start_element: CLA-C2V-DIA-SCR-01-W
-      end_element: EBT-INJ-PSS-SHUT-02
+      start_element: CLA-S03-APER
+      end_element: CLA-L03-APER
+  L03:
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: S03.$output['start_element']$.001
+    output:
+      start_element: CLA-L03-APER
+      end_element: CLA-S04-APER
+  S04:
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: L03.$output['start_element']$.001
+    output:
+      start_element: CLA-S04-APER
+      end_element: CLA-L4H-APER
+    groups:
+      laser-heater:
+        dipoleangle: 0.0001
+        width: 0.2
+        gap: 0.02
+  L4H:
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: S04.$output['start_element']$.001
+    output:
+      start_element: CLA-L4H-APER
+      end_element: CLA-S05-APER
+  S05:
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: L4H.$output['start_element']$.001
+    output:
+      start_element: CLA-S05-APER
+      end_element: CLA-S05-MARK-01
+  VBC:
+    code: CSRTrack
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: S05.$output['start_element']$.001
+    output:
+      start_element: CLA-S05-MARK-01
+      end_element: CLA-S06-MARK-01
+    CSRTrack_Options:
+      online_monitors:
+        sub_bunch.dat:
+          type: subbunch
+          start_time_c0: now
+          end_time_marker: d4b
+          end_time_shift_c0: 0.1
+          time_step_c0: all
+        steps.dat:
+          type: steps
+          start_time_c0: now
+          end_time_marker: d4b
+          end_time_shift_c0: 0.1
+          time_step_c0: all
+        p1.fmt2:
+          type: phase
+          format: fmt2
+          particle: 1
+          start_time_c0: now
+          end_time_marker: d4b
+          end_time_shift_c0: 0.1
+          time_step_c0: all
+      forces:
+        type: projected
+        shape: ellipsoid
+        sigma_long: relative
+        relative_long: 0.1
+      track_step:
+        precondition: yes
+        iterative: 2
+        error_per_ct: 0.001
+        error_weight_momentum: 0.0
+        ct_step_min: 0.002
+        ct_step_max: 0.010
+        ct_step_first: 0.010
+        increase_factor: 1.5
+        arc_factor: 0.3
+        duty_steps: yes
+      tracker:
+        end_time_marker: d4b
+        end_time_shift_c0: 0.1
+      monitor:
+        format: fmt2
+        name: vb.fmt2
+      particles:
+        reference_momentum: reference_particle
+        reference_point_x: 0.0
+        reference_point_y: 0.0
+        reference_point_phi: 0.0
+        format: astra
+        array: "#file{name=S05.$output['start_element']$.001}"
+    groups:
+      VBC:
+        dipoleangle: 0.105
+        width: 0.2
+        gap: 0.02
+  S06:
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: VBC.$output['start_element']$.001
+    output:
+      start_element: CLA-S06-MARK-01
+      end_element: CLA-SP2-MARK-01
+  SP2:
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: S06.$output['start_element']$.001
+    output:
+      start_element: CLA-SP2-MARK-01
+      end_element: CLA-SP2-DIA-SCR-02
 groups:
+  laser-heater:
+    type: chicane
+    elements: [CLA-S04-MAG-DIP-01, CLA-S04-MAG-DIP-02, CLA-S04-MAG-DIP-03, CLA-S04-MAG-DIP-04]
+  VBC:
+    type: chicane
+    elements: [CLA-VBC-MAG-DIP-01, CLA-VBC-MAG-DIP-02, CLA-VBC-MAG-DIP-03, CLA-VBC-MAG-DIP-04]
 elements:
   filename: ['YAML/Injector400.yaml',
                'YAML/S02.yaml',
