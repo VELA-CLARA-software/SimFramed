@@ -41,7 +41,7 @@ files:
     input:
       particle_definition: 'initial_distribution'
     output:
-      zstart: 0
+      start_element: CLA-HRG1-APER
       end_element: CLA-S02-APER-01
   s02:
     global_offset: $self.getElement('CLA-S02-APER-01','position_end')$

@@ -10,7 +10,8 @@ class Setup(QThread):
     # CONSTRUCTOR
     def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
                  C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, LRRG_RF_Ctrl=None,
-                 HRRG_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
+                 HRRG_RF_Ctrl=None, L01_RF_Ctrl=None,
+                 messages=False, subdir='.'):
         QThread.__init__(self)
         self.showMessages = messages
         self.V_MAG_Ctrl = V_MAG_Ctrl
@@ -24,7 +25,7 @@ class Setup(QThread):
         self.stopElement = 'Null'
         self.initDistribFile = 'Null'
         self.initCharge = 0.0
-        self.pathway = Framework.Framework(subdir='.', overwrite='overwrite')
+        self.pathway = Framework.Framework(subdir=subdir, overwrite='overwrite')
 
 
     # DESTRUCTOR
@@ -82,6 +83,7 @@ class Setup(QThread):
         print('2. Create a Beamline...')
         print('    Find aproriate pathway...')
         sucessful = self.loadPathway()
+        self.pathway.astra.setInitialDistribution(filename=self.initDistribFile)
         if sucessful is False:
             return
         print('    Modify pathway using Virtual EPICS...')
@@ -93,23 +95,34 @@ class Setup(QThread):
                                  HRRG_RF_Ctrl=self.HRRG_RF_Ctrl,
                                  L01_RF_Ctrl=self.L01_RF_Ctrl)
         modifier.modfiy(self.pathway, self.startElement, self.stopElement)
+        print('    Crop pathway for ASTRA run...')
+        startIndex = self.pathway.elementIndex(self.startElement)
+        stopIndex = self.pathway.elementIndex(self.stopElement)
+
+        for section in self.pathway.fileSettings.keys():
+            startOfSection = self.pathway.fileSettings[section]['output']['start_element']
+            stopOfSection = self.pathway.fileSettings[section]['output']['end_element']
+            sectionStartIndex = self.pathway.elementIndex(startOfSection)
+            sectionStopIndex = self.pathway.elementIndex(stopOfSection)
+            if startIndex > sectionStartIndex and startIndex > sectionStopIndex:
+                print '      Deleting section', section
+                del self.pathway.fileSettings[section]
+            if startIndex > sectionStartIndex and startIndex < sectionStopIndex:
+                print '      Make start element the start of section', section
+                self.pathway.fileSettings[section]['output']['start_element'] = self.startElement
+            if stopIndex > sectionStartIndex and stopIndex < sectionStopIndex:
+                print '      Make stop element the stop of section', section
+                self.pathway.fileSettings[section]['output']['end_element'] = self.stopElement
+            if stopIndex < sectionStartIndex and stopIndex < sectionStopIndex:
+                print '      Deleting section', section
+                del self.pathway.fileSettings[section]
+        print self.pathway.fileSettings.keys()
         print('    Creating .in files...')
+
         # Write .in files
         self.pathway.createInputFiles()
 
-
         print('3. Running ASTRA simulation from ' +
               self.startElement + ' to ' + self.stopElement)
-        # Now run Python script in Virtual Machine to run ASTRA
-'''
-        if self.showMessages is True:
-            os.system('VBoxManage --nologo guestcontrol "VE-11g" run ' +
-                      '"usr/bin/python" --username "vmsim" --password ' +
-                      '"password" -- /home/vmsim/Desktop/V2/ASTRA/' +
-                      'runASTRA.py %s' % (','.join(self.pathway.fileSettings.keys())))
-        else:
-            os.system('VBoxManage --nologo guestcontrol "VE-11g" run ' +
-                      '"usr/bin/python" --username "vmsim" --password ' +
-                      '"password" -- /home/vmsim/Desktop/V2/ASTRA/runASTRA.py' +
-                      ' >> OverallSimMessages.txt %s' % (','.join(inFiles)))
-'''
+
+        #self.pathway.runInputFiles()
