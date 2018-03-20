@@ -4,6 +4,7 @@ import os
 import yaml
 import modifyASTRABeamline as mabl
 from SimulationFramework import Framework
+import astra2VE as ve
 
 
 class Setup(QThread):
@@ -26,7 +27,6 @@ class Setup(QThread):
         self.initDistribFile = 'Null'
         self.initCharge = 0.0
         self.pathway = Framework.Framework(subdir=subdir, overwrite='overwrite')
-
 
     # DESTRUCTOR
     def __del__(self):
@@ -81,11 +81,13 @@ class Setup(QThread):
         print('    Using file: ' + self.initDistribFile)
 
         print('2. Create a Beamline...')
+
         print('    Find aproriate pathway...')
         sucessful = self.loadPathway()
         self.pathway.astra.setInitialDistribution(filename=self.initDistribFile)
         if sucessful is False:
             return
+
         print('    Modify pathway using Virtual EPICS...')
         modifier = mabl.beamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
                                  C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
@@ -95,10 +97,10 @@ class Setup(QThread):
                                  HRRG_RF_Ctrl=self.HRRG_RF_Ctrl,
                                  L01_RF_Ctrl=self.L01_RF_Ctrl)
         modifier.modfiy(self.pathway, self.startElement, self.stopElement)
+
         print('    Crop pathway for ASTRA run...')
         startIndex = self.pathway.elementIndex(self.startElement)
         stopIndex = self.pathway.elementIndex(self.stopElement)
-
         for section in self.pathway.fileSettings.keys():
             startOfSection = self.pathway.fileSettings[section]['output']['start_element']
             stopOfSection = self.pathway.fileSettings[section]['output']['end_element']
@@ -116,10 +118,8 @@ class Setup(QThread):
             if stopIndex < sectionStartIndex and stopIndex < sectionStopIndex:
                 print '      Deleting section', section
                 del self.pathway.fileSettings[section]
-        # print self.pathway.fileSettings.keys()
-        print('    Creating .in files...')
 
-        # Write .in files
+        print('    Creating .in files...')
         self.pathway.createInputFiles()
 
         print('3. Running ASTRA simulation from ' +
@@ -128,3 +128,5 @@ class Setup(QThread):
                     "\\..\\..\\ASTRA\\astra.exe")
         self.pathway.astra.defineASTRACommand([astraDir])
         self.pathway.runInputFiles()
+        ve.setOutputs(self.pathway)
+        print('    Done, for now...')
