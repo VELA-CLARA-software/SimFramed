@@ -116,7 +116,7 @@ class Setup(QThread):
             if stopIndex < sectionStartIndex and stopIndex < sectionStopIndex:
                 print '      Deleting section', section
                 del self.pathway.fileSettings[section]
-        print self.pathway.fileSettings.keys()
+        # print self.pathway.fileSettings.keys()
         print('    Creating .in files...')
 
         # Write .in files
@@ -124,5 +124,7 @@ class Setup(QThread):
 
         print('3. Running ASTRA simulation from ' +
               self.startElement + ' to ' + self.stopElement)
-
-        #self.pathway.runInputFiles()
+        astraDir = (str(os.path.abspath(__file__)).split('astra')[0] +
+                    "\\..\\..\\ASTRA\\astra.exe")
+        self.pathway.astra.defineASTRACommand([astraDir])
+        self.pathway.runInputFiles()
