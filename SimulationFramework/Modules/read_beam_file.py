@@ -333,6 +333,30 @@ class beam(object):
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
 
+    def rotate_beamXZ(self, theta, offset=np.array([0,0,0])):
+        rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
+        beam = np.array([self.beam['x'],self.beam['y'],self.beam['z']]).transpose()
+        self.beam['x'],self.beam['y'],self.beam['z'] = np.dot(beam-offset, rotation_matrix).transpose()
+        beam = np.array([self.beam['cpx'],self.beam['cpy'],self.beam['cpz']]).transpose()
+        self.beam['cpx'],self.beam['cpy'],self.beam['cpz'] = np.dot(beam, rotation_matrix).transpose()
+        self.beam['px'] = self.beam['cpx'] * self.q_over_c
+        self.beam['py'] = self.beam['cpy'] * self.q_over_c
+        self.beam['pz'] = self.beam['cpz'] * self.q_over_c
+        velocity_conversion = 1 / (constants.m_e * self.gamma)
+        self.beam['vx'] = velocity_conversion * self.px
+        self.beam['vy'] = velocity_conversion * self.py
+        self.beam['vz'] = velocity_conversion * self.pz
+        self.beam['Bx'] = self.vx / constants.speed_of_light
+        self.beam['By'] = self.vy / constants.speed_of_light
+        self.beam['Bz'] = self.vz / constants.speed_of_light
+        self.beam['rotation'] = theta
+        self.beam['offset'] = offset
+
+    def unrotate_beamXZ(self):
+        offset = self.beam['offset'] if 'offset' in self.beam else np.array([0,0,0])
+        if 'rotation' in self.beam or abs(self.beam['rotation']) > 0:
+            self.rotate_beamXZ(-1*self.beam['rotation'], -1*offset)
+
     def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None):
         with h5py.File(filename, "w") as f:
             inputgrp = f.create_group("Parameters")
@@ -351,14 +375,47 @@ class beam(object):
             if 'reference_particle' in self.beam:
                 beamgrp['reference_particle'] = self.beam['reference_particle']
             if len(self.beam['charge']) == len(self.x):
-                chargevector = self.beam['charge']
+                chargevector = self.beam['charge']/constants.e
             else:
-                chargevector = np.full(len(self.x), self.charge/len(self.x))
-            array = np.array([self.x, self.y, self.z, self.cpx, self.cpy, self.cpz, self.t, chargevector])
+                chargevector = np.full(len(self.x), self.charge/len(self.x)/constants.e)
+            array = np.array([self.x, self.y, self.z, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
             beamgrp['columns'] = ("x","y","z","cpx","cpy","cpz","t","q")
             beamgrp['units'] = ("m","m","m","eV","eV","eV","s","e")
             beamgrp.create_dataset("beam", data=array)
 
+    def read_HDF5_beam_file(self, filename):
+        with h5py.File(filename, "r") as h5file:
+            if h5file.get('beam/reference_particle') is not None:
+                self.beam['reference_particle'] = np.array(h5file.get('beam/reference_particle'))
+            x, y, z, cpx, cpy, cpz, t, charge = np.array(h5file.get('beam/beam')).transpose()
+            cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
+            self.beam['x'] = x
+            self.beam['y'] = y
+            self.beam['z'] = z
+            self.beam['cpx'] = cpx
+            self.beam['cpy'] = cpy
+            self.beam['cpz'] = cpz
+            self.beam['px'] = cpx * self.q_over_c
+            self.beam['py'] = cpy * self.q_over_c
+            self.beam['pz'] = cpz * self.q_over_c
+            self.beam['cp'] = cp
+            self.beam['p'] = cp * self.q_over_c
+            self.beam['xp'] = np.arctan(self.px/self.pz)
+            self.beam['yp'] = np.arctan(self.py/self.pz)
+            self.beam['clock'] = np.full(len(self.x), 0)
+            # self.beam['index'] = np.full(len(self.x), 5)
+            # self.beam['status'] = np.full(len(self.x), 1)
+            self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
+            velocity_conversion = 1 / (constants.m_e * self.gamma)
+            self.beam['vx'] = velocity_conversion * self.px
+            self.beam['vy'] = velocity_conversion * self.py
+            self.beam['vz'] = velocity_conversion * self.pz
+            self.beam['Bx'] = self.vx / constants.speed_of_light
+            self.beam['By'] = self.vy / constants.speed_of_light
+            self.beam['Bz'] = self.vz / constants.speed_of_light
+            self.beam['t'] = t
+            self.beam['charge'] = charge
+            self.beam['total_charge'] = np.sum(self.beam['charge'])
 
     ''' ********************  Statistical Parameters  ************************* '''
 
