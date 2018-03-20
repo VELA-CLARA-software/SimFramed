@@ -161,7 +161,7 @@ class ASTRA(object):
             "D2("+str(n)+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
             "D_strength("+str(n)+")="+str(strength_H)+"\n"
         if plane is 'vertical' or plane is 'combined':
-            dipoletext += "D_Type("+str(n+1)+")='vertical'',\n"+\
+            dipoletext += "D_Type("+str(n+1)+")='vertical',\n"+\
             "D_Gap(1,"+str(n+1)+")="+str(gap)+",\n"+\
             "D_Gap(2,"+str(n+1)+")="+str(gap)+",\n"+\
             "D1("+str(n+1)+")=("+str(corners[3][0])+","+str(corners[3][2])+"),\n"+\
@@ -545,6 +545,7 @@ class ASTRA(object):
         self.filename = file
         settings = self.framework.getFileSettings(file,'ASTRA_Options')
         output = self.framework.getFileSettings(file,'output')
+
         self.global_offset = self.framework.getFileSettings(file,'global_offset', [0,0,0])
         self.global_offset = self.framework.expand_substitution(self.global_offset)
 
