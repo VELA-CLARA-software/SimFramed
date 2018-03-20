@@ -49,7 +49,7 @@ class RFAcceleratingStructure(ComponentBase):
         gt = beam.globaltime * self.globalclock
 
         dE = beam.species.charge * self.voltage * cosphi / nc
-        print(dE/PhysicalUnits.eV)
+        #print(dE/PhysicalUnits.eV)
         E0 = beam.energy
         E1 = E0 + dE
 
