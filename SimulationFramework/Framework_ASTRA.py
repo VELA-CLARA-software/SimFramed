@@ -301,8 +301,8 @@ class ASTRA(object):
         """Create an ASTRA screen string"""
         screen         = self.framework.getElement(screenname)
         x,y,z          =     getParameter(screen,'position_start')
-        self.screens.append([x,y,z])
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
+        self.screens.append([screenname,[x,y,z]])
 
         screentext = 'Screen('+str(n)+')='+str(z)+'\n'
 
@@ -390,7 +390,7 @@ class ASTRA(object):
         zstop = self.rotateAndOffset(zstop, self.global_offset, self.global_rotation)
         output['zstop'] = zstop[2]
 
-        self.zstop = zstop
+        self.zstop = [endelem, zstop]
         outputtext = '&OUTPUT\n'
         for var in ASTRARules['OUTPUT']:
             outputtext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings, output], var)
