@@ -113,7 +113,7 @@ class ASTRA(object):
 
     def rotateAndOffset(self, start_pos, offset, theta):
         rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
-        return chop(np.dot(np.array(start_pos)-np.array(offset), rotation_matrix), 1e-6)
+        return chop(np.dot(np.array(start_pos) - np.array(offset), rotation_matrix), 1e-6)
 
     def createASTRACorrector(self, kickername, n=1, width=0.2, gap=0.02):
         """Create an ASTRA dipole string"""
