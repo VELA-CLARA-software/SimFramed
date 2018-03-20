@@ -9,16 +9,16 @@ from SimulationFramework import Framework
 class Setup(QThread):
     # CONSTRUCTOR
     def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
-                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None,
-                 C_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
+                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, LRRG_RF_Ctrl=None,
+                 HRRG_RF_Ctrl=None, L01_RF_Ctrl=None, messages=False):
         QThread.__init__(self)
         self.showMessages = messages
         self.V_MAG_Ctrl = V_MAG_Ctrl
         self.C_S01_MAG_Ctrl = C_S01_MAG_Ctrl
         self.C_S02_MAG_Ctrl = C_S02_MAG_Ctrl
         self.C2V_MAG_Ctrl = C2V_MAG_Ctrl
-        self.V_RF_Ctrl = V_RF_Ctrl
-        self.C_RF_Ctrl = C_RF_Ctrl
+        self.LRRG_RF_Ctrl = LRRG_RF_Ctrl
+        self.HRRG_RF_Ctrl = HRRG_RF_Ctrl
         self.L01_RF_Ctrl = L01_RF_Ctrl
         self.startElement = 'Null'
         self.stopElement = 'Null'
@@ -38,10 +38,7 @@ class Setup(QThread):
         settings = yaml.load(stream)
         for path in settings['pathways']:
             # print path
-            currentDir = os.path.dirname(os.path.abspath(__file__))
-            self.pathway.loadSettings(filename=currentDir +
-                                      '\\..\\..\\MasterLattice\\Lattices\\' +
-                                      path)
+            self.pathway.loadSettings(filename='\\Lattices\\' + path)
             hasStart = False
             hasStop = False
             # print self.pathway.elements.keys()
@@ -92,8 +89,8 @@ class Setup(QThread):
                                  C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
                                  C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
                                  C2V_MAG_Ctrl=self.C2V_MAG_Ctrl,
-                                 V_RF_Ctrl=self.V_RF_Ctrl,
-                                 C_RF_Ctrl=self.C_RF_Ctrl,
+                                 LRRG_RF_Ctrl=self.LRRG_RF_Ctrl,
+                                 HRRG_RF_Ctrl=self.HRRG_RF_Ctrl,
                                  L01_RF_Ctrl=self.L01_RF_Ctrl)
         modifier.modfiy(self.pathway, self.startElement, self.stopElement)
         print('    Creating .in files...')

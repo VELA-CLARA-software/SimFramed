@@ -4,14 +4,14 @@ import numpy as np
 class beamline():
 
     def __init__(self, V_MAG_Ctrl=None, C_S01_MAG_Ctrl=None,
-                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, V_RF_Ctrl=None,
-                 C_RF_Ctrl=None, L01_RF_Ctrl=None):
+                 C_S02_MAG_Ctrl=None, C2V_MAG_Ctrl=None, LRRG_RF_Ctrl=None,
+                 HRRG_RF_Ctrl=None, L01_RF_Ctrl=None):
         self.V_MAG_Ctrl = V_MAG_Ctrl
         self.C_S01_MAG_Ctrl = C_S01_MAG_Ctrl
         self.C_S02_MAG_Ctrl = C_S02_MAG_Ctrl
         self.C2V_MAG_Ctrl = C2V_MAG_Ctrl
-        self.V_RF_Ctrl = V_RF_Ctrl
-        self.C_RF_Ctrl = C_RF_Ctrl
+        self.LRRG_RF_Ctrl = LRRG_RF_Ctrl
+        self.HRRG_RF_Ctrl = HRRG_RF_Ctrl
         self.L01_RF_Ctrl = L01_RF_Ctrl
 
     def getObject(self, nickName, name):
@@ -47,8 +47,10 @@ class beamline():
                 return self.C2V_MAG_Ctrl.getMagObjConstRef(nickName)
         elif 'L01' in name:
             return self.L01_RF_Ctrl.getLLRFObjConstRef()
-        elif 'GUN' in name:
-            return self.V_RF_Ctrl.getLLRFObjConstRef()
+        elif 'GUN' in name and 'L' in name:
+            return self.LRRG_RF_Ctrl.getLLRFObjConstRef()
+        elif 'GUN' in name and 'H' in name:
+            return self.HRRG_RF_Ctrl.getLLRFObjConstRef()
         else:
             print ("Trying to get unrecognised object.")
 
@@ -70,9 +72,9 @@ class beamline():
                 elif element['type'] == 'kicker':
                     self.changeCorrector(pathway, element,
                                          element['Controller_Name'], name)
-                # elif element['type'] == 'bpm':
-                #    component = BPM.BeamPositionMonitor(name=name,
-                #                                        length=element['length'])
+            #     elif element['type'] == 'bpm':
+            #        component = BPM.BeamPositionMonitor(name=name,
+            #                                            length=element['length'])
             #    elif element['type'] == 'screen':
             #        component = S.Screen(name=name)
             #    elif element['type'] == 'wcm':
@@ -83,13 +85,6 @@ class beamline():
             #        component = d.Drift(name=name, length=element['length'])
                 elif element['type'] == 'cavity':
                     cavity = self.getObject(element['Controller_Name'], name)
-                    # get detials solnoids ascociated with the linac
-                    #solenoid1 = elements[element['sol1']]
-                    #solenoid2 = elements[element['sol2']]
-                    #sol1 = self.getObject(solenoid1['name'], element['sol1'])
-                    #sol2 = self.getObject(solenoid2['name'], element['sol2'])
-                    #print 'LINAC grad: ' + str(cavity.amp_MVM)
-                    #print 'LINAC Phase: ' + str(cavity.phi_DEG)
                     pathway.modifyElement(element=name,
                                           setting='field_amplitude',
                                           value=cavity.amp_MVM*1e6)
@@ -130,15 +125,20 @@ class beamline():
         vObj, hObj = self.getObject(nickName, name)
         vField = 0.0
         hField = 0.0
-        coeffs = vObj.fieldIntegralCoefficients
-        absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
-                     vObj.magneticLength)
-        vField = 1000 * np.copysign(absVField, vObj.siWithPol)
 
-        coeffs = hObj.fieldIntegralCoefficients
-        absHField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
-                     hObj.magneticLength)
-        hField = 1000 * np.copysign(absVField, hObj.siWithPol)
+        if vObj.siWithPol != 0.0 and vObj.siWithPol != -999.999:
+            # print vObj.magneticLength
+            coeffs = vObj.fieldIntegralCoefficients
+            absHField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
+                         vObj.magneticLength)
+            hField = 1000 * np.copysign(absHField, vObj.siWithPol)
+
+        if hObj.siWithPol != 0.0 and hObj.siWithPol != -999.999:
+            #print hObj.magneticLength
+            coeffs = hObj.fieldIntegralCoefficients
+            absVField = (np.polyval(coeffs, abs(hObj.siWithPol)) /
+                         hObj.magneticLength)
+            vField = 1000 * np.copysign(absVField, hObj.siWithPol)
 
         pathway.modifyElement(element=name,
                               setting='strength_H',
