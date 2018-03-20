@@ -239,6 +239,8 @@ class ASTRA(object):
         sol         = self.framework.getElement(solname)
         definition  = str(getParameter(sol,'field_definition'))
         definition = self.framework.expand_substitution(definition,{'master_lattice_location': self.framework.master_lattice_location})
+        definition = os.path.relpath(definition, './'+self.subdir).replace('\\','/').replace('//','/')
+
         length      = str(getParameter(sol,'length'))
         x,y,z       =     getParameter(sol,'position_start')
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
@@ -256,6 +258,8 @@ class ASTRA(object):
         cav         = self.framework.getElement(cavname)
         definition  = str(getParameter(cav,'field_definition'))
         definition = self.framework.expand_substitution(definition,{'master_lattice_location': self.framework.master_lattice_location})
+        definition = os.path.relpath(definition, './'+self.subdir).replace('\\','/').replace('//','/')
+
         length      =     getParameter(cav,'length')
         x,y,z       =     getParameter(cav,'position_start')
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
@@ -510,8 +514,8 @@ class ASTRA(object):
         for k in kickers:
             if not abs(self.framework.getElement(k,'strength_H', 0)) > 0 and not abs(self.framework.getElement(k,'strength_V',0)) > 0:
                 zerokickers.append(k)
-        # for k in zerokickers:
-        #     kickers.remove(k)
+        for k in zerokickers:
+            kickers.remove(k)
 
         loop        = str(getParameter(dipole,'Loop',default=False))
         ldipole = True if len(dipoles) > 0 or len(kickers) > 0 else False
