@@ -19,7 +19,7 @@ class ASTRA(object):
 
     def runASTRA(self, filename=''):
         """Run the ASTRA program with input 'filename'"""
-        command = self.astraCommand + [filename]
+        command = self.astraCommand + [os.path.relpath(filename,self.subdir)]
         with open(os.devnull, "w") as f:
             subprocess.call(command, stdout=f, cwd=self.subdir)
 
@@ -365,7 +365,6 @@ class ASTRA(object):
                 zstart = [0,0,0]
                 self.zstart = [None, zstart]
             else:
-                # print self.framework.elements[startelem]
                 zstart = self.framework.elements[startelem]['position_start']
                 originaloutput['zstart'] = zstart[2]
                 self.zstart = [startelem, zstart]
@@ -395,12 +394,13 @@ class ASTRA(object):
         for var in ASTRARules['OUTPUT']:
             outputtext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings, output], var)
         counter=0
-        for i,s in enumerate(screens):
+
+        # added in output for bpms
+        screenbpms = sorted(screens + bpms, key=lambda x: self.framework.elementIndex(x))
+        for i,s in enumerate(screenbpms):
             outputtext += ' '+self.createASTRAScreen(s,i+1)
             counter=i+1
-        # added in output for bpms
-        for i,s in enumerate(bpms):
-            outputtext += ' '+self.createASTRAScreen(s,counter+i+1)
+
         outputtext += '/\n'
 
         return outputtext
@@ -620,7 +620,7 @@ class ASTRA(object):
             for f in files:
                 if f in self.fileSettings.keys():
                     filename = f+'.in'
-                    # print 'Running file: ', f
+                    # print 'Running file: ', filename
                     self.runASTRA(filename)
                 else:
                     print 'File does not exist! - ', f
