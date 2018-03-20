@@ -138,4 +138,4 @@ class Setup(QThread):
                     caput('VM-' + self.pathway.elements[i.name]['PV'] + ':X', i.x)
                     caput('VM-' + self.pathway.elements[i.name]['PV'] + ':Y', i.y)
                     print '    Written data for ', i.name
-                    print 'x Value:', str(i.x)
+                    # print 'x Value:', str(i.x)

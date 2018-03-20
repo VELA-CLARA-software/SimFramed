@@ -78,8 +78,8 @@ class createBeamline():
                 mod = True
 
             if mod is True:
-                print name
-                #print element['type']
+                #print name
+                # print element['type']
                 # Check element type and add accordingly
                 if element['type'] == 'dipole':
                     component = self.addDipole(element, element['Controller_Name'], name)
@@ -131,13 +131,6 @@ class createBeamline():
                     cosElementAngle = np.cos(angle)
                     if element['type'] == 'dipole':
                         frontOfCurrent = element['buffer_start'][-1]
-                #       else:
-                #        length = pathway.getElement(element=name,
-                #                                    setting='length',
-                #                                    default=0)
-                #        frontOfCurrent = (frontOfCurrent -
-                #                          length * cosElementAngle)
-
                     if frontOfCurrent < backOfLast:
                         print ('Elements ' + lastElementName +
                                ' and ' + name + ' overlap!!')
@@ -149,9 +142,9 @@ class createBeamline():
                         driftComponent = d.Drift(name='drift' + str(driftCounter),
                                                  length=(b - a) / cosElementAngle)
                         line.componentlist.append(driftComponent)
-                    else:
-                        print ('No drift required between ' + lastElementName +
-                               ' and ' + name)
+                    #else:
+                    #    print ('No drift required between ' + lastElementName +
+                    #           ' and ' + name)
                 # Append component
                 line.componentlist.append(component)
                 if name == stopElement:
@@ -166,8 +159,8 @@ class createBeamline():
         #solenoid2 = elements[element['sol2']]
         #sol1 = self.getObject(solenoid1['name'], element['sol1'])
         #sol2 = self.getObject(solenoid2['name'], element['sol2'])
-        print 'rf grad: ' + str(rf.amp_MVM)
-        print 'rf Phase: ' + str(rf.phi_DEG)
+        #print 'rf grad: ' + str(rf.amp_MVM)
+        #print 'rf Phase: ' + str(rf.phi_DEG)
         structureType = 'Null'
         if element['Structure_Type'] == 'TravellingWave':
             structureType = 'TravellingWave'
@@ -179,7 +172,7 @@ class createBeamline():
         #                                   phase=linac.phi_DEG,
         #                                   solCurrent1=sol1.siWithPol,
         #                                   solCurrent2=sol2.siWithPol)
-        print rf.amp_MVM * 1e6 * element['length']
+        #print rf.amp_MVM * 1e6 * element['length']
         component = RF.RFAcceleratingStructure(length=element['length'],
                                                name=nickName,
                                                voltage=-(rf.amp_MVM * 1e6 *
@@ -192,7 +185,7 @@ class createBeamline():
 
     def addDipole(self, element, nickName, name):
         dip = self.getObject(nickName, name)
-        angle = element['angle'] * (np.pi / 180)
+        angle = element['angle']
         length = element['length']
         field = 0.0
 
@@ -224,11 +217,11 @@ class createBeamline():
         hField = 0.0
 
         if vObj.siWithPol != 0.0 and vObj.siWithPol != -999.999:
-            #print vObj.magneticLength
+            # print vObj.magneticLength
             coeffs = vObj.fieldIntegralCoefficients
-            absVField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
+            absHField = (np.polyval(coeffs, abs(vObj.siWithPol)) /
                          vObj.magneticLength)
-            vField = 1000 * np.copysign(absVField, vObj.siWithPol)
+            hField = 1000 * np.copysign(absHField, vObj.siWithPol)
 
         if hObj.siWithPol != 0.0 and hObj.siWithPol != -999.999:
             #print hObj.magneticLength
