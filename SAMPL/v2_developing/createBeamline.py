@@ -71,8 +71,8 @@ class createBeamline():
         driftCounter = 0
         mod = False
         #print pathway.elementOrder
-        for name, element in pathway.elements.iteritems():
-            print name
+        #for name, element in pathway.elements.iteritems():
+    #        print name
         for name, element in pathway.elements.iteritems():
             if name == startElement:
                 mod = True
@@ -112,6 +112,7 @@ class createBeamline():
                     #       'recognise element type of ' + name)
 
                 if name != startElement:
+                    #print name
                     previousElement = pathway.previousElement(name)
                     # is a list
                     if type(previousElement[0])==type([]):
@@ -130,7 +131,7 @@ class createBeamline():
                     cosElementAngle = np.cos(angle)
                     if element['type'] == 'dipole':
                         frontOfCurrent = element['buffer_start'][-1]
-                    #else:
+                #       else:
                 #        length = pathway.getElement(element=name,
                 #                                    setting='length',
                 #                                    default=0)
@@ -151,8 +152,8 @@ class createBeamline():
                     else:
                         print ('No drift required between ' + lastElementName +
                                ' and ' + name)
-                    # Append component
-                    line.componentlist.append(component)
+                # Append component
+                line.componentlist.append(component)
                 if name == stopElement:
                     mod = False
         return line
