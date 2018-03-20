@@ -50,15 +50,14 @@ def setWCM(pv, data):
     caput(pv, charge)
 
 
-def setOutput(framework):
+def setOutputs(framework):
     for fileName in os.listdir(framework.subdir):
         if fileName.split('.')[-1] == 'hdf5':
             # load data
-            f = h5py.File(fullName, 'r')
-                listData = list(f['data'])
-                f.close()
-                data = np.array(image)
-            data = np.loadtxt(fileName, unpack=True)
+            f = h5py.File(fileName, 'r')
+            listData = list(f['data'])
+            f.close()
+            data = np.array(listData)
             pvRoot = framework.elements[fileName]['PV']
             if 'BPM' in fileName:
                 setBPM(pvRoot, data)
