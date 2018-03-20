@@ -33,7 +33,7 @@ class RFAcceleratingStructure(ComponentBase):
 
     def Track(self, beam):
         print self.name
-        print ('Energy before acceleration: '+str(beam.energy/PhysicalUnits.eV)+'eV')
+        print ('Energy before acceleration: '+str(beam.energy/PhysicalUnits.MeV)+'MeV')
         # RFAcceleratingStructure.Track(beam)
         # Applies the dynamical map for a linac structure to the particles
         # in beam.  The reference energy is changed by qV*cos(phase).
@@ -124,5 +124,5 @@ class RFAcceleratingStructure(ComponentBase):
                                  / beam.beta / 2)
 
         # save
-        print ('Final energy after acceleration: '+str(beam.energy/PhysicalUnits.eV)+'eV')
+        print ('Final energy after acceleration: '+str(beam.energy/PhysicalUnits.MeV)+'MeV')
         self.lastTrackedBeam = beam
