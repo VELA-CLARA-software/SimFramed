@@ -368,6 +368,17 @@ class Framework(object):
         d['angle'] = np.sign(d['angle'])*angle
         return [name, d]
 
+    def createRunProcessInputFiles(self):
+        for f in self.fileSettings.keys():
+            filename = self.subdirectory+'/'+f+'.in'
+            if 'code' in self.fileSettings[f]:
+                code = self.fileSettings[f]['code']
+                if code.upper() == 'ASTRA':
+                    saveFile(filename, lines=self.astra.createASTRAFileText(f))
+                    self.astra.preProcesssASTRA()
+                    # self.astra.runASTRA(filename)
+                    self.astra.postProcesssASTRA()
+
     def createInputFiles(self):
         for f in self.fileSettings.keys():
             filename = self.subdirectory+'/'+f+'.in'
