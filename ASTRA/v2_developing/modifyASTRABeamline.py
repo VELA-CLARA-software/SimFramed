@@ -61,7 +61,7 @@ class beamline():
                 mod = True
 
             if mod is True:
-                print name
+                #print name
                 # Check element type and add accordingly
                 if element['type'] == 'dipole':
                     self.changeDipole(pathway, element,
@@ -121,7 +121,7 @@ class beamline():
                               value=grad)
 
     def changeCorrector(self, pathway, element, nickName, name):
-        print name
+        # print name
         vObj, hObj = self.getObject(nickName, name)
         vField = 0.0
         hField = 0.0

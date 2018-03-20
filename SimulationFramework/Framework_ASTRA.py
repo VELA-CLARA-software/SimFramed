@@ -341,6 +341,7 @@ class ASTRA(object):
 
         output = copy.deepcopy(originaloutput)
         screens = self.framework.getElementsBetweenS('screen', output=output)
+        bpms = self.framework.getElementsBetweenS('beam_position_monitor', output=output)
         self.screens = []# print 'screens = ', screens
 
         zstart = getParameter(output,'zstart',default=None)
@@ -377,8 +378,13 @@ class ASTRA(object):
         outputtext = '&OUTPUT\n'
         for var in ASTRARules['OUTPUT']:
             outputtext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings, output], var)
+        counter=0
         for i,s in enumerate(screens):
             outputtext += ' '+self.createASTRAScreen(s,i+1)
+            counter=i+1
+        # added in output for bpms
+        for i,s in enumerate(bpms):
+            outputtext += ' '+self.createASTRAScreen(s,counter+i+1)
         outputtext += '/\n'
 
         return outputtext
