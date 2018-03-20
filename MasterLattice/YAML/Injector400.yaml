@@ -15,7 +15,7 @@ elements:
     field_amplitude: 120000000.0
     frequency: 2998500000.0
     phase: -9
-    field_definition: $master_lattice_location$/Data_Files/HRRG_1D_RF.dat
+    field_definition: $master_lattice_location$Data_Files/HRRG_1D_RF.dat
     lsc_cutoff_high: [0, 0]
     position_end: [0, 0, 0.15]
     position_start: [0, 0, 0]
@@ -25,7 +25,7 @@ elements:
         Controller_Name: SOL1
         length: 0.0
         field_amplitude: 0.345
-        field_definition: $master_lattice_location$/Data_Files/HRRG_combined_sols_100mm_onaxis.dat
+        field_definition: $master_lattice_location$Data_Files/HRRG_combined_sols_100mm_onaxis.dat
         position_end: [0, 0, 0.15]
         position_start: [0, 0, 0]
   CLA-S01-APER:
@@ -100,7 +100,7 @@ elements:
     phase: -16
     longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
     transverse_wakefield_input: '"Sx5um10mm.sdds"'
-    field_definition: $master_lattice_location$/Data_Files/TWS_S-DL.dat
+    field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
@@ -117,13 +117,13 @@ elements:
         type: solenoid
         length: 0
         field_amplitude: 0.05
-        field_definition: $master_lattice_location$/Data_Files/SwissFEL_linac_sols.dat
+        field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
         position_end: [0, 0, 2.7]
         position_start: [0, 0, 1.70]
       CLA-L01-CAV-SOL-02:
         type: solenoid
         length: 0
         field_amplitude: -0.05
-        field_definition: $master_lattice_location$/Data_Files/SwissFEL_linac_sols.dat
+        field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
         position_end: [0, 0, 3.7]
         position_start: [0, 0, 2.70]

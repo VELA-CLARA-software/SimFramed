@@ -13,7 +13,7 @@ elements:
     field_amplitude: 70000000.0
     frequency: 2997440000.0
     phase: -16
-    field_definition: $master_lattice_location$/Data_Files/bas_gun.txt
+    field_definition: $master_lattice_location$Data_Files/bas_gun.txt
     lsc_cutoff_high: [0, 0]
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 0.17]
@@ -23,7 +23,7 @@ elements:
         type: solenoid
         length: 0
         field_amplitude: 0.237
-        field_definition: $master_lattice_location$/Data_Files/bas_sol.txt
+        field_definition: $master_lattice_location$Data_Files/bas_sol.txt
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 0]
         position_start: [0, 0, 0]
@@ -103,7 +103,7 @@ elements:
     phase: -16
     longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
     transverse_wakefield_input: '"Sx5um10mm.sdds"'
-    field_definition: $master_lattice_location$/Data_Files/TWS_S-DL.dat
+    field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
