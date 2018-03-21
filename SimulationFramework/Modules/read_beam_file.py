@@ -26,7 +26,7 @@ class beam(object):
     def normalise_to_ref_particle(self, array, index=0,subtractmean=False):
         array[1:] = array[0] + array[1:]
         if subtractmean:
-            array = array - np.mean(array)
+            array = array - array[0]#np.mean(array)
         return array
 
     def reset_dicts(self):
@@ -86,22 +86,24 @@ class beam(object):
             writer = csv.writer(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)
             [writer.writerow(l) for l in data]
 
-    def read_astra_beam_file(self, file):
+    def read_astra_beam_file(self, file, normaliseZ=False):
         starttime = time.time()
         self.reset_dicts()
         data = self.read_csv_file(file)
         # datanp = np.loadtxt(file)
-        self.interpret_astra_data(data)
+        self.interpret_astra_data(data, normaliseZ=normaliseZ)
 
     def read_hdf5_beam(self, data):
         self.reset_dicts()
         self.interpret_astra_data(data)
 
-    def interpret_astra_data(self, data):
+    def interpret_astra_data(self, data, normaliseZ=False):
         x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.transpose(data)
         self.beam['code'] = "ASTRA"
         self.beam['reference_particle'] = data[0]
-        z = self.normalise_to_ref_particle(z, subtractmean=False)
+        if normaliseZ:
+            self.beam['reference_particle'][2] = 0
+        z = self.normalise_to_ref_particle(z, subtractmean=normaliseZ)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
         clock = self.normalise_to_ref_particle(clock, subtractmean=True)
         cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
@@ -230,7 +232,7 @@ class beam(object):
             ref_particle = array[nearest_idx]
             ''' set the closest mean vector to be in position 0 in the array '''
             array = np.roll(array, -1*nearest_idx, axis=0)
-        print 'ref_particle = ', ref_particle
+        # print 'ref_particle = ', ref_particle
 
         ''' normalise Z to the reference particle '''
         array[1:,2] = array[1:,2] - ref_particle[2]
@@ -333,12 +335,24 @@ class beam(object):
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
 
-    def rotate_beamXZ(self, theta, offset=np.array([0,0,0])):
+    def rotate_beamXZ(self, theta, preOffset=np.array([0,0,0]), postOffset=np.array([0,0,0])):
+        preOffset=np.array(preOffset)
+        postOffset=np.array(postOffset)
+
         rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
+
         beam = np.array([self.beam['x'],self.beam['y'],self.beam['z']]).transpose()
-        self.beam['x'],self.beam['y'],self.beam['z'] = np.dot(beam-offset, rotation_matrix).transpose()
-        beam = np.array([self.beam['cpx'],self.beam['cpy'],self.beam['cpz']]).transpose()
-        self.beam['cpx'],self.beam['cpy'],self.beam['cpz'] = np.dot(beam, rotation_matrix).transpose()
+        self.beam['x'],self.beam['y'],self.beam['z'] = (np.dot(beam-preOffset, rotation_matrix)-postOffset).transpose()
+
+        beam = np.array([self.beam['cpx'], self.beam['cpy'], self.beam['cpz']]).transpose()
+        self.beam['cpx'], self.beam['cpy'], self.beam['cpz'] = np.dot(beam, rotation_matrix).transpose()
+
+        if 'reference_particle' in self.beam:
+            beam = np.array([self.beam['reference_particle'][0], self.beam['reference_particle'][1], self.beam['reference_particle'][2]])
+            self.beam['reference_particle'][0], self.beam['reference_particle'][1], self.beam['reference_particle'][2] = (np.dot(beam-preOffset, rotation_matrix)[0]-postOffset)
+            beam = np.array([self.beam['reference_particle'][3], self.beam['reference_particle'][4], self.beam['reference_particle'][5]])
+            self.beam['reference_particle'][3], self.beam['reference_particle'][4], self.beam['reference_particle'][5] = np.dot([beam], rotation_matrix)[0]
+
         self.beam['px'] = self.beam['cpx'] * self.q_over_c
         self.beam['py'] = self.beam['cpy'] * self.q_over_c
         self.beam['pz'] = self.beam['cpz'] * self.q_over_c
@@ -350,7 +364,7 @@ class beam(object):
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
         self.beam['rotation'] = theta
-        self.beam['offset'] = offset
+        self.beam['offset'] = preOffset
 
     def unrotate_beamXZ(self):
         offset = self.beam['offset'] if 'offset' in self.beam else np.array([0,0,0])
