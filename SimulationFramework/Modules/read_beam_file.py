@@ -101,8 +101,8 @@ class beam(object):
         x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.transpose(data)
         self.beam['code'] = "ASTRA"
         self.beam['reference_particle'] = data[0]
-        if normaliseZ:
-            self.beam['reference_particle'][2] = 0
+        # if normaliseZ:
+        #     self.beam['reference_particle'][2] = 0
         z = self.normalise_to_ref_particle(z, subtractmean=normaliseZ)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
         clock = self.normalise_to_ref_particle(clock, subtractmean=True)
@@ -335,7 +335,7 @@ class beam(object):
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
 
-    def rotate_beamXZ(self, theta, preOffset=np.array([0,0,0]), postOffset=np.array([0,0,0])):
+    def rotate_beamXZ(self, theta, preOffset=[0,0,0], postOffset=[0,0,0]):
         preOffset=np.array(preOffset)
         postOffset=np.array(postOffset)
 
@@ -349,7 +349,8 @@ class beam(object):
 
         if 'reference_particle' in self.beam:
             beam = np.array([self.beam['reference_particle'][0], self.beam['reference_particle'][1], self.beam['reference_particle'][2]])
-            self.beam['reference_particle'][0], self.beam['reference_particle'][1], self.beam['reference_particle'][2] = (np.dot(beam-preOffset, rotation_matrix)[0]-postOffset)
+            self.beam['reference_particle'][0], self.beam['reference_particle'][1], self.beam['reference_particle'][2] = (np.dot([beam-preOffset], rotation_matrix)[0]-postOffset)
+            # print 'rotated ref part = ', np.dot([beam-preOffset], rotation_matrix)[0]
             beam = np.array([self.beam['reference_particle'][3], self.beam['reference_particle'][4], self.beam['reference_particle'][5]])
             self.beam['reference_particle'][3], self.beam['reference_particle'][4], self.beam['reference_particle'][5] = np.dot([beam], rotation_matrix)[0]
 
@@ -371,7 +372,7 @@ class beam(object):
         if 'rotation' in self.beam or abs(self.beam['rotation']) > 0:
             self.rotate_beamXZ(-1*self.beam['rotation'], -1*offset)
 
-    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None):
+    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None, rotation=None):
         with h5py.File(filename, "w") as f:
             inputgrp = f.create_group("Parameters")
             if not 'total_charge' in self.beam or self.beam['total_charge'] == 0:
@@ -380,6 +381,8 @@ class beam(object):
                 inputgrp['Source'] = sourcefilename
             if pos is not None:
                 inputgrp['Starting_Position'] = pos
+            if rotation is not None:
+                inputgrp['Rotation'] = rotation
             inputgrp['total_charge'] = self.beam['total_charge']
             inputgrp['npart'] = len(self.x)
             inputgrp['centered'] = centered
@@ -397,7 +400,7 @@ class beam(object):
             beamgrp['units'] = ("m","m","m","eV","eV","eV","s","e")
             beamgrp.create_dataset("beam", data=array)
 
-    def read_HDF5_beam_file(self, filename):
+    def read_HDF5_beam_file(self, filename, local=False):
         with h5py.File(filename, "r") as h5file:
             if h5file.get('beam/reference_particle') is not None:
                 self.beam['reference_particle'] = np.array(h5file.get('beam/reference_particle'))
@@ -417,8 +420,6 @@ class beam(object):
             self.beam['xp'] = np.arctan(self.px/self.pz)
             self.beam['yp'] = np.arctan(self.py/self.pz)
             self.beam['clock'] = np.full(len(self.x), 0)
-            # self.beam['index'] = np.full(len(self.x), 5)
-            # self.beam['status'] = np.full(len(self.x), 1)
             self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
             velocity_conversion = 1 / (constants.m_e * self.gamma)
             self.beam['vx'] = velocity_conversion * self.px
@@ -430,6 +431,12 @@ class beam(object):
             self.beam['t'] = t
             self.beam['charge'] = charge
             self.beam['total_charge'] = np.sum(self.beam['charge'])
+            if local == True:
+                theta =  h5file.get('/Parameters/Rotation')
+                theta = theta if theta is not None else 0
+                startposition = h5file.get('/Parameters/Starting_Position')
+                startposition = startposition if startposition is not None else 0
+                self.rotate_beamXZ(theta, preOffset=startposition)
 
     ''' ********************  Statistical Parameters  ************************* '''
 
