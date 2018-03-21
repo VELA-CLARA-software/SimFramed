@@ -413,10 +413,10 @@ class ASTRA(object):
 
         # added in output for bpms
         screenbpms = sorted(screens + bpms, key=lambda x: self.framework.elementIndex(x))
+        screenbpms = [i for i in screenbpms if not i == self.zstart[0]]
         for i,s in enumerate(screenbpms):
-            if not s == self.zstart[0]:
-                outputtext += ' '+self.createASTRAScreen(s,i+1)
-                counter=i+1
+            outputtext += ' '+self.createASTRAScreen(s,i+1)
+            counter=i+1
 
         outputtext += '/\n'
 
