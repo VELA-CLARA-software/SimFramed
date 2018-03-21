@@ -5,7 +5,7 @@ import SimulationFramework.Modules.read_beam_file as rbf
 beam = rbf.beam()
 degree = 1./360.*2.*math.pi
 
-scaling = 3
+scaling = 4
 
 npart=2**(3*scaling)
 
@@ -20,7 +20,7 @@ framework.loadSettings('Lattices/CLA400-C2V-INJ.def')
 # print framework.elementIndex('CLA-L01-CAV')
 # print framework.previousElement('CLA-L01-CAV')
 framework.astra.createInitialDistribution(npart=npart,charge=250)
-framework.createRunProcessInputFiles()#files=['vela'])
+framework.createRunProcessInputFiles(files=['injector400','s02','c2v','vela'])
 # framework.runInputFiles()
 # framework.postProcessInputFiles()
 # beam.read_HDF5_beam_file('C2V/injector400.0098.hdf5')
