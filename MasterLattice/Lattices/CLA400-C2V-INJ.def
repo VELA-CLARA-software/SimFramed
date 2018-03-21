@@ -44,7 +44,7 @@ files:
       zstart: 0
       end_element: CLA-S02-APER-01
   s02:
-    globala_offset: $self.getElement('CLA-S02-APER-01','position_end')$
+    global_offset: $self.getElement('CLA-S02-APER-01','position_end')$
     global_rotation: 0
     code: ASTRA
     charge:
@@ -56,7 +56,7 @@ files:
       start_element: CLA-S02-APER-01
       end_element: CLA-C2V-MARK-01
   c2v:
-    globala_offset: $self.getElement('CLA-C2V-MAG-DIP-01','position_end')$
+    global_offset: $self.getElement('CLA-C2V-MAG-DIP-01','position_end')$
     starting_rotation: 0
     code: ASTRA
     charge:
@@ -68,7 +68,7 @@ files:
       start_element: CLA-C2V-MARK-01
       end_element: CLA-C2V-DIA-SCR-01-W
   vela:
-    globala_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
+    global_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
     starting_rotation: $self.getElement('CLA-C2V-MAG-DIP-01','angle')$
     code: ASTRA
     charge:
