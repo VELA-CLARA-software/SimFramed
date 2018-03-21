@@ -27,25 +27,27 @@ class ASTRA(object):
         if self.zstart[0] is not None:
             self.convert_HDF5_beam_to_astra_beam(self.subdir, self.filename, self.zstart)
 
+    def convert_HDF5_beam_to_astra_beam(self, subdir, filename, screen):
+        name, pos = screen
+        HDF5filename = name + '.hdf5'
+        astrabeamfilename = name + '.astra'
+        self.beam.read_HDF5_beam_file(subdir + '/' + HDF5filename)
+        self.beam.rotate_beamXZ((0*self.global_rotation+-1*self.starting_rotation), preOffset=self.global_offset)
+        self.beam.write_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
+
     def postProcesssASTRA(self):
         if hasattr(self, 'screens'):
             for s in self.screens:
                 self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, s, self.runno)
         self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, self.zstop, self.runno)
 
-    def convert_HDF5_beam_to_astra_beam(self, subdir, filename, screen):
-        name, pos = screen
-        HDF5filename = name + '.hdf5'
-        astrabeamfilename = name + '.astra'
-        self.beam.read_HDF5_beam_file(subdir + '/' + HDF5filename)
-        if abs(self.global_rotation) > 0:
-            self.beam.rotate_beamXZ(-1.*self.global_rotation, self.global_offset)
-        self.beam.write_astra_beam_file(subdir + '/' + astrabeamfilename)
-
     def convert_astra_beam_to_HDF5_beam(self, subdir, filename, screen, runno=1):
         name, pos = screen
-        astrabeamfilename = filename + '.' + str(int(round(pos[2]*100))).zfill(4) + '.' + str(runno.zfill(3))
-        self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename)
+        astrabeamfilename = filename + '.' + str(int(round((pos[2]-self.zstart[1][2])*100))).zfill(4) + '.' + str(runno.zfill(3))
+        self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
+        if self.global_offset is None or []:
+            self.global_offset = [0,0,0]
+        self.beam.rotate_beamXZ(-1*self.global_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.global_offset))
         HDF5filename = name + '.hdf5'
         self.beam.write_HDF5_beam_file(subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=pos)
 
@@ -312,7 +314,8 @@ class ASTRA(object):
         return str(int(round(z))).zfill(fill)
 
     def formatASTRAStartElement(self, name):
-        return self.formatASTRAZValue(self.framework.elements[name]['position_end'][2]*100)
+        # return self.formatASTRAZValue(self.framework.elements[name]['position_end'][2]*100)
+        return name
 
     def createASTRANewRunBlock(self, settings={}, input={}, output={}):
         """Create an ASTRA NEWRUN Block string"""
@@ -384,7 +387,10 @@ class ASTRA(object):
         elif not isinstance(zstop, (list, tuple)):
             zstop = [0,0,zstop]
 
+        # print 'zstart before = ', zstart
         zstart = self.rotateAndOffset(zstart, self.global_offset, self.global_rotation)
+        # print 'zstart after = ', zstart
+        self.zstart[1] = zstart
         output['zstart'] = zstart[2]
         zstop = self.rotateAndOffset(zstop, self.global_offset, self.global_rotation)
         output['zstop'] = zstop[2]
