@@ -368,8 +368,10 @@ class Framework(object):
         d['angle'] = np.sign(d['angle'])*angle
         return [name, d]
 
-    def createRunProcessInputFiles(self):
-        for f in self.fileSettings.keys():
+    def createRunProcessInputFiles(self, files=None):
+        if not isinstance(files, (list, tuple)):
+            files = self.fileSettings.keys()
+        for f in files:
             filename = self.subdirectory+'/'+f+'.in'
             if 'code' in self.fileSettings[f]:
                 code = self.fileSettings[f]['code']
