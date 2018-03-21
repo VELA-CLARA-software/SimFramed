@@ -28,11 +28,16 @@ class ASTRA(object):
             self.convert_HDF5_beam_to_astra_beam(self.subdir, self.filename, self.zstart)
 
     def convert_HDF5_beam_to_astra_beam(self, subdir, filename, screen):
-        name, pos = screen
+        if len(screen) > 2:
+            name, pos, pos0 = screen
+        else:
+            name, pos = screen
+            pos0 = pos
         HDF5filename = name + '.hdf5'
         astrabeamfilename = name + '.astra'
         self.beam.read_HDF5_beam_file(subdir + '/' + HDF5filename)
-        self.beam.rotate_beamXZ((0*self.global_rotation+-1*self.starting_rotation), preOffset=self.global_offset)
+        print 'global rotation = ', self.global_rotation
+        self.beam.rotate_beamXZ(self.global_rotation, preOffset=self.global_offset)
         self.beam.write_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
 
     def postProcesssASTRA(self):
@@ -42,14 +47,18 @@ class ASTRA(object):
         self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, self.zstop, self.runno)
 
     def convert_astra_beam_to_HDF5_beam(self, subdir, filename, screen, runno=1):
-        name, pos = screen
+        if len(screen) > 2:
+            name, pos, pos0 = screen
+        else:
+            name, pos = screen
+            pos0 = pos
         astrabeamfilename = filename + '.' + str(int(round((pos[2]-self.zstart[1][2])*100))).zfill(4) + '.' + str(runno.zfill(3))
         self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
         if self.global_offset is None or []:
             self.global_offset = [0,0,0]
         self.beam.rotate_beamXZ(-1*self.global_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.global_offset))
         HDF5filename = name + '.hdf5'
-        self.beam.write_HDF5_beam_file(subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=pos)
+        self.beam.write_HDF5_beam_file(subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=pos0, rotation=self.global_rotation)
 
     def defineASTRACommand(self,command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -302,9 +311,9 @@ class ASTRA(object):
     def createASTRAScreen(self, screenname, n=1):
         """Create an ASTRA screen string"""
         screen         = self.framework.getElement(screenname)
-        x,y,z          =     getParameter(screen,'position_start')
-        x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
-        self.screens.append([screenname,[x,y,z]])
+        x0,y0,z0          =     getParameter(screen,'position_start')
+        x,y,z =  self.rotateAndOffset([x0,y0,z0], self.global_offset, self.global_rotation)
+        self.screens.append([screenname,[x,y,z],[x0,y0,z0]])
 
         screentext = 'Screen('+str(n)+')='+str(z)+'\n'
 
@@ -366,16 +375,16 @@ class ASTRA(object):
             startelem = getParameter(output,'start_element',default=None)
             if startelem is None or startelem not in self.framework.elements:
                 zstart = [0,0,0]
-                self.zstart = [None, zstart]
+                self.zstart = [None, zstart, zstart]
             else:
                 zstart = self.framework.elements[startelem]['position_start']
                 originaloutput['zstart'] = zstart[2]
-                self.zstart = [startelem, zstart]
+                self.zstart = [startelem, zstart, zstart]
         elif not isinstance(zstart, (list, tuple)):
             zstart = [0,0, zstart]
-            self.zstart = [None, zstart]
+            self.zstart = [None, zstart, zstart]
         else:
-            self.zstart = [None, zstart]
+            self.zstart = [None, zstart, zstart]
         zstop = None#getParameter(output,'zstop',default=None)
         if zstop is None:
             endelem = getParameter(output,'end_element',default=None)
@@ -392,10 +401,11 @@ class ASTRA(object):
         # print 'zstart after = ', zstart
         self.zstart[1] = zstart
         output['zstart'] = zstart[2]
+        self.zstop = [endelem, zstop, zstop]
         zstop = self.rotateAndOffset(zstop, self.global_offset, self.global_rotation)
         output['zstop'] = zstop[2]
+        self.zstop[1] = zstop
 
-        self.zstop = [endelem, zstop]
         outputtext = '&OUTPUT\n'
         for var in ASTRARules['OUTPUT']:
             outputtext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings, output], var)
@@ -404,8 +414,9 @@ class ASTRA(object):
         # added in output for bpms
         screenbpms = sorted(screens + bpms, key=lambda x: self.framework.elementIndex(x))
         for i,s in enumerate(screenbpms):
-            outputtext += ' '+self.createASTRAScreen(s,i+1)
-            counter=i+1
+            if not s == self.zstart[0]:
+                outputtext += ' '+self.createASTRAScreen(s,i+1)
+                counter=i+1
 
         outputtext += '/\n'
 
