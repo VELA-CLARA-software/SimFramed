@@ -25,8 +25,10 @@ class ASTRA(object):
 
     def preProcesssASTRA(self):
         if self.zstart[0] is not None:
-            self.convert_HDF5_beam_to_astra_beam(self.subdir, self.filename, self.zstart)
-
+            try:
+                self.convert_HDF5_beam_to_astra_beam(self.subdir, self.filename, self.zstart)
+            except:
+                pass
     def convert_HDF5_beam_to_astra_beam(self, subdir, filename, screen):
         if len(screen) > 2:
             name, pos, pos0 = screen
@@ -422,6 +424,8 @@ class ASTRA(object):
 
         # added in output for bpms
         screenbpms = sorted(screens + bpms, key=lambda x: self.framework.elementIndex(x))
+        #print screenbpms[0]
+        #print self.zstart[0]
         screenbpms = [i for i in screenbpms if not i == self.zstart[0]]
         for i,s in enumerate(screenbpms):
             outputtext += ' '+self.createASTRAScreen(s,i+1)
