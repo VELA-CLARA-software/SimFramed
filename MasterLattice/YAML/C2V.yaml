@@ -2,6 +2,7 @@ elements:
   CLA-C2V-MARK-01:
     type: marker
     fit_point: 1.0
+    PV: 'None'
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 5.72687]
     position_start: [0, 0, 5.72687]
@@ -10,6 +11,7 @@ elements:
     length: 0.400003
     angle: 0.785398
     design_angle: 0.785398
+    strength: 0
     half_gap: 0.005
     edge_field_integral: 0.4
     csr_bins: 20.0

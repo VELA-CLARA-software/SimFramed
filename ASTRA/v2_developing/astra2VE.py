@@ -2,47 +2,48 @@ import os
 import numpy as np
 from epics import caput
 import math as m
-import h5py
 
-def varianceMLE(data, mean, value):
-    s=0
-    N=0
-    for i in range(1, data[1].size):
-        if data[9][i] > 0:
-            # gets rid of bad particles
-            s = s + m.pow(data[value][i] - mean, 2)
-            N = N + 1
+from SimulationFramework.Modules import read_beam_file as rbf
+
+
+def varianceMLE(array, mean):
+    s = 0
+    N = 0
+    for i in array:
+        # gets rid of bad particles
+        s = s + m.pow(i - mean, 2)
+        N = N + 1
     return s / (N - 1)
 
 
-def setBPM(pvRoot, data):
+def setBPM(pvRoot, beam):
     print('    Setting BPM: ' + pvRoot)
-    xArray = data[0]
-    yArray = data[1]
+    xArray = beam.x
+    yArray = beam.y
     xAverage = np.average(xArray)
     yAverage = np.average(yArray)
     caput(pvRoot + ':X', xAverage)
     caput(pvRoot + ':Y', yAverage)
 
 
-def setCamera(pvRoot, data):
+def setCamera(pvRoot, beam):
     print('    Setting Camera: ' + pvRoot)
-    xArray = data[0]
-    yArray = data[1]
+    xArray = beam.x
+    yArray = beam.y
     xAverage = np.average(xArray)
     yAverage = np.average(yArray)
-    xVar = varianceMLE(data, xAverage, 0)
-    yVar = varianceMLE(data, yAverage, 1)
-    caput(pvRoot + ':X', xAverage)
-    caput(pvRoot + ':Y', yAverage)
-    caput(pvRoot + ':SigmaX', m.sqrt(xVar))
-    caput(pvRoot + ':SigmaY', m.sqrt(yVar))
-    caput(pvRoot + ':DistribX', data[0])
-    caput(pvRoot + ':DistribY', data[1])
+    xVar = varianceMLE(xArray, xAverage)
+    yVar = varianceMLE(yArray, yAverage)
+    caput(pvRoot + ':ANA:X_RBV', xAverage)
+    caput(pvRoot + ':ANA:Y_RBV', yAverage)
+    caput(pvRoot + ':ANA:SigmaX_RBV', m.sqrt(xVar))
+    caput(pvRoot + ':ANA:SigmaY_RBV', m.sqrt(yVar))
+    #caput(pvRoot + ':DistribX', xArray)
+    #caput(pvRoot + ':DistribY', yArray)
 
 
 def setWCM(pv, data):
-    print('    Setting WCM: '+ pv)
+    print('    Setting WCM: ' + pv)
     charge = 0
     for i in range(data[1].size):
         if data[9][i]>0:# gets rid of bad particles
@@ -51,21 +52,29 @@ def setWCM(pv, data):
 
 
 def setOutputs(framework):
+    beam = rbf.beam()
     for fileName in os.listdir(framework.subdir):
         if fileName.split('.')[-1] == 'hdf5':
             # load data
-            f = h5py.File(fileName, 'r')
-            listData = list(f['data'])
-            f.close()
-            data = np.array(listData)
-            pvRoot = framework.elements[fileName]['PV']
+            name = fileName.split('.')[0]
+            #print name
+            beam.read_HDF5_beam_file(framework.subdir + '/' + fileName,
+                                     local=True)
             if 'BPM' in fileName:
-                setBPM(pvRoot, data)
+                pvRoot = 'VM-' + framework.getElement(element=name,
+                                                      setting='PV',
+                                                      default='Null')
+                setBPM(pvRoot, beam)
             elif 'YAG' in fileName or 'SCR' in fileName:
-                pvRoot = framework.elements[fileName]['Camera_PV']
-                setCamera(pvRoot, data)
+                #print fileName
+                pvRoot = 'VM-' + framework.getElement(element=name,
+                                                      setting='camera_PV',
+                                                      default='Null')
+                setCamera(pvRoot, beam)
             elif 'SCOPE' in fileName:
-                pv = pvRoot
-                setWCM(pv, data)
+                pvRoot = 'VM-' + framework.getElement(element=name,
+                                                      setting='PV',
+                                                      default='Null')
+                setWCM(pvRoot, beam)
             else:
-                print 'Unregcognised output file.'
+                print '    Unregcognised output file', fileName
