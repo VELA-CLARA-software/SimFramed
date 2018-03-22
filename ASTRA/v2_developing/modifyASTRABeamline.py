@@ -105,8 +105,10 @@ class beamline():
         absField = (np.polyval(coeffs, abs(dip.siWithPol)) /
                     dip.magneticLength)
         field = np.copysign(absField, dip.siWithPol)
+        #print dip.siWithPol
+        #print field
         pathway.modifyElement(element=name,
-                              setting='field',
+                              setting='strength',
                               value=field)
 
     def changeQuadrupole(self, pathway, element, nickName, name):
