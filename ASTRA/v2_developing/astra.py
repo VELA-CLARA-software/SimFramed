@@ -88,16 +88,6 @@ class Setup(QThread):
         if sucessful is False:
             return
 
-        print('    Modify pathway using Virtual EPICS...')
-        modifier = mabl.beamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
-                                 C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
-                                 C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
-                                 C2V_MAG_Ctrl=self.C2V_MAG_Ctrl,
-                                 LRRG_RF_Ctrl=self.LRRG_RF_Ctrl,
-                                 HRRG_RF_Ctrl=self.HRRG_RF_Ctrl,
-                                 L01_RF_Ctrl=self.L01_RF_Ctrl)
-        modifier.modfiy(self.pathway, self.startElement, self.stopElement)
-
         print('    Crop pathway for ASTRA run...')
         startIndex = self.pathway.elementIndex(self.startElement)
         stopIndex = self.pathway.elementIndex(self.stopElement)
@@ -106,6 +96,23 @@ class Setup(QThread):
             stopOfSection = self.pathway.fileSettings[section]['output']['end_element']
             sectionStartIndex = self.pathway.elementIndex(startOfSection)
             sectionStopIndex = self.pathway.elementIndex(stopOfSection)
+            [nameEndSection, dataEndSection] = self.pathway.getElementAt(sectionStopIndex)
+            elementsToBeRemoved = []
+
+            for i in range(sectionStartIndex, sectionStopIndex):
+                # print name
+                [name, data] = self.pathway.getElementAt(i)
+                if dataEndSection['position_start'][-1] < data['position_start'][-1]:
+                    print '      Deleting element', name
+                    elementsToBeRemoved.append(name)
+
+            for name in elementsToBeRemoved:
+                self.pathway.deleteElement(name)
+
+            sectionStartIndex = self.pathway.elementIndex(startOfSection)
+            sectionStopIndex = self.pathway.elementIndex(stopOfSection)
+            startIndex = self.pathway.elementIndex(self.startElement)
+            stopIndex = self.pathway.elementIndex(self.stopElement)
             if startIndex > sectionStartIndex and startIndex > sectionStopIndex:
                 print '      Deleting section', section
                 del self.pathway.fileSettings[section]
@@ -119,6 +126,18 @@ class Setup(QThread):
                 print '      Deleting section', section
                 del self.pathway.fileSettings[section]
 
+
+        print('    Modify pathway using Virtual EPICS...')
+        modifier = mabl.beamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
+                                 C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
+                                 C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
+                                 C2V_MAG_Ctrl=self.C2V_MAG_Ctrl,
+                                 LRRG_RF_Ctrl=self.LRRG_RF_Ctrl,
+                                 HRRG_RF_Ctrl=self.HRRG_RF_Ctrl,
+                                 L01_RF_Ctrl=self.L01_RF_Ctrl)
+        modifier.modfiy(self.pathway, self.startElement, self.stopElement)
+
+
         print('    Creating .in files...')
         self.pathway.createInputFiles()
 
@@ -127,6 +146,6 @@ class Setup(QThread):
         astraDir = (str(os.path.abspath(__file__)).split('astra')[0] +
                     "\\..\\..\\ASTRA\\astra.exe")
         self.pathway.astra.defineASTRACommand([astraDir])
-        self.pathway.runInputFiles()
+        self.pathway.createRunProcessInputFiles()
         ve.setOutputs(self.pathway)
         print('    Done, for now...')
