@@ -61,6 +61,7 @@ elements:
   CLA-S02-DIA-SCR-01-W:
     type: screen
     output_filename: '"CLA-S02-DIA-SCR-01.SDDS"'
+    camera_PV: CLA-S02-DIA-CAM-01
     buffer_start: [0, 0, 4.0465]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -108,6 +109,7 @@ elements:
   CLA-S02-DIA-SCR-02-W:
     type: screen
     output_filename: '"CLA-S02-DIA-SCR-02.SDDS"'
+    camera_PV: CLA-S02-DIA-CAM-02
     buffer_start: [0, 0, 4.9675]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -169,6 +171,7 @@ elements:
   CLA-S02-DIA-SCR-03-W:
     type: screen
     output_filename: '"CLA-S02-DIA-SCR-03.SDDS"'
+    camera_PV: CLA-S02-DIA-CAM-03
     buffer_start: [0, 0, 6.5501]
     buffer_start_length: 0.033333
     buffer_end_length: 0.076667

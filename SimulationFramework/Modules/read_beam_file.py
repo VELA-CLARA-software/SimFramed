@@ -175,7 +175,6 @@ class beam(object):
         self.beam['charge'] = charge
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
-
     def convert_csrtrackfile_to_astrafile(self, csrtrackfile, astrafile):
         data = self.read_csv_file(csrtrackfile)
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
@@ -260,7 +259,6 @@ class beam(object):
         array = np.array([zvector, self.y, self.x, self.Bz*self.gamma*constants.speed_of_light, self.By*self.gamma*constants.speed_of_light, self.Bx*self.gamma*constants.speed_of_light]).transpose()
         ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
         np.savetxt(file, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e'))
-
 
     def read_gdf_beam_file_object(self, file):
         if isinstance(file, (str)):
