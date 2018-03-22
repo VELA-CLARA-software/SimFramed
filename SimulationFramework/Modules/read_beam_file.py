@@ -177,17 +177,15 @@ class beam(object):
 
 
     def convert_csrtrackfile_to_astrafile(self, csrtrackfile, astrafile):
-        data = self.read_csv_file(file)
+        data = self.read_csv_file(csrtrackfile)
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
         charge = -charge*1e9
         clock0 = (data[0, 0] / constants.speed_of_light) * 1e9
-        # print 'clock0 = ', clock0
         clock = np.full(len(x), 0)
         clock[0] = clock0
         index = np.full(len(x), 1)
         status = np.full(len(x), 5)
         array = np.array([x, y, z, cpx, cpy, cpz, clock, charge, index, status]).transpose()
-        # np.savetxt(astrafile, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%d'))
         self.write_csv_file(astrafile, array)
 
     def find_nearest_vector(self, nodes, node):

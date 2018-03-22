@@ -206,7 +206,7 @@ class Framework(object):
             if setting is not None:
                 if setting in self._elements[element]:
                     setvalue = self._elements[element][setting]
-                    if isinstance(setvalue, str):
+                    if self.isevaluable(setvalue):
                         return eval(setvalue)
                     else:
                         return setvalue
@@ -368,7 +368,7 @@ class Framework(object):
         d['angle'] = np.sign(d['angle'])*angle
         return [name, d]
 
-    def createRunProcessInputFiles(self, files=None):
+    def createRunProcessInputFiles(self, files=None, write=True, run=True, preprocess=True, postprocess=True):
         if not isinstance(files, (list, tuple)):
             files = self.fileSettings.keys()
         for f in files:
@@ -376,10 +376,14 @@ class Framework(object):
             if 'code' in self.fileSettings[f]:
                 code = self.fileSettings[f]['code']
                 if code.upper() == 'ASTRA':
-                    saveFile(filename, lines=self.astra.createASTRAFileText(f))
-                    self.astra.preProcesssASTRA()
-                    self.astra.runASTRA(filename)
-                    self.astra.postProcesssASTRA()
+                    if write:
+                        saveFile(filename, lines=self.astra.createASTRAFileText(f))
+                    if preprocess:
+                        self.astra.preProcesssASTRA()
+                    if run:
+                        self.astra.runASTRA(filename)
+                    if postprocess:
+                        self.astra.postProcesssASTRA()
 
     def createInputFiles(self):
         for f in self.fileSettings.keys():

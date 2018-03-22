@@ -16,7 +16,7 @@ elements:
     phase: -12
     longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
     transverse_wakefield_input: '"Sx5um10mm.sdds"'
-    field_definition: ../TWS_S-DL.dat
+    field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
