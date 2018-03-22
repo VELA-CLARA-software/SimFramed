@@ -9,26 +9,20 @@ scaling = 4
 
 npart=2**(3*scaling)
 
-framework = Framework('C2V', overwrite=True)
 
-''' You need to define the location of your astra command!'''
-''' This is the default for windows...'''
-# framework.astra.defineASTRACommand(['../../MasterLattice/ASTRA/astra.exe'])
+''' ############# CLARA 400 to VELA #############'''
 
-framework.loadSettings('Lattices/CLA400-C2V-INJ.def')
-# print framework.nextElement('CLA-L01-CAV')
-# print framework.elementIndex('CLA-L01-CAV')
-# print framework.previousElement('CLA-L01-CAV')
+# framework = Framework('C2V', overwrite=True)
+#
+# framework.loadSettings('Lattices/CLA400-C2V-INJ.def')
+# framework.astra.createInitialDistribution(npart=npart,charge=250)
+# framework.createRunProcessInputFiles(files=['vela'])
+
+
+''' ############# CLARA 400 #############'''
+
+framework = Framework('CLARA', overwrite=True)
+
+framework.loadSettings('Lattices/clara400_v12.def')
 framework.astra.createInitialDistribution(npart=npart,charge=250)
-framework.createRunProcessInputFiles(files=['vela'])
-# framework.runInputFiles()
-# framework.postProcessInputFiles()
-# beam.read_HDF5_beam_file('C2V/injector400.0098.hdf5')
-# print beam.beam['x'][:10]
-# beam.rotate_beamXZ(180*degree)
-# print beam.beam['x'][:10]
-# beam.unrotate_beamXZ()
-# print beam.beam['x'][:10]
-# beam.read_astra_beam_file('C2V/injector400.0337.001')
-# print 'ref_particle = ', beam.beam['reference_particle']
-# beam.write_HDF5_beam_file('C2V/injector400.0337.hdf5')
+framework.createRunProcessInputFiles(run=True)#, files=['VBC'])
