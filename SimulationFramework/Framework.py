@@ -132,6 +132,10 @@ class Framework(object):
             else:
                 self.elementOrder.append(name)
 
+    def deleteElement(self, name):
+        del self._elements[name]
+        self.elementOrder.remove(name)
+
     def elementIndex(self, element):
         flatelementOrder = list(flatten(self.elementOrder))
         if element in flatelementOrder:

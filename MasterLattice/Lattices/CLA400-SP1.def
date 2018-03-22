@@ -67,21 +67,21 @@ files:
     output:
       start_element: CLA-C2V-MARK-01
       end_element: CLA-C2V-DIA-SCR-01-W
-  vela:
-    global_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
-    starting_rotation: $self.getElement('CLA-C2V-MAG-DIP-01','angle')$
-    code: ASTRA
-    charge:
-      cathode: False
-      space_charge_mode: 3D
-    input:
+ # vela:
+#    global_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
+#    starting_rotation: $self.getElement('CLA-C2V-MAG-DIP-01','angle')$
+#    code: ASTRA
+#    charge:
+#      cathode: False
+#      space_charge_mode: 3D
+#    input:
       particle_definition: c2v.$output['start_element']$.001
-    output:
-      start_element: CLA-C2V-DIA-SCR-01-W
-      end_element: EBT-INJ-PSS-SHUT-02
+#    output:
+#      start_element: CLA-C2V-DIA-SCR-01-W
+#      end_element: EBT-INJ-PSS-SHUT-02
 groups:
 elements:
   filename: ['YAML/Injector400.yaml',
                   'YAML/S02.yaml',
-                  'YAML/C2V.yaml',
-                  'YAML/SP1.yaml']
+                  'YAML/C2V.yaml']#,
+                  #'YAML/SP1.yaml']
