@@ -36,7 +36,6 @@ class ASTRA(object):
         HDF5filename = name + '.hdf5'
         astrabeamfilename = name + '.astra'
         self.beam.read_HDF5_beam_file(subdir + '/' + HDF5filename)
-        print 'global rotation = ', self.global_rotation
         self.beam.rotate_beamXZ(self.global_rotation, preOffset=self.global_offset)
         self.beam.write_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
 
@@ -52,7 +51,10 @@ class ASTRA(object):
         else:
             name, pos = screen
             pos0 = pos
-        astrabeamfilename = filename + '.' + str(int(round((pos[2]-self.zstart[1][2])*100))).zfill(4) + '.' + str(runno.zfill(3))
+        if self.global_offset == [0,0,0]:
+            astrabeamfilename = filename + '.' + str(int(round((pos[2])*100))).zfill(4) + '.' + str(runno.zfill(3))
+        else:
+            astrabeamfilename = filename + '.' + str(int(round((pos[2]-self.zstart[1][2])*100))).zfill(4) + '.' + str(runno.zfill(3))
         self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
         if self.global_offset is None or []:
             self.global_offset = [0,0,0]
@@ -92,39 +94,47 @@ class ASTRA(object):
         for scvar in ['SC_3D_Nxf','SC_3D_Nyf','SC_3D_Nzf']:
             self.framework.globalSettings[scvar] = scgrid.gridSizes
 
-    def createASTRAChicane(self, group, dipoleangle=None, width=0.2, gap=0.02):
+    def createASTRAChicane(self, group, dipoleangle=None, width=0.2, gap=0.02, counter=1):
         """Create a 4 dipole chicane in ASTRA with the correct edge points"""
         chicanetext = ''
         dipoles = self.framework.getGroup(group)
         if not dipoleangle is None:
             dipoleangle = float(dipoleangle)
             dipoles = [self.framework.setDipoleAngle(d, dipoleangle) for d in dipoles]
-        dipoles = self.framework.createDrifts(dipoles)
+        # for d in dipoles:
+        #     self.createASTRADipole(d, n=1, width=0.2, gap=0.02, plane='horizontal'):
+        # dipoles = self.framework.createDrifts(dipoles)
+        dipoles = self.framework.createDrifts(dipoles, zerolengthdrifts=True)
         dipolepos, localXYZ = self.framework.elementPositions(dipoles)
         dipolepos = list(chunks(dipolepos,2))
         corners = [0,0,0,0]
+        allcorners = []
         dipoleno = 0
         for elems in dipolepos:
             dipoleno += 1
+            counter += 1
+            # print 'elems = ', elems[0]
             p1, psi1, nameelem1 = elems[0]
             p2, psi2, nameelem2 = elems[1]
             # print 'psi = ', psi1, psi2
-            name, d = nameelem1
-            angle1 = getParameter(nameelem1[1],'angle')
-            angle2 = getParameter(nameelem2[1],'angle')
-            length = getParameter(d,'length')
-            e1 = getParameter(d,'entrance_edge_angle')
-            e2 = getParameter(d,'exit_edge_angle')
-            width = getParameter(d,'width',default=width)
-            gap = getParameter(d,'gap',default=gap)
-            rbend = 1 if d['type'] == 'rdipole' else 0
-            rho = d['length']/angle1 if 'length' in d and abs(angle1) > 1e-9 else 0
+            name = nameelem1
+            # print 'name = ', nameelem1
+            angle1 = self.framework.getElement(nameelem1,'angle')
+            angle2 = self.framework.getElement(nameelem2,'angle')
+            length = self.framework.getElement(name,'length')
+            e1 = self.framework.getElement(name,'entrance_edge_angle', default=0)
+            e2 = self.framework.getElement(name,'exit_edge_angle', default=0)
+            width = self.framework.getElement(name,'width',default=width)
+            gap = self.framework.getElement(name,'gap',default=gap)
+            rbend = 1 if self.framework.getElement(name,'type') == 'rdipole' else 0
+            rho = length/angle1 if abs(angle1) > 1e-9 else 0
             theta = -1*psi1-e1-rbend*np.sign(rho)*angle1/2.0
             corners[0] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
             corners[3] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
             theta = -1*psi2+e2-rbend*np.sign(rho)*angle1/2.0
             corners[1] = np.array(map(add,np.transpose(p2),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
             corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
+            allcorners += corners
             dipolenostr = str(dipoleno)
             chicanetext += "D_Type("+dipolenostr+")='horizontal',\n"+\
             "D_Gap(1,"+dipolenostr+")="+str(gap)+",\n"+\
@@ -134,7 +144,8 @@ class ASTRA(object):
             "D4("+dipolenostr+")=("+str(corners[1][0])+","+str(corners[1][2])+"),\n"+\
             "D2("+dipolenostr+")=("+str(corners[0][0])+","+str(corners[0][2])+"),\n"+\
             "D_radius("+dipolenostr+")="+str(rho)+"\n"
-        return chicanetext
+        # print allcorners
+        return chicanetext, counter
 
     def rotateAndOffset(self, start_pos, offset, theta):
         rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
@@ -218,18 +229,16 @@ class ASTRA(object):
         self.starting_rotation += angle
         rbend = 1 if getParameter(dipole,'type') == 'rdipole' else 0
         rho = getParameter(dipole,'length')/angle if getParameter(dipole,'length') is not None and abs(angle) > 1e-9 else 0
-        theta = -1*psi1-e1-rbend*np.sign(rho)*angle/2.0
+        theta = -1*psi1-e1-rbend*np.sign(rho)*angle/2.0#-1*psi1-e1-rbend*np.sign(rho)*angle/2.0
         corners[0] = np.array(map(add,np.transpose(p1),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[0] = self.rotateAndOffset(corners[0], self.global_offset, self.global_rotation)
         corners[3] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[3] = self.rotateAndOffset(corners[3], self.global_offset, self.global_rotation)
-        theta = -1*psi2+e2-rbend*np.sign(rho)*angle/2.0
+        theta = psi2-e2-rbend*np.sign(rho)*angle/2.0#-1*psi2+e2-rbend*np.sign(rho)*angle/2.0
         corners[1] = np.array(map(add,np.transpose(p2),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[1] = self.rotateAndOffset(corners[1], self.global_offset, self.global_rotation)
         corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[2] = self.rotateAndOffset(corners[2], self.global_offset, self.global_rotation)
-
-        # print 'corners = ', corners
 
         dipoletext = "D_Type("+str(n)+")='"+str(plane)+"',\n"+\
         "D_Gap(1,"+str(n)+")="+str(gap)+",\n"+\
@@ -564,15 +573,17 @@ class ASTRA(object):
         ' Loop='+str(loop)+'\n' +\
         ' LDipole='+str(ldipole)+'\n'
 
+        counter = 1
         for g in groups:
             if g in self.framework.groups:
                 if self.framework.groups[g]['type'] == 'chicane':
-                    if all([i for i in self.framework.groups[g] if i in dipoles]):
-                        dipoles = [i for i in dipoles if i not in self.framework.groups[g]]
-                        dipoletext += self.createASTRAChicane(g, **groups[g])
-        counter = 1
+                    if all([i for i in self.framework.groups[g]['elements'] if i in dipoles]):
+                        dipoles = [i for i in dipoles if i not in self.framework.groups[g]['elements']]
+                        chicanetext, counter = self.createASTRAChicane(g, counter=counter, **groups[g])
+                        dipoletext += chicanetext
+
         for i,s in enumerate(dipoles):
-            dipoletext += ' '+self.createASTRADipole(s,counter)
+            dipoletext += ' ' + self.createASTRADipole(s,counter)
             counter += 1
 
         # Add in correctors
