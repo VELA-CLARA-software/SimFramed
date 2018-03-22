@@ -234,7 +234,7 @@ class ASTRA(object):
         corners[0] = self.rotateAndOffset(corners[0], self.global_offset, self.global_rotation)
         corners[3] = np.array(map(add,np.transpose(p1),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[3] = self.rotateAndOffset(corners[3], self.global_offset, self.global_rotation)
-        theta = psi2-e2-rbend*np.sign(rho)*angle/2.0#-1*psi2+e2-rbend*np.sign(rho)*angle/2.0
+        theta = -1*psi2-e2-rbend*np.sign(rho)*angle/2.0#-1*psi2+e2-rbend*np.sign(rho)*angle/2.0
         corners[1] = np.array(map(add,np.transpose(p2),np.dot([-width*length,0,0], rotationMatrix(theta))))[0,0]
         corners[1] = self.rotateAndOffset(corners[1], self.global_offset, self.global_rotation)
         corners[2] = np.array(map(add,np.transpose(p2),np.dot([width*length,0,0], rotationMatrix(theta))))[0,0]
