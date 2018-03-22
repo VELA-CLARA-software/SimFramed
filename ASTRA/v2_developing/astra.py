@@ -139,7 +139,7 @@ class Setup(QThread):
 
 
         print('    Creating .in files...')
-        self.pathway.createInputFiles()
+        #self.pathway.createInputFiles()
 
         print('3. Running ASTRA simulation from ' +
               self.startElement + ' to ' + self.stopElement)
