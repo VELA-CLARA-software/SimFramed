@@ -119,7 +119,7 @@ files:
       start_element: CLA-S05-APER
       end_element: CLA-S05-MARK-01
   VBC:
-    code: ASTRA
+    code: CSRTrack
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -178,7 +178,7 @@ files:
         reference_point_y: 0.0
         reference_point_phi: 0.0
         format: astra
-        array: "#file{name=S05.$output['start_element']$.001}"
+        array: "#file{name=$output['start_element']$.astra}"
     groups:
       VBC:
         dipoleangle: 0.105

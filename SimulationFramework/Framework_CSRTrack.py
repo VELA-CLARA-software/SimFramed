@@ -1,4 +1,5 @@
-import yaml, collections, subprocess, os, math, re, sys
+import yaml, collections, subprocess, os, math, re, sys, copy
+from shutil import copyfile
 import numpy as np
 import SimulationFramework.Modules.read_beam_file as rbf
 from FrameworkHelperFunctions import *
@@ -14,20 +15,39 @@ class CSRTrack(object):
 
     def runCSRTrack(self, filename=''):
         """Run the CSRTrack program with input 'filename'"""
-        copyfile(self.subdir+'/'+filename, self.subdir+'/'+'csrtrk.in')
-        command = self.CSRTrackCommand + [filename]
+        print 'self.subdir = ', [os.path.relpath(filename,self.subdir)]
+        copyfile(filename, self.subdir+'/'+'csrtrk.in')
+        command = self.CSRTrackCommand + ['csrtrk.in']
+        print 'command = ', command
         with open(os.devnull, "w") as f:
             subprocess.call(command, stdout=f, cwd=self.subdir)
 
-    def convertCSRTrackOutput(self, f):
+    def preProcesssCSRTrack(self):
+        if self.zstart[0] is not None:
+            self.convert_HDF5_beam_to_astra_beam(self.subdir, self.filename, self.zstart)
+
+    def convert_HDF5_beam_to_astra_beam(self, subdir, filename, screen):
+        if len(screen) > 2:
+            name, pos, pos0 = screen
+        else:
+            name, pos = screen
+            pos0 = pos
+        HDF5filename = name + '.hdf5'
+        astrabeamfilename = name + '.astra'
+        self.beam.read_HDF5_beam_file(subdir + '/' + HDF5filename)
+        self.beam.write_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
+
+    def convertCSRTrackOutput(self, f=None):
+        if f is None:
+            f = self.filename
         output = self.framework.getFileSettings(f,'output')
-        outputdistribution    = f+'.$output[\'end_element\']$.001'
+        distributionname    = '$output[\'end_element\']$'
         regex = re.compile('\$(.*)\$')
-        s = re.search(regex, outputdistribution)
+        s = re.search(regex, distributionname)
         if s:
             sub = self.framework.astra.formatASTRAStartElement(eval(s.group(1)))
-            outputdistribution = re.sub(regex, sub, outputdistribution)
-
+            distributionname = re.sub(regex, sub, distributionname)
+        outputdistribution = distributionname+'.astra'
         options = self.framework.getFileSettings(f,'CSRTrack_Options')
         monitor = self.framework.getSettingsBlock(options,'monitor')
         # print monitor
@@ -37,8 +57,17 @@ class CSRTrack(object):
         if s:
             sub = self.framework.astra.formatASTRAStartElement(eval(s.group(1)))
             inputdistribution = re.sub(regex, sub, inputdistribution)
-        # print 'conversion = ', self.subdir+'/'+inputdistribution, self.subdir+'/'+outputdistribution
         self.beam.convert_csrtrackfile_to_astrafile(self.subdir+'/'+inputdistribution, self.subdir+'/'+outputdistribution)
+        self.convert_astra_beam_to_HDF5_beam(self.subdir, self.filename, distributionname)
+
+    def convert_astra_beam_to_HDF5_beam(self, subdir, filename, name):
+        astrabeamfilename = name+'.astra'
+        self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
+        if self.global_offset is None or []:
+            self.global_offset = [0,0,0]
+        self.beam.rotate_beamXZ(-1*self.global_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.global_offset))
+        HDF5filename = name + '.hdf5'
+        self.beam.write_HDF5_beam_file(subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, rotation=self.global_rotation)
 
     def defineCSRTrackCommand(self, command=['csrtrack']):
         """Modify the defined ASTRA command variable"""
@@ -55,7 +84,7 @@ class CSRTrack(object):
         if not dipoleangle is None:
             dipoleangle = float(dipoleangle)
             dipoles = [self.framework.setDipoleAngle(d, dipoleangle) for d in dipoles]
-        dipoles = self.framework.createDrifts(dipoles)
+        dipoles = self.framework.createDrifts(dipoles, zerolengthdrifts=True)
         dipolepos, localXYZ = self.framework.elementPositions(dipoles)
         dipolepos = list(chunks(dipolepos,2))
         corners = [0,0,0,0]
@@ -65,18 +94,18 @@ class CSRTrack(object):
             dipoleno += 1
             p1, psi1, nameelem1 = elems[0]
             p2, psi2, nameelem2 = elems[1]
-            name, d = nameelem1
-            angle1 = getParameter(nameelem1[1],'angle')
-            angle2 = getParameter(nameelem2[1],'angle')
-            length = getParameter(d,'length')
-            rbend = 1 if d['type'] == 'rdipole' else 0
-            e1 = getParameter(d,'entrance_edge_angle')
+            name = nameelem1
+            angle1 = self.framework.getElement(nameelem1,'angle')
+            angle2 = self.framework.getElement(nameelem2,'angle')
+            length = self.framework.getElement(name,'length')
+            rbend = 1 if self.framework.getElement(name,'type') == 'rdipole' else 0
+            e1 = self.framework.getElement(name,'entrance_edge_angle', default=0)
             e1 = e1 if rbend is 0 else e1 + angle1/2.0
-            e2 = getParameter(d,'exit_edge_angle')
+            e2 = self.framework.getElement(name,'exit_edge_angle', default=0)
             e2 = e2 if rbend is 0 else e2 + angle2/2.0
-            width = getParameter(d,'width',default=width)
-            gap = getParameter(d,'gap',default=gap)
-            rho = d['length']/angle1 if 'length' in d and abs(angle1) > 1e-9 else 0
+            width = self.framework.getElement(name,'width',default=width)
+            gap = self.framework.getElement(name,'gap',default=gap)
+            rho = length/angle1 if abs(angle1) > 1e-9 else 0
             np.transpose(p1)
             chicanetext += """    dipole{
     position{rho="""+str(p1[2,0])+""", psi="""+str(chop(e1+psi1))+""", marker=d"""+str(dipoleno)+"""a}
@@ -86,15 +115,37 @@ class CSRTrack(object):
     """
         return chicanetext
 
-    def createCSRTrackParticlesBlock(self, particles={}, output={}):
+    def createCSRTrackParticlesBlock(self, particles={}, originaloutput={}):
         """Create an CSRTrack Particles Block string"""
+
+        output = copy.deepcopy(originaloutput)
 
         distribution    = str(getParameter(particles,'array',default=''))
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, distribution)
         if s:
-            sub = self.framework.astra.formatASTRAStartElement(eval(s.group(1)))
-            distribution = re.sub(regex, sub, distribution)
+            distribution = re.sub(regex, self.framework.astra.formatASTRAStartElement(eval(s.group(1))), distribution)
+
+        zstart = getParameter(output,'zstart',default=None)
+        if zstart is None:
+            startelem = getParameter(output,'start_element',default=None)
+            if startelem is None or startelem not in self.framework.elements:
+                zstart = [0,0,0]
+                self.zstart = [None, zstart, zstart]
+            else:
+                zstart = self.framework.elements[startelem]['position_start']
+                originaloutput['zstart'] = zstart[2]
+                self.zstart = [startelem, zstart, zstart]
+        elif not isinstance(zstart, (list, tuple)):
+            zstart = [0,0, zstart]
+            self.zstart = [None, zstart, zstart]
+        else:
+            self.zstart = [None, zstart, zstart]
+
+        zstart = self.framework.astra.rotateAndOffset(zstart, self.global_offset, self.global_rotation)
+        self.zstart[1] = zstart
+        output['zstart'] = zstart[2]
+
 
         del particles['array']
         particlestext = ''
@@ -214,9 +265,23 @@ class CSRTrack(object):
         return dipoletext
 
     def createCSRTrackFileText(self, file):
+        self.filename = file
         options = self.framework.getFileSettings(file,'CSRTrack_Options')
         # input = self.framework.getFileSettings(file,'input')
         output = self.framework.getFileSettings(file,'output')
+
+        self.global_offset = self.framework.getFileSettings(file,'global_offset', [0,0,0])
+        self.global_offset = self.framework.expand_substitution(self.global_offset)
+
+        self.starting_rotation = self.framework.getFileSettings(file,'starting_rotation', 0)
+        self.starting_rotation = self.framework.expand_substitution(self.starting_rotation)
+
+        dipoles = self.framework.getElementsBetweenS('dipole', output)
+        self.global_rotation = -self.starting_rotation
+        for d in dipoles:
+            self.global_rotation -= self.framework.getElement(d,'angle')
+
+
         online_monitors = self.framework.getSettingsBlock(options,'online_monitors')
         particles = self.framework.getSettingsBlock(options,'particles')
         forces = self.framework.getSettingsBlock(options,'forces')
@@ -224,7 +289,6 @@ class CSRTrack(object):
         tracker = self.framework.getSettingsBlock(options,'tracker')
         monitor = self.framework.getSettingsBlock(options,'monitor')
 
-        dipoles = self.framework.getElementsBetweenS('dipole', output)
         groups = self.framework.getFileSettings(file,'groups')
 
         CSRTrackfiletext = ''
