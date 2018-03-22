@@ -118,12 +118,12 @@ elements:
         length: 0
         field_amplitude: 0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
-        position_end: [0, 0, 2.7]
+        position_end: [0, 0, 2.2]
         position_start: [0, 0, 1.70]
       CLA-L01-CAV-SOL-02:
         type: solenoid
         length: 0
         field_amplitude: -0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
-        position_end: [0, 0, 3.7]
+        position_end: [0, 0, 3.2]
         position_start: [0, 0, 2.70]

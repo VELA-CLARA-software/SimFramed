@@ -189,7 +189,7 @@ class fitnessFunc():
                 self.framework.runInputFiles()
 
             self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
-            self.beam.slice_length = 0.05e-12
+            self.beam.slices = 10
             self.beam.bin_time()
             sigmat = 1e12*np.std(self.beam.t)
             sigmap = np.std(self.beam.p)
