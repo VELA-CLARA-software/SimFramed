@@ -388,6 +388,18 @@ class Framework(object):
                         self.astra.runASTRA(filename)
                     if postprocess:
                         self.astra.postProcesssASTRA()
+                elif code.upper() == 'CSRTRACK':
+                    if write:
+                        saveFile(filename, lines=self.CSRTrack.createCSRTrackFileText(f))
+                    if preprocess:
+                        self.CSRTrack.preProcesssCSRTrack()
+                    if run:
+                        self.CSRTrack.runCSRTrack(filename)
+                    if postprocess:
+                        self.CSRTrack.convertCSRTrackOutput()
+                else:
+                    print 'Code Not Recognised - ', code
+                    raise NameError
 
     def createInputFiles(self):
         for f in self.fileSettings.keys():

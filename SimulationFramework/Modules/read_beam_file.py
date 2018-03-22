@@ -15,7 +15,7 @@ class beam(object):
     particle_mass = constants.m_e
     E0 = particle_mass * constants.speed_of_light**2
     E0_eV = E0 / constants.elementary_charge
-    q_over_c = (constants.e / constants.speed_of_light)
+    q_over_c = (constants.elementary_charge / constants.speed_of_light)
 
     def __init__(self):
         self.beam = {}
@@ -103,7 +103,7 @@ class beam(object):
         self.beam['reference_particle'] = data[0]
         # if normaliseZ:
         #     self.beam['reference_particle'][2] = 0
-        z = self.normalise_to_ref_particle(z, subtractmean=normaliseZ)
+        z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
         clock = self.normalise_to_ref_particle(clock, subtractmean=True)
         cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
@@ -390,9 +390,9 @@ class beam(object):
             if 'reference_particle' in self.beam:
                 beamgrp['reference_particle'] = self.beam['reference_particle']
             if len(self.beam['charge']) == len(self.x):
-                chargevector = self.beam['charge']/constants.e
+                chargevector = self.beam['charge']
             else:
-                chargevector = np.full(len(self.x), self.charge/len(self.x)/constants.e)
+                chargevector = np.full(len(self.x), self.charge/len(self.x))
             array = np.array([self.x, self.y, self.z, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
             beamgrp['columns'] = ("x","y","z","cpx","cpy","cpz","t","q")
             beamgrp['units'] = ("m","m","m","eV","eV","eV","s","e")
@@ -574,6 +574,19 @@ class beam(object):
     @slice_length.setter
     def slice_length(self, slicelength):
         self._slicelength = slicelength
+
+    @property
+    def slices(self):
+        return self.slices
+
+    @slices.setter
+    def slices(self, slices):
+        twidth = (max(self.t) - min(self.t))
+        if twidth == 0:
+            t = self.z / (-1 * self.Bz * constants.speed_of_light)
+            twidth = (max(t) - min(t))
+        self.slices = slices
+        self._slicelength = twidth / self.slices
 
     def bin_time(self):
         if not hasattr(self,'slice'):
