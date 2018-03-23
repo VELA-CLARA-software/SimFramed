@@ -1,4 +1,5 @@
 import sys, os, time, math, datetime, copy, re
+from collections import OrderedDict
 import glob
 from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
 from PyQt4.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
@@ -27,7 +28,6 @@ class MyMplCanvas(FigureCanvas):
 
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
-
         FigureCanvas.setSizePolicy(self,
                                    QSizePolicy.Expanding,
                                    QSizePolicy.Expanding)
@@ -39,10 +39,20 @@ class MyMplCanvas(FigureCanvas):
 class MyStaticMplCanvas(MyMplCanvas):
     """Simple canvas with a sine plot."""
 
-    def plothist(self, x, y, nbins):
+    def plothist(self, x, y, nbins, xLabel=None, yLabel=None):
         self.axes.cla()
         self.axes.hist2d(x, y, bins=nbins, norm=LogNorm())
+        if xLabel is not None:
+            self.setXlabel(xLabel)
+        if yLabel is not None:
+            self.setYlabel(yLabel)
         self.draw()
+
+    def setXlabel(self, lbl):
+        self.axes.set_xlabel(lbl)
+
+    def setYlabel(self, lbl):
+        self.axes.set_ylabel(lbl)
 
 parser = argparse.ArgumentParser(description='Plot ASTRA Data Files')
 parser.add_argument('-d', '--directory', default='.')
@@ -149,15 +159,23 @@ class astraPlotWidget(QWidget):
         #     # self.beamPlot = p.plot(pen=None, symbol='+')
         #     # self.beamPlotView.setCentralItem(self.beamPlotWidgetGraphicsLayout)
         self.beamPlotXAxisCombo = QComboBox()
-        self.beamPlotXAxisCombo.addItems(['x','y','zn','cpx','cpy','BetaGamma'])
+        self.beamPlotXAxisDict = OrderedDict()
+        self.beamPlotXAxisDict['x'] = {'scale':1e3, 'axis': 'x [mm]'}
+        self.beamPlotXAxisDict['y'] = {'scale':1e3, 'axis': 'y [mm]'}
+        self.beamPlotXAxisDict['z'] = {'scale':1e6, 'axis': 'z [micron]', 'norm': True}
+        self.beamPlotXAxisDict['cpx'] = {'scale':1e3, 'axis': 'cpx [keV]'}
+        self.beamPlotXAxisDict['cpy'] = {'scale':1e3, 'axis': 'cpy [keV]'}
+        self.beamPlotXAxisDict['BetaGamma']= {'scale':0.511 , 'axis': 'cp [MeV]'}
+        self.beamPlotXAxisCombo.addItems(self.beamPlotXAxisDict.keys())
         self.beamPlotYAxisCombo = QComboBox()
-        self.beamPlotYAxisCombo.addItems(['x','y','zn','cpx','cpy','BetaGamma'])
+        self.beamPlotYAxisCombo.addItems(self.beamPlotXAxisDict.keys())
         self.beamPlotNumberBins = QSpinBox()
         self.beamPlotNumberBins.setRange(10,500)
         self.beamPlotNumberBins.setSingleStep(10)
         self.histogramBins = 100
         self.beamPlotNumberBins.setValue(self.histogramBins)
         self.beamPlotAxisWidget = QWidget()
+        self.beamPlotAxisWidget.setMaximumHeight(100)
         self.beamPlotAxisLayout = QHBoxLayout()
         self.beamPlotAxisWidget.setLayout(self.beamPlotAxisLayout)
         self.beamPlotAxisLayout.addWidget(self.beamPlotXAxisCombo)
@@ -170,7 +188,7 @@ class astraPlotWidget(QWidget):
             # self.beamPlotYAxisCombo.setCurrentIndex(5)
         self.canvasWidget = QWidget()
         l = QVBoxLayout(self.canvasWidget)
-        self.sc = MyStaticMplCanvas(self.canvasWidget, width=5, height=5, dpi=50)
+        self.sc = MyStaticMplCanvas(self.canvasWidget, width=1, height=1, dpi=150)
         l.addWidget(self.sc)
         self.beamPlotLayout.addWidget(self.beamPlotAxisWidget)
         self.beamPlotLayout.addWidget(self.canvasWidget)
@@ -373,8 +391,8 @@ class astraPlotWidget(QWidget):
                 if self.plotType == 'Beam':
                     self.plotDataBeam()
                 else:
-                    self.beam.bin_time()
-                    self.plotDataSlice()
+                    self.changeSliceLength()
+                    # self.plotDataSlice()
 
     def plotDataTwiss(self):
         for entry in self.twissplotLayout:
@@ -389,17 +407,15 @@ class astraPlotWidget(QWidget):
 
     def plotDataBeam(self):
         self.histogramBins = self.beamPlotNumberBins.value()
-        x=getattr(self.beam, str(self.beamPlotXAxisCombo.currentText()))
-        y=getattr(self.beam, str(self.beamPlotYAxisCombo.currentText()))
-        self.sc.plothist(x,y, self.histogramBins)
-        # h, xedges, yedges = np.histogram2d(x, y, self.histogramBins, normed = True)
-        # x0 = xedges[0]
-        # y0 = yedges[0]
-        # xscale = (xedges[-1] - xedges[0]) / len(xedges)
-        # yscale = (yedges[-1] - yedges[0]) / len(yedges)
-        # self.item.setImage(h)
-        # self.item.setLookupTable(self.rainbow)
-        # self.item.setLevels([0,1])
+        xdict = self.beamPlotXAxisDict[str(self.beamPlotXAxisCombo.currentText())]
+        ydict = self.beamPlotXAxisDict[str(self.beamPlotYAxisCombo.currentText())]
+        x = xdict['scale'] * getattr(self.beam, str(self.beamPlotXAxisCombo.currentText()))
+        if 'norm' in xdict and xdict['norm'] == True:
+            x = x - np.mean(x)
+        y = ydict['scale'] * getattr(self.beam, str(self.beamPlotYAxisCombo.currentText()))
+        if 'norm' in ydict and ydict['norm'] == True:
+            y = y - np.mean(y)
+        self.sc.plothist(x,y, self.histogramBins, xLabel=xdict['axis'], yLabel=ydict['axis'])
 
     def changeSliceLength(self):
         self.beam.slices = self.slicePlotSliceWidthWidget.value()
