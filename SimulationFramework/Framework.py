@@ -145,9 +145,39 @@ class Framework(object):
             else:
                 self.elementOrder.append(name)
 
+    def deleteFromList(self, inputlist, element):
+        newlist = []
+        for l in inputlist:
+            if isinstance(l,(list,tuple)):
+                tmplist = self.deleteFromList(l, element)
+                if not tmplist == []:
+                    newlist.append(tmplist)
+            elif not l == element:
+                newlist.append(l)
+        return newlist
+
     def deleteElement(self, name):
         del self._elements[name]
-        self.elementOrder.remove(name)
+        self.elementOrder = self.deleteFromList(self.elementOrder, name)
+
+    def deleteElementIndex(self, index=None):
+        self.deleteElement(self.getElementAt(index)[0])
+
+    def deleteElementsBetween(self, start, end):
+        startindex = self.elementIndex(start)
+        endindex = self.elementIndex(end)
+        flatelementOrder = list(flatten(self.elementOrder))
+        for e in flatelementOrder[min([startindex, endindex]): max([startindex, endindex])]:
+            self.deleteElement(e)
+
+    def selectElementsBetween(self,start, end):
+        startindex = self.elementIndex(start)
+        endindex = self.elementIndex(end)
+        flatelementOrder = list(flatten(self.elementOrder))
+        for e in flatelementOrder[:min([startindex, endindex])]:
+            self.deleteElement(e)
+        for e in flatelementOrder[1+max([startindex, endindex]):]:
+            self.deleteElement(e)
 
     def elementIndex(self, element):
         flatelementOrder = list(flatten(self.elementOrder))
@@ -160,7 +190,7 @@ class Framework(object):
     def getElementAt(self, index):
         flatelementOrder = list(flatten(self.elementOrder))
         element = flatelementOrder[index]
-        data = self.elements[element]
+        data = self._elements[element]
         return [element, data]
 
     def previousElement(self, element):
