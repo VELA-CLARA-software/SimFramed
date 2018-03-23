@@ -1,4 +1,4 @@
-import time, os
+import time, os, subprocess
 import yaml
 import traceback
 import itertools
@@ -66,7 +66,11 @@ class elegantLattice(object):
         self.elementObjects = {}
         self.lineObjects = {}
         self.commandObjects = collections.OrderedDict()
+        self.elegantCommand = ['elegant']
 
+    def defineElegantCommand(self,command=['elegant']):
+        """Modify the defined Elegant command variable"""
+        self.elegantCommand = command
 
     def __getitem__(self,key):
         if key in self.elementObjects:
@@ -133,21 +137,21 @@ class elegantLattice(object):
             else:
                 name = kwargs['name']
         command = elegantCommand(name, **kwargs)
-        setattr(self,name,command)
+        # setattr(self,name,command)
         # setattr(self.parent,name,command)
-        self.commandObjects[name] = command.properties
+        self.commandObjects[name] = command
         return command
 
     def writeCommandFile(self, filename=None):
         if filename == None:
             commandstr = ''
             for command in self['commands']:
-                commandstr+=getattr(self,command).write()
+                commandstr+=self.commandObjects[command].write()
             return commandstr
         else:
             file = open(filename,'w')
             for command in self['commands']:
-                file.write(getattr(self,command).write())
+                file.write(self.commandObjects[command].write())
             file.close()
 
     def writeLatticeFile(self, filename, lattice):
@@ -183,8 +187,8 @@ class elegantLattice(object):
         for elem in self.elementDefinitions:
             properties[elem] = {}
             for heading in headings:
-                if heading in getattr(self,elem).properties:
-                    properties[elem][heading] = getattr(self,elem)[heading]
+                if heading in self.elementObjects[elem].properties:
+                    properties[elem][heading] = self.elementObjects[elem][heading]
                 else:
                     properties[elem][heading] = None
         return properties
@@ -207,6 +211,12 @@ class elegantLattice(object):
         for element in self.elementDefinitions:
             if 'scr' in element.lower():
                 print getattr(self,element).properties
+
+    def runElegant(self, filename=''):
+        """Run the Elegant program with input 'filename'"""
+        command = self.elegantCommand + [os.path.relpath(filename)]
+        with open(os.path.relpath(filename+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f)
 
 class elegantObject(object):
 
