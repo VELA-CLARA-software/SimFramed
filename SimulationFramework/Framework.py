@@ -33,9 +33,19 @@ def flatten(coll):
             else:
                 yield i
 
+def clean_directory(folder):
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+
 class Framework(object):
 
-    def __init__(self, subdir='test', overwrite=None, runname='CLARA_240', master_lattice_location=None):
+    def __init__(self, subdir='test', overwrite=None, runname='CLARA_240', master_lattice_location=None, clean=False):
         super(Framework, self).__init__()
         self.lineIterator = 0
         self.basedirectory = os.getcwd()
@@ -57,6 +67,9 @@ class Framework(object):
         self.CSRTrack = CSRTrack(framework=self, directory=self.subdir)
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
+        else:
+            if clean == True:
+                clean_directory(self.subdirectory)
         if self.overwrite == None:
             if not os.path.exists(self.subdirectory):
                 os.makedirs(self.subdirectory)

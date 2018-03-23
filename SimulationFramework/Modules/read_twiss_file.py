@@ -24,6 +24,7 @@ class twiss(dict):
             return idx
 
     def reset_dicts(self):
+        self.clear()
         self['z'] = []
         self['t'] = []
         self['kinetic_energy'] = []

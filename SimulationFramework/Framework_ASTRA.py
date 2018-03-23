@@ -20,7 +20,7 @@ class ASTRA(object):
     def runASTRA(self, filename=''):
         """Run the ASTRA program with input 'filename'"""
         command = self.astraCommand + [os.path.relpath(filename,self.subdir)]
-        with open(os.devnull, "w") as f:
+        with open(os.path.relpath(filename+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=self.subdir)
 
     def preProcesssASTRA(self):
@@ -55,8 +55,16 @@ class ASTRA(object):
             pos0 = pos
         if self.global_offset == [0,0,0]:
             astrabeamfilename = filename + '.' + str(int(round((pos[2])*100))).zfill(4) + '.' + str(runno.zfill(3))
+            if not os.path.isfile(subdir + '/' + astrabeamfilename):
+                astrabeamfilename = filename + '.' + str(int(round((pos[2]-0.001)*100))).zfill(4) + '.' + str(runno.zfill(3))
+                if not os.path.isfile(subdir + '/' + astrabeamfilename):
+                    astrabeamfilename = filename + '.' + str(int(round((pos[2]+0.001)*100))).zfill(4) + '.' + str(runno.zfill(3))
         else:
             astrabeamfilename = filename + '.' + str(int(round((pos[2]-self.zstart[1][2])*100))).zfill(4) + '.' + str(runno.zfill(3))
+            if not os.path.isfile(subdir + '/' + astrabeamfilename):
+                astrabeamfilename = filename + '.' + str(int(round((pos[2]-self.zstart[1][2]-0.001)*100))).zfill(4) + '.' + str(runno.zfill(3))
+                if not os.path.isfile(subdir + '/' + astrabeamfilename):
+                    astrabeamfilename = filename + '.' + str(int(round((pos[2]-self.zstart[1][2]+0.001)*100))).zfill(4) + '.' + str(runno.zfill(3))
         self.beam.read_astra_beam_file(subdir + '/' + astrabeamfilename, normaliseZ=False)
         if self.global_offset is None or []:
             self.global_offset = [0,0,0]
@@ -353,7 +361,7 @@ class ASTRA(object):
             if s:
                 distribution = re.sub(regex, self.formatASTRAStartElement(eval(s.group(1))), distribution)
         # print 'qbunch = ', getParameter([self.globalSettings,settings],'total_charge',default=250)
-        Qbunch          = str(getParameter([self.framework.globalSettings,settings],'total_charge',default=250))
+        # Qbunch          = str(getParameter([self.framework.globalSettings,settings],'total_charge',default=250))
         # zstart          =     getParameter(settings,'zstart',default=0)
         # zstop           =     getParameter(settings,'zstop',default=0)
         accuracy        = str(getParameter([self.framework.globalSettings,settings],'accuracy',default=4))
@@ -365,8 +373,7 @@ class ASTRA(object):
         ' Head=\''+str(title)+'\'\n' + \
         ' Run='+str(runno)+'\n' + \
         ' Distribution=\''+str(distribution)+'\'\n' + \
-        ' high_res='+str(highres)+'\n' + \
-        ' Qbunch='+str(Qbunch)+'\n'
+        ' high_res='+str(highres)+'\n'
         for var in ASTRARules['NEWRUN']:
             newruntext += createOptionalString([self.framework.globalSettings['ASTRAsettings'],settings], var)
         newruntext += '/\n'
