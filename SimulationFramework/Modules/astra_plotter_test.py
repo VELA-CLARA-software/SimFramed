@@ -12,6 +12,38 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath
 import SimulationFramework.Modules.read_beam_file as raf
 import SimulationFramework.Modules.read_twiss_file as rtf
 
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib.colors import LogNorm
+
+class MyMplCanvas(FigureCanvas):
+    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+
+    def __init__(self, parent=None, width=5, height=5, dpi=50):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+
+        self.compute_initial_figure()
+
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+        FigureCanvas.setSizePolicy(self,
+                                   QSizePolicy.Expanding,
+                                   QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+
+    def compute_initial_figure(self):
+        pass
+
+class MyStaticMplCanvas(MyMplCanvas):
+    """Simple canvas with a sine plot."""
+
+    def plothist(self, x, y, nbins):
+        self.axes.cla()
+        self.axes.hist2d(x, y, bins=nbins, norm=LogNorm())
+        self.draw()
+
 parser = argparse.ArgumentParser(description='Plot ASTRA Data Files')
 parser.add_argument('-d', '--directory', default='.')
 
@@ -105,17 +137,17 @@ class astraPlotWidget(QWidget):
         ''' beamPlotWidget '''
         self.beamPlotWidget = QWidget()
         self.beamPlotLayout = QVBoxLayout()
-        self.item = ImageItem()
+        # self.item = ImageItem()
         self.beamPlotWidget.setLayout(self.beamPlotLayout)
-        self.beamPlotView = ImageView(imageItem=self.item)
-        self.rainbow = rainbow()
-        self.item.setLookupTable(self.rainbow)
-        self.item.setLevels([0,1])
-        # self.beamPlotWidgetGraphicsLayout = GraphicsLayout()
-        # p = self.beamPlotWidgetGraphicsLayout.addPlot(title='beam')
-        # p.showGrid(x=True, y=True)
-        # self.beamPlot = p.plot(pen=None, symbol='+')
-        # self.beamPlotView.setCentralItem(self.beamPlotWidgetGraphicsLayout)
+        # self.beamPlotView = ImageView(imageItem=self.item)
+        # self.rainbow = rainbow()
+        # self.item.setLookupTable(self.rainbow)
+        # self.item.setLevels([0,1])
+        #     # self.beamPlotWidgetGraphicsLayout = GraphicsLayout()
+        #     # p = self.beamPlotWidgetGraphicsLayout.addPlot(title='beam')
+        #     # p.showGrid(x=True, y=True)
+        #     # self.beamPlot = p.plot(pen=None, symbol='+')
+        #     # self.beamPlotView.setCentralItem(self.beamPlotWidgetGraphicsLayout)
         self.beamPlotXAxisCombo = QComboBox()
         self.beamPlotXAxisCombo.addItems(['x','y','zn','cpx','cpy','BetaGamma'])
         self.beamPlotYAxisCombo = QComboBox()
@@ -134,10 +166,14 @@ class astraPlotWidget(QWidget):
         self.beamPlotXAxisCombo.currentIndexChanged.connect(self.plotDataBeam)
         self.beamPlotYAxisCombo.currentIndexChanged.connect(self.plotDataBeam)
         self.beamPlotNumberBins.valueChanged.connect(self.plotDataBeam)
-        # self.beamPlotXAxisCombo.setCurrentIndex(2)
-        # self.beamPlotYAxisCombo.setCurrentIndex(5)
+            # self.beamPlotXAxisCombo.setCurrentIndex(2)
+            # self.beamPlotYAxisCombo.setCurrentIndex(5)
+        self.canvasWidget = QWidget()
+        l = QVBoxLayout(self.canvasWidget)
+        self.sc = MyStaticMplCanvas(self.canvasWidget, width=5, height=5, dpi=50)
+        l.addWidget(self.sc)
         self.beamPlotLayout.addWidget(self.beamPlotAxisWidget)
-        self.beamPlotLayout.addWidget(self.beamPlotView)
+        self.beamPlotLayout.addWidget(self.canvasWidget)
 
         ''' slicePlotWidget '''
         self.sliceParams = [{'name': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'text': 'enx'},
@@ -183,10 +219,10 @@ class astraPlotWidget(QWidget):
             self.slicePlotCheckbox[param['name']].stateChanged.connect(self.plotDataSlice)
         # self.slicePlotView.setCentralItem(self.slicePlotWidgetGraphicsLayout)
         self.slicePlotSliceWidthWidget = QSpinBox()
-        self.slicePlotSliceWidthWidget.setMaximum(1000)
-        self.slicePlotSliceWidthWidget.setValue(100)
-        self.slicePlotSliceWidthWidget.setSingleStep(10)
-        self.slicePlotSliceWidthWidget.setSuffix("fs")
+        self.slicePlotSliceWidthWidget.setMaximum(100)
+        self.slicePlotSliceWidthWidget.setValue(20)
+        self.slicePlotSliceWidthWidget.setSingleStep(1)
+        self.slicePlotSliceWidthWidget.setSuffix(" slices")
         self.slicePlotSliceWidthWidget.setSpecialValueText('Automatic')
         self.slicePlotAxisWidget = QWidget()
         self.slicePlotAxisLayout = QHBoxLayout()
@@ -247,7 +283,7 @@ class astraPlotWidget(QWidget):
         self.layout.addWidget(self.folderBeamWidget)
         self.layout.addWidget(self.tabWidget)
 
-        self.plotType = 'Twiss'
+        self.plotType = 'Slice'
         self.changeDirectory(self.directory)
 
     def findFirstEmptyColumnInGraphicsLayout(self):
@@ -331,7 +367,7 @@ class astraPlotWidget(QWidget):
         elif self.plotType == 'Beam' or self.plotType == 'Slice':
             if hasattr(self,'beamFileName') and os.path.isfile(self.directory+'/'+self.beamFileName):
                 # starttime = time.time()
-                self.beam.read_astra_beam_file(self.directory+'/'+self.beamFileName)
+                self.beam.read_astra_beam_file(self.directory+'/'+self.beamFileName, normaliseZ=True)
                 # print 'reading file took ', time.time()-starttime, 's'
                 # print 'Read file: ', self.beamFileName
                 if self.plotType == 'Beam':
@@ -355,24 +391,26 @@ class astraPlotWidget(QWidget):
         self.histogramBins = self.beamPlotNumberBins.value()
         x=getattr(self.beam, str(self.beamPlotXAxisCombo.currentText()))
         y=getattr(self.beam, str(self.beamPlotYAxisCombo.currentText()))
-        h, xedges, yedges = np.histogram2d(x, y, self.histogramBins, normed = True)
-        x0 = xedges[0]
-        y0 = yedges[0]
-        xscale = (xedges[-1] - xedges[0]) / len(xedges)
-        yscale = (yedges[-1] - yedges[0]) / len(yedges)
-        self.item.setImage(h)
-        self.item.setLookupTable(self.rainbow)
+        self.sc.plothist(x,y, self.histogramBins)
+        # h, xedges, yedges = np.histogram2d(x, y, self.histogramBins, normed = True)
+        # x0 = xedges[0]
+        # y0 = yedges[0]
+        # xscale = (xedges[-1] - xedges[0]) / len(xedges)
+        # yscale = (yedges[-1] - yedges[0]) / len(yedges)
+        # self.item.setImage(h)
+        # self.item.setLookupTable(self.rainbow)
         # self.item.setLevels([0,1])
 
     def changeSliceLength(self):
-        self.beam.slice_length = self.slicePlotSliceWidthWidget.value()*1e-15
+        self.beam.slices = self.slicePlotSliceWidthWidget.value()
         self.beam.bin_time()
         self.plotDataSlice()
 
     def plotDataSlice(self):
         for param in self.sliceParams:
             if self.slicePlotCheckbox[param['name']].isChecked():
-                x = self.beam.slice_bins
+                exponent = np.floor(np.log10(np.abs(self.beam.slice_length)))
+                x = 10**(12) * np.array((self.beam.slice_bins - np.mean(self.beam.slice_bins)))
                 self.slicePlot.setRange(xRange=[min(x),max(x)])
                 # self.plot.setRange(xRange=[-0.5,1.5])
                 y = getattr(self.beam, param['name'])
