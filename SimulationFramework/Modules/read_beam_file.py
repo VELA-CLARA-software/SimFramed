@@ -575,7 +575,7 @@ class beam(object):
 
     @property
     def slices(self):
-        return self.slices
+        return self._slices
 
     @slices.setter
     def slices(self, slices):
@@ -583,8 +583,8 @@ class beam(object):
         if twidth == 0:
             t = self.z / (-1 * self.Bz * constants.speed_of_light)
             twidth = (max(t) - min(t))
-        self.slices = slices
-        self._slicelength = twidth / self.slices
+        self._slices = slices
+        self._slicelength = twidth / self._slices
 
     def bin_time(self):
         if not hasattr(self,'slice'):
