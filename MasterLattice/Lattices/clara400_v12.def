@@ -1,5 +1,4 @@
 global:
-  total_charge: 0.25
   generatorFile: ASTRA/generator400.in
   SC_2D_Nrad: 30
   SC_2D_Nlong: 45
@@ -181,7 +180,7 @@ files:
         array: "#file{name=$output['start_element']$.astra}"
     groups:
       VBC:
-        dipoleangle: 0.105
+        dipoleangle: 0.1185
         width: 0.2
         gap: 0.02
   S06:
