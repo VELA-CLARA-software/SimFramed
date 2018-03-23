@@ -1,9 +1,10 @@
-from Framework import *
 import numpy as np
-from constraints import *
-import os
-import read_twiss_file as rtf
-import read_beam_file as rbf
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
+from SimulationFramework.Framework import *
+from SimulationFramework.Modules.constraints import *
+import SimulationFramework.Modules.read_beam_file as rbf
+import SimulationFramework.Modules.read_twiss_file as rtf
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -132,8 +133,8 @@ class fitnessFunc():
             self.parameters = dict(zip(['linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
         else:
             ''' including injector parameters '''
-            gunphase, gunsol, linac1field, linac1phase, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
-            self.parameters = dict(zip(['gunphase','gunsol','linac1field','linac1phase', 'linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
+            gunphase, gunsol, linac1field, linac1phase, linac1sol1, linac1sol2, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
+            self.parameters = dict(zip(['gunphase','gunsol','linac1field','linac1phase', 'linac1sol1', 'linac1sol2', 'linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
         self.npart=2**(3*scaling)
         ncpu = scaling*3
         if self.post_injector:
@@ -148,7 +149,7 @@ class fitnessFunc():
         else:
             self.framework.astra.defineASTRACommand(['astra'])
             self.framework.CSRTrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
-        self.framework.loadSettings('clara400_v12.def')
+        self.framework.loadSettings('Lattices/clara400_v12.def')
         if self.post_injector:
             self.framework.fileSettings['S02']['input']['particle_definition'] = '../twiss_temp/'+'injector400.$output[\'start_element\']$.001'
             self.framework.modifyFile('S02',['ASTRA_Options','N_red'], int(np.floor( (2**(3*basescaling)) / (2**(3*scaling)) )))
@@ -157,6 +158,8 @@ class fitnessFunc():
             self.framework.modifyElement('CLA-HRG1-GUN-SOL', 'field_amplitude', gunsol)
             self.framework.modifyElement('CLA-L01-CAV', 'field_amplitude', abs(linac1field))
             self.framework.modifyElement('CLA-L01-CAV', 'phase', linac1phase)
+            self.framework.modifyElement('CLA-L01-CAV-SOL-01', 'field_amplitude', linac1sol1)
+            self.framework.modifyElement('CLA-L01-CAV-SOL-02', 'field_amplitude', linac1sol2)
         self.framework.modifyElement('CLA-L02-CAV', 'field_amplitude', abs(linac2field))
         self.framework.modifyElement('CLA-L02-CAV', 'phase', linac2phase)
         self.framework.modifyElement('CLA-L03-CAV', 'field_amplitude', abs(linac3field))
@@ -178,17 +181,17 @@ class fitnessFunc():
     def calculateBeamParameters(self):
         bcangle = float(self.framework.fileSettings['VBC']['groups']['VBC']['dipoleangle'])
         try:
-            if bcangle < 0.05 or bcangle > 0.12:
+            if bcangle < 0.05 or bcangle > 0.125:
                 raise ValueError
             if self.post_injector:
                 del self.framework.fileSettings['injector400']
             else:
                 self.framework.astra.createInitialDistribution(npart=self.npart, charge=250)
             if self.overwrite:
-                self.framework.createInputFiles()
-                self.framework.runInputFiles()
+                self.framework.createRunProcessInputFiles()
 
-            self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
+            # self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
+            self.beam.read_HDF5_beam_file(self.dirname+'/CLA-S07-DIA-BPM-02.hdf5')
             self.beam.slices = 10
             self.beam.bin_time()
             sigmat = 1e12*np.std(self.beam.t)
@@ -244,13 +247,15 @@ def optfunc(args, dir=None, **kwargs):
 
 
 framework = Framework('longitudinal_best', overwrite=False)
-framework.loadSettings('clara400_v12.def')
+framework.loadSettings('Lattices/clara400_v12.def')
 parameters = []
 ''' if including injector'''
 parameters.append(framework.getElement('CLA-HRG1-GUN-CAV', 'phase'))
 parameters.append(framework.getElement('CLA-HRG1-GUN-SOL', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L01-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L01-CAV', 'phase'))
+parameters.append(framework.getElement('CLA-L01-CAV-SOL-01', 'field_amplitude'))
+parameters.append(framework.getElement('CLA-L01-CAV-SOL-02', 'field_amplitude'))
 ''' always '''
 parameters.append(framework.getElement('CLA-L02-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L02-CAV', 'phase'))
@@ -260,16 +265,16 @@ parameters.append(framework.getElement('CLA-L4H-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L4H-CAV', 'phase'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'phase'))
-# parameters.append(framework.fileSettings['VBC']['groups']['VBC']['dipoleangle'])
-parameters.append(0.106)
+parameters.append(framework.fileSettings['VBC']['groups']['VBC']['dipoleangle'])
+# parameters.append(0.106)
 best = parameters
 
-results = []
-with open('longitudinal_best_solutions_running.csv', 'r') as csvfile:
-  reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
-  for row in reader:
-    results.append(row)
-best = results[0]
+# results = []
+# with open('longitudinal_best_solutions_running.csv', 'r') as csvfile:
+#   reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
+#   for row in reader:
+#     results.append(row)
+# best = results[0]
 
 print 'starting values = ', best
 
@@ -317,7 +322,7 @@ if __name__ == "__main__":
 
     # Process Pool of 4 workers
     if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=12)
+        pool = multiprocessing.Pool(processes=3)
     else:
         pool = multiprocessing.Pool(processes=3)
     toolbox.register("map", pool.map)
