@@ -268,14 +268,14 @@ class ASTRA(object):
         """Create an ASTRA quadrupole string"""
         quad        = self.framework.getElement(quadname)
         k1          = str(getParameter(quad,'k1'))
-        length      = str(getParameter(quad,'length'))
+        length      = getParameter(quad,'length')
         x,y,z       =     getParameter(quad,'position_start')
         x,y,z =  self.rotateAndOffset([x,y,z], self.global_offset, self.global_rotation)
         bore        = str(getParameter(quad,'bore_size', default=0.01))
         smooth      = str(getParameter(quad,'smooth', default=3))
 
-        quadtext = 'Q_K('+str(n)+')='+k1+', Q_length('+str(n)+')='+length+',\n'+\
-        'Q_pos('+str(n)+')='+str(z)+', Q_smooth('+str(n)+')='+smooth+', Q_bore('+str(n)+')='+bore+'\n'
+        quadtext = 'Q_K('+str(n)+')='+k1+', Q_length('+str(n)+')='+str(length)+',\n'+\
+        'Q_pos('+str(n)+')='+str(z+(length/2.))+', Q_smooth('+str(n)+')='+smooth+', Q_bore('+str(n)+')='+bore+'\n'
         return quadtext
 
     def createASTRASolenoid(self, solname, n=1):
@@ -448,7 +448,7 @@ class ASTRA(object):
         mode        = str(getParameter(charge,'space_charge_mode',default='2D'))
         mirror_charge = str(getParameter(charge,'mirror_charge',default=False))
 
-        lspch       = False if mode == False else True
+        lspch       = False if mode == 'False' or mode == False else True
         lspch2d     = True if lspch and mode != '3D' else False
         lspch3d     = True if lspch and not lspch2d else False
         if lspch2d:
