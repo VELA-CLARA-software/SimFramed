@@ -36,7 +36,7 @@ class beam(object):
         self._tbins = []
         self._pbins = []
 
-    def read_sdds_file(self, fileName, charge=None):
+    def read_SDDS_beam_file(self, fileName, charge=None):
         self.reset_dicts()
         self.sdds = sdds.SDDS(0)
         self.sdds.load(fileName)
@@ -45,13 +45,13 @@ class beam(object):
                 self.beam[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col][0])
             else:
                 self.beam[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col])
-        self.SDDSparameterNames = list()
-        for param in self.sdds.columnName:
-            if isinstance(self.beam[param][0], (float, long)):
-                self.SDDSparameterNames.append(param)
+        self.SDDSparameters = dict()
+        for param in range(len(self.sdds.parameterName)):
+            self.SDDSparameters[self.sdds.parameterName[param]] = self.sdds.parameterData[param]
+        # print 'self.SDDSparameterNames = ', self.SDDSparameterNames
         self.beam['code'] = "SDDS"
         self.beam['cp'] = self.beam['p'] * self.E0_eV
-        self.beam['cpz'] = np.sqrt(self.cp / (self.xp**2 + self.yp**2 + 1))
+        self.beam['cpz'] = self.cp / np.sqrt(self.xp**2 + self.yp**2 + 1)
         self.beam['cpx'] = self.xp * self.beam['cpz']
         self.beam['cpy'] = self.yp * self.beam['cpz']
         self.beam['px'] = self.beam['cpx'] * self.q_over_c
@@ -66,12 +66,40 @@ class beam(object):
         self.beam['Bx'] = self.vx / constants.speed_of_light
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
-        self.beam['z'] = np.full(len(self.t), 0) #(-1 * self.Bz * constants.speed_of_light) * self.t
-        if charge is None:
+        self.beam['z'] = (1 * self.Bz * constants.speed_of_light) * self.t #np.full(len(self.t), 0)
+        if 'Charge' in self.SDDSparameters:
+            self.beam['total_charge'] = self.SDDSparameters['Charge'][0]
+        elif charge is None:
             self.beam['total_charge'] = 0
         else:
             self.beam['total_charge'] = charge
         self.beam['charge'] = []
+
+    def write_SDDS_file(self, filename):
+        """Save an demo SDDS file using the SDDS class."""
+
+        x = sdds.SDDS(0)
+        # {x, xp, y, yp, t, p, particleID}
+        Cnames = ["x", "xp", "y", "yp", "t","p"]
+        Ccolumns = ['x', 'xp', 'y', 'yp', 't', 'BetaGamma']
+        Ctypes = [x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE]
+        Csymbols = ["", "x'","","y'","",""]
+        Cunits = ["m","","m","","s","m$be$nc"]
+        Ccolumns = [self.x, self.xp, self.y, self.yp, self.t , self.beam['cp']/self.E0_eV]
+        # {Step, pCentral, Charge, Particles, IDSlotsPerBunch}
+        Pnames = ["pCentral", "Charge", "Particles"]
+        Ptypes = [x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_LONG]
+        Psymbols = ["p$bcen$n", "", ""]
+        Punits = ["m$be$nc", "C", ""]
+        parameterData = [[np.mean(self.BetaGamma)], [-1*self.beam['total_charge']], [len(self.x)]]
+        for i in range(len(Ptypes)):
+            x.defineParameter(Pnames[i], Psymbols[i], Punits[i],"","", Ptypes[i], "")
+            x.setParameterValueList(Pnames[i], parameterData[i])
+        for i in range(len(Ctypes)):
+            # name, symbol, units, description, formatString, type, fieldLength
+            x.defineColumn(Cnames[i], Csymbols[i], Cunits[i],"","", Ctypes[i], 0)
+            x.setColumnValueLists(Cnames[i], [list(Ccolumns[i])])
+        x.save(filename)
 
     def set_beam_charge(self, charge):
         self.beam['total_charge'] = charge
@@ -103,6 +131,7 @@ class beam(object):
         self.beam['reference_particle'] = data[0]
         # if normaliseZ:
         #     self.beam['reference_particle'][2] = 0
+        self.beam['longitudinal_reference'] = 'z'
         z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
         clock = self.normalise_to_ref_particle(clock, subtractmean=True)
@@ -140,6 +169,7 @@ class beam(object):
         data = self.read_csv_file(file)
         self.beam['code'] = "CSRTrack"
         self.beam['reference_particle'] = data[0]
+        self.beam['longitudinal_reference'] = 'z'
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
         z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
@@ -210,7 +240,10 @@ class beam(object):
         if not isinstance(status,(list, tuple, np.ndarray)):
             statusvector = np.full(len(self.x), status)
         ''' if a particle is emitting from the cathode it's z value is 0 and it's clock value is finite, otherwise z is finite and clock is irrelevant (thus zero) '''
-        zvector = [0 if status == -1 and t == 0 else z for status, z, t in zip(statusvector, self.z, self.t)]
+        if self.beam['longitudinal_reference'] == 't':
+            zvector = [0 if status == -1 and t == 0 else z for status, z, t in zip(statusvector, self.z, self.t)]
+        else:
+            zvector = self.z
         ''' if the clock value is finite, we calculate it from the z value, using Betaz '''
         clockvector = [1e9*z / (-1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
         ''' this is the ASTRA array in all it's glory '''
@@ -276,6 +309,7 @@ class beam(object):
 
         if position is not None and (time is not None or block is not None):
             print 'Assuming position over time!'
+            self.beam['longitudinal_reference'] = 't'
             gdfbeamdata = gdfbeam.get_position(position)
             if gdfbeamdata is not None:
                 time = None
@@ -284,6 +318,7 @@ class beam(object):
                  position = None
         if position is None and time is not None and block is not None:
             print 'Assuming time over block!'
+            self.beam['longitudinal_reference'] = 'p'
             gdfbeamdata = gdfbeam.get_time(time)
             if gdfbeamdata is not None:
                 block = None
@@ -368,7 +403,7 @@ class beam(object):
         if 'rotation' in self.beam or abs(self.beam['rotation']) > 0:
             self.rotate_beamXZ(-1*self.beam['rotation'], -1*offset)
 
-    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None, rotation=None):
+    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None, rotation=None, longitudinal_reference='t'):
         with h5py.File(filename, "w") as f:
             inputgrp = f.create_group("Parameters")
             if not 'total_charge' in self.beam or self.beam['total_charge'] == 0:
@@ -377,8 +412,12 @@ class beam(object):
                 inputgrp['Source'] = sourcefilename
             if pos is not None:
                 inputgrp['Starting_Position'] = pos
+            else:
+                inputgrp['Starting_Position'] = [0,0,0]
             if rotation is not None:
                 inputgrp['Rotation'] = rotation
+            else:
+                inputgrp['Rotation'] = 0
             inputgrp['total_charge'] = self.beam['total_charge']
             inputgrp['npart'] = len(self.x)
             inputgrp['centered'] = centered
@@ -387,6 +426,7 @@ class beam(object):
             beamgrp = f.create_group("beam")
             if 'reference_particle' in self.beam:
                 beamgrp['reference_particle'] = self.beam['reference_particle']
+            beamgrp['longitudinal_reference'] = longitudinal_reference
             if len(self.beam['charge']) == len(self.x):
                 chargevector = self.beam['charge']
             else:
@@ -397,9 +437,14 @@ class beam(object):
             beamgrp.create_dataset("beam", data=array)
 
     def read_HDF5_beam_file(self, filename, local=False):
+        self.reset_dicts()
         with h5py.File(filename, "r") as h5file:
             if h5file.get('beam/reference_particle') is not None:
                 self.beam['reference_particle'] = np.array(h5file.get('beam/reference_particle'))
+            if h5file.get('beam/longitudinal_reference') is not None:
+                self.beam['longitudinal_reference'] = h5file.get('beam/longitudinal_reference')
+            else:
+                self.beam['longitudinal_reference'] = 't'
             x, y, z, cpx, cpy, cpz, t, charge = np.array(h5file.get('beam/beam')).transpose()
             cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
             self.beam['x'] = x
@@ -760,3 +805,12 @@ class beam(object):
     @property
     def charge(self):
         return self.beam['total_charge']
+    @property
+    def sigma_z(self):
+        return self.rms(self.beam['Bz']*constants.speed_of_light*(self.beam['t'] - np.mean(self.beam['t'])))
+    @property
+    def momentum_spread(self):
+        return self.beam['cp'].std()/np.mean(self.beam['cp'])
+    @property
+    def linear_chirp_z(self):
+        return -1*self.rms(self.beam['Bz']*constants.speed_of_light*self.beam['t'])/self.momentum_spread/100

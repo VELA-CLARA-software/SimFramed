@@ -6,6 +6,7 @@ from getGrids import *
 import SimulationFramework.Modules.read_beam_file as rbf
 from collections import defaultdict
 from Framework_ASTRA import ASTRA
+from Framework_Elegant import Elegant
 from Framework_CSRTrack import CSRTrack
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
@@ -64,6 +65,7 @@ class Framework(object):
         self._elements = dict()
         self.groups = dict()
         self.astra = ASTRA(framework=self, directory=self.subdir)
+        self.elegant = Elegant(framework=self, directory=self.subdir)
         self.CSRTrack = CSRTrack(framework=self, directory=self.subdir)
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
@@ -171,13 +173,15 @@ class Framework(object):
             self.deleteElement(e)
 
     def selectElementsBetween(self,start, end):
+        selectedElements = []
         startindex = self.elementIndex(start)
         endindex = self.elementIndex(end)
         flatelementOrder = list(flatten(self.elementOrder))
-        for e in flatelementOrder[:min([startindex, endindex])]:
-            self.deleteElement(e)
-        for e in flatelementOrder[1+max([startindex, endindex]):]:
-            self.deleteElement(e)
+        for e in flatelementOrder[min([startindex, endindex]):1+max([startindex, endindex])]:
+            selectedElements.append([e, self.getElement(e)])
+        # for e in flatelementOrder[1+max([startindex, endindex]):]:
+        #     selectedElements.append([e, self.getElement(e)])
+        return selectedElements
 
     def elementIndex(self, element):
         flatelementOrder = list(flatten(self.elementOrder))
@@ -419,10 +423,10 @@ class Framework(object):
         if not isinstance(files, (list, tuple)):
             files = self.fileSettings.keys()
         for f in files:
-            filename = self.subdirectory+'/'+f+'.in'
             if 'code' in self.fileSettings[f]:
                 code = self.fileSettings[f]['code']
                 if code.upper() == 'ASTRA':
+                    filename = self.subdirectory+'/'+f+'.in'
                     if write:
                         saveFile(filename, lines=self.astra.createASTRAFileText(f))
                     if preprocess:
@@ -432,6 +436,7 @@ class Framework(object):
                     if postprocess:
                         self.astra.postProcesssASTRA()
                 elif code.upper() == 'CSRTRACK':
+                    filename = self.subdirectory+'/'+f+'.in'
                     if write:
                         saveFile(filename, lines=self.CSRTrack.createCSRTrackFileText(f))
                     if preprocess:
@@ -440,6 +445,21 @@ class Framework(object):
                         self.CSRTrack.runCSRTrack(filename)
                     if postprocess:
                         self.CSRTrack.convertCSRTrackOutput()
+                elif code.upper() == 'ELEGANT':
+                    if write:
+                        self.elegant.createElegantFile(f)
+                    if preprocess:
+                        self.elegant.preProcesssElegant()
+                    if run:
+                        self.elegant.runElegant(f)
+                    if postprocess:
+                        self.elegant.postProcesssElegant()
+                    # if preprocess:
+                    #     self.CSRTrack.preProcesssCSRTrack()
+                    # if run:
+                    #     self.CSRTrack.runCSRTrack(filename)
+                    # if postprocess:
+                    #     self.CSRTrack.convertCSRTrackOutput()
                 else:
                     print 'Code Not Recognised - ', code
                     raise NameError
