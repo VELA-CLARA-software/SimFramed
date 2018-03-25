@@ -13,6 +13,7 @@ cavity:
   - phase
   - field_definition
   - lsc_cutoff_high
+  - field_amplitude
 collimator:
   keywords:
   - shape
