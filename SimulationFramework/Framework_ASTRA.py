@@ -29,6 +29,7 @@ class ASTRA(object):
                 self.convert_HDF5_beam_to_astra_beam(self.subdir, self.filename, self.zstart)
             except:
                 pass
+                
     def convert_HDF5_beam_to_astra_beam(self, subdir, filename, screen):
         if len(screen) > 2:
             name, pos, pos0 = screen
