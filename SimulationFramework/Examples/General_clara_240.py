@@ -32,6 +32,8 @@ else:
     framework.astra.defineASTRACommand(['astra'])
     framework.CSRTrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
 
-framework.loadSettings('Lattices/clara400_v12.def')
+framework.loadSettings('Lattices/clara400_v12_elegant.def')
 framework.astra.createInitialDistribution(npart=npart,charge=250)
-framework.createRunProcessInputFiles(run=True, files=['S02', 'L02'])
+framework.modifyElement('CLA-L01-CAV-SOL-01','field_amplitude', 0)
+framework.modifyElement('CLA-L01-CAV-SOL-02','field_amplitude', 0)
+framework.createRunProcessInputFiles(run=True, files=['S02','L02'])
