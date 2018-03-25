@@ -7,10 +7,31 @@ from collections import OrderedDict
 from ASTRARules import *
 from SimulationFramework.FrameworkHelperFunctions import *
 
+_mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
+
+def dict_representer(dumper, data):
+    return dumper.represent_dict(data.iteritems())
+
+def dict_constructor(loader, node):
+    return OrderedDict(loader.construct_pairs(node))
+
+yaml.add_representer(OrderedDict, dict_representer)
+yaml.add_constructor(_mapping_tag, dict_constructor)
+
+
 commandkeywords = {}
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', 'r') as infile:
     elementkeywords = yaml.load(infile)
+
+with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 'r') as infile:
+    elements_Elegant = yaml.load(infile)
+
+type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
+                         'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'mapsolenoid', 'wall_current_monitor': 'charge', 'cavity': 'rfcw',
+                         'rf_deflecting_cavity': 'rfdf'}
+keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
+                            'field_amplitude': 'volt', 'frequency': 'freq'}
 
 def merge_two_dicts(x, y):
     z = x.copy()   # start with x's keys and values
@@ -37,9 +58,8 @@ class framework(object):
         else:
             filename = [input]
         for f in filename:
-            stream = file(self.master_lattice_location + f, 'r')
-            elements = yaml.load(stream)['elements']
-            stream.close()
+            with file(self.master_lattice_location + f, 'r') as stream:
+                elements = yaml.load(stream)['elements']
             for name, elem in elements.iteritems():
                 self.readElement(name, elem)
 
@@ -65,7 +85,6 @@ class framework(object):
             else:
                 self.addElement(name, **element)
             if 'sub_elements' in element:
-                subelements = [name]
                 for name, elem in element['sub_elements'].iteritems():
                     self.readElement(name, elem, True)
 
@@ -83,11 +102,19 @@ class framework(object):
 
     @property
     def quadrupoles(self):
-        quads = []
-        for e in self.elementObjects:
-            if self.elementObjects[e].type == 'quadrupole':
-                quads.append(self.elementObjects[e])
-        return quads
+        return self.getElementType('quadrupole')
+
+    @property
+    def cavities(self):
+        return self.getElementType('cavity')
+
+    @property
+    def solenoids(self):
+        return self.getElementType('solenoid')
+
+    @property
+    def dipoles(self):
+        return self.getElementType('dipole')
 
     @property
     def lines(self):
@@ -117,37 +144,25 @@ class framework(object):
             print 'WARNING: Element ', element,' does not exist'
             return {}
 
-    def addLine(self, name=None, line=[]):
-        if name == None:
-            raise NameError('Line does not have a name')
-        line = elegantLine(name, line)
-        # setattr(self,name,line)
-        # setattr(self.parent,name,line)
-        self.lineObjects[name] = line
-        return line
+    def getElementType(self, type):
+        return [self.elementObjects[element] for element in self.elementObjects if self.elementObjects[element].type.lower() == type.lower()]
 
-    def writeElements(self, file, lattice):
-        self._doLineExpansion(lattice)
-        self.elementDefinitions = reduce(lambda l, x: l if x in l else l+[x], self.elementDefinitions, [])
-        for element in self.elementDefinitions:
-            file.write(self.getElement(element).write())
+    def writeElements_ASTRA(self, file=None):
+        counter = frameworkCounter()
+        for t in ['cavities', 'solenoids', 'quadrupoles']:
+            for element in getattr(self, t):
+                print element.write_ASTRA(counter.number(element.type))
 
-    def screensToWatch(self):
-        self._doLineExpansion('cla-ebt')
-        self.elementDefinitions = reduce(lambda l, x: l if x in l else l+[x], self.elementDefinitions, [])
-        for element in self.elementDefinitions:
-            if 'scr' in element.lower():
-                print getattr(self,element).properties
+class frameworkCounter(dict):
+    def __init__(self):
+        super(frameworkCounter, self).__init__()
 
-class frameworkDict(OrderedDict):
-    def __init__(self, name=None, type=None, **kwargs):
-        super(frameworkDict, self).__init__()
-
-        def __getitem__(self, key):
-            if key in self:
-                return self[key.lower()]
-            else:
-                return None
+    def number(self, type):
+        if type not in self:
+            self[type] = 1
+        else:
+            self[type] += 1
+        return self[type]
 
 class frameworkObject(object):
 
@@ -174,26 +189,26 @@ class frameworkObject(object):
         for key, value in kwargs.iteritems():
             if key.lower() in self.allowedKeyWords:
                 try:
-                    setattr(self,key.lower(), value)
+                    self.properties[key.lower()] = value
+                    self.__setattr__(key.lower(), value)
                 except:
-                    pass
+                    print key.lower()
 
     @property
     def parameters(self):
         return self.properties
 
     def __getattr__(self, key):
-        return self[key]
+        return None
 
-    def __getitem__(self,key):
-        if key in self.properties:
-            return self.properties.__getitem__(key.lower())
-        else:
-            return None
+    def __getitem__(self, key):
+        # if key in self.properties:
+        #     return self.properties.__getitem__(key.lower())
+        # else:
+        return None
 
     def __setitem__(self,key,value):
         self.properties.__setitem__(key.lower(),value)
-        setattr(self,key.lower(),value)
 
     def long(self, value):
         return int(value)
@@ -231,7 +246,7 @@ class frameworkElement(frameworkObject):
 
     @property
     def start(self):
-        return self.position_start[2]
+        return self.position_start
 
     @property
     def middle(self):
@@ -258,11 +273,16 @@ class frameworkElement(frameworkObject):
                     output += param_string
         return output[:-2]
 
+    def write_ASTRA(self, n):
+        return ""
+
     def _write_Elegant(self):
         wholestring=''
-        string = self.name+': '+self.type
+        etype = self._convertType_Elegant(self.type)
+        string = self.name+': '+ etype
         for key, value in self.properties.iteritems():
-            if not key is 'name' and not key is 'type' and not key is 'commandtype':
+            key = self._convertKeword_Elegant(key)
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -272,6 +292,16 @@ class frameworkElement(frameworkObject):
                     string+= tmpstring
         wholestring+=string+';\n'
         return wholestring
+
+    def write_Elegant(self):
+        if not self.subelement:
+            return self._write_Elegant()
+
+    def _convertType_Elegant(self, etype):
+        return type_conversion_rules_Elegant[etype] if etype in type_conversion_rules_Elegant else etype
+
+    def _convertKeword_Elegant(self, keyword):
+        return keyword_conversion_rules_Elegant[keyword] if keyword in keyword_conversion_rules_Elegant else keyword
 
 class dipole(frameworkElement):
 
@@ -316,6 +346,16 @@ class cavity(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(cavity, self).__init__(name, type, **kwargs)
 
+    def write_ASTRA(self, n):
+        return self._write_ASTRA(OrderedDict([
+            ['C_pos', {'value': self.start[2], 'default': 0}],
+            ['FILE_EFieLD', {'value': self.field_definition, 'default': 0}],
+            ['Nue', {'value': self.frequency / 1e6, 'default': 2.9985}],
+            ['MaxE', {'value': self.field_amplitude / 1e6, 'default': 0}],
+            ['Phi', {'value': self.phase, 'default': 0.0}],
+            ['C_smooth', {'value': self.smooth, 'default': 10}],
+        ]), n)
+
 class rf_deflecting_cavity(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -325,6 +365,14 @@ class solenoid(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(solenoid, self).__init__(name, type, **kwargs)
+
+    def write_ASTRA(self, n):
+        return self._write_ASTRA(OrderedDict([
+            ['S_pos', {'value': self.start[2], 'default': 0}],
+            ['FILE_BFieLD', {'value': self.field_definition}],
+            ['MaxB', {'value': self.field_amplitude / 1e6, 'default': 0}],
+            ['S_smooth', {'value': self.smooth, 'default': 10}],
+        ]), n)
 
 class aperture(frameworkElement):
 
