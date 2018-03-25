@@ -1,0 +1,73 @@
+aperture:
+  keywords:
+  - shape
+  - horizontal_size
+  - vertical_size
+beam_position_monitor:
+  keywords: []
+cavity:
+  keywords:
+  - n_cells
+  - Structure_Type
+  - frequency
+  - phase
+  - field_definition
+  - lsc_cutoff_high
+collimator:
+  keywords:
+  - shape
+  - horizontal_size
+  - vertical_size
+common:
+  keywords:
+  - subelement
+  - length
+  - Online_Model_Name
+  - Controller_Name
+  - PV
+  - global_rotation
+  - position_end
+  - position_start
+  - buffer_start
+  - buffer_end
+  - buffer_start_length
+  - buffer_end_length
+dipole:
+  keywords:
+  - angle
+  - entrance_edge_angle
+  - exit_edge_angle
+  - half_gap
+  - edge_field_integral
+  - csr_bins
+  - sr_enable
+  - isr_enable
+  - csr_output_filename
+kicker:
+  keywords:
+  - sr_enable
+  - isr_enable
+  - Horizontal_PV
+  - Vertical_PV
+marker:
+  keywords:
+  - fit_point
+monitor:
+  keywords: []
+quadrupole:
+  keywords:
+  - k1
+  - sr_enable
+  - isr_enable
+rf_deflecting_cavity:
+  keywords:
+  - phase
+screen:
+  keywords:
+  - output_filename
+solenoid:
+  keywords:
+  - field_amplitude
+  - field_definition
+wall_current_monitor:
+  keywords: []
