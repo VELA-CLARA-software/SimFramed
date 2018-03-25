@@ -9,21 +9,8 @@ from SimulationFramework.FrameworkHelperFunctions import *
 
 commandkeywords = {}
 
-elementkeywords = {'common': {'keywords':['subelement', 'length', 'Online_Model_Name', 'Controller_Name', 'PV', 'global_rotation', 'position_end', 'position_start', 'buffer_start', 'buffer_end', 'buffer_start_length','buffer_end_length']},
-                   'quadrupole': {'keywords':['k1','sr_enable','isr_enable']},
-                   'aperture': {'keywords':['shape','horizontal_size', 'vertical_size']},
-                   'cavity': {'keywords':['n_cells', 'Structure_Type', 'frequency', 'phase', 'field_definition', 'lsc_cutoff_high']},
-                   'solenoid': {'keywords':['field_amplitude', 'field_definition']},
-                   'kicker': {'keywords':['sr_enable', 'isr_enable', 'Horizontal_PV', 'Vertical_PV']},
-                   'wall_current_monitor': {'keywords':[]},
-                   'beam_position_monitor': {'keywords':[]},
-                   'monitor': {'keywords':[]},
-                   'screen': {'keywords':['output_filename']},
-                   'collimator': {'keywords':['shape', 'horizontal_size', 'vertical_size']},
-                   'marker': {'keywords':['fit_point']},
-                   'dipole': {'keywords':['angle', 'entrance_edge_angle', 'exit_edge_angle', 'half_gap', 'edge_field_integral', 'csr_bins', 'sr_enable', 'isr_enable', 'csr_output_filename']},
-                   'rf_deflecting_cavity': {'keywords':['phase']},
-                   }
+with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', 'r') as infile:
+    elementkeywords = yaml.load(infile)
 
 def merge_two_dicts(x, y):
     z = x.copy()   # start with x's keys and values
@@ -95,6 +82,14 @@ class framework(object):
         return self.elementObjects.keys()
 
     @property
+    def quadrupoles(self):
+        quads = []
+        for e in self.elementObjects:
+            if self.elementObjects[e].type == 'quadrupole':
+                quads.append(self.elementObjects[e])
+        return quads
+
+    @property
     def lines(self):
         return self.lineObjects.keys()
 
@@ -108,15 +103,12 @@ class framework(object):
                 raise NameError('Element does not have a name')
             else:
                 name = kwargs['name']
-        # if not type in elementkeywords:
-        #     raise NameError('Element \'%s\' does not exist' % commandname)
         try:
             element = globals()[type](name, type, **kwargs)
             self.elementObjects[name] = element
             return element
         except:
             raise NameError('Element \'%s\' does not exist' % type)
-        # element = frameworkElement(name, **kwargs)
 
     def getElement(self, element):
         if element in self.elementObjects:
@@ -146,6 +138,16 @@ class framework(object):
         for element in self.elementDefinitions:
             if 'scr' in element.lower():
                 print getattr(self,element).properties
+
+class frameworkDict(OrderedDict):
+    def __init__(self, name=None, type=None, **kwargs):
+        super(frameworkDict, self).__init__()
+
+        def __getitem__(self, key):
+            if key in self:
+                return self[key.lower()]
+            else:
+                return None
 
 class frameworkObject(object):
 
@@ -180,8 +182,14 @@ class frameworkObject(object):
     def parameters(self):
         return self.properties
 
+    def __getattr__(self, key):
+        return self[key]
+
     def __getitem__(self,key):
-        return self.properties.__getitem__(key.lower())
+        if key in self.properties:
+            return self.properties.__getitem__(key.lower())
+        else:
+            return None
 
     def __setitem__(self,key,value):
         self.properties.__setitem__(key.lower(),value)
@@ -210,7 +218,47 @@ class frameworkElement(frameworkObject):
     def __neg__(self):
         return self
 
-    def write(self):
+    @property
+    def theta(self):
+        if hasattr(self, 'global_rotation'):
+            return self.global_rotation[2] if len(self.global_rotation) is 3 else self.global_rotation
+        else:
+            return 0
+
+    def rotated_position(self, pos=[0,0,0], offset=[0,0,0]):
+        rotation_matrix = np.array([[np.cos(self.theta), 0, np.sin(self.theta)], [0, 1, 0], [-1*np.sin(self.theta), 0, np.cos(self.theta)]])
+        return chop(np.dot(np.array(pos) - np.array(offset), rotation_matrix), 1e-6)
+
+    @property
+    def start(self):
+        return self.position_start[2]
+
+    @property
+    def middle(self):
+        return np.array(self.position_start) + self.rotated_position([0,0,self.length / 2.0])
+
+    def checkValue(self, d):
+        return d['value'] if d['value'] is not None else d['default'] if 'default' in d else None
+
+    def _write_ASTRA(self, d, n):
+        output = ''
+        for k, v in d.iteritems():
+            if self.checkValue(v) is not None:
+                if 'type' in v and v['type'] == 'list' or isinstance(self.checkValue(v), (list, tuple)):
+                    print v['value']
+                    for i, l in enumerate(self.checkValue(v)):
+                            param_string = k+'('+str(n)+','+str(i+1)+') = '+str(l)+', '
+                            if len((output + param_string).splitlines()[-1]) > 60:
+                                output += '\n'
+                            output += param_string
+                else:
+                    param_string = k+'('+str(n)+') = '+str(self.checkValue(v))+', '
+                    if len((output + param_string).splitlines()[-1]) > 60:
+                        output += '\n'
+                    output += param_string
+        return output[:-2]
+
+    def _write_Elegant(self):
         wholestring=''
         string = self.name+': '+self.type
         for key, value in self.properties.iteritems():
@@ -251,19 +299,17 @@ class quadrupole(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(quadrupole, self).__init__(name, type, **kwargs)
-        if 'smooth' not in kwargs or smooth is None:
-            self.smooth = 10
-        if 'bore' not in kwargs or bore is None:
-            self.bore = 0.016
 
     def write_ASTRA(self, n):
-        quadtext = 'Q_K('+str(n)+')='+str(self.k1)+', Q_length('+str(n)+')='+str(self.length)+',\n'+\
-        'Q_pos('+str(n)+')='+str(self.position_start[2]+(self.length/2.))+', Q_smooth('+str(n)+')='+str(self.smooth)+', Q_bore('+str(n)+')='+str(self.bore)+'\n'
-
-        for var in ASTRARules['QUADRUPOLE']:
-            soltext += createOptionalString(sol, var, n)
-
-        return quadtext
+        return self._write_ASTRA(OrderedDict([
+            ['Q_pos', {'value': self.middle[2], 'default': 0}],
+            ['Q_k', {'value': self.k1, 'default': 0}],
+            ['Q_length', {'value': self.length, 'default': 0}],
+            ['Q_smooth', {'value': self.smooth, 'default': 10}],
+            ['Q_bore', {'value': self.bore, 'default': 0.016}],
+            ['Q_noscale', {'value': self.scale_field}],
+            ['Q_mult_a', {'type': 'list', 'value': self.multipoles}],
+        ]), n)
 
 class cavity(frameworkElement):
 
