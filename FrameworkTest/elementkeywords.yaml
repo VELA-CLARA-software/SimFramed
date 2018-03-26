@@ -72,6 +72,8 @@ solenoid:
   - field_definition
 wall_current_monitor:
   keywords: []
+drift:
+  keywords: []
 astra_newrun:
   keywords: ["NLoop", "ion_mass", "N_red", \
   "Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms", \
