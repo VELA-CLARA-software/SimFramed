@@ -46,7 +46,7 @@ files:
     code: ELEGANT
     charge:
       cathode: False
-      space_charge_mode: False
+      space_charge_mode: 3D
     input:
       particle_definition: $output['start_element']$.sdds
     output:

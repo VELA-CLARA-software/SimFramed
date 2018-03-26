@@ -37,6 +37,9 @@ keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', '
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'solenoids': {'header': 'SOLENOID', 'bool': 'LBField'},
                              'quadrupoles': {'header': 'QUADRUPOLE', 'bool': 'LQuad'},
+                             'newrun': {'header': 'NEWRUN'},
+                             'output': {'header': 'OUTPUT'},
+                             'charge': {'header': 'CHARGE'},
                             }
 
 def merge_two_dicts(x, y):
@@ -175,25 +178,25 @@ class frameworkLattice(object):
 
     @property
     def start(self):
-        if 'start_element' in self.output_block:
-            return self.output_block['start_element']
-        elif 'zstart' in self.output_block:
+        if 'start_element' in self.file_block['output']:
+            return self.file_block['output']['start_element']
+        elif 'zstart' in self.file_block['output']:
             for e in self.allElementObjects.keys():
-                if self.allElementObjects[e].position_start[2] == self.output_block['zstart']:
+                if self.allElementObjects[e].position_start[2] == self.file_block['output']['zstart']:
                     return e
         else:
             return self.allElementObjects[0]
 
     @property
     def end(self):
-        if 'end_element' in self.output_block:
-            return self.output_block['end_element']
-        elif 'zstop' in self.output_block:
+        if 'end_element' in self.file_block['output']:
+            return self.file_block['output']['end_element']
+        elif 'zstop' in self.file_block['output']:
             endelems = []
             for e in self.allElementObjects.keys():
-                if self.allElementObjects[e]['position_end'] == self.output_block['zstop']:
+                if self.allElementObjects[e]['position_end'] == self.file_block['output']['zstop']:
                     endelems.append(e)
-                elif self.allElementObjects[e]['position_end'] > self.output_block['zstop'] and len(endelems) == 0:
+                elif self.allElementObjects[e]['position_end'] > self.file_block['output']['zstop'] and len(endelems) == 0:
                     endelems.append(e)
             return endelems[-1]
         else:
@@ -208,20 +211,27 @@ class frameworkLattice(object):
 
     def writeElements_ASTRA(self, file=None):
         counter = frameworkCounter()
-        newrun = astra_newrun('newrun', **merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
-        output = astra_output('output', **merge_two_dicts(self.file_block['output'],self.globalSettings['ASTRAsettings']))
-        print newrun.parameters
-        print output.parameters
-        exit()
         fulltext = ''
+        for t, d in [['newrun','input'], ['output', 'output'], ['charge','charge']]:
+            header = globals()['astra_'+t](t, 'astra_'+t, **merge_two_dicts(self.file_block[d],self.globalSettings['ASTRAsettings']))
+            if t == 'newrun':
+                header.particle_definition = self.allElementObjects[self.start].name+'.astra'
+                print header.distribution
+            if t == 'output':
+                header.start_element = self.allElementObjects[self.start].position_start[2]
+                header.end_element = self.allElementObjects[self.end].position_end[2]
+            fulltext += '&' + section_header_text_ASTRA[t]['header']+'\n'
+            fulltext += header.write_ASTRA()+'\n/\n'
+        # fulltext += '&' + section_header_text_ASTRA['output']['header']+'\n'
+        # fulltext += output.write_ASTRA()+'\n/\n'
         for t in ['cavities', 'solenoids', 'quadrupoles']:
-            fulltext = '&' + section_header_text_ASTRA[t]['header']+'\n'
+            fulltext += '&' + section_header_text_ASTRA[t]['header']+'\n'
             elements = getattr(self, t)
             fulltext += section_header_text_ASTRA[t]['bool']+' = '+str(len(elements) > 0)+'\n'
             for element in elements:
                 fulltext += element.write_ASTRA(counter.number(element.type))+'\n'
             fulltext += '\n/\n'
-            print fulltext
+        return fulltext
 
 class frameworkCounter(dict):
     def __init__(self):
@@ -254,6 +264,8 @@ class frameworkObject(object):
             self.allowedKeyWords = commandkeywords[self.type]['keywords'] + commandkeywords['common']['keywords']
         elif type in elementkeywords:
             self.allowedKeyWords = elementkeywords[self.type]['keywords'] + elementkeywords['common']['keywords']
+            if 'framework_keywords' in  elementkeywords[self.type]:
+                 self.allowedKeyWords += elementkeywords[self.type]['framework_keywords']
         else:
             print 'Unknown type = ', type
             raise NameError
@@ -368,25 +380,34 @@ class frameworkElement(frameworkObject):
         elif isinstance(d, str):
             return getattr(self, d) if hasattr(self, d) and getattr(self, d) is not None else default
 
-    def _write_ASTRA(self, d, n):
+    def _write_ASTRA(self, d, n=1):
         output = ''
         for k, v in d.iteritems():
             if self.checkValue(v) is not None:
                 if 'type' in v and v['type'] == 'list':
                     for i, l in enumerate(self.checkValue(v)):
-                        param_string = k+'('+str(n)+','+str(i+1)+') = '+str(l)+', '
+                        if n is not None:
+                            param_string = k+'('+str(n)+','+str(i+1)+') = '+str(l)+', '
+                        else:
+                            param_string = k+' = '+str(l)+'\n'
                         if len((output + param_string).splitlines()[-1]) > 60:
                             output += '\n'
                         output += param_string
                 elif 'type' in v and v['type'] == 'array':
-                    param_string = k+'('+str(n)+') = ('
+                    if n is not None:
+                        param_string = k+'('+str(n)+') = ('
+                    else:
+                        param_string = k+' = ('
                     for i, l in enumerate(self.checkValue(v)):
                         param_string += str(l)+', '
                         if len((output + param_string).splitlines()[-1]) > 60:
                             output += '\n'
-                    output += param_string[:-2] + '), '
+                    output += param_string[:-2] + '),\n'
                 else:
-                    param_string = k+'('+str(n)+') = '+str(self.checkValue(v))+', '
+                    if n is not None:
+                        param_string = k+'('+str(n)+') = '+str(self.checkValue(v))+', '
+                    else:
+                        param_string = k+' = '+str(self.checkValue(v))+',\n'
                     if len((output + param_string).splitlines()[-1]) > 60:
                         output += '\n'
                     output += param_string
@@ -582,12 +603,74 @@ class marker(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(marker, self).__init__(name, type, **kwargs)
 
-class astra_newrun(frameworkObject):
+class astra_header(frameworkElement):
 
-    def __init__(self, name=None, **kwargs):
-        super(astra_newrun, self).__init__(name, 'astra_newrun', **kwargs)
+    def __init__(self, name=None, type=None, **kwargs):
+        super(astra_header, self).__init__(name, type, **kwargs)
 
-class astra_output(frameworkObject):
+    def framework_dict(self):
+        return OrderedDict()
 
-    def __init__(self, name=None, **kwargs):
-        super(astra_output, self).__init__(name, 'astra_output', **kwargs)
+    def write_ASTRA(self):
+
+        keyword_dict = {}
+        for k in elementkeywords[self.type]['keywords']:
+            if getattr(self, k.lower()) is not None:
+                keyword_dict[k.lower()] = {'value': getattr(self,k.lower())}
+        return self._write_ASTRA(merge_two_dicts(self.framework_dict(), keyword_dict), None)
+
+class astra_newrun(astra_header):
+    def __init__(self, name=None, type=None, **kwargs):
+        super(astra_header, self).__init__(name, type, **kwargs)
+
+    def framework_dict(self):
+        return OrderedDict([
+            ['Distribution', {'value': self.particle_definition}],
+        ])
+
+class astra_output(astra_header):
+    def __init__(self, name=None, type=None, **kwargs):
+        super(astra_header, self).__init__(name, type, **kwargs)
+
+    def framework_dict(self):
+        return OrderedDict([
+            ['zstart', {'value': self.start_element}],
+            ['zstop', {'value': self.end_element}],
+        ])
+
+class astra_charge(astra_header):
+    def __init__(self, name=None, type=None, **kwargs):
+        super(astra_header, self).__init__(name, type, **kwargs)
+
+    @property
+    def space_charge(self):
+        return False if self.space_charge_mode == 'False' or self.space_charge_mode == False else True
+
+    @property
+    def space_charge_2D(self):
+        return True if self.space_charge and self.space_charge_mode != '3D' else False
+
+    @property
+    def space_charge_3D(self):
+        return True if self.space_charge and not self.space_charge_2D else False
+
+    def framework_dict(self):
+        sc_dict = OrderedDict([
+            ['Lmirror', {'value': self.cathode, 'default': False}],
+            ['LSPCH', {'value': self.space_charge, 'default': True}],
+            ['LSPCH3D', {'value': self.space_charge_3D, 'default': True}]
+        ])
+        if self.space_charge_2D:
+            sc_n_dict = OrderedDict([
+                ['nrad', {'value': self.SC_2D_Nrad, 'default': 6}],
+                ['nlong', {'value': self.SC_2D_Nlong, 'default': 6}],
+            ])
+        elif self.space_charge_3D:
+            sc_n_dict = OrderedDict([
+                ['nxf', {'value': self.SC_3D_Nxf, 'default': 6}],
+                ['nyf', {'value': self.SC_3D_Nyf, 'default': 6}],
+                ['nzf', {'value': self.SC_3D_Nzf, 'default': 6}],
+            ])
+        else:
+            sc_n_dict = OrderedDict([])
+        return merge_two_dicts(sc_dict, sc_n_dict)
