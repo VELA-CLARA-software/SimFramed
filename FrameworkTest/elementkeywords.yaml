@@ -79,7 +79,8 @@ astra_newrun:
   "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All", \
   "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part", \
   "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step", \
-  "Lmonitor", "particle_definition"]
+  "Lmonitor"]
+  framework_keywords: ["particle_definition"]
 astra_output:
   keywords: ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
     "SCREEN", "SCR_XROT", "SCR_YROT", "STEP_WIDTH", "STEP_MAX",
@@ -87,5 +88,14 @@ astra_output:
     "LSUB_LARMOR", "LSUB_COUP", "ROT_ANG", "LSUB_COR", "REFS", "EMITS",
     "C_EMITS", "c99_EMITS", "TR_EMITS", "SUB_EMITS", "CROSS_START",
     "CROSS_END", "PHASES", "T_PHASES", "HIGH_RES", "BINARY", "TRACKS",
-    "TCHECKS", "SIGMAS", "CATHODES", "LANDFS", "LARMORS",
-    "start_element", "end_element", "zstart", "zstop"]
+    "TCHECKS", "SIGMAS", "CATHODES", "LANDFS", "LARMORS"]
+  framework_keywords: ["start_element", "end_element"]
+astra_charge:
+  keywords: ["L2D_3D",
+     "LMIRROR", "L_CURVED_CATHODE", "CATHODE_CONTOUR", "R_ZERO",
+      "CELL_VAR", "N_MIN", "MIN_GRID", "MERGE_1", "MERGE_2",
+      "MERGE_3", "MERGE_4", "MERGE_5", "MERGE_6", "MERGE_7", "MERGE_8",
+     "MERGE_9", "MERGE_10", "Z_TRANS", "MIN_GIRD_TRANS", "NX0",
+     "NY0", "NZF", "SMOOTH_X", "SMOOTH_Y", "SMOOTH_Z",
+     "MAX_SCALE", "MAX_COUNT", "EXP_CONTROL"]
+  framework_keywords: ["cathode", "space_charge_mode"]
