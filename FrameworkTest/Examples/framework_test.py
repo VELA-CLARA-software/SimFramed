@@ -8,7 +8,7 @@ lattice.loadSettings('Lattices/clara400_v12_elegant.def')
 # print lattice.getElement('CLA-S02-MAG-QUAD-01').type
 # print lattice.getElement('CLA-HRG1-GUN-CAV').properties
 # print lattice['injector400'].writeElements_ASTRA()
-print lattice['S02'].writeElements_ASTRA()
+print lattice['S02'].writeElements_Elegant()
 corners = []
 # for i, q in enumerate(lattice.dipoles,1):
 #     print q.write_ASTRA(i)
