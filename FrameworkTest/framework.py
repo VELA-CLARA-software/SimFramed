@@ -173,6 +173,14 @@ class frameworkLattice(object):
         return self.getElementType('dipole')
 
     @property
+    def screens(self):
+        return self.getElementType('screen')
+
+    @property
+    def screens_and_bpms(self):
+        return sorted(self.getElementType('screen') + self.getElementType('beam_position_monitor'), key=lambda x: x.position_end[2])
+
+    @property
     def lines(self):
         return self.lineObjects.keys()
 
@@ -209,21 +217,69 @@ class frameworkLattice(object):
         f = OrderedDict([[e,self.allElementObjects[e]] for e in self.allElements[index_start:index_end+1]])
         return f
 
-    def writeElements_ASTRA(self, file=None):
-        counter = frameworkCounter()
+    def createDrifts(self):
+        """Insert drifts into a sequence of 'elements'"""
+        positions = []
+        elementno = 0
+        newelements = OrderedDict()
+        for name in self.elements.keys():
+            pos = np.array(self.getElement(name).position_start)
+            positions.append(pos)
+            positions.append(self.getElement(name).position_end)
+        positions = positions[1:]
+        positions.append(positions[-1])
+        driftdata = zip(self.elements.iteritems(), list(chunks(positions, 2)))
+        for e, d in driftdata:
+            newelements[e[0]] = e[1]
+            if len(d) > 1:
+                length = d[1][2] - d[0][2]
+                # print 'length = ', length
+                if length > 0:
+                    elementno += 1
+                    name = 'drift'+str(elementno)
+                    newdrift = drift(name, type='drift', **{'length': length,
+                     'position_start': list(d[0]),
+                     'position_end': list(d[1])
+                    })
+                    newelements[name] = newdrift
+        return newelements
+
+    def writeElements_Elegant(self, file=None):
+        elements = self.createDrifts()
         fulltext = ''
+        for element in elements.values():
+            fulltext += element.write_Elegant()
+        fulltext += self.name+' = Line=('
+        for e in self.elements.keys():
+            if len((fulltext + e).splitlines()[-1]) > 60:
+                fulltext += '&\n'
+            fulltext += e+', '
+        return fulltext[:-2] + ');\n'
+
+    def writeElements_ASTRA(self, file=None):
+        fulltext = ''
+        ''' Create objects for the newrun, output and charge blocks'''
         for t, d in [['newrun','input'], ['output', 'output'], ['charge','charge']]:
+            fulltext += '&' + section_header_text_ASTRA[t]['header']+'\n'
+            ''' instantiate an object based on the type of header block'''
             header = globals()['astra_'+t](t, 'astra_'+t, **merge_two_dicts(self.file_block[d],self.globalSettings['ASTRAsettings']))
+            ''' some special sauce for newrun blocks '''
             if t == 'newrun':
                 header.particle_definition = self.allElementObjects[self.start].name+'.astra'
                 print header.distribution
+            ''' some special sauce for output blocks '''
             if t == 'output':
                 header.start_element = self.allElementObjects[self.start].position_start[2]
                 header.end_element = self.allElementObjects[self.end].position_end[2]
-            fulltext += '&' + section_header_text_ASTRA[t]['header']+'\n'
-            fulltext += header.write_ASTRA()+'\n/\n'
-        # fulltext += '&' + section_header_text_ASTRA['output']['header']+'\n'
-        # fulltext += output.write_ASTRA()+'\n/\n'
+            ''' write the headers and their elements '''
+            fulltext += header.write_ASTRA()+'\n'
+            if t == 'output':
+                counter = frameworkCounter({'beam_position_monitor': 'screen'})
+                elements = self.screens_and_bpms
+                for element in elements:
+                    fulltext += element.write_ASTRA(counter.number(element.type))+'\n'
+            fulltext += '\n/\n'
+        counter = frameworkCounter()
         for t in ['cavities', 'solenoids', 'quadrupoles']:
             fulltext += '&' + section_header_text_ASTRA[t]['header']+'\n'
             elements = getattr(self, t)
@@ -234,10 +290,12 @@ class frameworkLattice(object):
         return fulltext
 
 class frameworkCounter(dict):
-    def __init__(self):
+    def __init__(self, sub={}):
         super(frameworkCounter, self).__init__()
+        self.sub = sub
 
     def number(self, type):
+        type = self.sub[type] if type in self.sub else type
         if type not in self:
             self[type] = 1
         else:
@@ -573,6 +631,11 @@ class beam_position_monitor(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(beam_position_monitor, self).__init__(name, type, **kwargs)
 
+    def write_ASTRA(self, n):
+        return self._write_ASTRA(OrderedDict([
+            ['Screen', {'value': self.middle[2], 'default': 0}],
+        ]), n)
+
 class kicker(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -588,6 +651,11 @@ class screen(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(screen, self).__init__(name, type, **kwargs)
 
+    def write_ASTRA(self, n):
+        return self._write_ASTRA(OrderedDict([
+            ['Screen', {'value': self.middle[2], 'default': 0}],
+        ]), n)
+
 class monitor(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -602,6 +670,11 @@ class marker(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(marker, self).__init__(name, type, **kwargs)
+
+class drift(frameworkElement):
+
+    def __init__(self, name=None, type=None, **kwargs):
+        super(drift, self).__init__(name, type, **kwargs)
 
 class astra_header(frameworkElement):
 
