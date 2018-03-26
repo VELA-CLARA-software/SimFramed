@@ -250,7 +250,7 @@ class frameworkLattice(object):
         for element in elements.values():
             fulltext += element.write_Elegant()
         fulltext += self.name+' = Line=('
-        for e in self.elements.keys():
+        for e in elements.keys():
             if len((fulltext + e).splitlines()[-1]) > 60:
                 fulltext += '&\n'
             fulltext += e+', '
@@ -650,6 +650,7 @@ class screen(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(screen, self).__init__(name, type, **kwargs)
+        self.properties['filename'] = self.name
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
