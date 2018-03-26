@@ -72,3 +72,20 @@ solenoid:
   - field_definition
 wall_current_monitor:
   keywords: []
+astra_newrun:
+  keywords: ["NLoop", "ion_mass", "N_red", \
+  "Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms", \
+  "Zrms", "Trms", "Tau", "cor_px", "cor_py", \
+  "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All", \
+  "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part", \
+  "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step", \
+  "Lmonitor", "particle_definition"]
+astra_output:
+  keywords: ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
+    "SCREEN", "SCR_XROT", "SCR_YROT", "STEP_WIDTH", "STEP_MAX",
+    "LPROJECT_EMIT", "LOCAL_EMIT", "LMAGNETIZED", "LSUB_ROT",
+    "LSUB_LARMOR", "LSUB_COUP", "ROT_ANG", "LSUB_COR", "REFS", "EMITS",
+    "C_EMITS", "c99_EMITS", "TR_EMITS", "SUB_EMITS", "CROSS_START",
+    "CROSS_END", "PHASES", "T_PHASES", "HIGH_RES", "BINARY", "TRACKS",
+    "TCHECKS", "SIGMAS", "CATHODES", "LANDFS", "LARMORS",
+    "start_element", "end_element", "zstart", "zstop"]
