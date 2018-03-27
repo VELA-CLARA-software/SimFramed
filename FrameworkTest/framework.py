@@ -67,20 +67,55 @@ def merge_two_dicts(x, y):
     z.update(y)    # modifies z with y's keys and values & returns None
     return OrderedDict(z)
 
+def clean_directory(folder):
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+
 class framework(object):
 
-    def __init__(self, directory, master_lattice=None):
+    def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False):
         super(framework, self).__init__()
         global master_lattice_location
-        self.directory = directory
+        self.subdir = directory
         self.elementObjects = OrderedDict()
-        self.latticeObjects = {}
+        self.latticeObjects = OrderedDict()
         self.commandObjects = OrderedDict()
+        self.executables = {'astra': ['astra'], 'elegant': ['elegant']}
+
+        self.basedirectory = os.getcwd()
+        self.filedirectory = os.path.dirname(os.path.abspath(__file__))
+        self.overwrite = overwrite
+        self.runname = runname
+        self.subdirectory = self.basedirectory+'/'+self.subdir
+
+        if not os.path.exists(self.subdirectory):
+            os.makedirs(self.subdirectory)
+        else:
+            if clean == True:
+                clean_directory(self.subdirectory)
+        if self.overwrite == None:
+            if not os.path.exists(self.subdirectory):
+                os.makedirs(self.subdirectory)
+                self.overwrite = True
 
         if master_lattice is None:
             master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
         else:
             master_lattice_location = master_lattice
+
+    def defineASTRACommand(self, command=['astra']):
+        """Modify the defined ASTRA command variable"""
+        self.executables['astra'] = command
+
+    def defineElegantCommand(self, command=['astra']):
+        """Modify the defined Elegant command variable"""
+        self.executables['elegant'] = command
 
     def load_Elements_File(self, input):
         if isinstance(input,(list,tuple)):
@@ -98,19 +133,21 @@ class framework(object):
         stream = file(master_lattice_location+filename, 'r')
         settings = yaml.load(stream)
         self.globalSettings = settings['global']
-        self.generatorSettings = settings['generator']
+        if 'generator' in settings:
+            self.generatorSettings = settings['generator']
+            self.add_Generator(**self.generatorSettings)
         self.fileSettings = settings['files']
         elements = settings['elements']
         self.groups = settings['groups']
         stream.close()
-        self.add_Generator(**self.generatorSettings)
+
         for name, elem in elements.iteritems():
             self.read_Element(name, elem)
         for name, elem in self.fileSettings.iteritems():
             self.read_Lattice(name, elem)
 
     def read_Lattice(self, name, elem):
-        self.latticeObjects[name] = frameworkLattice(name, self.elementObjects, elem, self.globalSettings)
+        self.latticeObjects[name] = frameworkLattice(name, self.elementObjects, elem, self.globalSettings, self.executables)
 
     def read_Element(self, name, element, subelement=False):
         if name == 'filename':
@@ -142,7 +179,6 @@ class framework(object):
             self.generator = frameworkGenerator(**merge_two_dicts(kwargs,astra_generator_keywords['defaults'][default]))
         else:
             self.generator = frameworkGenerator(**kwargs)
-        return self.generator.write()
 
     def __getitem__(self,key):
         if key in self.elementObjects:
@@ -158,20 +194,29 @@ class framework(object):
 
     @property
     def lines(self):
-        return self.lineObjects.keys()
+        return self.latticeObjects.keys()
 
     @property
     def commands(self):
         return self.commandObjects.keys()
 
+    def track(self):
+        if hasattr(self, 'generator'):
+            self.generator.write(self.subdir)
+            self.generator.run()
+        for l in self.lines:
+            self.latticeObjects[l].write(self.subdir)
+            self.latticeObjects[l].run()
+
 class frameworkLattice(object):
-    def __init__(self, name, elementObjects, file_block, globalSettings):
+    def __init__(self, name, elementObjects, file_block, globalSettings, executables):
         super(frameworkLattice, self).__init__()
         self.name = name
         self.allElementObjects = elementObjects
         self.allElements = self.allElementObjects.keys()
         self.file_block = file_block
         self.globalSettings = globalSettings
+        self.executables = executables
 
     def getElement(self, element):
         if element in self.elements:
@@ -280,13 +325,16 @@ class frameworkLattice(object):
                     newelements[name] = newdrift
         return newelements
 
-    def write_Lattice(self, file=None):
+    def write(self, subdir):
+        self.subdir = subdir
         if self.file_block['code'].lower() == 'astra':
-            return self.writeElements_ASTRA(file)
+            self.code_file = subdir+'/'+self.name+'.in'
+            saveFile(self.code_file, self.writeElements_ASTRA())
         elif self.file_block['code'].lower() == 'elegant':
-            return self.writeElements_Elegant(file)
+            self.code_file = subdir+'/'+self.name+'.lte'
+            saveFile(self.code_file, self.writeElements_ASTRA())
 
-    def writeElements_Elegant(self, file=None):
+    def writeElements_Elegant(self):
         q = charge(name='START', type='charge',**{'total': 250e-12})
         w = screen(name='END', type='screen',**{'output_filename': self.end+'.sdds'})
         elements = self.createDrifts()
@@ -302,7 +350,7 @@ class frameworkLattice(object):
             fulltext += e+', '
         return fulltext[:-2] + ', END);\n'
 
-    def writeElements_ASTRA(self, file=None):
+    def writeElements_ASTRA(self):
         fulltext = ''
         ''' Create objects for the newrun, output and charge blocks'''
         for t, d in [['newrun','input'], ['output', 'output'], ['charge','charge']]:
@@ -325,7 +373,7 @@ class frameworkLattice(object):
                 counter = frameworkCounter({'beam_position_monitor': 'screen'})
                 elements = self.screens_and_bpms
                 for element in elements:
-                    fulltext += element.write_ASTRA(counter.number(element.type))+'\n'
+                    fulltext += element.write_ASTRA(counter.add(element.type))+'\n'
             fulltext += '\n/\n'
         counter = frameworkCounter(sub={'kicker': 'dipole'})
         for t in [['cavities'], ['solenoids'], ['quadrupoles'], ['dipoles', 'dipoles_and_kickers']]:
@@ -333,23 +381,45 @@ class frameworkLattice(object):
             elements = getattr(self, t[-1])
             fulltext += section_header_text_ASTRA[t[0]]['bool']+' = '+str(len(elements) > 0)+'\n'
             for element in elements:
-                fulltext += element.write_ASTRA(counter.number(element.type))+'\n'
-                if element.type == 'kicker':
-                    counter.number(element.type)
+                elemstr = element.write_ASTRA(counter.add(element.type))
+                if elemstr is not None and not elemstr == '':
+                    fulltext += elemstr+'\n'
+                    if element.type == 'kicker':
+                        counter.add(element.type)
+                else:
+                    counter.subtract(element.type)
             fulltext += '\n/\n'
         return fulltext
+
+    def run(self):
+        self.runCode(self.file_block['code'].lower(), self.code_file)
+
+    def runCode(self, code, filename=''):
+        """Run the code with input 'filename'"""
+        command = self.executables[code] + [os.path.relpath(filename, self.subdir)]
+        with open(os.path.relpath(filename+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.subdir)
+
 
 class frameworkCounter(dict):
     def __init__(self, sub={}):
         super(frameworkCounter, self).__init__()
         self.sub = sub
 
-    def number(self, type):
+    def add(self, type):
         type = self.sub[type] if type in self.sub else type
         if type not in self:
             self[type] = 1
         else:
             self[type] += 1
+        return self[type]
+
+    def subtract(self, type):
+        type = self.sub[type] if type in self.sub else type
+        if type not in self:
+            self[type] = 0
+        else:
+            self[type] = self[type] - 1 if self[type] > 0 else 0
         return self[type]
 
 class frameworkObject(object):
@@ -417,6 +487,7 @@ class frameworkObject(object):
 class frameworkGenerator(object):
     def __init__(self, **kwargs):
         super(frameworkGenerator, self).__init__()
+        self.generatorCommand = ['generator']
         self.defaults = {}
         self.properties = {}
         self.allowedKeyWords = astra_generator_keywords['keywords'] + astra_generator_keywords['framework_keywords']
@@ -428,6 +499,14 @@ class frameworkGenerator(object):
                     self.__setattr__(key.lower(), value)
                 except:
                     print 'WARNING: Unknown keyword: ', key.lower()
+
+    def run(self):
+        command = self.generatorCommand + [self.name+'.in']
+        with open(os.devnull, "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.subdir)
+
+    def defineGeneratorCommand(self,command=['generator']):
+        self.generatorCommand = command
 
     def load_defaults(self, defaults):
         if isinstance(defaults, str) and defaults in astra_generator_keywords['defaults']:
@@ -446,7 +525,8 @@ class frameworkGenerator(object):
     def _write_ASTRA(self, d):
         output = ''
         for k, v in d.iteritems():
-            param_string = k+' = '+str(v['value'])+',\n'
+            val = v['value'] if v['value'] is not None else v['default'] if 'default' in v else None
+            param_string = k+' = '+str(val)+',\n'
             if len((output + param_string).splitlines()[-1]) > 70:
                 output += '\n'
             output += param_string
@@ -456,7 +536,12 @@ class frameworkGenerator(object):
     def charge(self):
         return self.properties['charge'] if 'charge' in self.properties and self.properties['charge'] is not None else 250e-12
 
-    def write(self, file=None):
+    @property
+    def name(self):
+        return self.properties['name'] if 'name' in self.properties and self.properties['name'] is not None else 'laser'
+
+    def write(self, subdir):
+        self.subdir = subdir
         output = '&INPUT\n'
         try:
             npart = eval(self.number_of_particles)
@@ -477,7 +562,7 @@ class frameworkGenerator(object):
                 keyword_dict[k.lower()] = {'value': val}
         output += self._write_ASTRA(merge_two_dicts(framework_dict, keyword_dict))
         output += '\n/\n'
-        return output
+        saveFile(subdir+'/'+self.name+'.in', output)
 
     @property
     def parameters(self):
@@ -721,7 +806,7 @@ class dipole(frameworkElement):
                 params['D_radius'] =  {'value': self.rho, 'default': 1e6}
             return self._write_ASTRA(params, n)
         else:
-            return ''
+            return None
 
 class kicker(dipole):
 
@@ -733,11 +818,16 @@ class kicker(dipole):
         return 0
 
     def write_ASTRA(self, n):
+        output = ''
         self.plane = 'horizontal'
         hkick = super(kicker, self).write_ASTRA(n)
+        if hkick is not None:
+            output += hkick
         self.plane = 'vertical'
         vkick = super(kicker, self).write_ASTRA(n+1)
-        return hkick+'\n'+vkick
+        if vkick is not None:
+            output += vkick
+        return output
 
 class quadrupole(frameworkElement):
 
@@ -764,7 +854,7 @@ class cavity(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['C_pos', {'value': self.start[2], 'default': 0}],
-            ['FILE_EFieLD', {'value': self.field_definition, 'default': 0}],
+            ['FILE_EFieLD', {'value': '\''+self.field_definition+'\'', 'default': 0}],
             ['Nue', {'value': self.frequency / 1e6, 'default': 2.9985}],
             ['MaxE', {'value': self.field_amplitude / 1e6, 'default': 0}],
             ['Phi', {'value': self.phase, 'default': 0.0}],
@@ -784,7 +874,7 @@ class solenoid(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['S_pos', {'value': self.start[2], 'default': 0}],
-            ['FILE_BFieLD', {'value': self.field_definition}],
+            ['FILE_BFieLD', {'value': '\''+self.field_definition+'\''}],
             ['MaxB', {'value': self.field_amplitude / 1e6, 'default': 0}],
             ['S_smooth', {'value': self.smooth, 'default': 10}],
         ]), n)
@@ -859,7 +949,6 @@ class charge(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(charge, self).__init__(name, type, **kwargs)
 
-
 class astra_header(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -882,6 +971,8 @@ class astra_newrun(astra_header):
             self.run = 1
         if 'head' not in kwargs:
             self.head = 'trial'
+        if 'lprompt' not in kwargs:
+            self.lprompt = 'false'
 
     def framework_dict(self):
         return OrderedDict([
@@ -929,7 +1020,7 @@ class astra_charge(astra_header):
         if self.space_charge_2D:
             sc_n_dict = OrderedDict([
                 ['nrad', {'value': self.SC_2D_Nrad, 'default': 6}],
-                ['nlong', {'value': self.SC_2D_Nlong, 'default': 6}],
+                ['nlong_in', {'value': self.SC_2D_Nlong, 'default': 6}],
             ])
         elif self.space_charge_3D:
             sc_n_dict = OrderedDict([

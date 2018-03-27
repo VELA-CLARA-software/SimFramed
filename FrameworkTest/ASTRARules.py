@@ -6,7 +6,7 @@ ASTRARules["NEWRUN"] = ["NLoop", "ion_mass", "N_red", \
 "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All", \
 "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part", \
 "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step", \
-"Lmonitor"]
+"Lmonitor", "Lprompt"]
 
 ASTRARules["OUTPUT"] = ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
   "SCREEN", "SCR_XROT", "SCR_YROT", "STEP_WIDTH", "STEP_MAX",
