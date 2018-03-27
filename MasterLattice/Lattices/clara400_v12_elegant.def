@@ -1,5 +1,4 @@
 global:
-  generatorFile: ASTRA/generator400.in
   SC_2D_Nrad: 30
   SC_2D_Nlong: 45
   SC_3D_Nxf: 8
@@ -30,6 +29,9 @@ global:
     Max_count: 100
     cell_var: 2
     min_grid: 3.424657e-13
+generator:
+  default: clara_400_3ps
+  number_of_particles: 2**(3*3)
 files:
   injector400:
     code: ASTRA
@@ -43,7 +45,7 @@ files:
       zstart: 0
       end_element: CLA-S02-APER-01
   S02:
-    code: ELEGANT
+    code: Elegant
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -118,7 +120,7 @@ files:
       start_element: CLA-S05-APER
       end_element: CLA-S05-MARK-01
   VBC:
-    code: CSRTrack
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
