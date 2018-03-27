@@ -74,6 +74,8 @@ wall_current_monitor:
   keywords: []
 drift:
   keywords: []
+charge:
+  keywords: ["TOTAL"]
 astra_newrun:
   keywords: ["NLoop", "ion_mass", "N_red", \
   "Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms", \
@@ -81,7 +83,7 @@ astra_newrun:
   "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All", \
   "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part", \
   "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step", \
-  "Lmonitor"]
+  "Lmonitor", 'RUN', 'HEAD']
   framework_keywords: ["particle_definition"]
 astra_output:
   keywords: ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
