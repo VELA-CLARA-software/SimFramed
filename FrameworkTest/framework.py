@@ -6,6 +6,8 @@ import copy
 from collections import OrderedDict
 from ASTRARules import *
 from SimulationFramework.FrameworkHelperFunctions import *
+import SimulationFramework.Modules.read_beam_file as rbf
+beam = rbf.beam()
 from operator import add
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
@@ -22,6 +24,23 @@ yaml.add_constructor(_mapping_tag, dict_constructor)
 
 commandkeywords = {}
 
+astra_generator_keywords = {
+    'keywords':[
+        'fname','add','ipart','species','probe','noise_reduc','high_res','cathode','lprompt', 'q_total','ref_zpos','ref_clock','dist_z','ref_ekin','lt','rt','sig_clock','sig_z','lz','rz',
+        'dist_pz','le','dist_x','sig_x','dist_y','sig_y','dist_px','nemit',
+    ],
+    'defaults': {
+        'clara_400_3ps':{
+            'add': False,' species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
+            'ref_ekin': 0, 'lt': 3e-3, 'rt': 0.2e-3, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
+        }
+    },
+    'framework_keywords': [
+        'number_of_particles', 'charge', 'filename',
+    ]
+}
+
+
 with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', 'r') as infile:
     elementkeywords = yaml.load(infile)
 
@@ -32,11 +51,12 @@ type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', '
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'mapsolenoid', 'wall_current_monitor': 'charge', 'cavity': 'rfcw',
                          'rf_deflecting_cavity': 'rfdf'}
 keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
-                            'field_amplitude': 'volt', 'frequency': 'freq'}
+                            'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename'}
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'solenoids': {'header': 'SOLENOID', 'bool': 'LBField'},
                              'quadrupoles': {'header': 'QUADRUPOLE', 'bool': 'LQuad'},
+                             'dipoles': {'header': 'DIPOLE', 'bool': 'LDipole'},
                              'newrun': {'header': 'NEWRUN'},
                              'output': {'header': 'OUTPUT'},
                              'charge': {'header': 'CHARGE'},
@@ -78,11 +98,12 @@ class framework(object):
         stream = file(master_lattice_location+filename, 'r')
         settings = yaml.load(stream)
         self.globalSettings = settings['global']
-        self.generatorFile = master_lattice_location + self.globalSettings['generatorFile'] if 'generatorFile' in self.globalSettings else None
+        self.generatorSettings = settings['generator']
         self.fileSettings = settings['files']
         elements = settings['elements']
         self.groups = settings['groups']
         stream.close()
+        self.add_Generator(**self.generatorSettings)
         for name, elem in elements.iteritems():
             self.read_Element(name, elem)
         for name, elem in self.fileSettings.iteritems():
@@ -116,6 +137,12 @@ class framework(object):
         except:
             raise NameError('Element \'%s\' does not exist' % type)
 
+    def add_Generator(self, default=None, **kwargs):
+        if default in astra_generator_keywords['defaults']:
+            self.generator = frameworkGenerator(**merge_two_dicts(kwargs,astra_generator_keywords['defaults'][default]))
+        else:
+            self.generator = frameworkGenerator(**kwargs)
+        return self.generator.write()
 
     def __getitem__(self,key):
         if key in self.elementObjects:
@@ -171,6 +198,14 @@ class frameworkLattice(object):
     @property
     def dipoles(self):
         return self.getElementType('dipole')
+
+    @property
+    def kickers(self):
+        return self.getElementType('kicker')
+
+    @property
+    def dipoles_and_kickers(self):
+        return sorted(self.getElementType('dipole') + self.getElementType('kicker'), key=lambda x: x.position_end[2])
 
     @property
     def screens(self):
@@ -232,8 +267,9 @@ class frameworkLattice(object):
         for e, d in driftdata:
             newelements[e[0]] = e[1]
             if len(d) > 1:
-                length = d[1][2] - d[0][2]
-                # print 'length = ', length
+                x1, y1, z1 = d[0]
+                x2, y2, z2 = d[1]
+                length = np.sqrt((x2-x1)**2 + (z2-z1)**2)
                 if length > 0:
                     elementno += 1
                     name = 'drift'+str(elementno)
@@ -244,17 +280,27 @@ class frameworkLattice(object):
                     newelements[name] = newdrift
         return newelements
 
+    def write_Lattice(self, file=None):
+        if self.file_block['code'].lower() == 'astra':
+            return self.writeElements_ASTRA(file)
+        elif self.file_block['code'].lower() == 'elegant':
+            return self.writeElements_Elegant(file)
+
     def writeElements_Elegant(self, file=None):
+        q = charge(name='START', type='charge',**{'total': 250e-12})
+        w = screen(name='END', type='screen',**{'output_filename': self.end+'.sdds'})
         elements = self.createDrifts()
         fulltext = ''
         for element in elements.values():
             fulltext += element.write_Elegant()
-        fulltext += self.name+' = Line=('
+        fulltext += q.write_Elegant()
+        fulltext += w.write_Elegant()
+        fulltext += self.name+' = Line=(START,'
         for e in elements.keys():
             if len((fulltext + e).splitlines()[-1]) > 60:
                 fulltext += '&\n'
             fulltext += e+', '
-        return fulltext[:-2] + ');\n'
+        return fulltext[:-2] + ', END);\n'
 
     def writeElements_ASTRA(self, file=None):
         fulltext = ''
@@ -265,8 +311,10 @@ class frameworkLattice(object):
             header = globals()['astra_'+t](t, 'astra_'+t, **merge_two_dicts(self.file_block[d],self.globalSettings['ASTRAsettings']))
             ''' some special sauce for newrun blocks '''
             if t == 'newrun':
-                header.particle_definition = self.allElementObjects[self.start].name+'.astra'
-                print header.distribution
+                if header.particle_definition == 'initial_distribution':
+                    header.particle_definition = 'laser.astra'
+                else:
+                    header.particle_definition = self.allElementObjects[self.start].name+'.astra'
             ''' some special sauce for output blocks '''
             if t == 'output':
                 header.start_element = self.allElementObjects[self.start].position_start[2]
@@ -279,13 +327,15 @@ class frameworkLattice(object):
                 for element in elements:
                     fulltext += element.write_ASTRA(counter.number(element.type))+'\n'
             fulltext += '\n/\n'
-        counter = frameworkCounter()
-        for t in ['cavities', 'solenoids', 'quadrupoles']:
-            fulltext += '&' + section_header_text_ASTRA[t]['header']+'\n'
-            elements = getattr(self, t)
-            fulltext += section_header_text_ASTRA[t]['bool']+' = '+str(len(elements) > 0)+'\n'
+        counter = frameworkCounter(sub={'kicker': 'dipole'})
+        for t in [['cavities'], ['solenoids'], ['quadrupoles'], ['dipoles', 'dipoles_and_kickers']]:
+            fulltext += '&' + section_header_text_ASTRA[t[0]]['header']+'\n'
+            elements = getattr(self, t[-1])
+            fulltext += section_header_text_ASTRA[t[0]]['bool']+' = '+str(len(elements) > 0)+'\n'
             for element in elements:
                 fulltext += element.write_ASTRA(counter.number(element.type))+'\n'
+                if element.type == 'kicker':
+                    counter.number(element.type)
             fulltext += '\n/\n'
         return fulltext
 
@@ -364,6 +414,100 @@ class frameworkObject(object):
     def string(self, value):
         return ''+value+''
 
+class frameworkGenerator(object):
+    def __init__(self, **kwargs):
+        super(frameworkGenerator, self).__init__()
+        self.defaults = {}
+        self.properties = {}
+        self.allowedKeyWords = astra_generator_keywords['keywords'] + astra_generator_keywords['framework_keywords']
+        self.allowedKeyWords = map(lambda x: x.lower(), self.allowedKeyWords)
+        for key, value in kwargs.iteritems():
+            if key.lower() in self.allowedKeyWords:
+                try:
+                    self.properties[key.lower()] = value
+                    self.__setattr__(key.lower(), value)
+                except:
+                    print 'WARNING: Unknown keyword: ', key.lower()
+
+    def load_defaults(self, defaults):
+        if isinstance(defaults, str) and defaults in astra_generator_keywords['defaults']:
+            self.__init__(**astra_generator_keywords['defaults'][defaults])
+        elif isinstance(defaults, dict):
+            self.__init__(**defaults)
+
+    @property
+    def particles(self):
+        return self.number_of_particles if self.number_of_particles is not None else 512
+
+    @particles.setter
+    def particles(self, npart):
+        self.add_property('number_of_particles', npart)
+
+    def _write_ASTRA(self, d):
+        output = ''
+        for k, v in d.iteritems():
+            param_string = k+' = '+str(v['value'])+',\n'
+            if len((output + param_string).splitlines()[-1]) > 70:
+                output += '\n'
+            output += param_string
+        return output[:-2]
+
+    @property
+    def charge(self):
+        return self.properties['charge'] if 'charge' in self.properties and self.properties['charge'] is not None else 250e-12
+
+    def write(self, file=None):
+        output = '&INPUT\n'
+        try:
+            npart = eval(self.number_of_particles)
+        except:
+            npart = self.number_of_particles
+        framework_dict = OrderedDict([
+            ['FName', {'value': self.filename, 'default': 'laser.astra'}],
+            ['q_total', {'value': self.charge*1e9, 'default': 0.25}],
+            ['Ipart', {'value': npart, 'default': 2**(3*3)}],
+        ])
+        keyword_dict = OrderedDict()
+        for k in astra_generator_keywords['keywords']:
+            if getattr(self, k.lower()) is not None:
+                try:
+                    val = eval(getattr(self,k.lower()))
+                except:
+                    val = getattr(self,k.lower())
+                keyword_dict[k.lower()] = {'value': val}
+        output += self._write_ASTRA(merge_two_dicts(framework_dict, keyword_dict))
+        output += '\n/\n'
+        return output
+
+    @property
+    def parameters(self):
+        return self.properties
+
+    def add_property(self, key, value):
+        if key.lower() in self.allowedKeyWords:
+            self.properties[key.lower()] = value
+            self.__setattr__(key.lower(), value)
+        print self.properties
+
+    def __getattr__(self, a):
+        return None
+
+class frameworkCommand(frameworkObject):
+
+    def __init__(self, name=None, type=None, **kwargs):
+        super(frameworkCommand, self).__init__(name, type, **kwargs)
+        if not type in commandkeywords:
+            raise NameError('Command \'%s\' does not exist' % commandname)
+
+    def write(self):
+        wholestring=''
+        string = '&'+self.type+'\n'
+        for key, value in self.properties.iteritems():
+            if not key =='name' and not key == 'type':
+                string+='\t'+key+' = '+str(value)+'\n'
+        string+='&end\n'
+        return string
+
 class frameworkElement(frameworkObject):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -380,7 +524,7 @@ class frameworkElement(frameworkObject):
 
     @property
     def theta(self):
-        if hasattr(self, 'global_rotation'):
+        if hasattr(self, 'global_rotation') and self.global_rotation is not None:
             return self.global_rotation[2] if len(self.global_rotation) is 3 else self.global_rotation
         else:
             return 0
@@ -448,7 +592,7 @@ class frameworkElement(frameworkObject):
                             param_string = k+'('+str(n)+','+str(i+1)+') = '+str(l)+', '
                         else:
                             param_string = k+' = '+str(l)+'\n'
-                        if len((output + param_string).splitlines()[-1]) > 60:
+                        if len((output + param_string).splitlines()[-1]) > 70:
                             output += '\n'
                         output += param_string
                 elif 'type' in v and v['type'] == 'array':
@@ -458,7 +602,7 @@ class frameworkElement(frameworkObject):
                         param_string = k+' = ('
                     for i, l in enumerate(self.checkValue(v)):
                         param_string += str(l)+', '
-                        if len((output + param_string).splitlines()[-1]) > 60:
+                        if len((output + param_string).splitlines()[-1]) > 70:
                             output += '\n'
                     output += param_string[:-2] + '),\n'
                 else:
@@ -466,7 +610,7 @@ class frameworkElement(frameworkObject):
                         param_string = k+'('+str(n)+') = '+str(self.checkValue(v))+', '
                     else:
                         param_string = k+' = '+str(self.checkValue(v))+',\n'
-                    if len((output + param_string).splitlines()[-1]) > 60:
+                    if len((output + param_string).splitlines()[-1]) > 70:
                         output += '\n'
                     output += param_string
         return output[:-2]
@@ -549,7 +693,8 @@ class dipole(frameworkElement):
     def e2(self):
         return self._edge_angles('exit_edge_angle')
 
-    def write_ASTRA(self, n):
+    @property
+    def corners(self):
         corners = [0,0,0,0]
         theta = -self.theta-self.e1
         corners[0] = np.array(map(add,np.transpose(self.start), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta))))
@@ -557,19 +702,42 @@ class dipole(frameworkElement):
         theta = -self.theta-self.angle+self.e2
         corners[1] = np.array(map(add,np.transpose(self.end), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta))))
         corners[2] = np.array(map(add,np.transpose(self.end), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta))))
-        params = OrderedDict([
-            ['D_Type', {'value': self.plane, 'default': 'horizontal'}],
-            ['D_Gap', {'type': 'list', 'value': self.gap, 'default': [0.02, 0.02]}],
-            ['D1', {'type': 'array', 'value': [corners[3][0],corners[3][2]] }],
-            ['D3', {'type': 'array', 'value': [corners[2][0],corners[2][2]] }],
-            ['D4', {'type': 'array', 'value': [corners[1][0],corners[1][2]] }],
-            ['D2', {'type': 'array', 'value': [corners[0][0],corners[0][2]] }],
-            ])
-        if abs(self.checkValue('strength', default=0)) > 0:
-            params['D_strength'] = {'value': self.checkValue('strength',0), 'default': 1e6}
+        return corners
+
+    def write_ASTRA(self, n):
+        if abs(self.checkValue('strength', default=0)) > 0 and abs(self.rho) > 0:
+            corners = self.corners
+            params = OrderedDict([
+                ['D_Type', {'value': self.plane, 'default': 'horizontal'}],
+                ['D_Gap', {'type': 'list', 'value': self.gap, 'default': [0.02, 0.02]}],
+                ['D1', {'type': 'array', 'value': [corners[3][0],corners[3][2]] }],
+                ['D3', {'type': 'array', 'value': [corners[2][0],corners[2][2]] }],
+                ['D4', {'type': 'array', 'value': [corners[1][0],corners[1][2]] }],
+                ['D2', {'type': 'array', 'value': [corners[0][0],corners[0][2]] }],
+                ])
+            if abs(self.checkValue('strength', default=0)) > 0 or not abs(self.rho) > 0:
+                params['D_strength'] = {'value': self.checkValue('strength',0), 'default': 1e6}
+            else:
+                params['D_radius'] =  {'value': self.rho, 'default': 1e6}
+            return self._write_ASTRA(params, n)
         else:
-            params['D_radius'] =  {'value': self.rho, 'default': 1e6}
-        return self._write_ASTRA(params, n)
+            return ''
+
+class kicker(dipole):
+
+    def __init__(self, name=None, type=None, **kwargs):
+        super(kicker, self).__init__(name, type, **kwargs)
+
+    @property
+    def angle(self):
+        return 0
+
+    def write_ASTRA(self, n):
+        self.plane = 'horizontal'
+        hkick = super(kicker, self).write_ASTRA(n)
+        self.plane = 'vertical'
+        vkick = super(kicker, self).write_ASTRA(n+1)
+        return hkick+'\n'+vkick
 
 class quadrupole(frameworkElement):
 
@@ -603,7 +771,7 @@ class cavity(frameworkElement):
             ['C_smooth', {'value': self.smooth, 'default': 10}],
         ]), n)
 
-class rf_deflecting_cavity(frameworkElement):
+class rf_deflecting_cavity(cavity):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(rf_deflecting_cavity, self).__init__(name, type, **kwargs)
@@ -626,21 +794,6 @@ class aperture(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(aperture, self).__init__(name, type, **kwargs)
 
-class beam_position_monitor(frameworkElement):
-
-    def __init__(self, name=None, type=None, **kwargs):
-        super(beam_position_monitor, self).__init__(name, type, **kwargs)
-
-    def write_ASTRA(self, n):
-        return self._write_ASTRA(OrderedDict([
-            ['Screen', {'value': self.middle[2], 'default': 0}],
-        ]), n)
-
-class kicker(frameworkElement):
-
-    def __init__(self, name=None, type=None, **kwargs):
-        super(kicker, self).__init__(name, type, **kwargs)
-
 class wall_current_monitor(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -650,17 +803,41 @@ class screen(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(screen, self).__init__(name, type, **kwargs)
-        self.properties['filename'] = self.name
+        if 'output_filename' not in kwargs:
+            self.properties['output_filename'] = self.name
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['Screen', {'value': self.middle[2], 'default': 0}],
         ]), n)
 
-class monitor(frameworkElement):
+    def astra_to_hdf5(self):
+        astrabeamfilename = self.output_filename+'.astra'
+        beam.read_astra_beam_file(self.subdir + '/' + astrabeamfilename, normaliseZ=False)
+        HDF5filename = self.output_filename+'.hdf5'
+        beam.write_HDF5_beam_file(self.subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
+
+    def sdds_to_hdf5(self):
+        elegantbeamfilename = self.output_filename+'.sdds'
+        beam.read_SDDS_beam_file(subdir + '/' + elegantbeamfilename)
+        print 'total charge = ', beam.beam['total_charge']
+        HDF5filename = self.output_filename+'.hdf5'
+        beam.write_HDF5_beam_file(subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename)
+
+class monitor(screen):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(monitor, self).__init__(name, type, **kwargs)
+
+class beam_position_monitor(screen):
+
+    def __init__(self, name=None, type=None, **kwargs):
+        super(beam_position_monitor, self).__init__(name, type, **kwargs)
+
+    def write_ASTRA(self, n):
+        return self._write_ASTRA(OrderedDict([
+            ['Screen', {'value': self.middle[2], 'default': 0}],
+        ]), n)
 
 class collimator(frameworkElement):
 
@@ -677,6 +854,12 @@ class drift(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(drift, self).__init__(name, type, **kwargs)
 
+class charge(frameworkElement):
+
+    def __init__(self, name=None, type=None, **kwargs):
+        super(charge, self).__init__(name, type, **kwargs)
+
+
 class astra_header(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -686,7 +869,6 @@ class astra_header(frameworkElement):
         return OrderedDict()
 
     def write_ASTRA(self):
-
         keyword_dict = {}
         for k in elementkeywords[self.type]['keywords']:
             if getattr(self, k.lower()) is not None:
@@ -696,11 +878,21 @@ class astra_header(frameworkElement):
 class astra_newrun(astra_header):
     def __init__(self, name=None, type=None, **kwargs):
         super(astra_header, self).__init__(name, type, **kwargs)
+        if 'run' not in kwargs:
+            self.run = 1
+        if 'head' not in kwargs:
+            self.head = 'trial'
 
     def framework_dict(self):
         return OrderedDict([
             ['Distribution', {'value': self.particle_definition}],
         ])
+
+    def hdf5_to_astra(self):
+        HDF5filename = self.particle_definition+'.hdf5'
+        beam.read_HDF5_beam_file(self.subdir + '/' + HDF5filename)
+        astrabeamfilename = self.particle_definition+'.astra'
+        beam.write_astra_beam_file(self.subdir + '/' + astrabeamfilename, normaliseZ=False)
 
 class astra_output(astra_header):
     def __init__(self, name=None, type=None, **kwargs):
