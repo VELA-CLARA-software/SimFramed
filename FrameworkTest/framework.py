@@ -120,7 +120,6 @@ class framework(object):
     def defineGeneratorCommand(self,command=['generator']):
         self.executables['generator'] = command
 
-
     def load_Elements_File(self, input):
         if isinstance(input,(list,tuple)):
             filename = input
