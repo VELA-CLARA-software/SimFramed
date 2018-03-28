@@ -149,7 +149,7 @@ class beam(object):
         self.beam['p'] = cp * self.q_over_c
         self.beam['xp'] = np.arctan(self.px/self.pz)
         self.beam['yp'] = np.arctan(self.py/self.pz)
-        self.beam['clock'] = clock
+        self.beam['clock'] = 1e-9*clock
         self.beam['charge'] = 1e-9*charge
         self.beam['index'] = index
         self.beam['status'] = status
@@ -161,7 +161,8 @@ class beam(object):
         self.beam['Bx'] = self.vx / constants.speed_of_light
         self.beam['By'] = self.vy / constants.speed_of_light
         self.beam['Bz'] = self.vz / constants.speed_of_light
-        self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
+        self.beam['t'] = [clock if status == -1 else (z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
+        # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
     def read_csrtrack_beam_file(self, file):
@@ -237,8 +238,7 @@ class beam(object):
                 chargevector = np.full(len(self.x), self.charge/len(self.x))
         if not isinstance(index,(list, tuple, np.ndarray)):
             indexvector = np.full(len(self.x), index)
-        if not isinstance(status,(list, tuple, np.ndarray)):
-            statusvector = np.full(len(self.x), status)
+        statusvector = self.beam['status'] if 'status' in self.beam else status if isinstance(status,(list, tuple, np.ndarray)) else np.full(len(self.x), status)
         ''' if a particle is emitting from the cathode it's z value is 0 and it's clock value is finite, otherwise z is finite and clock is irrelevant (thus zero) '''
         if self.beam['longitudinal_reference'] == 't':
             zvector = [0 if status == -1 and t == 0 else z for status, z, t in zip(statusvector, self.z, self.t)]
@@ -413,7 +413,7 @@ class beam(object):
             if pos is not None:
                 inputgrp['Starting_Position'] = pos
             else:
-                inputgrp['Starting_Position'] = [0,0,0]
+                inputgrp['Starting_Position'] = [0, 0, 0]
             if rotation is not None:
                 inputgrp['Rotation'] = rotation
             else:
@@ -426,6 +426,8 @@ class beam(object):
             beamgrp = f.create_group("beam")
             if 'reference_particle' in self.beam:
                 beamgrp['reference_particle'] = self.beam['reference_particle']
+            if 'status' in self.beam:
+                beamgrp['status'] = self.beam['status']
             beamgrp['longitudinal_reference'] = longitudinal_reference
             if len(self.beam['charge']) == len(self.x):
                 chargevector = self.beam['charge']
@@ -442,9 +444,11 @@ class beam(object):
             if h5file.get('beam/reference_particle') is not None:
                 self.beam['reference_particle'] = np.array(h5file.get('beam/reference_particle'))
             if h5file.get('beam/longitudinal_reference') is not None:
-                self.beam['longitudinal_reference'] = h5file.get('beam/longitudinal_reference')
+                self.beam['longitudinal_reference'] = np.array(h5file.get('beam/longitudinal_reference'))
             else:
                 self.beam['longitudinal_reference'] = 't'
+            if h5file.get('beam/status') is not None:
+                self.beam['status'] = np.array(h5file.get('beam/status'))
             x, y, z, cpx, cpy, cpz, t, charge = np.array(h5file.get('beam/beam')).transpose()
             cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
             self.beam['x'] = x

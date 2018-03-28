@@ -31,7 +31,7 @@ astra_generator_keywords = {
     ],
     'defaults': {
         'clara_400_3ps':{
-            'add': False,' species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
+            'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
             'ref_ekin': 0, 'lt': 3e-3, 'rt': 0.2e-3, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
         }
     },
@@ -94,6 +94,7 @@ class framework(object):
         self.runname = runname
         self.subdirectory = self.basedirectory+'/'+self.subdir
         master_subdir = self.subdirectory
+        print 'master_subdir = ', master_subdir
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
         else:
@@ -424,6 +425,26 @@ class frameworkLattice(object):
         HDF5filename = self.allElementObjects[self.end].name+'.hdf5'
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
 
+class frameworkGroup(object):
+    def __init__(self, name, type, elements, elementObjects):
+        super(frameworkGroup, self).__init__()
+        self.name = name
+        self.type = type
+        self.elements = elements
+        self.allElementObjects = elementObjects
+
+    def change_Parameter(self, p ,v):
+        for e in self.elements:
+            self.allElementObjects[e].change_Parameter(p, v)
+
+class chicane(frameworkGroup):
+    def __init__(self, name, type, elements):
+        super(chicane, self).__init__()
+
+    def change_Parameter(self, p ,v):
+        for e in self.elements:
+            self.allElementObjects[e].change_Parameter(p, v)
+
 
 class frameworkCounter(dict):
     def __init__(self, sub={}):
@@ -550,7 +571,10 @@ class frameworkGenerator(object):
         output = ''
         for k, v in d.iteritems():
             val = v['value'] if v['value'] is not None else v['default'] if 'default' in v else None
-            param_string = k+' = '+str(val)+',\n'
+            if isinstance(val,str):
+                param_string = k+' = \''+str(val)+'\',\n'
+            else:
+                param_string = k+' = '+str(val)+',\n'
             if len((output + param_string).splitlines()[-1]) > 70:
                 output += '\n'
             output += param_string
@@ -571,9 +595,9 @@ class frameworkGenerator(object):
         except:
             npart = self.number_of_particles
         if self.filename is None:
-            self.filename = 'laser.astra'
+            self.filename = 'laser.generator'
         framework_dict = OrderedDict([
-            ['FName', {'value': self.filename, 'default': 'laser.astra'}],
+            ['FName', {'value': self.filename, 'default': 'laser.generator'}],
             ['q_total', {'value': self.charge*1e9, 'default': 0.25}],
             ['Ipart', {'value': npart, 'default': 2**(3*3)}],
         ])
@@ -605,7 +629,7 @@ class frameworkGenerator(object):
     def astra_to_hdf5(self):
         astrabeamfilename = self.filename
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
-        HDF5filename = self.filename.replace('.astra','.hdf5')
+        HDF5filename = self.filename.replace('.generator','.hdf5')
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
 
 class frameworkCommand(frameworkObject):
@@ -814,10 +838,10 @@ class dipole(frameworkElement):
     @property
     def corners(self):
         corners = [0,0,0,0]
-        theta = -self.theta-self.e1
+        theta = -self.theta+self.e1
         corners[0] = np.array(map(add,np.transpose(self.start), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta))))
         corners[3] = np.array(map(add,np.transpose(self.start), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta))))
-        theta = -self.theta-self.angle+self.e2
+        theta = -self.theta+self.angle-self.e2
         corners[1] = np.array(map(add,np.transpose(self.end), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta))))
         corners[2] = np.array(map(add,np.transpose(self.end), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta))))
         return corners
@@ -825,6 +849,7 @@ class dipole(frameworkElement):
     def write_ASTRA(self, n):
         if abs(self.checkValue('strength', default=0)) > 0 or abs(self.rho) > 0:
             corners = self.corners
+            # print [corners]
             if self.plane is None:
                 self.plane = 'horizontal'
             params = OrderedDict([
@@ -889,9 +914,9 @@ class cavity(frameworkElement):
     def write_ASTRA(self, n):
         if (self.n_cells is 0 or self.n_cells is None) and self.cell_length > 0:
                 cells = round((self.length-self.cell_length)/self.cell_length)
-                cells = cells - (cells % 3)
+                cells = int(cells - (cells % 3))
         elif self.n_cells > 0 and self.cell_length > 0:
-            cells = self.n_cells - (self.n_cells % 3)
+            cells = int(self.n_cells - (self.n_cells % 3))
         else:
             cells = None
         return self._write_ASTRA(OrderedDict([
@@ -945,7 +970,10 @@ class screen(frameworkElement):
         ]), n)
 
     def astra_to_hdf5(self, lattice):
-        astrabeamfilename = lattice + '.' + str(int(round((self.middle[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
+        for i in [0, -0.001, 0.001]:
+            tempfilename = lattice + '.' + str(int(round((self.middle[2]+i)*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
+            if os.path.isfile(master_subdir + '/' + tempfilename):
+                astrabeamfilename = tempfilename
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
         HDF5filename = self.name+'.hdf5'
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
@@ -1019,7 +1047,7 @@ class astra_newrun(astra_header):
 
     def framework_dict(self):
         return OrderedDict([
-            ['Distribution', {'value': self.particle_definition}],
+            ['Distribution', {'value': '\''+self.particle_definition+'\''}],
         ])
 
     def hdf5_to_astra(self):
