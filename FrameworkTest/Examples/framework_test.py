@@ -9,7 +9,7 @@ lattice.loadSettings('Lattices/clara400_v12_elegant.def')
 # print lattice.getElement('CLA-HRG1-GUN-CAV').properties
 # print lattice['injector400'].writeElements_ASTRA()
 # print lattice['injector400'].write_Lattice()
-lattice.track()
+lattice.track()#files=['injector400'])
 # for i, q in enumerate(lattice.dipoles,1):
 #     print q.write_ASTRA(i)
 # for i, q in enumerate(lattice.cavities,1):
