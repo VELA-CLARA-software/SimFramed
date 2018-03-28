@@ -14,6 +14,7 @@ cavity:
   - field_definition
   - lsc_cutoff_high
   - field_amplitude
+  - cell_length
 collimator:
   keywords:
   - shape
@@ -77,13 +78,13 @@ drift:
 charge:
   keywords: ["TOTAL"]
 astra_newrun:
-  keywords: ["NLoop", "ion_mass", "N_red", \
-  "Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms", \
-  "Zrms", "Trms", "Tau", "cor_px", "cor_py", \
-  "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All", \
-  "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part", \
-  "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step", \
-  "Lmonitor", 'RUN', 'HEAD']
+  keywords: ["NLoop", "ion_mass", "N_red",
+  "Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms",
+  "Zrms", "Trms", "Tau", "cor_px", "cor_py",
+  "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All",
+  "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part",
+  "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step",
+  "Lmonitor", 'RUN', 'HEAD', 'lprompt']
   framework_keywords: ["particle_definition"]
 astra_output:
   keywords: ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
