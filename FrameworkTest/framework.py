@@ -86,6 +86,7 @@ class framework(object):
         self.elementObjects = OrderedDict()
         self.latticeObjects = OrderedDict()
         self.commandObjects = OrderedDict()
+        self.groupObjects = OrderedDict()
         self.executables = {'generator': ['generator'], 'astra': ['astra'], 'elegant': ['elegant']}
 
         self.basedirectory = os.getcwd()
@@ -94,7 +95,6 @@ class framework(object):
         self.runname = runname
         self.subdirectory = self.basedirectory+'/'+self.subdir
         master_subdir = self.subdirectory
-        print 'master_subdir = ', master_subdir
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
         else:
@@ -136,24 +136,29 @@ class framework(object):
         """Load Lattice Settings from file"""
         global master_run_no
         stream = file(master_lattice_location+filename, 'r')
-        settings = yaml.load(stream)
-        self.globalSettings = settings['global']
+        self.settings = yaml.load(stream)
+        self.globalSettings = self.settings['global']
         master_run_no = self.globalSettings['run_no'] if 'run_no' in self.globalSettings else 1
-        if 'generator' in settings:
-            self.generatorSettings = settings['generator']
+        if 'generator' in self.settings:
+            self.generatorSettings = self.settings['generator']
             self.add_Generator(**self.generatorSettings)
-        self.fileSettings = settings['files']
-        elements = settings['elements']
-        self.groups = settings['groups']
+        self.fileSettings = self.settings['files']
+        elements = self.settings['elements']
+        self.groups = self.settings['groups']
         stream.close()
+
+        for name, elem in self.groups.iteritems():
+            group = globals()[elem['type']](name, self.elementObjects, **elem)
+            self.groupObjects[name] = group
 
         for name, elem in elements.iteritems():
             self.read_Element(name, elem)
-        for name, elem in self.fileSettings.iteritems():
-            self.read_Lattice(name, elem)
 
-    def read_Lattice(self, name, elem):
-        self.latticeObjects[name] = frameworkLattice(name, self.elementObjects, elem, self.globalSettings, self.executables)
+        for name, lattice in self.fileSettings.iteritems():
+            self.read_Lattice(name, lattice)
+
+    def read_Lattice(self, name, lattice):
+        self.latticeObjects[name] = frameworkLattice(name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
     def read_Element(self, name, element, subelement=False):
         if name == 'filename':
@@ -191,6 +196,8 @@ class framework(object):
             return self.elementObjects[key]
         elif key in self.latticeObjects:
             return self.latticeObjects[key]
+        elif key in self.groupObjects:
+            return self.groupObjects[key]
         elif hasattr(self, key):
             return getattr(self,key.lower())
 
@@ -222,14 +229,23 @@ class framework(object):
                 self.latticeObjects[l].postProcess()
 
 class frameworkLattice(object):
-    def __init__(self, name, elementObjects, file_block, globalSettings, executables):
+    def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables):
         super(frameworkLattice, self).__init__()
         self.name = name
         self.allElementObjects = elementObjects
+        self.groupObjects = groupObjects
         self.allElements = self.allElementObjects.keys()
         self.file_block = file_block
-        self.globalSettings = globalSettings
+        self.settings = settings
+        self.globalSettings = settings['global']
+        self.groupSettings = file_block['groups'] if 'groups' in file_block else {}
+        self.update_groups()
         self.executables = executables
+
+    def update_groups(self):
+        for g in self.groupSettings.keys():
+            if g in self.groupObjects:
+                self.groupObjects[g].update(**self.groupSettings[g])
 
     def getElement(self, element):
         if element in self.elements:
@@ -404,6 +420,27 @@ class frameworkLattice(object):
             fulltext += '\n/\n'
         return fulltext
 
+    def load_CSRTrack_elements(self):
+        self.CSRTrackelementObjects = OrderedDict()
+        if 'CSRTrack_Options' in self.file_block:
+            for elemtype, kwargs in self.file_block['CSRTrack_Options'].iteritems():
+                if elemtype.lower() == 'online_monitor':
+                    for om, kwargs in self.file_block['CSRTrack_Options']['online_monitor'].iteritems():
+                        self.CSRTrackelementObjects[om] = globals()['csrtrack_'+elemtype](name=om, **kwargs)
+                else:
+                    self.CSRTrackelementObjects[elemtype] = globals()['csrtrack_'+elemtype](**kwargs)
+
+    def writeElements_CSRTrack(self):
+        self.load_CSRTrack_elements()
+        fulltext = 'io_path{\n\tlogfile = log.txt\n}\nlattice{\n'
+        counter = frameworkCounter()
+        for e in self.dipoles:
+            fulltext += e.write_CSRTrack(counter.add(e.type))
+        fulltext += '}\n'
+        for obj in self.CSRTrackelementObjects.values():
+            fulltext += obj.write_CSRTrack()
+        return fulltext
+
     def run(self):
         self.runCode(self.file_block['code'].lower(), self.code_file)
 
@@ -426,7 +463,7 @@ class frameworkLattice(object):
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
 
 class frameworkGroup(object):
-    def __init__(self, name, type, elements, elementObjects):
+    def __init__(self, name, elementObjects, type, elements, **kwargs):
         super(frameworkGroup, self).__init__()
         self.name = name
         self.type = type
@@ -435,16 +472,72 @@ class frameworkGroup(object):
 
     def change_Parameter(self, p ,v):
         for e in self.elements:
-            self.allElementObjects[e].change_Parameter(p, v)
+            setattr(self.allElementObjects[e], p, v)
+
+    def __repr__(self):
+        return [self.allElementObjects[e].properties for e in self.elements]
+
+    def __str__(self):
+        return str([self.allElementObjects[e].name for e in self.elements])
 
 class chicane(frameworkGroup):
-    def __init__(self, name, type, elements):
-        super(chicane, self).__init__()
+    def __init__(self, name, elementObjects, type, elements, **kwargs):
+        super(chicane, self).__init__(name, elementObjects, type, elements, **kwargs)
 
-    def change_Parameter(self, p ,v):
-        for e in self.elements:
-            self.allElementObjects[e].change_Parameter(p, v)
+    def xform(self, theta, tilt, length, x, r):
+        """Calculate the change on local coordinates through an element"""
+        theta = theta if abs(theta) > 1e-9 else 1e-9
+        tiltMatrix = np.matrix([
+            [np.cos(tilt), -np.sin(tilt), 0],
+            [np.sin(tilt), np.cos(tilt), 0],
+            [0, 0, 1]
+        ])
+        angleMatrix = np.matrix([
+            [length/theta*(np.cos(theta)-1)],
+            [0],
+            [length/theta*np.sin(theta)]
+        ])
+        dx = np.dot(r, angleMatrix)
+        rt = np.transpose(r)
+        n = rt[1]*np.cos(tilt)-rt[0]*np.sin(tilt)
+        crossMatrix = np.matrix([
+            np.cross(rt[0], n),
+            np.cross(rt[1], n),
+            np.cross(rt[2], n)
+        ])*np.sin(theta)
+        rp = np.outer(np.dot(rt,n), n)*(1-np.cos(theta))+rt*np.cos(theta)+crossMatrix
+        return [np.array(x + dx), np.array(np.transpose(rp))]
 
+    def update(self, **kwargs):
+        if 'dipoleangle' in kwargs:
+            self.set_angle(kwargs['dipoleangle'])
+        if 'width' in kwargs:
+            self.change_Parameter('width', kwargs['width'])
+        if 'gap' in kwargs:
+            self.change_Parameter('gap', kwargs['gap'])
+
+    def set_angle(self, a):
+        obj = [self.allElementObjects[e] for e in self.elements]
+        starting_angle = obj[0].theta
+        for i in [0,1,2,3]:
+            x1 = np.transpose([self.allElementObjects[self.elements[i]].position_start])
+            angle = obj[i].angle
+            obj[i].global_rotation[2] = starting_angle
+            obj[i].angle = -1*np.sign(angle)*a
+            localXYZ = self.xform(starting_angle, 0, 0, x1, np.identity(3))[1]
+            x1, localXYZ = self.xform(obj[i].angle, 0, obj[i].length, x1, localXYZ)
+            xstart, ystart, zstart = x1
+            obj[i].position_end[0] = chop(float(xstart))
+            if i < 3:
+                xend, yend, zend = obj[i+1].position_start
+                angle = starting_angle + obj[i].angle
+                length = float((-zstart + zend) * (1.0/np.cos(angle)))
+                endx = chop(float(xstart + np.tan(-1*angle)*length))
+                obj[i+1].position_start[0] =  endx
+                starting_angle += obj[i].angle
+
+    def __str__(self):
+        return str([[self.allElementObjects[e].name, self.allElementObjects[e].angle, self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
 
 class frameworkCounter(dict):
     def __init__(self, sub={}):
@@ -477,12 +570,9 @@ class frameworkObject(object):
             raise NameError('Command does not have a name')
         if type == None:
             raise NameError('Command does not have a type')
-        self.name = name
-        self.type = type
-        self.commandtype = 'command'
-        self.properties = {}
-        self.properties['name'] = self.name
-        self.properties['type'] = self.type
+        super(frameworkObject, self).__setattr__('properties', dict())
+        super(frameworkObject, self).__setattr__('name', name)
+        super(frameworkObject, self).__setattr__('type', type)
         if type in commandkeywords:
             self.allowedKeyWords = commandkeywords[self.type]['keywords'] + commandkeywords['common']['keywords']
         elif type in elementkeywords:
@@ -500,7 +590,7 @@ class frameworkObject(object):
         if key.lower() in self.allowedKeyWords:
             try:
                 self.properties[key.lower()] = value
-                self.__setattr__(key.lower(), value)
+                # self.__setattr__(key.lower(), value)
             except:
                 print key.lower()
 
@@ -512,7 +602,9 @@ class frameworkObject(object):
         return self.properties
 
     def __getattr__(self, key):
-        if key.lower() in self.defaults:
+        if key.lower() in self.properties:
+            return self.properties[key.lower()]
+        elif key.lower() in self.defaults:
             return self.defaults[key.lower()]
         else:
             return None
@@ -520,7 +612,10 @@ class frameworkObject(object):
     def __getitem__(self, key):
         return None
 
-    def __setitem__(self,key,value):
+    def __setattr__(self, key, value):
+        self.properties.__setitem__(key.lower(),value)
+
+    def __setitem__(self, key, value):
         self.properties.__setitem__(key.lower(),value)
 
     def long(self, value):
@@ -787,6 +882,9 @@ class frameworkElement(frameworkObject):
     def _convertKeword_Elegant(self, keyword):
         return keyword_conversion_rules_Elegant[keyword] if keyword in keyword_conversion_rules_Elegant else keyword
 
+    def write_CSRTrack(self, n=0):
+        return ""
+
 class dipole(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -845,6 +943,16 @@ class dipole(frameworkElement):
         corners[1] = np.array(map(add,np.transpose(self.end), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta))))
         corners[2] = np.array(map(add,np.transpose(self.end), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta))))
         return corners
+
+    def write_CSRTrack(self, n):
+        z1 = self.position_start[2]
+        z2 = self.position_end[2]
+        return """    dipole{
+        position{rho="""+str(z1)+""", psi="""+str(chop(self.theta+self.e1))+""", marker=d"""+str(n)+"""a}
+        properties{r="""+str(self.rho)+"""}
+        position{rho="""+str(z2)+""", psi="""+str(chop(self.theta+self.angle-self.e2))+""", marker=d"""+str(n)+"""b}
+    }
+"""
 
     def write_ASTRA(self, n):
         if abs(self.checkValue('strength', default=0)) > 0 or abs(self.rho) > 0:
@@ -1102,3 +1210,69 @@ class astra_charge(astra_header):
         else:
             sc_n_dict = OrderedDict([])
         return merge_two_dicts(sc_dict, sc_n_dict)
+
+class csrtrack_element(frameworkElement):
+
+    def __init__(self, name=None, type=None, **kwargs):
+        super(csrtrack_element, self).__init__(name, type)
+        self.kwargs = kwargs
+
+    def CSRTrack_str(self, s):
+        if s is True:
+            return 'yes'
+        elif s is False:
+            return 'no'
+        else:
+            return str(s)
+
+    def write_CSRTrack(self):
+        output = str(self.name) + '{\n'
+        for k in elementkeywords[self.type]['keywords']:
+            if k.lower() in self.kwargs:
+                output += '\t'+k+'='+self.CSRTrack_str(self.kwargs[k.lower()])+'\n'
+        output+='}\n'
+        return output
+
+class csrtrack_online_monitor(csrtrack_element):
+
+    def __init__(self, name=None, **kwargs):
+        super(csrtrack_online_monitor, self).__init__(name=name, type='csrtrack_online_monitor')
+        self.kwargs = kwargs
+
+    def write_CSRTrack(self):
+        output = 'online_monitor{\n'
+        for k in elementkeywords[self.type]['keywords']:
+            if k.lower() in self.kwargs:
+                output += '\t'+k+'='+self.CSRTrack_str(self.kwargs[k.lower()])+'\n'
+        output+='}\n'
+        return output
+
+class csrtrack_forces(csrtrack_element):
+
+    def __init__(self, **kwargs):
+        super(csrtrack_forces, self).__init__('forces', 'csrtrack_forces')
+        self.kwargs = kwargs
+
+class csrtrack_track_step(csrtrack_element):
+
+    def __init__(self, **kwargs):
+        super(csrtrack_track_step, self).__init__('track_step', 'csrtrack_track_step')
+        self.kwargs = kwargs
+
+class csrtrack_tracker(csrtrack_element):
+
+    def __init__(self, **kwargs):
+        super(csrtrack_tracker, self).__init__('tracker', 'csrtrack_tracker')
+        self.kwargs = kwargs
+
+class csrtrack_monitor(csrtrack_element):
+
+    def __init__(self, **kwargs):
+        super(csrtrack_monitor, self).__init__('monitor', 'csrtrack_monitor')
+        self.kwargs = kwargs
+
+class csrtrack_particles(csrtrack_element):
+
+    def __init__(self, **kwargs):
+        super(csrtrack_particles, self).__init__('particles', 'csrtrack_particles')
+        self.kwargs = kwargs

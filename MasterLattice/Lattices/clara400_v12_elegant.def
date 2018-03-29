@@ -132,7 +132,7 @@ files:
       start_element: CLA-S05-MARK-01
       end_element: CLA-S06-MARK-01
     CSRTrack_Options:
-      online_monitors:
+      online_monitor:
         sub_bunch.dat:
           type: subbunch
           start_time_c0: now
@@ -183,7 +183,7 @@ files:
         format: astra
         array: "#file{name=$output['start_element']$.astra}"
     groups:
-      VBC:
+      bunch_compressor:
         dipoleangle: 0.1185
         width: 0.2
         gap: 0.02
@@ -221,7 +221,7 @@ groups:
   laser-heater:
     type: chicane
     elements: [CLA-S04-MAG-DIP-01, CLA-S04-MAG-DIP-02, CLA-S04-MAG-DIP-03, CLA-S04-MAG-DIP-04]
-  VBC:
+  bunch_compressor:
     type: chicane
     elements: [CLA-VBC-MAG-DIP-01, CLA-VBC-MAG-DIP-02, CLA-VBC-MAG-DIP-03, CLA-VBC-MAG-DIP-04]
 elements:

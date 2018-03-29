@@ -104,3 +104,52 @@ astra_charge:
      "NY0", "NZF", "SMOOTH_X", "SMOOTH_Y", "SMOOTH_Z",
      "MAX_SCALE", "MAX_COUNT", "EXP_CONTROL"]
   framework_keywords: ["cathode", "space_charge_mode"]
+csrtrack_particles:
+  keywords: [
+    reference_momentum,
+    reference_point_x,
+    reference_point_y,
+    reference_point_phi,
+    format,
+  ]
+csrtrack_online_monitor:
+  keywords: [
+    name,
+    type,
+    start_time_c0,
+    end_time_marker,
+    end_time_shift_c0,
+    time_step_c0,
+    particle,
+    format,
+  ]
+csrtrack_forces:
+  keywords: [
+    type,
+    shape,
+    sigma_long,
+    relative_long,
+  ]
+csrtrack_track_step:
+  keywords: [
+    precondition,
+    iterative,
+    error_per_ct,
+    error_weight_momentum,
+    ct_step_min,
+    ct_step_max,
+    ct_step_first,
+    increase_factor,
+    arc_factor,
+    duty_steps,
+  ]
+csrtrack_tracker:
+  keywords: [
+    end_time_marker,
+    end_time_shift_c0,
+  ]
+csrtrack_monitor:
+  keywords: [
+    format,
+    name,
+  ]
