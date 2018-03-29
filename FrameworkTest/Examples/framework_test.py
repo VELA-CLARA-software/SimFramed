@@ -12,7 +12,8 @@ lattice.loadSettings('Lattices/clara400_v12_elegant.def')
 if not os.name == 'nt':
     lattice.defineASTRACommand(['mpiexec','-np',str(12),'/opt/ASTRA/astra_MPICH2.sh'])
     lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
-lattice.track()#files=['generator','injector400'])
+# lattice['bunch_compressor'].set_angle(0.095)
+print lattice['VBC'].writeElements_CSRTrack()
 # for i, q in enumerate(lattice.dipoles,1):
 #     print q.write_ASTRA(i)
 # for i, q in enumerate(lattice.cavities,1):
