@@ -111,13 +111,19 @@ csrtrack_particles:
     reference_point_y,
     reference_point_phi,
     format,
+    array,
+  ]
+  framework_keywords: [
+  particles,
   ]
 csrtrack_online_monitor:
   keywords: [
-    name,
-    type,
+    csrtrack_name,
+    csrtrack_type,
     start_time_c0,
     end_time_marker,
+    start_time_marker,
+    start_time_shift_c0,
     end_time_shift_c0,
     time_step_c0,
     particle,
@@ -125,7 +131,7 @@ csrtrack_online_monitor:
   ]
 csrtrack_forces:
   keywords: [
-    type,
+    csrtrack_type,
     shape,
     sigma_long,
     relative_long,
@@ -151,5 +157,5 @@ csrtrack_tracker:
 csrtrack_monitor:
   keywords: [
     format,
-    name,
+    csrtrack_name,
   ]
