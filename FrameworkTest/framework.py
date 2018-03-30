@@ -40,6 +40,8 @@ astra_generator_keywords = {
     ]
 }
 
+with open(os.path.dirname( os.path.abspath(__file__))+'/csrtrack_defaults.yaml', 'r') as infile:
+    csrtrack_defaults = yaml.load(infile)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', 'r') as infile:
     elementkeywords = yaml.load(infile)
@@ -57,9 +59,9 @@ section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'}
                              'solenoids': {'header': 'SOLENOID', 'bool': 'LBField'},
                              'quadrupoles': {'header': 'QUADRUPOLE', 'bool': 'LQuad'},
                              'dipoles': {'header': 'DIPOLE', 'bool': 'LDipole'},
-                             'newrun': {'header': 'NEWRUN'},
-                             'output': {'header': 'OUTPUT'},
-                             'charge': {'header': 'CHARGE'},
+                             'astra_newrun': {'header': 'NEWRUN'},
+                             'astra_output': {'header': 'OUTPUT'},
+                             'astra_charge': {'header': 'CHARGE'},
                             }
 
 def merge_two_dicts(x, y):
@@ -87,7 +89,6 @@ class framework(object):
         self.latticeObjects = OrderedDict()
         self.commandObjects = OrderedDict()
         self.groupObjects = OrderedDict()
-        self.executables = {'generator': ['generator'], 'astra': ['astra'], 'elegant': ['elegant']}
 
         self.basedirectory = os.getcwd()
         self.filedirectory = os.path.dirname(os.path.abspath(__file__))
@@ -110,6 +111,10 @@ class framework(object):
         else:
             master_lattice_location = master_lattice
 
+        self.executables = {'generator': [master_lattice_location+'Codes/generator'], 'astra': [master_lattice_location+'Codes/astra'],
+                            'elegant': [master_lattice_location+'Codes/elegant'], 'csrtrack': [master_lattice_location+'Codes/csrtrack']}
+
+
     def defineASTRACommand(self, command=['astra']):
         """Modify the defined ASTRA command variable"""
         self.executables['astra'] = command
@@ -120,6 +125,9 @@ class framework(object):
 
     def defineGeneratorCommand(self,command=['generator']):
         self.executables['generator'] = command
+
+    def defineCSRTrackCommand(self,command=['csrtrack']):
+        self.executables['csrtrack'] = command
 
     def load_Elements_File(self, input):
         if isinstance(input,(list,tuple)):
@@ -158,7 +166,8 @@ class framework(object):
             self.read_Lattice(name, lattice)
 
     def read_Lattice(self, name, lattice):
-        self.latticeObjects[name] = frameworkLattice(name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
+        code = lattice['code'] if 'code' in lattice else 'astra'
+        self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
     def read_Element(self, name, element, subelement=False):
         if name == 'filename':
@@ -224,6 +233,7 @@ class framework(object):
                 self.generator.astra_to_hdf5()
             else:
                 print 'Running ',l,'...'
+                self.latticeObjects[l].preProcess()
                 self.latticeObjects[l].write()
                 self.latticeObjects[l].run()
                 self.latticeObjects[l].postProcess()
@@ -355,14 +365,26 @@ class frameworkLattice(object):
         return newelements
 
     def write(self):
-        if self.file_block['code'].lower() == 'astra':
-            self.code_file = master_subdir+'/'+self.name+'.in'
-            saveFile(self.code_file, self.writeElements_ASTRA())
-        elif self.file_block['code'].lower() == 'elegant':
-            self.code_file = master_subdir+'/'+self.name+'.lte'
-            saveFile(self.code_file, self.writeElements_Elegant())
+        pass
 
-    def writeElements_Elegant(self):
+    def run(self):
+        """Run the code with input 'filename'"""
+        command = self.executables[self.code] + [self.name]
+        with open(os.path.relpath(master_subdir+'/'+self.name+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f, cwd=master_subdir)
+
+    def postProcess(self):
+        pass
+
+    def preProcess(self):
+        pass
+
+class elegantLattice(frameworkLattice):
+    def __init__(self, *args, **kwargs):
+        super(elegantLattice, self).__init__(*args, **kwargs)
+        self.code = 'elegant'
+
+    def writeElements(self):
         q = charge(name='START', type='charge',**{'total': 250e-12})
         w = screen(name='END', type='screen',**{'output_filename': self.end+'.sdds'})
         elements = self.createDrifts()
@@ -378,89 +400,117 @@ class frameworkLattice(object):
             fulltext += e+', '
         return fulltext[:-2] + ', END);\n'
 
-    def writeElements_ASTRA(self):
+    def write(self):
+        self.code_file = master_subdir+'/'+self.name+'.lte'
+        saveFile(self.code_file, self.writeElements())
+
+class astraLattice(frameworkLattice):
+    def __init__(self, *args, **kwargs):
+        super(astraLattice, self).__init__(*args, **kwargs)
+        self.code = 'astra'
+        self.headers = OrderedDict()
+        self.headers['newrun'] = astra_newrun(**merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
+        self.headers['output'] = astra_output(self.screens_and_bpms, **merge_two_dicts(self.file_block['output'],self.globalSettings['ASTRAsettings']))
+        self.headers['charge'] = astra_charge(**merge_two_dicts(self.file_block['charge'],self.globalSettings['ASTRAsettings']))
+        if self.headers['newrun'].particle_definition == 'initial_distribution':
+                    self.headers['newrun'].particle_definition = 'laser.astra'
+        else:
+            self.headers['newrun'].particle_definition = self.allElementObjects[self.start].name+'.astra'
+
+    def writeElements(self):
         fulltext = ''
         ''' Create objects for the newrun, output and charge blocks'''
-        for t, d in [['newrun','input'], ['output', 'output'], ['charge','charge']]:
-            fulltext += '&' + section_header_text_ASTRA[t]['header']+'\n'
-            ''' instantiate an object based on the type of header block'''
-            header = globals()['astra_'+t](t, 'astra_'+t, **merge_two_dicts(self.file_block[d],self.globalSettings['ASTRAsettings']))
-            ''' some special sauce for newrun blocks '''
-            if t == 'newrun':
-                if header.particle_definition == 'initial_distribution':
-                    header.particle_definition = 'laser.astra'
-                else:
-                    header.particle_definition = self.allElementObjects[self.start].name+'.astra'
-                header.hdf5_to_astra()
-            ''' some special sauce for output blocks '''
-            if t == 'output':
-                header.start_element = self.allElementObjects[self.start].position_start[2]
-                header.end_element = self.allElementObjects[self.end].position_end[2]
-            ''' write the headers and their elements '''
-            fulltext += header.write_ASTRA()+'\n'
-            if t == 'output':
-                counter = frameworkCounter({'beam_position_monitor': 'screen'})
-                elements = self.screens_and_bpms
-                for element in elements:
-                    fulltext += element.write_ASTRA(counter.add(element.type))+'\n'
-            fulltext += '\n/\n'
+        self.headers['output'].start_element = self.allElementObjects[self.start].position_start[2]
+        self.headers['output'].end_element = self.allElementObjects[self.end].position_end[2]
+        ''' write the headers and their elements '''
+        for header in self.headers:
+            fulltext += self.headers[header].write_ASTRA()+'\n'
         counter = frameworkCounter(sub={'kicker': 'dipole'})
         for t in [['cavities'], ['solenoids'], ['quadrupoles'], ['dipoles', 'dipoles_and_kickers']]:
             fulltext += '&' + section_header_text_ASTRA[t[0]]['header']+'\n'
             elements = getattr(self, t[-1])
             fulltext += section_header_text_ASTRA[t[0]]['bool']+' = '+str(len(elements) > 0)+'\n'
             for element in elements:
-                elemstr = element.write_ASTRA(counter.add(element.type))
+                elemstr = element.write_ASTRA(counter.counter(element.type))
                 if elemstr is not None and not elemstr == '':
                     fulltext += elemstr+'\n'
                     if element.type == 'kicker':
+                        counter.add(element.type,2)
+                    else:
                         counter.add(element.type)
-                else:
-                    counter.subtract(element.type)
             fulltext += '\n/\n'
         return fulltext
 
-    def load_CSRTrack_elements(self):
-        self.CSRTrackelementObjects = OrderedDict()
-        if 'CSRTrack_Options' in self.file_block:
-            for elemtype, kwargs in self.file_block['CSRTrack_Options'].iteritems():
-                if elemtype.lower() == 'online_monitor':
-                    for om, kwargs in self.file_block['CSRTrack_Options']['online_monitor'].iteritems():
-                        self.CSRTrackelementObjects[om] = globals()['csrtrack_'+elemtype](name=om, **kwargs)
-                else:
-                    self.CSRTrackelementObjects[elemtype] = globals()['csrtrack_'+elemtype](**kwargs)
+    def write(self):
+        self.code_file = master_subdir+'/'+self.name+'.in'
+        saveFile(self.code_file, self.writeElements())
 
-    def writeElements_CSRTrack(self):
-        self.load_CSRTrack_elements()
-        fulltext = 'io_path{\n\tlogfile = log.txt\n}\nlattice{\n'
-        counter = frameworkCounter()
-        for e in self.dipoles:
-            fulltext += e.write_CSRTrack(counter.add(e.type))
-        fulltext += '}\n'
-        for obj in self.CSRTrackelementObjects.values():
-            fulltext += obj.write_CSRTrack()
-        return fulltext
-
-    def run(self):
-        self.runCode(self.file_block['code'].lower(), self.code_file)
-
-    def runCode(self, code, filename=''):
-        """Run the code with input 'filename'"""
-        command = self.executables[code] + [os.path.relpath(filename, master_subdir)]
-        with open(os.path.relpath(filename+'.log', '.'), "w") as f:
-            subprocess.call(command, stdout=f, cwd=master_subdir)
+    def preProcess(self):
+        self.headers['newrun'].hdf5_to_astra()
 
     def postProcess(self):
-        if self.file_block['code'].lower() == 'astra':
-            for e in self.screens_and_bpms:
-                e.astra_to_hdf5(self.name)
-            self.astra_to_hdf5()
+        for e in self.screens_and_bpms:
+            e.astra_to_hdf5(self.name)
+        self.astra_to_hdf5()
 
     def astra_to_hdf5(self):
         astrabeamfilename = self.name + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
         HDF5filename = self.allElementObjects[self.end].name+'.hdf5'
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
+
+class csrtrackLattice(frameworkLattice):
+    def __init__(self, *args, **kwargs):
+        super(csrtrackLattice, self).__init__(*args, **kwargs)
+        self.code = 'csrtrack'
+        self.particle_definition = ''
+        self.CSRTrackelementObjects = OrderedDict()
+        self.set_particles_filename()
+
+    def set_particles_filename(self):
+        self.CSRTrackelementObjects['particles'] = csrtrack_particles(particle_definition=self.particle_definition)
+        self.CSRTrackelementObjects['particles'].format = 'astra'
+        if self.particle_definition == 'initial_distribution':
+            self.CSRTrackelementObjects['particles'].particle_definition = 'laser.astra'
+            self.CSRTrackelementObjects['particles'].add_default('array', '#file{name=laser.astra}')
+        else:
+            self.CSRTrackelementObjects['particles'].particle_definition = self.allElementObjects[self.start].name
+            self.CSRTrackelementObjects['particles'].add_default('array', '#file{name='+self.allElementObjects[self.start].name+'.astra'+'}')
+
+    @property
+    def dipoles_screens_and_bpms(self):
+        return sorted(self.getElementType('dipole') + self.getElementType('screen') + self.getElementType('beam_position_monitor'), key=lambda x: x.position_end[2])
+
+    def writeElements(self):
+        fulltext = 'io_path{logfile = log.txt}\nlattice{\n'
+        counter = frameworkCounter(sub={'beam_position_monitor': 'screen'})
+        for e in self.dipoles_screens_and_bpms:
+            # if not e.type == 'dipole':
+                # self.CSRTrackelementObjects[e.name] = csrtrack_online_monitor(filename=e.name+'.fmt2', monitor_type='phase', marker='screen'+str(counter.counter(e.type)), particle='all')
+            fulltext += e.write_CSRTrack(counter.counter(e.type))
+            counter.add(e.type)
+        end_screen = screen('end_screen', type='screen', position_end=[0,0,self.allElementObjects[self.end].position_end[2]], position_start=[0,0,self.allElementObjects[self.end].position_end[2]])
+        fulltext += end_screen.write_CSRTrack(counter.counter(end_screen.type))
+        fulltext += '}\n'
+        self.set_particles_filename()
+        self.CSRTrackelementObjects['forces'] = csrtrack_forces()
+        self.CSRTrackelementObjects['track_step'] = csrtrack_track_step()
+        self.CSRTrackelementObjects['tracker'] = csrtrack_tracker(end_time_marker='screen'+str(counter.counter(end_screen.type))+'a')
+        print self.CSRTrackelementObjects['tracker'].properties
+        self.CSRTrackelementObjects['monitor'] = csrtrack_monitor(filename=self.end+'.fmt2')
+        for c in self.CSRTrackelementObjects:
+            fulltext += self.CSRTrackelementObjects[c].write_CSRTrack()
+        return fulltext
+
+    def write(self):
+        self.code_file = master_subdir+'/csrtrk.in'
+        saveFile(self.code_file, self.writeElements())
+
+    def preProcess(self):
+        self.CSRTrackelementObjects['particles'].hdf5_to_astra()
+
+    def postProcess(self):
+        self.CSRTrackelementObjects['monitor'].csrtrack_to_hdf5()
 
 class frameworkGroup(object):
     def __init__(self, name, elementObjects, type, elements, **kwargs):
@@ -544,12 +594,22 @@ class frameworkCounter(dict):
         super(frameworkCounter, self).__init__()
         self.sub = sub
 
-    def add(self, type):
+    def counter(self, type):
+        if type not in self:
+            return 1
+        return self[type] + 1
+
+    def value(self, type):
+        if type not in self:
+            return 1
+        return self[type]
+
+    def add(self, type, n=1):
         type = self.sub[type] if type in self.sub else type
         if type not in self:
-            self[type] = 1
+            self[type] = n
         else:
-            self[type] += 1
+            self[type] += n
         return self[type]
 
     def subtract(self, type):
@@ -716,7 +776,6 @@ class frameworkGenerator(object):
         if key.lower() in self.allowedKeyWords:
             self.properties[key.lower()] = value
             self.__setattr__(key.lower(), value)
-        print self.properties
 
     def __getattr__(self, a):
         return None
@@ -947,12 +1006,7 @@ class dipole(frameworkElement):
     def write_CSRTrack(self, n):
         z1 = self.position_start[2]
         z2 = self.position_end[2]
-        return """    dipole{
-        position{rho="""+str(z1)+""", psi="""+str(chop(self.theta+self.e1))+""", marker=d"""+str(n)+"""a}
-        properties{r="""+str(self.rho)+"""}
-        position{rho="""+str(z2)+""", psi="""+str(chop(self.theta+self.angle-self.e2))+""", marker=d"""+str(n)+"""b}
-    }
-"""
+        return """dipole{\nposition{rho="""+str(z1)+""", psi="""+str(chop(self.theta+self.e1))+""", marker=d"""+str(n)+"""a}\nproperties{r="""+str(self.rho)+"""}\nposition{rho="""+str(z2)+""", psi="""+str(chop(self.theta+self.angle-self.e2))+""", marker=d"""+str(n)+"""b}\n}\n"""
 
     def write_ASTRA(self, n):
         if abs(self.checkValue('strength', default=0)) > 0 or abs(self.rho) > 0:
@@ -962,7 +1016,7 @@ class dipole(frameworkElement):
                 self.plane = 'horizontal'
             params = OrderedDict([
                 ['D_Type', {'value': '\''+self.plane+'\'', 'default': '\'horizontal\''}],
-                ['D_Gap', {'type': 'list', 'value': self.gap, 'default': [0.02, 0.02]}],
+                ['D_Gap', {'type': 'list', 'value': [self.gap, self.gap], 'default': [0.02, 0.02]}],
                 ['D1', {'type': 'array', 'value': [corners[3][0],corners[3][2]] }],
                 ['D3', {'type': 'array', 'value': [corners[2][0],corners[2][2]] }],
                 ['D4', {'type': 'array', 'value': [corners[1][0],corners[1][2]] }],
@@ -1077,6 +1131,10 @@ class screen(frameworkElement):
             ['Screen', {'value': self.middle[2], 'default': 0}],
         ]), n)
 
+    def write_CSRTrack(self, n):
+        z = self.middle[2]
+        return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
+
     def astra_to_hdf5(self, lattice):
         for i in [0, -0.001, 0.001]:
             tempfilename = lattice + '.' + str(int(round((self.middle[2]+i)*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
@@ -1141,11 +1199,13 @@ class astra_header(frameworkElement):
         for k in elementkeywords[self.type]['keywords']:
             if getattr(self, k.lower()) is not None:
                 keyword_dict[k.lower()] = {'value': getattr(self,k.lower())}
-        return self._write_ASTRA(merge_two_dicts(self.framework_dict(), keyword_dict), None)
+        output = '&' + section_header_text_ASTRA[self.type]['header']+'\n'
+        output += self._write_ASTRA(merge_two_dicts(self.framework_dict(), keyword_dict), None) + '\n/\n'
+        return output
 
 class astra_newrun(astra_header):
-    def __init__(self, name=None, type=None, **kwargs):
-        super(astra_header, self).__init__(name, type, **kwargs)
+    def __init__(self, **kwargs):
+        super(astra_header, self).__init__('newrun', 'astra_newrun', **kwargs)
         if 'run' not in kwargs:
             self.properties['run'] = 1
         if 'head' not in kwargs:
@@ -1165,18 +1225,23 @@ class astra_newrun(astra_header):
         beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
 
 class astra_output(astra_header):
-    def __init__(self, name=None, type=None, **kwargs):
-        super(astra_header, self).__init__(name, type, **kwargs)
+    def __init__(self, screens, **kwargs):
+        super(astra_header, self).__init__('output', 'astra_output', **kwargs)
+        self.screens = screens
 
     def framework_dict(self):
-        return OrderedDict([
+        keyworddict = OrderedDict([
             ['zstart', {'value': self.start_element}],
             ['zstop', {'value': self.end_element}],
         ])
+        elements = self.screens
+        for i, element in enumerate(elements,1):
+            keyworddict['Screen('+str(i)+')'] = {'value': element.middle[2]}
+        return keyworddict
 
 class astra_charge(astra_header):
-    def __init__(self, name=None, type=None, **kwargs):
-        super(astra_header, self).__init__(name, type, **kwargs)
+    def __init__(self, **kwargs):
+        super(astra_header, self).__init__('charge', 'astra_charge', **kwargs)
 
     @property
     def space_charge(self):
@@ -1215,7 +1280,10 @@ class csrtrack_element(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(csrtrack_element, self).__init__(name, type)
-        self.kwargs = kwargs
+        self.header = ''
+        if name in csrtrack_defaults:
+            for k, v in csrtrack_defaults[name].iteritems():
+                self.add_default(k, v)
 
     def CSRTrack_str(self, s):
         if s is True:
@@ -1226,53 +1294,79 @@ class csrtrack_element(frameworkElement):
             return str(s)
 
     def write_CSRTrack(self):
-        output = str(self.name) + '{\n'
+        output = str(self.header) + '{\n'
         for k in elementkeywords[self.type]['keywords']:
-            if k.lower() in self.kwargs:
-                output += '\t'+k+'='+self.CSRTrack_str(self.kwargs[k.lower()])+'\n'
+            k = k.lower()
+            if self.name in csrtrack_defaults['conversion'] and k in csrtrack_defaults['conversion'][self.name]:
+                k = csrtrack_defaults['conversion'][self.name][k]
+            if getattr(self,k) is not None and not 'csrtrack_' in k:
+                output += k+'='+self.CSRTrack_str(getattr(self, k))+'\n'
+            elif k in self.defaults and not 'csrtrack_' in k:
+                output += k+'='+self.CSRTrack_str(self.defaults[k])+'\n'
+            if k in csrtrack_defaults['conversion']['general']:
+                if getattr(self, k) is not None:
+                    output += csrtrack_defaults['conversion']['general'][k]+'='+self.CSRTrack_str(getattr(self,k))+'\n'
+                elif k in self.defaults:
+                    output += csrtrack_defaults['conversion']['general'][k]+'='+self.CSRTrack_str(self.defaults[k])+'\n'
         output+='}\n'
         return output
 
 class csrtrack_online_monitor(csrtrack_element):
 
-    def __init__(self, name=None, **kwargs):
-        super(csrtrack_online_monitor, self).__init__(name=name, type='csrtrack_online_monitor')
-        self.kwargs = kwargs
-
-    def write_CSRTrack(self):
-        output = 'online_monitor{\n'
-        for k in elementkeywords[self.type]['keywords']:
-            if k.lower() in self.kwargs:
-                output += '\t'+k+'='+self.CSRTrack_str(self.kwargs[k.lower()])+'\n'
-        output+='}\n'
-        return output
+    def __init__(self, filename=None, monitor_type='phase', marker='', particle='all', **kwargs):
+        super(csrtrack_online_monitor, self).__init__('online_monitor', 'csrtrack_online_monitor')
+        self.header = 'online_monitor'
+        self.csrtrack_name = filename
+        self.csrtrack_type = 'phase'
+        self.start_time_shift_c0 = 0
+        self.end_time_shift_c0 = 0
+        self.end_time_marker = marker+'b'
+        self.particle = particle
 
 class csrtrack_forces(csrtrack_element):
 
     def __init__(self, **kwargs):
         super(csrtrack_forces, self).__init__('forces', 'csrtrack_forces')
-        self.kwargs = kwargs
+        self.header = 'forces'
 
 class csrtrack_track_step(csrtrack_element):
 
     def __init__(self, **kwargs):
         super(csrtrack_track_step, self).__init__('track_step', 'csrtrack_track_step')
-        self.kwargs = kwargs
+        self.header = 'track_step'
 
 class csrtrack_tracker(csrtrack_element):
 
-    def __init__(self, **kwargs):
+    def __init__(self, end_time_marker=''):
         super(csrtrack_tracker, self).__init__('tracker', 'csrtrack_tracker')
-        self.kwargs = kwargs
+        self.header = 'tracker'
+        self.end_time_marker = end_time_marker
 
 class csrtrack_monitor(csrtrack_element):
 
-    def __init__(self, **kwargs):
-        super(csrtrack_monitor, self).__init__('monitor', 'csrtrack_monitor')
-        self.kwargs = kwargs
+    def __init__(self, filename=None, **kwargs):
+        super(csrtrack_monitor, self).__init__(name='monitor', type='csrtrack_monitor')
+        self.header = 'monitor'
+        self.csrtrack_name = filename
+
+    def csrtrack_to_hdf5(self):
+        csrtrackbeamfilename = self.csrtrack_name
+        astrabeamfilename = csrtrackbeamfilename.replace('.fmt2','.astra')
+        beam.convert_csrtrackfile_to_astrafile(master_subdir + '/' + csrtrackbeamfilename, master_subdir + '/' + astrabeamfilename)
+        beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+        HDF5filename = self.csrtrack_name.replace('.fmt2','.hdf5')
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, sourcefilename=csrtrackbeamfilename)
 
 class csrtrack_particles(csrtrack_element):
 
-    def __init__(self, **kwargs):
+    def __init__(self, particle_definition, **kwargs):
         super(csrtrack_particles, self).__init__('particles', 'csrtrack_particles')
-        self.kwargs = kwargs
+        self.header = 'particles'
+        self.particle_definition = particle_definition
+
+    def hdf5_to_astra(self):
+        print 'self.particle_definition = ', self.particle_definition
+        HDF5filename = self.particle_definition+'.hdf5'
+        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        astrabeamfilename = self.particle_definition+'.astra'
+        beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
