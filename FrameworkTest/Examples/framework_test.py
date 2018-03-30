@@ -12,8 +12,10 @@ lattice.loadSettings('Lattices/clara400_v12_elegant.def')
 if not os.name == 'nt':
     lattice.defineASTRACommand(['mpiexec','-np',str(12),'/opt/ASTRA/astra_MPICH2.sh'])
     lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
+    lattice.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(12),'/opt/CSRTrack/csrtrack_openmpi.sh'])
 # lattice['bunch_compressor'].set_angle(0.095)
-print lattice['VBC'].writeElements_CSRTrack()
+lattice.generator.number_of_particles = 2**(3*3)
+lattice.track()
 # for i, q in enumerate(lattice.dipoles,1):
 #     print q.write_ASTRA(i)
 # for i, q in enumerate(lattice.cavities,1):
