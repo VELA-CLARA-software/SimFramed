@@ -174,7 +174,6 @@ class beam(object):
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
         z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
-        clock = self.normalise_to_ref_particle(clock, subtractmean=True)
         cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
         self.beam['x'] = x
         self.beam['y'] = y
@@ -371,7 +370,6 @@ class beam(object):
         postOffset=np.array(postOffset)
 
         rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
-
         beam = np.array([self.beam['x'],self.beam['y'],self.beam['z']]).transpose()
         self.beam['x'],self.beam['y'],self.beam['z'] = (np.dot(beam-preOffset, rotation_matrix)-postOffset).transpose()
 
