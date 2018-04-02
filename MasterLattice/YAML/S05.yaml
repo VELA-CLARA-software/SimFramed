@@ -38,7 +38,7 @@ elements:
     position_start: [0, 0, 25.1151]
   CLA-S05-DIA-SCR-01-W:
     type: screen
-    output_filename: '"CLA-S05-DIA-SCR-01.SDDS"'
+    output_filename: CLA-S05-DIA-SCR-01.SDDS
     buffer_start: [0, 0, 25.1361]
     buffer_start_length: 0.043273
     buffer_end_length: 0.0767

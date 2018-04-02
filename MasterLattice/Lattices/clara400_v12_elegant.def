@@ -51,8 +51,6 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.sdds
     output:
       start_element: CLA-S02-APER-01
       end_element: CLA-L02-APER
@@ -131,56 +129,6 @@ files:
     output:
       start_element: CLA-S05-MARK-01
       end_element: CLA-S06-MARK-01
-    CSRTrack_Options:
-      online_monitor:
-        sub_bunch.dat:
-          type: subbunch
-          start_time_c0: now
-          end_time_marker: d4b
-          end_time_shift_c0: 0.1
-          time_step_c0: all
-        steps.dat:
-          type: steps
-          start_time_c0: now
-          end_time_marker: d4b
-          end_time_shift_c0: 0.1
-          time_step_c0: all
-        p1.fmt2:
-          type: phase
-          format: fmt2
-          particle: 1
-          start_time_c0: now
-          end_time_marker: d4b
-          end_time_shift_c0: 0.1
-          time_step_c0: all
-      forces:
-        type: projected
-        shape: ellipsoid
-        sigma_long: relative
-        relative_long: 0.1
-      track_step:
-        precondition: yes
-        iterative: 2
-        error_per_ct: 0.001
-        error_weight_momentum: 0.0
-        ct_step_min: 0.002
-        ct_step_max: 0.010
-        ct_step_first: 0.010
-        increase_factor: 1.5
-        arc_factor: 0.3
-        duty_steps: yes
-      tracker:
-        end_time_marker: d4b
-        end_time_shift_c0: 0.1
-      monitor:
-        format: fmt2
-        name: vb.fmt2
-      particles:
-        reference_momentum: reference_particle
-        reference_point_x: 0.0
-        reference_point_y: 0.0
-        reference_point_phi: 0.0
-        format: astra
     groups:
       bunch_compressor:
         dipoleangle: 0.1185
