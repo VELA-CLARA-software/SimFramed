@@ -73,7 +73,7 @@ elements:
     position_start: [0, 0, 39.788]
   CLA-S07-DIA-SCR-01-W:
     type: screen
-    output_filename: '"CLA-S07-DIA-SCR-01.SDDS"'
+    output_filename: CLA-S07-DIA-SCR-01.SDDS
     buffer_start: [0, 0, 39.8878]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -154,7 +154,7 @@ elements:
     position_start: [0, 0, 42.4078]
   CLA-S07-DIA-SCR-02-W:
     type: screen
-    output_filename: '"CLA-S07-DIA-SCR-02.SDDS"'
+    output_filename: CLA-S07-DIA-SCR-02.SDDS
     buffer_start: [0, 0, 42.6178]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -268,7 +268,7 @@ elements:
     position_start: [0, 0, 46.2478]
   CLA-S07-DIA-SCR-03-W:
     type: screen
-    output_filename: '"CLA-S07-DIA-SCR-03.SDDS"'
+    output_filename: CLA-S07-DIA-SCR-03.SDDS
     buffer_start: [0, 0, 46.3978]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -324,7 +324,7 @@ elements:
     position_start: [0, 0, 47.7528]
   CLA-S07-DIA-SCR-04-W:
     type: screen
-    output_filename: '"CLA-S07-DIA-SCR-04.SDDS"'
+    output_filename: CLA-S07-DIA-SCR-04.SDDS
     buffer_start: [0, 0, 47.8278]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -363,7 +363,7 @@ elements:
     position_start: [0, 0, 48.8478]
   CLA-S07-DIA-SCR-05-W:
     type: screen
-    output_filename: '"CLA-S07-DIA-SCR-05.SDDS"'
+    output_filename: CLA-S07-DIA-SCR-05.SDDS
     buffer_start: [0, 0, 49.0578]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
