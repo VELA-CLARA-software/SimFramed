@@ -56,7 +56,7 @@ elements:
     position_start: [0, 0, 16.9382]
   CLA-S04-DIA-SCR-01-W:
     type: screen
-    output_filename: '"CLA-S04-DIA-SCR-01.SDDS"'
+    output_filename: CLA-S04-DIA-SCR-01.SDDS
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 17.3136]
     position_start: [0, 0, 17.3136]
@@ -103,7 +103,7 @@ elements:
     position_start: [0, 0, 18.3252]
   CLA-S04-DIA-SCR-02-W:
     type: screen
-    output_filename: '"CLA-S04-DIA-SCR-02.SDDS"'
+    output_filename: CLA-S04-DIA-SCR-02.SDDS
     buffer_start: [0, 0, 18.4102]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -120,7 +120,7 @@ elements:
     csr_bins: 20.0
     sr_enable: true
     isr_enable: true
-    csr_output_filename: '"CLA-S04-MAG-DIP-01.CSR"'
+    csr_output_filename: CLA-S04-MAG-DIP-01.CSR
     buffer_start: [0, 0, 18.5302]
     buffer_start_length: 0.06
     buffer_end_length: 0.05
@@ -137,7 +137,7 @@ elements:
     csr_bins: 20.0
     sr_enable: true
     isr_enable: true
-    csr_output_filename: '"CLA-S04-MAG-DIP-02.CSR"'
+    csr_output_filename: CLA-S04-MAG-DIP-02.CSR
     buffer_start: [3.5e-05, 0, 18.9902]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
@@ -146,7 +146,7 @@ elements:
     position_start: [4.0e-05, 0, 19.0402]
   CLA-S04-DIA-SCR-03-W:
     type: screen
-    output_filename: '"CLA-S04-DIA-SCR-03.SDDS"'
+    output_filename: CLA-S04-DIA-SCR-03.SDDS
     buffer_start: [4.5e-05, 0, 19.1902]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -184,7 +184,7 @@ elements:
     position_start: [4.5e-05, 0, 20.2352]
   CLA-S04-DIA-SCR-04-W:
     type: screen
-    output_filename: '"CLA-S04-DIA-SCR-04.SDDS"'
+    output_filename: CLA-S04-DIA-SCR-04.SDDS
     buffer_start: [4.5e-05, 0, 20.4452]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -201,7 +201,7 @@ elements:
     csr_bins: 20.0
     sr_enable: true
     isr_enable: true
-    csr_output_filename: '"CLA-S04-MAG-DIP-03.CSR"'
+    csr_output_filename: CLA-S04-MAG-DIP-03.CSR
     buffer_start: [4.5e-05, 0, 20.5652]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
@@ -218,7 +218,7 @@ elements:
     csr_bins: 20.0
     sr_enable: true
     isr_enable: true
-    csr_output_filename: '"CLA-S04-MAG-DIP-04.CSR"'
+    csr_output_filename: CLA-S04-MAG-DIP-04.CSR
     buffer_start: [1.0e-05, 0, 21.0152]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
@@ -227,7 +227,7 @@ elements:
     position_start: [5.0e-06, 0, 21.0652]
   CLA-S04-DIA-SCR-05-W:
     type: screen
-    output_filename: '"CLA-S04-DIA-SCR-05.SDDS"'
+    output_filename: CLA-S04-DIA-SCR-05.SDDS
     buffer_start: [0, 0, 21.2719]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667

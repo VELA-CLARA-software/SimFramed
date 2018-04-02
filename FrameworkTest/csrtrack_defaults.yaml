@@ -7,7 +7,7 @@ particles:
 monitor:
   format: fmt2
 forces:
-  csrtrack_type: projected
+  type: projected
   shape: ellipsoid
   sigma_long: relative
   relative_long: 0.1
@@ -27,9 +27,3 @@ online_monitor:
   format: fmt2
   # start_time_c0: now
   # time_step_c0: all
-conversion:
-  monitor:
-    filename: name
-  general:
-    csrtrack_name: name
-    csrtrack_type: type

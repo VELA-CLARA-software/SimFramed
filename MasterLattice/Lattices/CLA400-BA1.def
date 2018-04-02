@@ -31,6 +31,9 @@ global:
     Max_count: 100
     cell_var: 2
     min_grid: 3.424657e-13
+generator:
+  default: clara_400_3ps
+  number_of_particles: 2**(3*4)
 files:
   injector400:
     code: ASTRA
@@ -44,8 +47,7 @@ files:
       start_element: CLA-HRG1-APER
       end_element: CLA-S02-APER-01
   S02:
-    global_offset: $self.getElement('CLA-S02-APER-01','position_end')$
-    global_rotation: 0
+    starting_offset: $self.getElement('CLA-S02-APER-01','position_end')$
     code: ASTRA
     charge:
       cathode: False
@@ -56,8 +58,7 @@ files:
       start_element: CLA-S02-APER-01
       end_element: CLA-C2V-MARK-01
   C2V:
-    global_offset: $self.getElement('CLA-C2V-MAG-DIP-01','position_end')$
-    starting_rotation: 0
+    starting_offset: $self.getElement('CLA-C2V-MAG-DIP-01','position_end')$
     code: ASTRA
     charge:
       cathode: False
@@ -68,8 +69,7 @@ files:
       start_element: CLA-C2V-MARK-01
       end_element: CLA-C2V-DIA-SCR-01-W
   VELA:
-    global_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
-    starting_rotation: $self.getElement('CLA-C2V-MAG-DIP-01','angle')$
+    starting_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
     code: ASTRA
     charge:
       cathode: False
@@ -80,21 +80,33 @@ files:
       start_element: CLA-C2V-DIA-SCR-01-W
       end_element: EBT-INJ-PSS-SHUT-02
   BA1:
-    global_offset: $self.getElement('CLA-C2V-MAG-DIP-02','position_end')$
-    starting_rotation: $self.getElement('CLA-C2V-MAG-DIP-01','angle')$
+    starting_offset: $self.getElement('EBT-INJ-PSS-SHUT-02','position_start')$
     code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
     input:
-      particle_definition: c2v.$output['start_element']$.001
+      particle_definition: vela.$output['start_element']$.001
     output:
       start_element: EBT-INJ-PSS-SHUT-02
+      end_element: EBT-BA1-DIA-YAG-02
+  BA1_dipole:
+    starting_offset: $self.getElement('EBT-BA1-MAG-DIP-01','position_end')$
+    starting_rotation: 0
+    code: ASTRA
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: BA1.$output['start_element']$.001
+    output:
+      start_element: EBT-BA1-DIA-YAG-02
       end_element: EBT-BA1-DIA-FCUP-01
+
 groups:
 elements:
   filename: ['YAML/Injector400.yaml',
-                  'YAML/S02.yaml',
+                  'YAML/S02_EBT.yaml',
                   'YAML/C2V.yaml',
                   'YAML/INJ.yaml',
                   'YAML/BA1.yaml']

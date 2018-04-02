@@ -118,8 +118,8 @@ csrtrack_particles:
   ]
 csrtrack_online_monitor:
   keywords: [
-    csrtrack_name,
-    csrtrack_type,
+    name,
+    type,
     start_time_c0,
     end_time_marker,
     start_time_marker,
@@ -131,7 +131,7 @@ csrtrack_online_monitor:
   ]
 csrtrack_forces:
   keywords: [
-    csrtrack_type,
+    type,
     shape,
     sigma_long,
     relative_long,
@@ -157,5 +157,10 @@ csrtrack_tracker:
 csrtrack_monitor:
   keywords: [
     format,
-    csrtrack_name,
+    name,
+  ]
+gpt_setfile:
+  keywords: [
+    set,
+    filename
   ]
