@@ -183,6 +183,7 @@ elements:
     length: 0.0574
     sr_enable: true
     isr_enable: true
+    Controller_Name: COR4
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 6.7175]
     position_start: [0, 0, 6.6601]
