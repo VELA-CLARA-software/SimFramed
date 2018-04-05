@@ -12,6 +12,9 @@ elements:
     length: 0.17
     field_amplitude: 70000000.0
     frequency: 2997440000.0
+    n_cells: 2.5
+    Controller_Name: GUN10
+    Structure_Type: 'StandingWave'
     phase: -16
     field_definition: $master_lattice_location$Data_Files/bas_gun.txt
     lsc_cutoff_high: [0, 0]
@@ -80,6 +83,7 @@ elements:
   CLA-S01-DIA-SCR-01-W:
     type: screen
     output_filename: '"CLA-S01-DIA-SCR-01.SDDS"'
+    camera_PV: CLA-S01-DIA-CAM-01
     buffer_start: [0, 0, 0.9377]
     buffer_start_length: 0.043333
     buffer_end_length: 0.076667
@@ -97,7 +101,9 @@ elements:
   CLA-L01-CAV:
     type: cavity
     length: 2.03333
+    Structure_Type: 'TravellingWave'
     cell_length: 0.0333333
+    n_cells: 61
     field_amplitude: 21000000.0
     frequency: 2998500000.0
     phase: -16
@@ -113,6 +119,20 @@ elements:
     Controller_Name: L01
     Online_Model_Name: C1-L01
     PV: CLA-L01-LRF-CTRL-01
-    global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.2269]
     position_start: [0, 0, 1.19357]
+    sub_elements:
+      CLA-L01-CAV-SOL-01:
+        type: solenoid
+        length: 0
+        field_amplitude: 0.05
+        field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
+        position_end: [0, 0, 2.2]
+        position_start: [0, 0, 1.70]
+      CLA-L01-CAV-SOL-02:
+        type: solenoid
+        length: 0
+        field_amplitude: -0.05
+        field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
+        position_end: [0, 0, 3.2]
+        position_start: [0, 0, 2.70]
