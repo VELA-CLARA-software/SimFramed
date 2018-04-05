@@ -57,10 +57,9 @@ class Setup(QThread):
                 ans = True
                 print '    Loaded pathway: ', path
                 return ans
-            else:
-                print '    Could not find a pathway...'
-                print '    Exiting ...'
-                return ans
+        print '    Could not find a pathway...'
+        print '    Exiting ...'
+        return ans
 
     def go(self, startElement, stopElement, initDistrib, charge=0.25):
             self.startElement = startElement
@@ -88,6 +87,43 @@ class Setup(QThread):
 
         print('2. Create a beamline ...')
         self.loadPathway()
+        print('    Crop pathway for SAMPL run...')
+        startIndex = self.pathway.elementIndex(self.startElement)
+        stopIndex = self.pathway.elementIndex(self.stopElement)
+        for section in self.pathway.fileSettings.keys():
+            startOfSection = self.pathway.fileSettings[section]['output']['start_element']
+            stopOfSection = self.pathway.fileSettings[section]['output']['end_element']
+            sectionStartIndex = self.pathway.elementIndex(startOfSection)
+            sectionStopIndex = self.pathway.elementIndex(stopOfSection)
+            [nameEndSection, dataEndSection] = self.pathway.getElementAt(sectionStopIndex)
+            elementsToBeRemoved = []
+
+            for i in range(sectionStartIndex, sectionStopIndex):
+                # print name
+                [name, data] = self.pathway.getElementAt(i)
+                if dataEndSection['position_start'][-1] < data['position_start'][-1]:
+                    print '      Deleting element', name
+                    elementsToBeRemoved.append(name)
+
+            for name in elementsToBeRemoved:
+                self.pathway.deleteElement(name)
+
+            sectionStartIndex = self.pathway.elementIndex(startOfSection)
+            sectionStopIndex = self.pathway.elementIndex(stopOfSection)
+            startIndex = self.pathway.elementIndex(self.startElement)
+            stopIndex = self.pathway.elementIndex(self.stopElement)
+            if startIndex > sectionStartIndex and startIndex > sectionStopIndex:
+                print '      Deleting section', section
+                del self.pathway.fileSettings[section]
+            if startIndex > sectionStartIndex and startIndex < sectionStopIndex:
+                print '      Make start element the start of section', section
+                self.pathway.fileSettings[section]['output']['start_element'] = self.startElement
+            if stopIndex > sectionStartIndex and stopIndex < sectionStopIndex:
+                print '      Make stop element the stop of section', section
+                self.pathway.fileSettings[section]['output']['end_element'] = self.stopElement
+            if stopIndex < sectionStartIndex and stopIndex < sectionStopIndex:
+                print '      Deleting section', section
+                del self.pathway.fileSettings[section]
         lineCreator = cbl.createBeamline(V_MAG_Ctrl=self.V_MAG_Ctrl,
                                          C_S01_MAG_Ctrl=self.C_S01_MAG_Ctrl,
                                          C_S02_MAG_Ctrl=self.C_S02_MAG_Ctrl,
