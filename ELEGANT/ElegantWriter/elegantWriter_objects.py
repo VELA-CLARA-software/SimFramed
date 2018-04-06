@@ -48,7 +48,7 @@ for commandname, parameter, value in c.execute('SELECT * FROM commands ORDER BY 
     if not commandname in commandkeywords:
         commandkeywords[commandname] = {}
     commandkeywords[commandname][parameter] = value
-print 'time to load commands = ', time.time() - start
+# print 'time to load commands = ', time.time() - start
 
 start = time.time()
 elementkeywords = {}
@@ -56,7 +56,7 @@ for elementname, parameter, value in c.execute('SELECT * FROM elements ORDER BY 
     if not elementname in elementkeywords:
         elementkeywords[elementname] = {}
     elementkeywords[elementname][parameter] = value
-print 'time to load elements = ', time.time() - start
+# print 'time to load elements = ', time.time() - start
 
 class elegantLattice(object):
 
