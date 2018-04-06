@@ -47,9 +47,9 @@ class beamline():
                 return self.C2V_MAG_Ctrl.getMagObjConstRef(nickName)
         elif 'L01' in name:
             return self.L01_RF_Ctrl.getLLRFObjConstRef()
-        elif 'GUN' in name and 'L' in name:
+        elif 'GUN' in name and 'LR' in name:
             return self.LRRG_RF_Ctrl.getLLRFObjConstRef()
-        elif 'GUN' in name and 'H' in name:
+        elif 'GUN' in name and 'HR' in name:
             return self.HRRG_RF_Ctrl.getLLRFObjConstRef()
         else:
             print ("Trying to get unrecognised object.")
