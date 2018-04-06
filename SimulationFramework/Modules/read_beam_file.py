@@ -386,6 +386,8 @@ class beam(object):
         self.beam['px'] = self.beam['cpx'] * self.q_over_c
         self.beam['py'] = self.beam['cpy'] * self.q_over_c
         self.beam['pz'] = self.beam['cpz'] * self.q_over_c
+        self.beam['xp'] = np.arctan(self.px/self.pz)
+        self.beam['yp'] = np.arctan(self.py/self.pz)
         velocity_conversion = 1 / (constants.m_e * self.gamma)
         self.beam['vx'] = velocity_conversion * self.px
         self.beam['vy'] = velocity_conversion * self.py
