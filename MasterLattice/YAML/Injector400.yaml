@@ -9,7 +9,7 @@ elements:
   CLA-HRG1-GUN-CAV:
     type: cavity
     length: 0.15
-    n_cells: 2.5
+    n_cells: 1.5
     Structure_Type: 'StandingWave'
     Controller_Name: GUN400
     field_amplitude: 120000000.0
