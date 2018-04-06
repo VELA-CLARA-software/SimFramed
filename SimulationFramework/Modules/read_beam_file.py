@@ -475,9 +475,9 @@ class beam(object):
             self.beam['charge'] = charge
             self.beam['total_charge'] = np.sum(self.beam['charge'])
             if local == True:
-                theta =  h5file.get('/Parameters/Rotation')
+                theta =  np.array(h5file.get('/Parameters/Rotation'))
                 theta = theta if theta is not None else 0
-                startposition = h5file.get('/Parameters/Starting_Position')
+                startposition = np.array(h5file.get('/Parameters/Starting_Position'))
                 startposition = startposition if startposition is not None else 0
                 self.rotate_beamXZ(theta, preOffset=startposition)
 
