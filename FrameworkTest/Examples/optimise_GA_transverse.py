@@ -1,8 +1,8 @@
+import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
 from Framework.Framework import *
 import numpy as np
 from constraints import *
-import os
 import SimulationFramework.Modules.read_twiss_file as rtf
 import SimulationFramework.Modules.read_beam_file as rbf
 from deap import algorithms
