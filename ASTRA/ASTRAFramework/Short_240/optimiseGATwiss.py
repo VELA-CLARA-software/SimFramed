@@ -78,7 +78,7 @@ class fitnessFunc():
         astra.fileSettings['short_240.3']['quad_K'] = self.parameters[6:14]
         astra.fileSettings['short_240.4']['quad_K'] = self.parameters[14:16]
         astra.fileSettings['short_240.5']['quad_K'] = self.parameters[16:]
-        bcangle = float(astra.fileSettings['vb']['variable_bunch_compressor']['angle'])
+        bcangle = float(astra.fileSettings['vb_short_240']['variable_bunch_compressor']['angle'])
         # print 'Creating Initial Distribution in folder:', self.tmpdir
         astra.createInitialDistribution(npart=npart, charge=250)
         # print 'Apply Settings in folder:', self.tmpdir
@@ -238,7 +238,7 @@ toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
 if os.name == 'nt':
-    toolbox.register("evaluate", optfunc, npart=2**(3*3))
+    toolbox.register("evaluate", optfunc, npart=2**(3*2))
 else:
     toolbox.register("evaluate", optfunc, npart=2**(4*3))
 toolbox.register("mate", tools.cxBlend, alpha=0.2)

@@ -212,6 +212,13 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 44.5278]
     position_start: [0, 0, 43.9318]
+  CLA-S07-DCP-01-SCR:
+    type: screen
+    length: 0.0
+    output_filename: CLA-S07-DCP-01-SCR.SDDS
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 43.9318]
+    position_start: [0, 0, 43.9318]
   CLA-S07-APER-03:
     type: aperture
     shape: rectangular

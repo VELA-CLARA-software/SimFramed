@@ -73,7 +73,6 @@ def isevaluable(self, s):
     except:
         return False
 
-
 def expand_substitution(self, param, subs={}):
     if isinstance(param,(str)):
         regex = re.compile('\$(.*)\$')
@@ -109,7 +108,6 @@ def checkValue(self, d, default=None):
     elif isinstance(d, str):
         return getattr(self, d) if hasattr(self, d) and getattr(self, d) is not None else default
 
-
 def merge_two_dicts(x, y):
     if x is None and y is None:
         return OrderedDict()
@@ -132,10 +130,10 @@ def clean_directory(folder):
         except Exception as e:
             print(e)
 
-class framework(object):
+class Framework(object):
 
     def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True):
-        super(framework, self).__init__()
+        super(Framework, self).__init__()
         global master_lattice_location, master_subdir
         self.verbose = verbose
         self.subdir = directory
@@ -277,7 +275,10 @@ class framework(object):
     def commands(self):
         return self.commandObjects.keys()
 
-    def track(self, files=None, startfile=None):
+    def modifyElement(self, elementName, parameter, value):
+        setattr(self.elementObjects[elementName], parameter, value)
+
+    def track(self, files=None, startfile=None, run=True):
         if files is None:
             files = ['generator'] + self.lines
         if startfile is not None:
@@ -294,29 +295,33 @@ class framework(object):
                 if l == 'generator' and hasattr(self, 'generator'):
                     format_custom_text.update_mapping(running='Generator  ')
                     self.generator.write()
-                    self.generator.run()
-                    self.generator.astra_to_hdf5()
+                    if run:
+                        self.generator.run()
+                        self.generator.astra_to_hdf5()
                 else:
                     if i == (len(files) - 1):
                         format_custom_text.update_mapping(running='Finished')
                     else:
                         format_custom_text.update_mapping(running=files[i+1]+'  ')
-                    self.latticeObjects[l].preProcess()
                     self.latticeObjects[l].write()
-                    self.latticeObjects[l].run()
-                    self.latticeObjects[l].postProcess()
+                    if run:
+                        self.latticeObjects[l].preProcess()
+                        self.latticeObjects[l].run()
+                        self.latticeObjects[l].postProcess()
         else:
             for i in range(len(files)):
                 l = files[i]
                 if l == 'generator' and hasattr(self, 'generator'):
                     self.generator.write()
-                    self.generator.run()
-                    self.generator.astra_to_hdf5()
+                    if run:
+                        self.generator.run()
+                        self.generator.astra_to_hdf5()
                 else:
-                    self.latticeObjects[l].preProcess()
                     self.latticeObjects[l].write()
-                    self.latticeObjects[l].run()
-                    self.latticeObjects[l].postProcess()
+                    if run:
+                        self.latticeObjects[l].preProcess()
+                        self.latticeObjects[l].run()
+                        self.latticeObjects[l].postProcess()
 
 class frameworkLattice(object):
     def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables):
@@ -349,6 +354,14 @@ class frameworkLattice(object):
 
     def getElementType(self, type):
         return [self.elements[element] for element in self.elements.keys() if self.elements[element].objectType.lower() == type.lower()]
+
+    def setElementType(self, type, setting, values):
+        elems = self.getElementType(type)
+        if len(elems) == len(values):
+            for e, v  in zip(elems, values):
+                e[setting] = v
+        else:
+            raise ValueError
 
     @property
     def quadrupoles(self):
@@ -785,6 +798,15 @@ class csrtrackLattice(frameworkLattice):
     def dipoles_screens_and_bpms(self):
         return sorted(self.getElementType('dipole') + self.getElementType('screen') + self.getElementType('beam_position_monitor'), key=lambda x: x.position_end[2])
 
+    def setCSRMode(self):
+        if 'csr' in self.file_block and 'csr_mode' in self.file_block['csr']:
+            if self.file_block['csr']['csr_mode'] == '3D':
+                self.CSRTrackelementObjects['forces'] = csrtrack_forces(type='csr_g_to_p')
+            elif self.file_block['csr']['csr_mode'] == '1D':
+                self.CSRTrackelementObjects['forces'] = csrtrack_forces(type='projected')
+        else:
+            self.CSRTrackelementObjects['forces'] = csrtrack_forces()
+
     def writeElements(self):
         fulltext = 'io_path{logfile = log.txt}\nlattice{\n'
         counter = frameworkCounter(sub={'beam_position_monitor': 'screen'})
@@ -796,7 +818,7 @@ class csrtrackLattice(frameworkLattice):
         fulltext += self.endScreen.write_CSRTrack(counter.counter(self.endScreen.objectType))
         fulltext += '}\n'
         self.set_particles_filename()
-        self.CSRTrackelementObjects['forces'] = csrtrack_forces()
+        self.setCSRMode()
         self.CSRTrackelementObjects['track_step'] = csrtrack_track_step()
         self.CSRTrackelementObjects['tracker'] = csrtrack_tracker(end_time_marker='screen'+str(counter.counter(self.endScreen.objectType))+'a')
         self.CSRTrackelementObjects['monitor'] = csrtrack_monitor(name=self.end+'.fmt2')
@@ -867,6 +889,11 @@ class chicane(frameworkGroup):
             self.change_Parameter('width', kwargs['width'])
         if 'gap' in kwargs:
             self.change_Parameter('gap', kwargs['gap'])
+
+    @property
+    def angle(self):
+        obj = [self.allElementObjects[e] for e in self.elements]
+        return obj[0].theta
 
     def set_angle(self, a):
         obj = [self.allElementObjects[e] for e in self.elements]
@@ -1558,7 +1585,7 @@ class csrtrack_element(frameworkElement):
             k = k.lower()
             if getattr(self,k) is not None:
                 output += k+'='+self.CSRTrack_str(getattr(self, k))+'\n'
-            elif k in self.objectDefaults :
+            elif k in self.objectDefaults:
                 output += k+'='+self.CSRTrack_str(self.objectDefaults[k])+'\n'
         output+='}\n'
         return output
