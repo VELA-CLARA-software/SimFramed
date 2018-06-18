@@ -1,0 +1,26 @@
+&global_settings
+	error_log_file = elegant.err
+	log_file = elegant.log
+&end
+&run_setup
+	always_change_p0 = 1
+	p_central = 70.31
+	lattice = cla.lte
+	centroid = %s.cen
+	use_beamline = CLA
+&end
+&run_control
+	n_steps = 1
+	n_passes = 1
+&end
+&twiss_output
+	radiation_integrals = 1
+	statistics = 1
+	output_at_each_step = 0
+	beta_y = 19.0313892517
+	beta_x = 16.308338827
+	filename = %s.twi
+	matched = 0
+	alpha_x = -1.96385721565
+	alpha_y = -2.23147947212
+&end

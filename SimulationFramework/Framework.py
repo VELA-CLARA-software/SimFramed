@@ -6,7 +6,7 @@ from getGrids import *
 import SimulationFramework.Modules.read_beam_file as rbf
 from collections import defaultdict
 from Framework_ASTRA import ASTRA
-from Framework_Elegant import Elegant
+# from Framework_Elegant import Elegant
 from Framework_CSRTrack import CSRTrack
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
@@ -65,7 +65,7 @@ class Framework(object):
         self._elements = dict()
         self.groups = dict()
         self.astra = ASTRA(framework=self, directory=self.subdir)
-        self.elegant = Elegant(framework=self, directory=self.subdir)
+        # self.elegant = Elegant(framework=self, directory=self.subdir)
         self.CSRTrack = CSRTrack(framework=self, directory=self.subdir)
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
