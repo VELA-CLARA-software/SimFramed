@@ -1,0 +1,42 @@
+CLA-S02-APER-01: rcol, y_max = 0.017, x_max = 0.017;
+CLA-S02-MAG-HVCOR-01: kicker, l = 0.076607;
+drift1: drift, l = 0.02872;
+CLA-S02-MAG-QUAD-01: kquad, k1 = -1.27474, l = 0.1007;
+CLA-S02-DIA-BPM-01: moni, l = 0.04528;
+drift2: drift, l = 0.25402;
+CLA-S02-MAG-QUAD-02: kquad, k1 = 0.383005, l = 0.1007;
+drift3: drift, l = 0.11233;
+CLA-S02-DIA-SCR-01-W: watch;
+drift4: drift, l = 0.14824;
+CLA-S02-MAG-HVCOR-02: kicker, l = 0.03;
+drift5: drift, l = 0.07555;
+CLA-S02-COL-01: ecol, y_max = 0.01, x_max = 0.01, l = 0.35;
+CLA-S02-APER-02: rcol, y_max = 0.017, x_max = 0.017;
+drift6: drift, l = 0.12194;
+CLA-S02-MAG-HVCOR-03: kicker, l = 0.03;
+drift7: drift, l = 0.16527;
+CLA-S02-DIA-SCR-02-W: watch;
+drift8: drift, l = 0.16597;
+CLA-S02-MAG-QUAD-03: kquad, k1 = 0.301148, l = 0.1007;
+drift9: drift, l = 0.2993;
+CLA-S02-MAG-QUAD-04: kquad, k1 = 0.848595, l = 0.1007;
+drift10: drift, l = 0.71245;
+CLA-S02-MAG-QUAD-05: kquad, k1 = 0.738042, l = 0.1007;
+CLA-S02-DIA-BPM-02: moni, l = 0.05135;
+drift11: drift, l = 0.04143;
+CLA-S02-DIA-SCR-03-W: watch;
+drift12: drift, l = 0.07667;
+CLA-S02-MAG-HVCOR-04: kicker, l = 0.0574;
+drift13: drift, l = 0.031;
+CLA-L02-APER: rcol, y_max = 0.01, x_max = 0.01;
+drift14: drift, l = 0.04054;
+CLA-L02-CAV: rfcw, change_p0 = 1, end1_focus = 1, end2_focus = 1,&
+body_focus_model = SRS, l = 4.06667, lsc_bins = 20, cell_length = 0.0333333,&
+volt = 90000000.0, phase = 67.0, freq = 2998500000.0;
+CLA: Line=(CLA-S02-APER-01, CLA-S02-MAG-HVCOR-01, drift1, CLA-S02-MAG-QUAD-01, &
+CLA-S02-DIA-BPM-01, drift2, CLA-S02-MAG-QUAD-02, drift3, CLA-S02-DIA-SCR-01-W, &
+drift4, CLA-S02-MAG-HVCOR-02, drift5, CLA-S02-COL-01, CLA-S02-APER-02, drift6, &
+CLA-S02-MAG-HVCOR-03, drift7, CLA-S02-DIA-SCR-02-W, drift8, &
+CLA-S02-MAG-QUAD-03, drift9, CLA-S02-MAG-QUAD-04, drift10, CLA-S02-MAG-QUAD-05, &
+CLA-S02-DIA-BPM-02, drift11, CLA-S02-DIA-SCR-03-W, drift12, &
+CLA-S02-MAG-HVCOR-04, drift13, CLA-L02-APER, drift14, CLA-L02-CAV)
