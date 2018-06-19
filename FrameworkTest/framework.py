@@ -247,6 +247,17 @@ class Framework(object):
         except:
             raise NameError('Element \'%s\' does not exist' % type)
 
+    def getElementType(self, type, setting=None):
+        return [self.elementObjects[element] if setting is None else self.elementObjects[element][setting] for element in self.elementObjects.keys() if self.elementObjects[element].objectType.lower() == type.lower()]
+
+    def setElementType(self, type, setting, values):
+        elems = self.getElementType(type)
+        if len(elems) == len(values):
+            for e, v  in zip(elems, values):
+                e[setting] = v
+        else:
+            raise ValueError
+
     def add_Generator(self, default=None, **kwargs):
         if default in astra_generator_keywords['defaults']:
             self.generator = frameworkGenerator(self.executables, **merge_two_dicts(kwargs,astra_generator_keywords['defaults'][default]))
