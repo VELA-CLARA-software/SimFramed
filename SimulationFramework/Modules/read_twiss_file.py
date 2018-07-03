@@ -51,10 +51,6 @@ class twiss(dict):
     def read_sdds_file(self, fileName, charge=None, ascii=False):
         # self.reset_dicts()
         self.sdds = sdds.SDDS(0)
-        if ascii:
-            self.sdds.mode = self.sdds.SDDS_ASCII
-        else:
-            self.sdds.mode = self.sdds.SDDS_BINARY
         self.sdds.load(fileName)
         for col in range(len(self.sdds.columnName)):
             # print 'col = ', self.sdds.columnName[col]
