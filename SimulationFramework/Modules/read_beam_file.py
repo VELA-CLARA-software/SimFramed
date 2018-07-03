@@ -71,10 +71,13 @@ class beam(object):
             self.beam['total_charge'] = charge
         self.beam['charge'] = []
 
-    def write_SDDS_file(self, filename):
+    def write_SDDS_file(self, filename, ascii=False):
         """Save an demo SDDS file using the SDDS class."""
-
         x = sdds.SDDS(0)
+        if ascii:
+            x.mode = x.SDDS_ASCII 
+        else:
+            x.mode = x.SDDS_BINARY
         # {x, xp, y, yp, t, p, particleID}
         Cnames = ["x", "xp", "y", "yp", "t","p"]
         Ccolumns = ['x', 'xp', 'y', 'yp', 't', 'BetaGamma']
