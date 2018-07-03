@@ -610,7 +610,7 @@ class elegantLattice(frameworkLattice):
     def write(self):
         self.lattice_file = master_subdir+'/'+self.objectName+'.lte'
         saveFile(self.lattice_file, self.writeElements())
-        commandFile = elegantCommandFile(lattice=self.objectName, elegantbeamfilename=self.particle_definition+'.SDDS')
+        commandFile = elegantCommandFile(lattice=self.objectName, elegantbeamfilename=self.particle_definition+'.sdds')
         self.command_file = master_subdir+'/'+self.objectName+'.ele'
         saveFile(self.command_file, commandFile.write())
 
