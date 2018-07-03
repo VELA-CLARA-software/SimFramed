@@ -109,10 +109,8 @@ class fitnessFunc():
             }
             # constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
             twiss.reset_dicts()
-            print 'reading sdds file!'
             twiss.read_sdds_file( self.dirname+'/'+'S07.twi' )
             twiss.read_sdds_file( self.dirname+'/'+'S07.sig' )
-            print 'finished reading sdds file!'
             twiss['s'] += startS
             constraintsListSigmas = {
                 'max_xrms': {'type': 'lessthan', 'value': 1e3*twiss['Sx'], 'limit': 1, 'weight': 10},
