@@ -28,9 +28,9 @@ class MyMplCanvas(FigureCanvas):
 
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
+        # FigureCanvas.setSizePolicy(self,
+        #                            QSizePolicy.Expanding,
+        #                            QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
     def compute_initial_figure(self):
@@ -41,6 +41,7 @@ class MyStaticMplCanvas(MyMplCanvas):
 
     def plothist(self, x, y, nbins, xLabel=None, yLabel=None):
         self.axes.cla()
+        self.axes.set_aspect('equal', 'datalim')
         self.axes.hist2d(x, y, bins=nbins, norm=LogNorm())
         if xLabel is not None:
             self.setXlabel(xLabel)

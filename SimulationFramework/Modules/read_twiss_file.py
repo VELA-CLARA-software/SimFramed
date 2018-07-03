@@ -53,18 +53,21 @@ class twiss(dict):
         self['sigma_cp'] = []
 
     def read_sdds_file(self, fileName, charge=None):
-        self.reset_dicts()
+        # self.reset_dicts()
         self.sdds = sdds.SDDS(0)
         self.sdds.load(fileName)
         for col in range(len(self.sdds.columnName)):
+            # print 'col = ', self.sdds.columnName[col]
             if len(self.sdds.columnData[col]) == 1:
                 self[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col][0])
             else:
                 self[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col])
         self.SDDSparameterNames = list()
-        for param in self.sdds.columnName:
-            if isinstance(self.beam[param][0], (float, long)):
-                self.SDDSparameterNames.append(param)
+        for i, param in enumerate(self.sdds.parameterName):
+            # print 'param = ', param
+            self[param] = self.sdds.parameterData[i]
+            # if isinstance(self[param][0], (float, long)):
+            #     self.SDDSparameterNames.append(param)
 
     def read_astra_emit_files(self, filename, reset=True):
         if reset:
@@ -139,12 +142,12 @@ class twiss(dict):
             self['mux'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)
             self['muy'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_y'], initial=0)
 
-    def interpolate(self, z=None, value='z'):
-        f = interpolate.interp1d(self['z'], self[value], kind='linear')
+    def interpolate(self, z=None, value='z', index='z'):
+        f = interpolate.interp1d(self[index], self[value], kind='linear')
         if z is None:
             return f
         else:
-            if z > max(self['z']):
+            if z > max(self[index]):
                 return 10**6
             else:
                 return float(f(z))

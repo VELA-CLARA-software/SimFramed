@@ -154,9 +154,7 @@ class Framework(object):
             if clean == True:
                 clean_directory(self.subdirectory)
         if self.overwrite == None:
-            if not os.path.exists(self.subdirectory):
-                os.makedirs(self.subdirectory)
-                self.overwrite = True
+            self.overwrite = True
 
         if master_lattice is None:
             master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
@@ -247,6 +245,16 @@ class Framework(object):
         except:
             raise NameError('Element \'%s\' does not exist' % type)
 
+    def getElement(self, element, param=None):
+        if element in self.elementObjects:
+            if param is not None:
+                return self.elementObjects[element][param]
+            else:
+                return self.elementObjects[element]
+        else:
+            print 'WARNING: Element ', element,' does not exist'
+            return {}
+
     def getElementType(self, type, setting=None):
         return [self.elementObjects[element] if setting is None else self.elementObjects[element][setting] for element in self.elementObjects.keys() if self.elementObjects[element].objectType.lower() == type.lower()]
 
@@ -256,6 +264,7 @@ class Framework(object):
             for e, v  in zip(elems, values):
                 e[setting] = v
         else:
+            print len(elems), len(values)
             raise ValueError
 
     def add_Generator(self, default=None, **kwargs):
@@ -291,7 +300,7 @@ class Framework(object):
 
     def track(self, files=None, startfile=None, run=True):
         if files is None:
-            files = ['generator'] + self.lines
+            files = ['generator'] + self.lines if hasattr(self, 'generator') else self.lines
         if startfile is not None:
             index = files.index(startfile)
             files = files[index:]
@@ -314,9 +323,10 @@ class Framework(object):
                         format_custom_text.update_mapping(running='Finished')
                     else:
                         format_custom_text.update_mapping(running=files[i+1]+'  ')
-                    self.latticeObjects[l].write()
                     if run:
                         self.latticeObjects[l].preProcess()
+                    self.latticeObjects[l].write()
+                    if run:
                         self.latticeObjects[l].run()
                         self.latticeObjects[l].postProcess()
         else:
@@ -328,9 +338,10 @@ class Framework(object):
                         self.generator.run()
                         self.generator.astra_to_hdf5()
                 else:
-                    self.latticeObjects[l].write()
                     if run:
                         self.latticeObjects[l].preProcess()
+                    self.latticeObjects[l].write()
+                    if run:
                         self.latticeObjects[l].run()
                         self.latticeObjects[l].postProcess()
 
@@ -442,7 +453,7 @@ class frameworkLattice(object):
     def endObject(self):
         return self.allElementObjects[self.end]
 
-    @property
+    # @property
     def endScreen(self, **kwargs):
         return screen(name='end', type='screen', position_start=self.endObject.position_start, position_end=self.endObject.position_start, global_rotation=self.endObject.global_rotation, **kwargs)
 
@@ -459,9 +470,9 @@ class frameworkLattice(object):
         elementno = 0
         newelements = OrderedDict()
         for name in self.elements.keys():
-            pos = np.array(self.getElement(name).position_start)
+            pos = np.array(self.allElementObjects[name].position_start)
             positions.append(pos)
-            positions.append(self.getElement(name).position_end)
+            positions.append(self.allElementObjects[name].position_end)
         positions = positions[1:]
         positions.append(positions[-1])
         driftdata = zip(self.elements.iteritems(), list(chunks(positions, 2)))
@@ -604,15 +615,17 @@ class elegantLattice(frameworkLattice):
         saveFile(self.command_file, commandFile.write())
 
     def preProcess(self):
-        self.hdf5_to_sdds()
+        prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
+        # print 'prefix = ', prefix
+        self.hdf5_to_sdds(prefix)
 
     def postProcess(self):
         for s in self.screens:
             s.sdds_to_hdf5()
         self.w.sdds_to_hdf5()
 
-    def hdf5_to_sdds(self):
-        HDF5filename = self.particle_definition+'.hdf5'
+    def hdf5_to_sdds(self, prefix=''):
+        HDF5filename = prefix+self.particle_definition+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
         sddsbeamfilename = self.particle_definition+'.sdds'
         beam.write_SDDS_file(master_subdir + '/' + sddsbeamfilename)
@@ -629,7 +642,10 @@ class elegantCommandFile(object):
         self.commandObjects = OrderedDict()
         self.lattice_filename = lattice+'.lte'
         self.elegantbeamfilename = elegantbeamfilename
-        self.addCommand(type='run_setup',lattice=self.lattice_filename,use_beamline=lattice,p_central=np.mean(beam.BetaGamma),centroid='%s.cen',always_change_p0 = 1)
+        self.addCommand(type='run_setup',lattice=self.lattice_filename, \
+            use_beamline=lattice,p_central=np.mean(beam.BetaGamma), \
+            centroid='%s.cen',always_change_p0 = 1, \
+            sigma='%s.sig')
         self.addCommand(type='run_control',n_steps=1, n_passes=1)
         self.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi",
         beta_x  = beam.beta_x,
@@ -691,7 +707,7 @@ class astraLattice(frameworkLattice):
         self.headers['output'] = astra_output(self.screens_and_bpms, self.starting_offset, self.starting_rotation, **merge_two_dicts(self.file_block['output'],self.globalSettings['ASTRAsettings']))
         self.headers['charge'] = astra_charge(**merge_two_dicts(self.file_block['charge'],self.globalSettings['ASTRAsettings']))
         if self.headers['newrun'].particle_definition == 'initial_distribution':
-                    self.headers['newrun'].particle_definition = 'laser.astra'
+            self.headers['newrun'].particle_definition = 'laser.astra'
         else:
             self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectName+'.astra'
 
@@ -726,7 +742,8 @@ class astraLattice(frameworkLattice):
         saveFile(self.code_file, self.writeElements())
 
     def preProcess(self):
-        self.headers['newrun'].hdf5_to_astra()
+        prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
+        self.headers['newrun'].hdf5_to_astra(prefix)
 
     def postProcess(self):
         for e in self.screens_and_bpms:
@@ -765,7 +782,7 @@ class gptLattice(frameworkLattice):
         fulltext = ''
         for element in self.elements.values():
             fulltext += element.write_GPT(1)
-        fulltext += self.endScreen.write_GPT(1)
+        fulltext += self.endScreen().write_GPT(1)
         return fulltext
 
     def write(self):
@@ -826,12 +843,12 @@ class csrtrackLattice(frameworkLattice):
                 # self.CSRTrackelementObjects[e.name] = csrtrack_online_monitor(filename=e.name+'.fmt2', monitor_type='phase', marker='screen'+str(counter.counter(e.type)), particle='all')
             fulltext += e.write_CSRTrack(counter.counter(e.objectType))
             counter.add(e.objectType)
-        fulltext += self.endScreen.write_CSRTrack(counter.counter(self.endScreen.objectType))
+        fulltext += self.endScreen().write_CSRTrack(counter.counter(self.endScreen().objectType))
         fulltext += '}\n'
         self.set_particles_filename()
         self.setCSRMode()
         self.CSRTrackelementObjects['track_step'] = csrtrack_track_step()
-        self.CSRTrackelementObjects['tracker'] = csrtrack_tracker(end_time_marker='screen'+str(counter.counter(self.endScreen.objectType))+'a')
+        self.CSRTrackelementObjects['tracker'] = csrtrack_tracker(end_time_marker='screen'+str(counter.counter(self.endScreen().objectType))+'a')
         self.CSRTrackelementObjects['monitor'] = csrtrack_monitor(name=self.end+'.fmt2')
         for c in self.CSRTrackelementObjects:
             fulltext += self.CSRTrackelementObjects[c].write_CSRTrack()
@@ -860,7 +877,7 @@ class frameworkGroup(object):
             setattr(self.allElementObjects[e], p, v)
 
     def __repr__(self):
-        return [self.allElementObjects[e].objectProperties for e in self.elements]
+        return [self.allElementObjects[e].theta for e in self.elements]
 
     def __str__(self):
         return str([self.allElementObjects[e].objectName for e in self.elements])
@@ -904,7 +921,7 @@ class chicane(frameworkGroup):
     @property
     def angle(self):
         obj = [self.allElementObjects[e] for e in self.elements]
-        return obj[0].theta
+        return obj[0].angle
 
     def set_angle(self, a):
         obj = [self.allElementObjects[e] for e in self.elements]
@@ -1507,8 +1524,9 @@ class astra_newrun(astra_header):
             ['auto_phase', {'value': self.auto_phase, 'default': True}]
         ])
 
-    def hdf5_to_astra(self):
-        HDF5filename = self.particle_definition.replace('.astra','')+'.hdf5'
+    def hdf5_to_astra(self, prefix=''):
+        # print 'self.particle_definition = ', self.particle_definition
+        HDF5filename = prefix+self.particle_definition.replace('.astra','')+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
         beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
         astrabeamfilename = self.particle_definition
