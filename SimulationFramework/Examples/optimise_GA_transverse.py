@@ -1,9 +1,10 @@
-from Framework import *
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
+from FrameworkTest.Framework import *
 import numpy as np
-from constraints import *
-import os
-import read_twiss_file as rtf
-import read_beam_file as rbf
+from SimulationFramework.Modules.constraints import *
+import SimulationFramework.Modules.read_twiss_file as rtf
+import SimulationFramework.Modules.read_beam_file as rbf
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -46,19 +47,12 @@ class TemporaryDirectory(object):
         shutil.rmtree(self.name)
 
 framework = Framework('twiss_temp', overwrite=False)
-framework.loadSettings('clara400_v12.def')
+framework.loadSettings('Lattices/clara400_v12_elegant.def')
 parameters = framework.getElementType('quadrupole','k1')
+print 'parameters = ', parameters
 best = parameters
-# best = [0,0,0,0,0,0, 0,0,0,0,0,0,0,0, -0.595761, 0.665759, 0.606265, -0.378705, 1.,-0.917,-1.,-1.,0.921,0.122,-0.038,-0.396,0.872,-0.401,-0.043]
-basescaling=4
-# framework.astra.createInitialDistribution(npart=2**(3*basescaling), charge=250)
-if not os.name == 'nt':
-    framework.astra.defineASTRACommand(['mpiexec','-np',str(basescaling*3),'/opt/ASTRA/astra_MPICH2.sh'])
-else:
-    framework.astra.defineASTRACommand(['astra'])
-# framework.createInputFiles()
-# framework.runInputFiles(files=['injector400'])
-
+scaling=4
+exit()
 class fitnessFunc():
 
     def __init__(self, args, tempdir, scaling=4, overwrite=True, verbose=False, summary=False):
@@ -69,20 +63,17 @@ class fitnessFunc():
         self.verbose = verbose
         self.summary = summary
         self.parameters = list(args)
-        self.npart=2**(3*scaling)
-        ncpu = scaling*3
         self.dirname = os.path.basename(self.tmpdir)
-        self.framework = Framework(self.dirname, overwrite=overwrite)
+        self.framework = Framework(self.dirname, clean=False)
+        self.framework.loadSettings('Lattices/clara400_v12_elegant.def')
         if not os.name == 'nt':
-            self.framework.astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
-            self.framework.CSRTrack.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+            self.framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
+            self.framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
+            self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+            self.framework.generator.number_of_particles = 2**(3*scaling)
         else:
-            self.framework.astra.defineASTRACommand(['astra'])
-            self.framework.CSRTrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
-        self.framework.loadSettings('clara400_v12.def')
+            self.framework.generator.number_of_particles = 2**(3*3)
         self.framework.setElementType('quadrupole','k1', self.parameters)
-        self.framework.fileSettings['S02']['input']['particle_definition'] = '../twiss_temp/'+'injector400.$output[\'start_element\']$.001'
-        self.framework.modifyFile('S02',['ASTRA_Options','N_red'], int(np.floor( (2**(3*basescaling)) / (2**(3*scaling)) )))
 
     def between(self, value, minvalue, maxvalue, absolute=True):
         if absolute:
@@ -94,14 +85,11 @@ class fitnessFunc():
     def calculateBeamParameters(self):
         twiss = self.twiss
         try:
-            del self.framework.fileSettings['injector400']
-            # self.framework.astra.createInitialDistribution(npart=self.npart, charge=250)
-            self.framework.createInputFiles()
-            self.framework.runInputFiles()
+            self.framework.track(run=True)
 
             constraintsList = {}
             constraintsListQuads = {
-                'max_k': {'type': 'lessthan', 'value': [abs(p) for p in self.parameters], 'limit': 0.25, 'weight': 10},
+                'max_k': {'type': 'lessthan', 'value': [abs(p) for p in self.parameters], 'limit': 2.5, 'weight': 10},
 
             }
             constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
@@ -116,14 +104,15 @@ class fitnessFunc():
             }
             constraintsList = merge_two_dicts(constraintsList, constraintsListSigmas)
             twiss.read_astra_emit_files(self.dirname+'/S07.Zemit.001')
-            tdc_position = self.framework.getElement('CLA-S07-TDC-01-R','position_start')[2]
-            tdc_screen_position = self.framework.getElement('CLA-S07-DIA-SCR-03-W','position_start')[2]
-            dechirper_position = self.framework.getElement('CLA-S07-DCP-01','position_start')[2]
+            tdc_position = self.framework['CLA-S07-TDC-01-R']['position_start'][2]
+            tdc_screen_position = self.framework['CLA-S07-DIA-SCR-03-W']['position_start'][2]
+            dechirper_position = self.framework['CLA-S07-DCP-01']['position_start'][2]
             constraintsListS07 = {
                 'tdc_phase_advance': {'type': 'equalto', 'value': twiss.interpolate(tdc_screen_position,'muy') - twiss.interpolate(tdc_position,'muy'), 'limit': 0.25, 'weight': 1},
                 'tdc_screen_beta_y': {'type': 'greaterthan', 'value': twiss.extract_values('beta_y', tdc_position, tdc_screen_position), 'limit': 5, 'weight': 1},
-                'dechirper_sigma_x': {'type': 'lessthan', 'value': 1e3*twiss.interpolate(dechirper_position, 'sigma_x'), 'limit': 0.1, 'weight': 1},
-                'dechirper_sigma_y': {'type': 'lessthan', 'value': 1e3*twiss.interpolate(dechirper_position, 'sigma_y'), 'limit': 0.1, 'weight': 1},
+                'dechirper_sigma_x': {'type': 'equalto', 'value': 1e3*twiss.interpolate(dechirper_position, 'sigma_x'), 'limit': 0.1, 'weight': 10},
+                'dechirper_sigma_y': {'type': 'equalto', 'value': 1e3*twiss.interpolate(dechirper_position, 'sigma_y'), 'limit': 0.1, 'weight': 10},
+                'dechirper_sigma_xy': {'type': 'equalto', 'value': 1e3*twiss.interpolate(dechirper_position, 'sigma_y') - 1e3*twiss.interpolate(dechirper_position, 'sigma_x'), 'limit': 0.0, 'weight': 20},
             }
             constraintsList = merge_two_dicts(constraintsList, constraintsListS07)
             fitness = self.cons.constraints(constraintsList)
@@ -145,21 +134,15 @@ def optfunc(args, dir=None, **kwargs):
             fitvalue = fit.calculateBeamParameters()
     return (fitvalue,)
 
-
+allbest=[]
+with open('transverse_best_Short_240_solutions.csv.tmp','r') as infile:
+    reader = csv.reader(infile, quoting=csv.QUOTE_NONE, skipinitialspace=True)
+    for row in reader:
+        allbest.append(row)
+best = map(lambda x: float(x), allbest[0])
 # print 'starting values = ', best
-
-# framework.setElementType('quadrupole','k1', [0.8*i for i in best])
-# parameters = framework.getElementType('quadrupole','k1')
-# print 'after setting values = ', parameters
-
-# twiss = rtf.twiss()
-
-# emitfiles = framework.fileSettings.keys()
-# twiss.read_astra_emit_files( [ '2/'+n+'.Zemit.001' for n in framework.fileSettings.keys() if framework.fileSettings[n]['code'].upper() == 'ASTRA'] )
-# print twiss['sigma_x']
-#twiss.read_astra_emit_files(self.dirname+'/test.2.Zemit.001')
-print optfunc(best, dir=os.getcwd()+'/test_transverse', scaling=3, overwrite=True, verbose=True, summary=False)
-exit()
+# print optfunc(best, dir=os.getcwd()+'/test_transverse', scaling=6, overwrite=True, verbose=True, summary=False)
+# exit()
 
 
 # startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [-40,40], [10, 32], [135,200], [10, 32], [-40,40], [0.8,0.15]]
@@ -190,7 +173,7 @@ toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 if os.name == 'nt':
     toolbox.register("evaluate", optfunc, scaling=3)
 else:
-    toolbox.register("evaluate", optfunc, scaling=3)
+    toolbox.register("evaluate", optfunc, scaling=4)
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)
@@ -201,14 +184,14 @@ if __name__ == "__main__":
 
     # Process Pool of 4 workers
     if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=12)
+        pool = multiprocessing.Pool(processes=6)
     else:
         pool = multiprocessing.Pool(processes=3)
     toolbox.register("map", pool.map)
     # toolbox.register("map", futures.map)
 
     if not os.name == 'nt':
-        pop = toolbox.population(n=48)
+        pop = toolbox.population(n=24)
     else:
         pop = toolbox.population(n=6)
     hof = tools.HallOfFame(10)
@@ -226,13 +209,13 @@ if __name__ == "__main__":
     print hof
 
     try:
-        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/longitudinal_best_Short_240', npart=50000, ncpu=40, overwrite=True, verbose=True, summary=True)
-        with open('longitudinal_best_Short_240/longitudinal_best_solutions.csv','wb') as out:
+        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/transverse_best_Short_240', scaling=6, overwrite=True, verbose=True, summary=True)
+        with open('transverse_best_Short_240/transverse_best_solutions.csv','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)
     except:
-        with open('longitudinal_best_Short_240_solutions.csv.tmp','wb') as out:
+        with open('transverse_best_Short_240_solutions.csv.tmp','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)

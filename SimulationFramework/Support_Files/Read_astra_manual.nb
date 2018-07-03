@@ -1,0 +1,332 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     13199,        322]
+NotebookOptionsPosition[     12731,        301]
+NotebookOutlinePosition[     13080,        316]
+CellTagsIndexPosition[     13037,        313]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Using https://github.com/chezou/tabula-py", "Text",
+ CellChangeTimes->{{3.730983650773086*^9, 3.7309836573313723`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"data", "=", 
+  RowBox[{
+  "Import", "[", 
+   "\"\<C:\\\\Users\\\\james\\\\Documents\\\\Work\\\\pdf-table-extract\\\\\
+example\\\\quad.csv\>\"", "]"}]}]], "Input",
+ CellChangeTimes->{{3.7309830209579415`*^9, 3.730983035772339*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"\<\"Parameter\"\>", ",", "\<\"Specification  Unit\"\>", 
+     ",", "\<\"Default Value\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"LOOP\"\>", ",", "\<\"Logical\"\>", ",", "\<\"FALSE\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"see chapter 4.9.\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Lquad\"\>", ",", "\<\"Logical\"\>", ",", "\<\"FALSE\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"if false, all quadrupole fields are turned off.\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_type( )\"\>", ",", "\<\"Character*150 array\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"besides standard quadrupoles\"\>", 
+     ",", "\<\"(w. o. type specification)\"\>", ",", "\<\"skew\"\>", 
+     ",", "\<\"quadrupoles,\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"doublets and triplets and field data can be specified. \
+Doublets have the same field\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"amplitude with reversed sign in the two magnets. For triplets \
+the field amplitude\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}],
+     "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"has the same magnitude for all magnets but opposite sign of \
+the outer magnets as\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"compared to the inner one. The inner magnet is twice as long \
+as the outer ones.\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], 
+    "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_grad( )\"\>", ",", "\<\"Real*8 array T/m\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"quadrupole gradient. Refers to the first quadrupole in case of \
+doublets and triplets.\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"A positive gradient focusses negatively charged particles \
+traveling into positive\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"z-direction in the x plane.\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_K( )\"\>", ",", "\<\"Real*8 array\"\>", ",", "\<\"m-2\"\>",
+      ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"focusing strength of the quadrupole. The gradient is set \
+during the tracking of the\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"reference particle in dependence of the reference particle \
+momentum. Refers to\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}],
+     "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"the first quadrupole in case\"\>", 
+     ",", "\<\"of doublets and triplets. A\"\>", ",", "\<\"positive\"\>", 
+     ",", "\<\"quadrupole\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"strength focusses negatively charged particles traveling into \
+positive z-direction in\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"the x plane. If Q_K and Q_grad are specified, Q_K has a higher \
+priority.\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_noscale( )\"\>", ",", "\<\"Logical\"\>", 
+     ",", "\<\"FALSE\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"if true, the field profile will not be scaled, but the file \
+values will be taken as\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"gradients in T/m or as focusing strength in m-2 .\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_length( )\"\>", ",", "\<\"Real*8 array\"\>", 
+     ",", "\<\"m\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"effective length of the quadrupole.\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_smooth( )\"\>", ",", "\<\"Integer array\"\>", ",", "0", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"controls the number of iterations of a soft, iterative \
+procedure for smoothing field\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"profile tables.\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_bore( )\"\>", ",", "\<\"Real*8 array\"\>", 
+     ",", "\<\"m 0.035\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"taper parameter for the quadrupole field edge.\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_dist( )\"\>", ",", "\<\"Real*8 array\"\>", 
+     ",", "\<\"m\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"distance between magnets in case of doublets and \
+triplets.\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], 
+   ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_mult_a( , )\"\>", ",", "\<\"Real*8 array\"\>", ",", "0.`", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"skew multipole coefficients.\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_mult_b( , )\"\>", ",", "\<\"Real*8 array\"\>", ",", "0.`", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"normal multipole coefficients.\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_pos( )\"\>", ",", "\<\"Real*8 array\"\>", ",", "\<\"m\"\>",
+      ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"longitudinal quadrupole position. Refers to the center of the \
+magnet(s) also in case\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"of doublets and triplets.\"\>", 
+     ",", "\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_xoff( )\"\>", ",", "\<\"Real*8 array m\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"horizontal offset of the quadrupole, the doublet or the \
+triplet.\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_yoff( )\"\>", ",", "\<\"Real*8 array m\"\>", 
+     ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"vertical offset of the quadrupole, the doublet or the triplet.\
+\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_xrot( )\"\>", ",", "\<\"Real*8 array rad\"\>", ",", 
+     "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"rotation angle of the quadrupole in the x-z plane, i.e. around \
+the y-axis.\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_yrot( )\"\>", ",", "\<\"Real*8 array rad\"\>", ",", 
+     "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"rotation angle of the quadrupole in the y-z plane, i.e. around \
+the x-axis.\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", ",", "\<\"\"\>", ",", "\<\"\"\>"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"Q_zrot( )\"\>", ",", "\<\"Real*8 array rad\"\>", ",", 
+     "0.`"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"\<\"\"\>", 
+     ",", "\<\"rotation angle of the quadrupole around the z-axis, i.e. in \
+the x-y plane.\"\>", ",", "\<\"\"\>"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.7309830303616247`*^9, 3.7309830362435827`*^9}, 
+   3.7309830885668116`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Select", "[", 
+  RowBox[{
+   RowBox[{"data", "[", 
+    RowBox[{"[", 
+     RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"StringLength", "[", "#", "]"}], ">", "0"}], "&"}]}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.7309830370629835`*^9, 3.7309830639004374`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"Parameter\"\>", ",", "\<\"LOOP\"\>", ",", "\<\"Lquad\"\>", 
+   ",", "\<\"Q_type( )\"\>", ",", "\<\"Q_grad( )\"\>", ",", "\<\"Q_K( )\"\>", 
+   ",", "\<\"Q_noscale( )\"\>", ",", "\<\"Q_length( )\"\>", 
+   ",", "\<\"Q_smooth( )\"\>", ",", "\<\"Q_bore( )\"\>", 
+   ",", "\<\"Q_dist( )\"\>", ",", "\<\"Q_mult_a( , )\"\>", 
+   ",", "\<\"Q_mult_b( , )\"\>", ",", "\<\"Q_pos( )\"\>", 
+   ",", "\<\"Q_xoff( )\"\>", ",", "\<\"Q_yoff( )\"\>", 
+   ",", "\<\"Q_xrot( )\"\>", ",", "\<\"Q_yrot( )\"\>", 
+   ",", "\<\"Q_zrot( )\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{{3.730983039763337*^9, 3.7309830886298294`*^9}}]
+}, Open  ]]
+},
+WindowSize->{1262, 901},
+WindowMargins->{{244, Automatic}, {39, Automatic}},
+FrontEndVersion->"11.0 for Microsoft Windows (64-bit) (September 21, 2016)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 125, 1, 30, "Text"],
+Cell[CellGroupData[{
+Cell[708, 25, 254, 6, 30, "Input"],
+Cell[965, 33, 10735, 237, 506, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[11737, 275, 326, 10, 30, "Input"],
+Cell[12066, 287, 649, 11, 50, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+

@@ -45,7 +45,7 @@
  ZSTOP   =   2.35540000000000     ,
  ZEMIT   =        1050,
  ZPHASE  =           1,
- SCREEN  =  0.206030000000000     ,  0.718360000000000     ,   1.63936000000000     , 497*-1.000000000000000E+015 ,
+ SCREEN  =  0.228670000000000     ,  0.718360000000000     ,   1.63936000000000     , 497*-1.000000000000000E+015 ,
  STEP_WIDTH      =           0,
  STEP_MAX        =           0,
  HIGH_RES        = T,
@@ -78,7 +78,7 @@
  ZSTOP   =   2.35540000000000     ,
  ZEMIT   =        1050,
  ZPHASE  =           1,
- SCREEN  =  0.206030000000000     ,  0.718360000000000     ,   1.63936000000000     , 497*-1.000000000000000E+015 ,
+ SCREEN  =  0.228670000000000     ,  0.718360000000000     ,   1.63936000000000     , 497*-1.000000000000000E+015 ,
  SCR_XROT        = 500*0.000000000000000E+000  ,
  SCR_YROT        = 500*0.000000000000000E+000  ,
  STEP_WIDTH      =           0,
@@ -112,7 +112,6 @@
  DENSITYS        = F,
  S_RAD   =   1000.00000000000     ,
  ALL_PROBE       = F,
- PHIS    = F,
  REVERSE_OUTPUT  = F
  /
  &SCAN
@@ -994,9 +993,9 @@
  NX0     =           2,
  NY0     =           2,
  NZ0     =           2,
- NXF     =           8,
- NYF     =           8,
- NZF     =           8,
+ NXF     =           6,
+ NYF     =           6,
+ NZF     =           6,
  N_MIN   =   30.0000000000000     ,
  MIN_GRID        =  3.424657000000000E-013,
  MAX_SCALE       =  0.100000000000000     ,
@@ -3552,7 +3551,6 @@
  PHI     = 501*0.000000000000000E+000  ,
  C_POS   = 500*0.000000000000000E+000  ,
  C_NUMB  = 500*1,
- BF_RATIO        = 500*0.000000000000000E+000  ,
  T_DEPENDENCE    = constantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantco
  nstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconsta
  ntconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantco
@@ -3597,13 +3595,10 @@
  C_XKICK = 500*0.000000000000000E+000  ,
  C_YKICK = 500*0.000000000000000E+000  ,
  P_N     =  0.000000000000000E+000,
- P_Z1    = 500*0.000000000000000E+000  ,
- P_Z2    = 500*0.000000000000000E+000  ,
- P_R1    = 500*0.000000000000000E+000  ,
- P_R2    = 500*0.000000000000000E+000  ,
- P_RC    = 500*0.000000000000000E+000  ,
- P_I0    = 500*0.000000000000000E+000  ,
- P_A4    = 500*0.000000000000000E+000  ,
+ P_Z1    =  0.000000000000000E+000,
+ P_Z2    =  0.000000000000000E+000,
+ P_R1    =  0.000000000000000E+000,
+ P_R2    =  0.000000000000000E+000,
  E_Z0    =  0.000000000000000E+000,
  E_SIG   =  1.000000000000000E-003,
  E_ZR    =  0.000000000000000E+000,
@@ -4901,13 +4896,13 @@
                                                                                                                                      
                                    ,
  Q_NOSCALE       = 500*F,
- Q_SMOOTH        = 4*3, 496*0,
+ Q_SMOOTH        = 4*10, 496*0,
  Q_GRAD  = 500*0.000000000000000E+000  ,
  Q_K     =  -3.09253000000000     ,   6.34871000000000     , 2*-4.07613000000000       , 496*0.000000000000000E+000  ,
  Q_MULT_A        = 3000*0.000000000000000E+000  ,
  Q_MULT_B        = 3000*0.000000000000000E+000  ,
  Q_LENGTH        = 4*0.100700000000000       , 496*0.000000000000000E+000  ,
- Q_BORE  = 4*1.000000000000000E-002  , 496*3.500000000000000E-002  ,
+ Q_BORE  = 4*1.600000000000000E-002  , 496*3.500000000000000E-002  ,
  Q_DIST  = 500*0.000000000000000E+000  ,
  Q_POS   =  0.155680000000000     ,  0.555680000000000     ,   1.85568000000000     ,   2.25568000000000     ,
   496*0.000000000000000E+000  ,
@@ -4919,7 +4914,7 @@
  /
  &DIPOLE
  LOOP    = F,
- LDIPOLE = F,
+ LDIPOLE = T,
  D_TYPE  =                                                                                                                           
                                                                                                                                      
                                                                                                                                      
@@ -4986,12 +4981,12 @@
  STAT    = 188*F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, 198*T
  /
  End of Input deck
-CLA-S02-APER-01.astra          -0.2782D-11  0.0000D+00  F
-s02.0021.001                    2.0602D-01  0.0000D+00  F
-s02.0072.001                    7.1836D-01  0.0000D+00  F
-s02.0164.001                    1.6394D+00  0.0000D+00  F
-s02.0236.001                    2.3554D+00  0.0000D+00  F
+CLA-S02-APER-01.astra          -0.1805D-11  0.0000D+00  F
+S02.0023.001                    2.2867D-01  0.0000D+00  F
+S02.0072.001                    7.1836D-01  0.0000D+00  F
+S02.0164.001                    1.6394D+00  0.0000D+00  F
+S02.0236.001                    2.3554D+00  0.0000D+00  F
 
-     execution started:    6. 4.2018     16:24
-     execution finished:   6. 4.2018     16:24
-     execution time: 26.91 sec                         
+     execution started:    3. 4.2018      9:51
+     execution finished:   3. 4.2018      9:51
+     execution time:  6.22 sec                         
