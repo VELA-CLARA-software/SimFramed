@@ -593,7 +593,7 @@ class elegantLattice(frameworkLattice):
 
     def writeElements(self):
         self.q = charge(name='START', type='charge',**{'total': 250e-12})
-        self.w = self.endScreen(output_filename=self.end+'.sdds')
+        self.w = self.endScreen(output_filename=self.end+'.SDDS')
         elements = self.createDrifts()
         fulltext = ''
         fulltext += self.q.write_Elegant()
