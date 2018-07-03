@@ -3,11 +3,7 @@ import h5py
 import numpy as np
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
-if os.name == 'nt':
-    try:
-        import sdds
-    except:
-        pass
+import sdds
 import read_gdf_file as rgf
 
 class beam(object):
