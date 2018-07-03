@@ -1,6 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
-from FrameworkTest.Framework import *
+from SimulationFramework.Framework import *
 import numpy as np
 from SimulationFramework.Modules.constraints import *
 import SimulationFramework.Modules.read_twiss_file as rtf
