@@ -1,12 +1,12 @@
 ASTRARules = {}
 
-ASTRARules["NEWRUN"] = ["NLoop", "ion_mass", "N_red", \
-"Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms", \
-"Zrms", "Trms", "Tau", "cor_px", "cor_py", \
-"SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All", \
-"Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part", \
-"L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step", \
-"Lmonitor"]
+ASTRARules["NEWRUN"] = ["NLoop", "ion_mass", "N_red",
+"Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms",
+"Zrms", "Trms", "Tau", "cor_px", "cor_py",
+"SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All",
+"Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part",
+"L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step", 
+"Lmonitor", "Lprompt"]
 
 ASTRARules["OUTPUT"] = ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
   "SCREEN", "SCR_XROT", "SCR_YROT", "STEP_WIDTH", "STEP_MAX",
@@ -44,4 +44,7 @@ ASTRARules["CAVITY"] = ["C_NOSCALE",
    "E_SIG", "E_SIGZ", "E_ZR", "E_EPS", "E_LAM", "ZETA"]
 
 ASTRARules["SOLENOID"] = ["LOOP", "LBFIELD",
+   "S_NOSCALE", "S_HIGHER_ORDER", "S_XROT", "S_YROT"]
+
+ASTRARules["QUADRUPOLE"] = ["LOOP", "LBFIELD",
    "S_NOSCALE", "S_HIGHER_ORDER", "S_XROT", "S_YROT"]

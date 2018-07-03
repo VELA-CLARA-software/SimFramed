@@ -1,7 +1,7 @@
 import numpy as np
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
-from SimulationFramework.Framework import *
+from FrameworkTest.Framework import *
 from SimulationFramework.Modules.constraints import *
 import SimulationFramework.Modules.read_beam_file as rbf
 import SimulationFramework.Modules.read_twiss_file as rtf
@@ -144,16 +144,13 @@ class fitnessFunc():
         self.dirname = os.path.basename(self.tmpdir)
         self.framework = Framework(self.dirname, overwrite=overwrite)
         if not os.name == 'nt':
-            self.framework.astra.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
-            self.framework.CSRTrack.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+            self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
+            self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         else:
-            self.framework.astra.defineASTRACommand(['astra'])
-            self.framework.CSRTrack.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
-        self.framework.loadSettings('Lattices/clara400_v12.def')
-        if self.post_injector:
-            self.framework.fileSettings['S02']['input']['particle_definition'] = '../twiss_temp/'+'injector400.$output[\'start_element\']$.001'
-            self.framework.modifyFile('S02',['ASTRA_Options','N_red'], int(np.floor( (2**(3*basescaling)) / (2**(3*scaling)) )))
-        else:
+            self.framework.defineASTRACommand(['astra'])
+            self.framework.defineCSRTrackCommand(['CSRtrack_1.201.wic.exe'])
+        self.framework.loadSettings('Lattices/clara400_v12_elegant.def')
+        if not self.post_injector:
             self.framework.modifyElement('CLA-HRG1-GUN-CAV', 'phase', gunphase)
             self.framework.modifyElement('CLA-HRG1-GUN-SOL', 'field_amplitude', gunsol)
             self.framework.modifyElement('CLA-L01-CAV', 'field_amplitude', abs(linac1field))
@@ -168,7 +165,7 @@ class fitnessFunc():
         self.framework.modifyElement('CLA-L4H-CAV', 'phase', fhcphase)
         self.framework.modifyElement('CLA-L04-CAV', 'field_amplitude', abs(linac4field))
         self.framework.modifyElement('CLA-L04-CAV', 'phase', linac4phase)
-        self.framework.fileSettings['VBC']['groups']['VBC']['dipoleangle'] = abs(bcangle)
+        self.framework['bunch_compressor'].set_angle(abs(bcangle))
 
 
     def between(self, value, minvalue, maxvalue, absolute=True):
@@ -179,19 +176,16 @@ class fitnessFunc():
         return result
 
     def calculateBeamParameters(self):
-        bcangle = float(self.framework.fileSettings['VBC']['groups']['VBC']['dipoleangle'])
+            bcangle = self.framework['bunch_compressor'].angle
+            print 'bcangle = ', bcangle
         try:
-            if bcangle < 0.05 or bcangle > 0.125:
+            if abs(bcangle) < 0.05 or abs(bcangle) > 0.125:
                 raise ValueError
-            if self.post_injector:
-                del self.framework.fileSettings['injector400']
-            else:
-                self.framework.astra.createInitialDistribution(npart=self.npart, charge=250)
             if self.overwrite:
-                self.framework.createRunProcessInputFiles()
+                self.framework.track()
 
             # self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
-            self.beam.read_HDF5_beam_file(self.dirname+'/CLA-S07-DIA-BPM-02.hdf5')
+            self.beam.read_HDF5_beam_file(self.dirname+'/CLA-S07-MARK-03.hdf5')
             self.beam.slices = 10
             self.beam.bin_time()
             sigmat = 1e12*np.std(self.beam.t)
@@ -203,7 +197,6 @@ class fitnessFunc():
             fhcfield = self.parameters['fhcfield']
             peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = self.beam.sliceAnalysis()
             chirp = self.beam.chirp
-            print 'momentum_spread = ', fitp
             constraintsList = {
                 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 25},
                 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 600, 'weight': 100},
@@ -247,7 +240,7 @@ def optfunc(args, dir=None, **kwargs):
 
 
 framework = Framework('longitudinal_best', overwrite=False)
-framework.loadSettings('Lattices/clara400_v12.def')
+framework.loadSettings('Lattices/clara400_v12_elegant.def')
 parameters = []
 ''' if including injector'''
 parameters.append(framework.getElement('CLA-HRG1-GUN-CAV', 'phase'))
@@ -265,7 +258,7 @@ parameters.append(framework.getElement('CLA-L4H-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L4H-CAV', 'phase'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'phase'))
-parameters.append(framework.fileSettings['VBC']['groups']['VBC']['dipoleangle'])
+parameters.append(framework.fileSettings['VBC']['groups']['bunch_compressor']['dipoleangle'])
 # parameters.append(0.106)
 best = parameters
 
@@ -321,12 +314,11 @@ if __name__ == "__main__":
     random.seed(64)
 
     # Process Pool of 4 workers
-    if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=3)
-    else:
-        pool = multiprocessing.Pool(processes=3)
-    toolbox.register("map", pool.map)
-    # toolbox.register("map", futures.map)
+    # if not os.name == 'nt':
+    #     pool = multiprocessing.Pool(processes=3)
+    # else:
+    #     pool = multiprocessing.Pool(processes=3)
+    # toolbox.register("map", pool.map)
 
     if not os.name == 'nt':
         pop = toolbox.population(n=48)
@@ -348,7 +340,7 @@ if __name__ == "__main__":
     print hof
 
     try:
-        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best_longitudinal', scaling=6, overwrite=True, verbose=True, summary=True)
+        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/best_longitudinal', scaling=6, overwrite=True, verbose=True, summary=True, clean=True)
         with open('best_longitudinal/longitudinal_best_solutions.csv','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:

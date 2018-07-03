@@ -1,0 +1,166 @@
+aperture:
+  keywords:
+  - shape
+  - horizontal_size
+  - vertical_size
+beam_position_monitor:
+  keywords: []
+cavity:
+  keywords:
+  - n_cells
+  - Structure_Type
+  - frequency
+  - phase
+  - field_definition
+  - lsc_cutoff_high
+  - field_amplitude
+  - cell_length
+collimator:
+  keywords:
+  - shape
+  - horizontal_size
+  - vertical_size
+common:
+  keywords:
+  - subelement
+  - length
+  - Online_Model_Name
+  - Controller_Name
+  - PV
+  - global_rotation
+  - position_end
+  - position_start
+  - buffer_start
+  - buffer_end
+  - buffer_start_length
+  - buffer_end_length
+dipole:
+  keywords:
+  - angle
+  - entrance_edge_angle
+  - exit_edge_angle
+  - half_gap
+  - edge_field_integral
+  - csr_bins
+  - sr_enable
+  - isr_enable
+  - csr_output_filename
+kicker:
+  keywords:
+  - sr_enable
+  - isr_enable
+  - Horizontal_PV
+  - Vertical_PV
+marker:
+  keywords:
+  - fit_point
+monitor:
+  keywords: []
+quadrupole:
+  keywords:
+  - k1
+  - sr_enable
+  - isr_enable
+rf_deflecting_cavity:
+  keywords:
+  - phase
+screen:
+  keywords:
+  - output_filename
+solenoid:
+  keywords:
+  - field_amplitude
+  - field_definition
+wall_current_monitor:
+  keywords: []
+drift:
+  keywords: []
+charge:
+  keywords: ["TOTAL"]
+astra_newrun:
+  keywords: ["NLoop", "ion_mass", "N_red",
+  "Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms",
+  "Zrms", "Trms", "Tau", "cor_px", "cor_py",
+  "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All",
+  "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part",
+  "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step",
+  "Lmonitor", 'RUN', 'HEAD', 'lprompt']
+  framework_keywords: ["particle_definition"]
+astra_output:
+  keywords: ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
+    "SCREEN", "SCR_XROT", "SCR_YROT", "STEP_WIDTH", "STEP_MAX",
+    "LPROJECT_EMIT", "LOCAL_EMIT", "LMAGNETIZED", "LSUB_ROT",
+    "LSUB_LARMOR", "LSUB_COUP", "ROT_ANG", "LSUB_COR", "REFS", "EMITS",
+    "C_EMITS", "c99_EMITS", "TR_EMITS", "SUB_EMITS", "CROSS_START",
+    "CROSS_END", "PHASES", "T_PHASES", "HIGH_RES", "BINARY", "TRACKS",
+    "TCHECKS", "SIGMAS", "CATHODES", "LANDFS", "LARMORS"]
+  framework_keywords: ["start_element", "end_element"]
+astra_charge:
+  keywords: ["L2D_3D",
+     "LMIRROR", "L_CURVED_CATHODE", "CATHODE_CONTOUR", "R_ZERO",
+      "CELL_VAR", "N_MIN", "MIN_GRID", "MERGE_1", "MERGE_2",
+      "MERGE_3", "MERGE_4", "MERGE_5", "MERGE_6", "MERGE_7", "MERGE_8",
+     "MERGE_9", "MERGE_10", "Z_TRANS", "MIN_GIRD_TRANS", "NX0",
+     "NY0", "NZF", "SMOOTH_X", "SMOOTH_Y", "SMOOTH_Z",
+     "MAX_SCALE", "MAX_COUNT", "EXP_CONTROL"]
+  framework_keywords: ["cathode", "space_charge_mode"]
+csrtrack_particles:
+  keywords: [
+    reference_momentum,
+    reference_point_x,
+    reference_point_y,
+    reference_point_phi,
+    format,
+    array,
+  ]
+  framework_keywords: [
+  particles,
+  ]
+csrtrack_online_monitor:
+  keywords: [
+    name,
+    type,
+    start_time_c0,
+    end_time_marker,
+    start_time_marker,
+    start_time_shift_c0,
+    end_time_shift_c0,
+    time_step_c0,
+    particle,
+    format,
+  ]
+csrtrack_forces:
+  keywords: [
+    type,
+    shape,
+    sigma_long,
+    relative_long,
+  ]
+csrtrack_track_step:
+  keywords: [
+    precondition,
+    iterative,
+    error_per_ct,
+    error_weight_momentum,
+    ct_step_min,
+    ct_step_max,
+    ct_step_first,
+    increase_factor,
+    arc_factor,
+    duty_steps,
+  ]
+csrtrack_tracker:
+  keywords: [
+    end_time_marker,
+    end_time_shift_c0,
+  ]
+csrtrack_monitor:
+  keywords: [
+    format,
+    name,
+  ]
+gpt_setfile:
+  keywords: [
+    set,
+    filename
+  ]
