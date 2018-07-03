@@ -35,10 +35,6 @@ class beam(object):
     def read_SDDS_beam_file(self, fileName, charge=None, ascii=False):
         self.reset_dicts()
         self.sdds = sdds.SDDS(0)
-        if ascii:
-            self.sdds.mode = self.sdds.SDDS_ASCII
-        else:
-            self.sdds.mode = self.sdds.SDDS_BINARY
         self.sdds.load(fileName)
         for col in range(len(self.sdds.columnName)):
             if len(self.sdds.columnData[col]) == 1:
