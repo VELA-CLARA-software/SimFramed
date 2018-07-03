@@ -48,9 +48,13 @@ class twiss(dict):
         self['sigma_p'] = []
         self['sigma_cp'] = []
 
-    def read_sdds_file(self, fileName, charge=None):
+    def read_sdds_file(self, fileName, charge=None, ascii=False):
         # self.reset_dicts()
         self.sdds = sdds.SDDS(0)
+        if ascii:
+            self.sdds.mode = self.sdds.SDDS_ASCII
+        else:
+            self.sdds.mode = self.sdds.SDDS_BINARY
         self.sdds.load(fileName)
         for col in range(len(self.sdds.columnName)):
             # print 'col = ', self.sdds.columnName[col]
