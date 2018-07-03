@@ -52,7 +52,7 @@ parameters = framework.getElementType('quadrupole','k1')
 print 'parameters = ', parameters
 best = parameters
 scaling=4
-
+exit()
 class fitnessFunc():
 
     def __init__(self, args, tempdir, scaling=4, overwrite=True, verbose=False, summary=False):
