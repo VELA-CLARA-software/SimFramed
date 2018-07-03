@@ -32,9 +32,13 @@ class beam(object):
         self._tbins = []
         self._pbins = []
 
-    def read_SDDS_beam_file(self, fileName, charge=None):
+    def read_SDDS_beam_file(self, fileName, charge=None, ascii=False):
         self.reset_dicts()
         self.sdds = sdds.SDDS(0)
+        if ascii:
+            self.sdds.mode = self.sdds.SDDS_ASCII
+        else:
+            self.sdds.mode = self.sdds.SDDS_BINARY
         self.sdds.load(fileName)
         for col in range(len(self.sdds.columnName)):
             if len(self.sdds.columnData[col]) == 1:
@@ -75,7 +79,7 @@ class beam(object):
         """Save an demo SDDS file using the SDDS class."""
         x = sdds.SDDS(0)
         if ascii:
-            x.mode = x.SDDS_ASCII 
+            x.mode = x.SDDS_ASCII
         else:
             x.mode = x.SDDS_BINARY
         # {x, xp, y, yp, t, p, particleID}
