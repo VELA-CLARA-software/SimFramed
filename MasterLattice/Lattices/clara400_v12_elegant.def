@@ -59,8 +59,6 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
     output:
       start_element: CLA-L02-APER
       end_element: CLA-S03-APER
@@ -142,7 +140,7 @@ files:
       cathode: False
       space_charge_mode: 3D
     input:
-      particle_definition: $output['start_element']$.astra
+      prefix: ''
     output:
       start_element: CLA-S06-MARK-01
       end_element: CLA-L04-APER
