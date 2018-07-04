@@ -1229,8 +1229,11 @@ class dipole(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(dipole, self).__init__(name, type, **kwargs)
-        self.csr_bins = 10
+        self.bins = 100
         self.csr = 1
+        self.SG_HALFWIDTH = 2
+        self.isr = 1
+        self.SYNCH_RAD = 1
 
     @property
     def width(self):
