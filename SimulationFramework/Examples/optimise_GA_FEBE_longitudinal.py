@@ -95,23 +95,23 @@ class fitnessFunc():
             self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         self.framework.loadSettings('Lattices/clara400_v12_FEBE.def')
-        # self.framework.generator.number_of_particles = self.npart
-        # if not self.post_injector:
-        #     self.framework.modifyElement('CLA-HRG1-GUN-CAV', 'phase', gunphase)
-        #     self.framework.modifyElement('CLA-HRG1-GUN-SOL', 'field_amplitude', gunsol)
-        #     self.framework.modifyElement('CLA-L01-CAV', 'field_amplitude', abs(linac1field))
-        #     self.framework.modifyElement('CLA-L01-CAV', 'phase', linac1phase)
-        #     self.framework.modifyElement('CLA-L01-CAV-SOL-01', 'field_amplitude', linac1sol1)
-        #     self.framework.modifyElement('CLA-L01-CAV-SOL-02', 'field_amplitude', linac1sol2)
-        # self.framework.modifyElement('CLA-L02-CAV', 'field_amplitude', abs(linac2field))
-        # self.framework.modifyElement('CLA-L02-CAV', 'phase', linac2phase)
-        # self.framework.modifyElement('CLA-L03-CAV', 'field_amplitude', abs(linac3field))
-        # self.framework.modifyElement('CLA-L03-CAV', 'phase', linac3phase)
-        # self.framework.modifyElement('CLA-L4H-CAV', 'field_amplitude', abs(fhcfield))
-        # self.framework.modifyElement('CLA-L4H-CAV', 'phase', fhcphase)
-        # self.framework.modifyElement('CLA-L04-CAV', 'field_amplitude', abs(linac4field))
-        # self.framework.modifyElement('CLA-L04-CAV', 'phase', linac4phase)
-        # self.framework['bunch_compressor'].set_angle(abs(bcangle))
+        if not self.post_injector:
+            self.framework.generator.number_of_particles = self.npart
+            self.framework.modifyElement('CLA-HRG1-GUN-CAV', 'phase', gunphase)
+            self.framework.modifyElement('CLA-HRG1-GUN-SOL', 'field_amplitude', gunsol)
+            self.framework.modifyElement('CLA-L01-CAV', 'field_amplitude', abs(linac1field))
+            self.framework.modifyElement('CLA-L01-CAV', 'phase', linac1phase)
+            self.framework.modifyElement('CLA-L01-CAV-SOL-01', 'field_amplitude', linac1sol1)
+            self.framework.modifyElement('CLA-L01-CAV-SOL-02', 'field_amplitude', linac1sol2)
+        self.framework.modifyElement('CLA-L02-CAV', 'field_amplitude', abs(linac2field))
+        self.framework.modifyElement('CLA-L02-CAV', 'phase', linac2phase)
+        self.framework.modifyElement('CLA-L03-CAV', 'field_amplitude', abs(linac3field))
+        self.framework.modifyElement('CLA-L03-CAV', 'phase', linac3phase)
+        self.framework.modifyElement('CLA-L4H-CAV', 'field_amplitude', abs(fhcfield))
+        self.framework.modifyElement('CLA-L4H-CAV', 'phase', fhcphase)
+        self.framework.modifyElement('CLA-L04-CAV', 'field_amplitude', abs(linac4field))
+        self.framework.modifyElement('CLA-L04-CAV', 'phase', linac4phase)
+        self.framework['bunch_compressor'].set_angle(abs(bcangle))
 
 
     def between(self, value, minvalue, maxvalue, absolute=True):

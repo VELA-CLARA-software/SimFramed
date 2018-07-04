@@ -13,12 +13,12 @@
             "position_end": [
                 0,
                 0,
-                0
+                38.2678
             ],
             "position_start": [
                 0,
                 0,
-                0
+                38.2678
             ]
         },
         "CLA-S07-DIA-BPM-01": {
@@ -32,12 +32,12 @@
             "position_end": [
                 0,
                 0,
-                0.21
+                38.4778
             ],
             "position_start": [
                 0,
                 0,
-                0
+                38.2678
             ]
         },
         "CLA-S07-MAG-HVCOR-01": {
@@ -48,7 +48,7 @@
             "buffer_start": [
                 0,
                 0,
-                0.335
+                38.6028
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
@@ -60,23 +60,24 @@
             "position_end": [
                 0,
                 0,
-                0.385
+                38.6778
             ],
             "position_start": [
                 0,
                 0,
-                0.335
+                38.6278
             ]
         },
         "CLA-S07-MAG-QUAD-01": {
             "type": "quadrupole",
             "length": 0.15,
+            "k1": 0,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                0.435
+                38.7028
             ],
             "buffer_start_length": 0.075,
             "buffer_end_length": 0.1,
@@ -88,12 +89,12 @@
             "position_end": [
                 0,
                 0,
-                0.535
+                38.9278
             ],
             "position_start": [
                 0,
                 0,
-                0.385
+                38.7778
             ]
         },
         "CLA-S07-MARK-01": {
@@ -107,24 +108,24 @@
             "position_end": [
                 0,
                 0,
-                0.535
+                39.0278
             ],
             "position_start": [
                 0,
                 0,
-                0.535
+                39.0278
             ]
         },
         "CLA-S07-MAG-QUAD-02": {
             "type": "quadrupole",
             "length": 0.15,
-            "k1": -1.46779,
+            "k1": 0,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                0.86
+                39.1278
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
@@ -136,12 +137,12 @@
             "position_end": [
                 0,
                 0,
-                0.785
+                39.3778
             ],
             "position_start": [
                 0,
                 0,
-                0.635
+                39.2278
             ]
         },
         "CLA-S07-DIA-BPM-02": {
@@ -155,12 +156,12 @@
             "position_end": [
                 0,
                 0,
-                0.995
+                39.6878
             ],
             "position_start": [
                 0,
                 0,
-                0.785
+                39.4778
             ]
         },
         "CLA-S07-MAG-HVCOR-02": {
@@ -171,7 +172,7 @@
             "buffer_start": [
                 0,
                 0,
-                1.49521
+                39.763
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
@@ -183,12 +184,12 @@
             "position_end": [
                 0,
                 0,
-                1.12021
+                39.838
             ],
             "position_start": [
                 0,
                 0,
-                1.07021
+                39.788
             ]
         },
         "CLA-S07-DIA-SCR-01-W": {
@@ -197,7 +198,7 @@
             "buffer_start": [
                 0,
                 0,
-                1.145
+                39.8878
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
@@ -209,12 +210,12 @@
             "position_end": [
                 0,
                 0,
-                1.18833
+                39.9311
             ],
             "position_start": [
                 0,
                 0,
-                1.18833
+                39.9311
             ]
         },
         "CLA-S07-TDC-01-APER": {
@@ -230,12 +231,12 @@
             "position_end": [
                 0,
                 0,
-                1.265
+                40.0078
             ],
             "position_start": [
                 0,
                 0,
-                1.265
+                40.0078
             ]
         },
         "CLA-S07-TDC-01-R": {
@@ -245,7 +246,7 @@
             "buffer_start": [
                 0,
                 0,
-                1.265
+                40.0078
             ],
             "buffer_start_length": 0.346666,
             "buffer_end_length": 0.303334,
@@ -257,12 +258,12 @@
             "position_end": [
                 0,
                 0,
-                2.06167
+                40.8045
             ],
             "position_start": [
                 0,
                 0,
-                1.61167
+                40.3545
             ]
         },
         "CLA-S07-APER-02": {
@@ -278,12 +279,12 @@
             "position_end": [
                 0,
                 0,
-                2.365
+                41.1078
             ],
             "position_start": [
                 0,
                 0,
-                2.365
+                41.1078
             ]
         },
         "CLA-S07-MAG-HVCOR-03": {
@@ -294,7 +295,7 @@
             "buffer_start": [
                 0,
                 0,
-                2.915
+                41.1828
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
@@ -306,12 +307,12 @@
             "position_end": [
                 0,
                 0,
-                2.49
+                41.2578
             ],
             "position_start": [
                 0,
                 0,
-                2.44
+                41.2078
             ]
         },
         "CLA-S07-DIA-BPM-03": {
@@ -325,24 +326,24 @@
             "position_end": [
                 0,
                 0,
-                2.515
+                41.3078
             ],
             "position_start": [
                 0,
                 0,
-                2.515
+                41.3078
             ]
         },
         "CLA-S07-MAG-QUAD-03": {
             "type": "quadrupole",
             "length": 0.15,
-            "k1": -0.64689,
+            "k1": 0,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                3.04
+                41.3078
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
@@ -354,24 +355,24 @@
             "position_end": [
                 0,
                 0,
-                2.665
+                41.5578
             ],
             "position_start": [
                 0,
                 0,
-                2.515
+                41.4078
             ]
         },
         "CLA-S07-MAG-QUAD-04": {
             "type": "quadrupole",
             "length": 0.15,
-            "k1": -2.01504,
+            "k1": 0,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                3.79
+                42.0578
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
@@ -383,12 +384,12 @@
             "position_end": [
                 0,
                 0,
-                3.215
+                42.3078
             ],
             "position_start": [
                 0,
                 0,
-                3.065
+                42.1578
             ]
         },
         "CLA-S07-DIA-BPM-04": {
@@ -402,12 +403,12 @@
             "position_end": [
                 0,
                 0,
-                3.425
+                42.6178
             ],
             "position_start": [
                 0,
                 0,
-                3.215
+                42.4078
             ]
         },
         "CLA-S07-DIA-SCR-02-W": {
@@ -416,7 +417,7 @@
             "buffer_start": [
                 0,
                 0,
-                3.425
+                42.6178
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
@@ -428,24 +429,24 @@
             "position_end": [
                 0,
                 0,
-                3.46833
+                42.6611
             ],
             "position_start": [
                 0,
                 0,
-                3.46833
+                42.6611
             ]
         },
         "CLA-S07-MAG-QUAD-05": {
             "type": "quadrupole",
             "length": 0.15,
-            "k1": 0.98372,
+            "k1": 1.75015,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                4.47
+                42.7378
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
@@ -457,12 +458,12 @@
             "position_end": [
                 0,
                 0,
-                3.695
+                42.9878
             ],
             "position_start": [
                 0,
                 0,
-                3.545
+                42.8378
             ]
         },
         "CLA-S07-MAG-HVCOR-04": {
@@ -473,7 +474,7 @@
             "buffer_start": [
                 0,
                 0,
-                4.86521
+                43.133
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.017,
@@ -485,12 +486,12 @@
             "position_end": [
                 0,
                 0,
-                3.79021
+                43.208
             ],
             "position_start": [
                 0,
                 0,
-                3.74021
+                43.158
             ]
         },
         "CLA-S07-DIA-CDR-01": {
@@ -505,24 +506,24 @@
             "position_end": [
                 0,
                 0,
-                4.09021
+                43.525
             ],
             "position_start": [
                 0,
                 0,
-                3.79021
+                43.225
             ]
         },
         "CLA-S07-MAG-QUAD-06": {
             "type": "quadrupole",
             "length": 0.15,
-            "k1": 4.25217,
+            "k1": 1.38136,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                5.25721
+                43.525
             ],
             "buffer_start_length": 0.062792,
             "buffer_end_length": 0.1,
@@ -534,12 +535,12 @@
             "position_end": [
                 0,
                 0,
-                4.24021
+                43.7378
             ],
             "position_start": [
                 0,
                 0,
-                4.09021
+                43.5878
             ]
         },
         "CLA-S07-DCP-01": {
@@ -556,12 +557,12 @@
             "position_end": [
                 0,
                 0,
-                4.93021
+                44.5278
             ],
             "position_start": [
                 0,
                 0,
-                4.43021
+                44.0278
             ]
         },
         "CLA-S07-APER-03": {
@@ -577,12 +578,12 @@
             "position_end": [
                 0,
                 0,
-                4.93021
+                44.5278
             ],
             "position_start": [
                 0,
                 0,
-                4.93021
+                44.5278
             ]
         },
         "CLA-S07-DIA-BPM-05": {
@@ -596,24 +597,24 @@
             "position_end": [
                 0,
                 0,
-                5.14021
+                44.7378
             ],
             "position_start": [
                 0,
                 0,
-                4.93021
+                44.5278
             ]
         },
         "CLA-S07-MAG-QUAD-07": {
             "type": "quadrupole",
             "length": 0.15,
-            "k1": -2.6469,
+            "k1": -2.92246,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                6.47
+                44.7378
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
@@ -625,12 +626,12 @@
             "position_end": [
                 0,
                 0,
-                5.29021
+                44.9878
             ],
             "position_start": [
                 0,
                 0,
-                5.14021
+                44.8378
             ]
         },
         "CLA-S07-MAG-HVCOR-05": {
@@ -641,7 +642,7 @@
             "buffer_start": [
                 0,
                 0,
-                6.82
+                45.0878
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
@@ -653,12 +654,12 @@
             "position_end": [
                 0,
                 0,
-                5.34021
+                45.1628
             ],
             "position_start": [
                 0,
                 0,
-                5.29021
+                45.1128
             ]
         },
         "CLA-S07-MAG-HVCOR-06": {
@@ -669,7 +670,7 @@
             "buffer_start": [
                 0,
                 0,
-                7.68001
+                45.9478
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
@@ -681,12 +682,12 @@
             "position_end": [
                 0,
                 0,
-                6.15022
+                46.0228
             ],
             "position_start": [
                 0,
                 0,
-                6.10022
+                45.9728
             ]
         },
         "CLA-S07-DIA-BPM-06": {
@@ -700,12 +701,12 @@
             "position_end": [
                 0,
                 0,
-                6.40021
+                46.2978
             ],
             "position_start": [
                 0,
                 0,
-                6.35021
+                46.2478
             ]
         },
         "CLA-S07-DIA-SCR-03-W": {
@@ -714,7 +715,7 @@
             "buffer_start": [
                 0,
                 0,
-                6.50021
+                46.3978
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
@@ -726,12 +727,12 @@
             "position_end": [
                 0,
                 0,
-                6.54354
+                46.4411
             ],
             "position_start": [
                 0,
                 0,
-                6.54354
+                46.4411
             ]
         },
         "CLA-S07-MARK-02": {
@@ -745,24 +746,24 @@
             "position_end": [
                 0,
                 0,
-                6.62021
+                46.5178
             ],
             "position_start": [
                 0,
                 0,
-                6.62021
+                46.5178
             ]
         },
         "CLA-S07-MAG-QUAD-08": {
             "type": "quadrupole",
             "length": 0.15,
-            "k1": -1.71192,
+            "k1": 2.54269,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                8.35
+                46.6178
             ],
             "buffer_start_length": 0.1,
             "buffer_end_length": 0.1,
@@ -774,24 +775,24 @@
             "position_end": [
                 0,
                 0,
-                6.87021
+                46.8678
             ],
             "position_start": [
                 0,
                 0,
-                6.72021
+                46.7178
             ]
         },
         "CLA-S07-MAG-QUAD-09": {
             "type": "quadrupole",
             "length": 0.162,
-            "k1": -5.98555,
+            "k1": -0.748274,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                8.9
+                47.1678
             ],
             "buffer_start_length": 0.088,
             "buffer_end_length": 0.1,
@@ -803,12 +804,12 @@
             "position_end": [
                 0,
                 0,
-                7.23221
+                47.4178
             ],
             "position_start": [
                 0,
                 0,
-                7.07021
+                47.2558
             ]
         },
         "CLA-S07-DIA-BPM-07": {
@@ -822,12 +823,12 @@
             "position_end": [
                 0,
                 0,
-                7.44221
+                47.7278
             ],
             "position_start": [
                 0,
                 0,
-                7.23221
+                47.5178
             ]
         },
         "CLA-S07-MAG-HVCOR-07": {
@@ -838,7 +839,7 @@
             "buffer_start": [
                 0,
                 0,
-                9.46
+                47.7278
             ],
             "buffer_start_length": 0.025,
             "buffer_end_length": 0.025,
@@ -850,12 +851,12 @@
             "position_end": [
                 0,
                 0,
-                7.49221
+                47.8028
             ],
             "position_start": [
                 0,
                 0,
-                7.44221
+                47.7528
             ]
         },
         "CLA-S07-DIA-SCR-04-W": {
@@ -864,7 +865,7 @@
             "buffer_start": [
                 0,
                 0,
-                7.49221
+                47.8278
             ],
             "buffer_start_length": 0.043333,
             "buffer_end_length": 0.076667,
@@ -876,24 +877,24 @@
             "position_end": [
                 0,
                 0,
-                7.53554
+                47.8711
             ],
             "position_start": [
                 0,
                 0,
-                7.53554
+                47.8711
             ]
         },
         "CLA-S07-MAG-QUAD-10": {
             "type": "quadrupole",
             "length": 0.162,
-            "k1": 7.72644,
+            "k1": -0.374136,
             "sr_enable": true,
             "isr_enable": true,
             "buffer_start": [
                 0,
                 0,
-                9.68
+                47.9478
             ],
             "buffer_start_length": 0.088,
             "buffer_end_length": 0.1,
@@ -905,12 +906,12 @@
             "position_end": [
                 0,
                 0,
-                7.77421
+                48.1978
             ],
             "position_start": [
                 0,
                 0,
-                7.61221
+                48.0358
             ]
         }
     }
