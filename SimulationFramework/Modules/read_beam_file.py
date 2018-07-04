@@ -735,7 +735,7 @@ class beam(object):
                 slice_current_centroid_indices.append(index)
         for index in slice_current_centroid_indices:
             slice_momentum_centroid.append(slicemomentum[index])
-        chirp = (1e6 * (slice_momentum_centroid[-1] - slice_momentum_centroid[0]) / (len(slice_momentum_centroid) * self.slice_length))
+        chirp = (1e-18 * (slice_momentum_centroid[-1] - slice_momentum_centroid[0]) / (len(slice_momentum_centroid) * self.slice_length))
         return chirp
 
     @property
