@@ -86,9 +86,9 @@ class fitnessFunc():
             self.framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
-            self.framework.defineElegantCommand(['mpiexec','-np',str(3*scaling),'Pelegant'])
-        else:
-            self.framework.defineElegantCommand(['elegant'])
+            # self.framework.defineElegantCommand(['mpiexec','-np',str(3*scaling),'Pelegant'])
+        # else:
+        self.framework.defineElegantCommand(['elegant'])
         self.framework.setElementType('quadrupole','k1', self.parameters)
 
     def between(self, value, minvalue, maxvalue, absolute=True):
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     # Process Pool of 4 workers
     if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=6)
+        pool = multiprocessing.Pool(processes=24)
     else:
         pool = multiprocessing.Pool(processes=6)
     toolbox.register("map", pool.map)

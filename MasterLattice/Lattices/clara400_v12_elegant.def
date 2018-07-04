@@ -123,7 +123,7 @@ files:
       cathode: False
       space_charge_mode: 3D
     csr:
-      csr_mode: 1D
+      csr_mode: 3D
     input:
       particle_definition: $output['start_element']$.astra
     output:
