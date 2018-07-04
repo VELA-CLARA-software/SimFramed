@@ -1451,7 +1451,7 @@ class screen(frameworkElement):
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
 
     def sdds_to_hdf5(self):
-        elegantbeamfilename = self.output_filename
+        elegantbeamfilename = self.output_filename.replace('.sdds','.SDDS')
         beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename)
         HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5')
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle)
