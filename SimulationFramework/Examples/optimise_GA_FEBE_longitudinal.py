@@ -130,7 +130,7 @@ class fitnessFunc():
             if self.overwrite:
                 startS = self.framework['L02'].startObject['position_start'][2]
                 self.framework['L02'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
-                self.framework.track(track=False, startfile='FEBE')
+                # self.framework.track(track=False)#, startfile='FEBE')
 
             # self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
             self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FEB-W-FOCUS.hdf5')
@@ -145,19 +145,18 @@ class fitnessFunc():
             fhcfield = self.parameters['fhcfield']
             peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = self.beam.sliceAnalysis()
             chirp = self.beam.chirp
-            print 'chirp = ', chirp
             constraintsList = {
-                'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 25},
-                'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 600, 'weight': 100},
+                'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 2000, 'weight': 25},
+                'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 2500, 'weight': 100},
                 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.2, 'weight': 10},
-                'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.5, 'weight': 10},
-                'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.5, 'weight': 10},
+                'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 2, 'weight': 10},
+                'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 2, 'weight': 10},
                 'peakIMomentum': {'type': 'equalto','value': 1e-6*peakIMomentum, 'limit': 240, 'weight': 20},
                 'linac fields': {'type': 'lessthan', 'value': 1e-6*self.linacfields, 'limit': 32, 'weight': 100},
                 '4hc field': {'type': 'lessthan', 'value': 1e-6*fhcfield, 'limit': 35, 'weight': 100},
-                'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 0.75, 'weight': 10},
-                'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 0.75, 'weight': 10},
-                'momentum_spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.2, 'weight': 10},
+                'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 5, 'weight': 10},
+                'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 5, 'weight': 10},
+                'momentum_spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.5, 'weight': 10},
                 'chirp': {'type': 'lessthan', 'value': chirp, 'limit': 1, 'weight': 1}
             }
             # self.twiss.read_astra_emit_files(self.dirname+'/S07.Zemit.001')
@@ -218,8 +217,8 @@ best = parameters
 #     results.append(row)
 # best = results[0]
 
-print 'starting values = ', best
-
+# print 'starting values = ', best
+#
 print optfunc(best, dir=os.getcwd()+'/FEBE_best_longitudinal', scaling=6, overwrite=True, verbose=True, summary=False)
 exit()
 
@@ -270,7 +269,7 @@ if __name__ == "__main__":
     # toolbox.register("map", pool.map)
 
     if not os.name == 'nt':
-        pop = toolbox.population(n=48)
+        pop = toolbox.population(n=12)
     else:
         pop = toolbox.population(n=6)
     hof = tools.HallOfFame(10)
