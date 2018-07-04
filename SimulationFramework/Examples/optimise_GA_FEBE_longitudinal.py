@@ -130,7 +130,7 @@ class fitnessFunc():
             if self.overwrite:
                 startS = self.framework['L02'].startObject['position_start'][2]
                 self.framework['L02'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
-                self.framework.track(run=True, startfile='VBC')
+                self.framework.track(track=False, startfile='FEBE')
 
             # self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
             self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FEB-W-FOCUS.hdf5')
