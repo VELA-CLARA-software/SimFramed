@@ -134,7 +134,7 @@ files:
       start_element: CLA-L04-APER
       end_element: CLA-S07-APER-01
   S07:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
