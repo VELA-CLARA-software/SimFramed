@@ -51,16 +51,19 @@ class TemporaryDirectory(object):
     def __exit__(self, exc_type, exc_value, traceback):
         shutil.rmtree(self.name)
 
-# scaling=3
-# framework = Framework('basefiles_'+str(scaling), overwrite=False)
-# framework.loadSettings('Lattices/clara400_v12_elegant.def')
-# if not os.name == 'nt':
-#     framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
-#     framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
-#     framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
-# framework.generator.number_of_particles = 2**(3*scaling)
-# framework.track(run=True)
-# exit()
+def create_base_files(scaling):
+    framework = Framework('basefiles_'+str(scaling), overwrite=False)
+    framework.loadSettings('Lattices/clara400_v12_elegant.def')
+    if not os.name == 'nt':
+        framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
+        framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
+        framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+    framework.generator.number_of_particles = 2**(3*scaling)
+    framework.track(run=True)
+
+for i in [3,4,5,6]:
+    create_base_files(i)
+exit()
 
 framework = Framework('basefiles_4', overwrite=False)
 framework.loadSettings('Lattices/clara400_v12_DCP.def')
