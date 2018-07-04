@@ -1223,6 +1223,8 @@ class dipole(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(dipole, self).__init__(name, type, **kwargs)
+        self.csr_bins = 10
+        self.csr = 1
 
     @property
     def width(self):
@@ -1291,7 +1293,7 @@ class dipole(frameworkElement):
     def write_ASTRA(self, n):
         if abs(checkValue(self, 'strength', default=0)) > 0 or abs(self.rho) > 0:
             corners = self.corners
-            # print [corners]
+            print [corners]
             if self.plane is None:
                 self.plane = 'horizontal'
             params = OrderedDict([
@@ -1416,7 +1418,7 @@ class screen(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(screen, self).__init__(name, type, **kwargs)
         if 'output_filename' not in kwargs:
-            self.objectProperties['output_filename'] = self.objectName
+            self.objectProperties['output_filename'] = self.objectName+'.sdds'
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
@@ -1440,13 +1442,13 @@ class screen(frameworkElement):
         beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
 
         HDF5filename = self.objectName+'.hdf5'
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
 
     def sdds_to_hdf5(self):
         elegantbeamfilename = self.output_filename
         beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename)
         HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5')
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename)
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle)
 
 class monitor(screen):
 
@@ -1473,10 +1475,10 @@ class collimator(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(collimator, self).__init__(name, type, **kwargs)
 
-class marker(frameworkElement):
+class marker(screen):
 
     def __init__(self, name=None, type=None, **kwargs):
-        super(marker, self).__init__(name, type, **kwargs)
+        super(marker, self).__init__(name, 'screen', **kwargs)
 
 class drift(frameworkElement):
 
