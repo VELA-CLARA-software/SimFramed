@@ -298,7 +298,7 @@ class Framework(object):
     def modifyElement(self, elementName, parameter, value):
         setattr(self.elementObjects[elementName], parameter, value)
 
-    def track(self, files=None, startfile=None, run=True):
+    def track(self, files=None, startfile=None, preprocess=True, write=True, track=True, postprocess=True):
         if files is None:
             files = ['generator'] + self.lines if hasattr(self, 'generator') else self.lines
         if startfile is not None:
@@ -323,26 +323,32 @@ class Framework(object):
                         format_custom_text.update_mapping(running='Finished')
                     else:
                         format_custom_text.update_mapping(running=files[i+1]+'  ')
-                    if run:
+                    if preprocess:
                         self.latticeObjects[l].preProcess()
-                    self.latticeObjects[l].write()
-                    if run:
+                    if write:
+                        self.latticeObjects[l].write()
+                    if track:
                         self.latticeObjects[l].run()
+                    if postprocess:
                         self.latticeObjects[l].postProcess()
         else:
             for i in range(len(files)):
                 l = files[i]
                 if l == 'generator' and hasattr(self, 'generator'):
-                    self.generator.write()
-                    if run:
+                    if write:
+                        self.generator.write()
+                    if track:
                         self.generator.run()
+                    if postprocess:
                         self.generator.astra_to_hdf5()
                 else:
-                    if run:
+                    if preprocess:
                         self.latticeObjects[l].preProcess()
-                    self.latticeObjects[l].write()
-                    if run:
+                    if write:
+                        self.latticeObjects[l].write()
+                    if track:
                         self.latticeObjects[l].run()
+                    if postprocess:
                         self.latticeObjects[l].postProcess()
 
 class frameworkLattice(object):
