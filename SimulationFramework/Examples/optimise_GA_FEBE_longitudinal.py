@@ -94,6 +94,7 @@ class fitnessFunc():
         if not os.name == 'nt':
             self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+        self.framework.defineElegantCommand(['elegant'])
         self.framework.loadSettings('Lattices/clara400_v12_FEBE.def')
         if not self.post_injector:
             self.framework.generator.number_of_particles = self.npart
@@ -144,6 +145,7 @@ class fitnessFunc():
             fhcfield = self.parameters['fhcfield']
             peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum = self.beam.sliceAnalysis()
             chirp = self.beam.chirp
+            print 'chirp = ', chirp
             constraintsList = {
                 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 400, 'weight': 25},
                 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 600, 'weight': 100},
@@ -156,7 +158,7 @@ class fitnessFunc():
                 'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 0.75, 'weight': 10},
                 'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 0.75, 'weight': 10},
                 'momentum_spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.2, 'weight': 10},
-                # 'chirp': {'type': 'lessthan', 'value': chirp, 'limit': 1, 'weight': 1}
+                'chirp': {'type': 'lessthan', 'value': chirp, 'limit': 1, 'weight': 1}
             }
             # self.twiss.read_astra_emit_files(self.dirname+'/S07.Zemit.001')
             # constraintsList5 = {
@@ -218,7 +220,7 @@ best = parameters
 
 print 'starting values = ', best
 
-print optfunc(best, dir=os.getcwd()+'/FEBE_best_longitudinal', scaling=3, overwrite=True, verbose=True, summary=False)
+print optfunc(best, dir=os.getcwd()+'/FEBE_best_longitudinal', scaling=6, overwrite=True, verbose=True, summary=False)
 exit()
 
 
