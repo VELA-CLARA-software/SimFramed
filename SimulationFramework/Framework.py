@@ -1425,9 +1425,9 @@ class screen(frameworkElement):
             ['Screen', {'value': self.middle[2], 'default': 0}],
         ]), n)
 
-    def write_CSRTrack(self, n):
-        z = self.middle[2]
-        return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
+    # def write_CSRTrack(self, n):
+    #     z = self.middle[2]
+    #     return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
 
     def write_GPT(self, Brho):
         output = 'screen( "wcs", '+self.gpt_coordinates()+');\n'
@@ -1475,10 +1475,10 @@ class collimator(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(collimator, self).__init__(name, type, **kwargs)
 
-class marker(frameworkElement):
+class marker(screen):
 
     def __init__(self, name=None, type=None, **kwargs):
-        super(marker, self).__init__(name, type, **kwargs)
+        super(marker, self).__init__(name, 'screen', **kwargs)
 
 class drift(frameworkElement):
 
