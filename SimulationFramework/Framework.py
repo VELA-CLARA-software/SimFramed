@@ -1475,10 +1475,10 @@ class collimator(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(collimator, self).__init__(name, type, **kwargs)
 
-class marker(screen):
+class marker(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
-        super(marker, self).__init__(name, 'screen', **kwargs)
+        super(marker, self).__init__(name, type, **kwargs)
 
 class drift(frameworkElement):
 
