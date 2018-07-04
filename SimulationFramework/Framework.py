@@ -1302,7 +1302,6 @@ class dipole(frameworkElement):
     def write_ASTRA(self, n):
         if abs(checkValue(self, 'strength', default=0)) > 0 or abs(self.rho) > 0:
             corners = self.corners
-            print [corners]
             if self.plane is None:
                 self.plane = 'horizontal'
             params = OrderedDict([

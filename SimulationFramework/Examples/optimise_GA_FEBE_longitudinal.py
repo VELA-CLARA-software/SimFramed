@@ -262,11 +262,11 @@ if __name__ == "__main__":
     random.seed(64)
 
     # Process Pool of 4 workers
-    # if not os.name == 'nt':
-    #     pool = multiprocessing.Pool(processes=3)
-    # else:
-    #     pool = multiprocessing.Pool(processes=3)
-    # toolbox.register("map", pool.map)
+    if not os.name == 'nt':
+        pool = multiprocessing.Pool(processes=6)
+    else:
+        pool = multiprocessing.Pool(processes=3)
+    toolbox.register("map", pool.map)
 
     if not os.name == 'nt':
         pop = toolbox.population(n=12)
