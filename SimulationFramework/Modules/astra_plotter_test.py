@@ -1,4 +1,4 @@
-import sys, os, time, math, datetime, copy, re
+import sys, os, time, math, datetime, copy, re,  h5py
 from collections import OrderedDict
 import glob
 from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
@@ -41,7 +41,7 @@ class MyStaticMplCanvas(MyMplCanvas):
 
     def plothist(self, x, y, nbins, xLabel=None, yLabel=None):
         self.axes.cla()
-        self.axes.set_aspect('equal', 'datalim')
+        # self.axes.set_aspect('equal', 'datalim')
         self.axes.hist2d(x, y, bins=nbins, norm=LogNorm())
         if xLabel is not None:
             self.setXlabel(xLabel)
@@ -342,6 +342,7 @@ class astraPlotWidget(QWidget):
         filenames = ['.'.join(os.path.basename(f).split('.')[:-2]) for f in files]
         print 'filenames = ', filenames
         runnumber = [os.path.basename(f).split('.')[-1] for f in files]
+        print 'runnumber = ', runnumber
         for f, r in list(set(zip(filenames, runnumber))):
             files = glob.glob(self.directory+'/'+f+'.????.???')
             screenpositions = [re.search(f+'\.(\d\d\d\d)\.\d\d\d', s).group(1) for s in files]

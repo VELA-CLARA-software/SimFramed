@@ -1,0 +1,68 @@
+elements:
+  CLA-L04-APER:
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.01
+    vertical_size: 0.01
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 34.118]
+    position_start: [0, 0, 34.118]
+  CLA-L04-CAV-01:
+    type: cavity
+    length: 4.06667
+    cell_length: 0.00833333
+    field_amplitude: 80000000.0
+    frequency: 11994000000.0
+    phase: 0
+    longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
+    transverse_wakefield_input: '"Sx5um10mm.sdds"'
+    field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
+    lsc_enable: true
+    lsc_bins: 20.0
+    lsc_cutoff_high: [0.2, 0.25]
+    buffer_start: [0, 0, 34.118]
+    buffer_start_length: 0.0416666
+    buffer_end_length: 0.0414916
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 38.2263]
+    position_start: [0, 0, 34.1596]
+  CLA-L04-CAV-02:
+    type: cavity
+    length: 4.06667
+    cell_length: 0.00833333
+    field_amplitude: 80000000.0
+    frequency: 11994000000.0
+    phase: 0
+    longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
+    transverse_wakefield_input: '"Sx5um10mm.sdds"'
+    field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
+    lsc_enable: true
+    lsc_bins: 20.0
+    lsc_cutoff_high: [0.2, 0.25]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 43.06667]
+    position_start: [0, 0, 39]
+  CLA-L04-CAV-03:
+    type: cavity
+    length: 4.06667
+    cell_length: 0.00833333
+    field_amplitude: 80000000.0
+    frequency: 11994000000.0
+    phase: 0
+    longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
+    transverse_wakefield_input: '"Sx5um10mm.sdds"'
+    field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
+    lsc_enable: true
+    lsc_bins: 20.0
+    lsc_cutoff_high: [0.2, 0.25]
+    global_rotation: [0, 0, 0]
+    position_start: [0, 0, 43.8]
+    position_end: [0, 0, 47.86667]
+  CLA-S07-APER-01:
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 48]
+    position_start: [0, 0, 48]
