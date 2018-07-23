@@ -32,6 +32,10 @@ astra_generator_keywords = {
         'clara_400_3ps':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
             'ref_ekin': 0, 'lt': 3e-3, 'rt': 0.2e-3, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
+        },
+        'clara_400_1ps':{
+            'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
+            'ref_ekin': 0, 'lt': 1e-3, 'rt': 0.2e-3, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
         }
     },
     'framework_keywords': [
@@ -314,9 +318,11 @@ class Framework(object):
                 l = files[i]
                 if l == 'generator' and hasattr(self, 'generator'):
                     format_custom_text.update_mapping(running='Generator  ')
-                    self.generator.write()
-                    if run:
+                    if write:
+                        self.generator.write()
+                    if track:
                         self.generator.run()
+                    if postprocess:
                         self.generator.astra_to_hdf5()
                 else:
                     if i == (len(files) - 1):
@@ -770,7 +776,7 @@ class astraLattice(frameworkLattice):
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
         beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
         HDF5filename = self.allElementObjects[self.end].objectName+'.hdf5'
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.allElementObjects[self.end].middle)
 
 class gptLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -1433,9 +1439,9 @@ class screen(frameworkElement):
             ['Screen', {'value': self.middle[2], 'default': 0}],
         ]), n)
 
-    # def write_CSRTrack(self, n):
-    #     z = self.middle[2]
-    #     return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
+    def write_CSRTrack(self, n):
+        z = self.start[2]
+        return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
 
     def write_GPT(self, Brho):
         output = 'screen( "wcs", '+self.gpt_coordinates()+');\n'
@@ -1487,6 +1493,9 @@ class marker(screen):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(marker, self).__init__(name, 'screen', **kwargs)
+
+    def write_CSRTrack(self, n):
+        return ''
 
 class drift(frameworkElement):
 

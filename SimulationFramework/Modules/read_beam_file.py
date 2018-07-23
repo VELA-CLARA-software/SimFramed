@@ -3,7 +3,10 @@ import h5py
 import numpy as np
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
-import sdds
+try:
+    import sdds
+except:
+    pass
 import read_gdf_file as rgf
 
 class beam(object):
@@ -46,22 +49,13 @@ class beam(object):
             self.SDDSparameters[self.sdds.parameterName[param]] = self.sdds.parameterData[param]
         # print 'self.SDDSparameterNames = ', self.SDDSparameterNames
         self.beam['code'] = "SDDS"
-        self.beam['cp'] = self.beam['p'] * self.E0_eV
-        self.beam['cpz'] = self.cp / np.sqrt(self.xp**2 + self.yp**2 + 1)
-        self.beam['cpx'] = self.xp * self.beam['cpz']
-        self.beam['cpy'] = self.yp * self.beam['cpz']
-        self.beam['px'] = self.beam['cpx'] * self.q_over_c
-        self.beam['py'] = self.beam['cpy'] * self.q_over_c
-        self.beam['pz'] = self.beam['cpz'] * self.q_over_c
-        self.beam['p'] = self.beam['cp'] * self.q_over_c
-        self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
-        velocity_conversion = 1 / (constants.m_e * self.gamma)
-        self.beam['vx'] = velocity_conversion * self.px
-        self.beam['vy'] = velocity_conversion * self.py
-        self.beam['vz'] = velocity_conversion * self.pz
-        self.beam['Bx'] = self.vx / constants.speed_of_light
-        self.beam['By'] = self.vy / constants.speed_of_light
-        self.beam['Bz'] = self.vz / constants.speed_of_light
+        cp = self.beam['p'] * self.E0_eV
+        cpz = cp / np.sqrt(self.beam['xp']**2 + self.beam['yp']**2 + 1)
+        cpx = self.beam['xp'] * cpz
+        cpy = self.beam['yp'] * cpz
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
         self.beam['z'] = (1 * self.Bz * constants.speed_of_light) * self.t #np.full(len(self.t), 0)
         if 'Charge' in self.SDDSparameters:
             self.beam['total_charge'] = self.SDDSparameters['Charge'][0]
@@ -84,7 +78,7 @@ class beam(object):
         Ctypes = [x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE]
         Csymbols = ["", "x'","","y'","",""]
         Cunits = ["m","","m","","s","m$be$nc"]
-        Ccolumns = [self.x, self.xp, self.y, self.yp, self.t , self.beam['cp']/self.E0_eV]
+        Ccolumns = [self.x, self.xp, self.y, self.yp, self.t , self.cp/self.E0_eV]
         # {Step, pCentral, Charge, Particles, IDSlotsPerBunch}
         Pnames = ["pCentral", "Charge", "Particles"]
         Ptypes = [x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_LONG]
@@ -138,28 +132,13 @@ class beam(object):
         self.beam['x'] = x
         self.beam['y'] = y
         self.beam['z'] = z
-        self.beam['cpx'] = cpx
-        self.beam['cpy'] = cpy
-        self.beam['cpz'] = cpz
         self.beam['px'] = cpx * self.q_over_c
         self.beam['py'] = cpy * self.q_over_c
         self.beam['pz'] = cpz * self.q_over_c
-        self.beam['cp'] = cp
-        self.beam['p'] = cp * self.q_over_c
-        self.beam['xp'] = np.arctan(self.px/self.pz)
-        self.beam['yp'] = np.arctan(self.py/self.pz)
         self.beam['clock'] = 1e-9*clock
         self.beam['charge'] = 1e-9*charge
         self.beam['index'] = index
         self.beam['status'] = status
-        self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
-        velocity_conversion = 1 / (constants.m_e * self.gamma)
-        self.beam['vx'] = velocity_conversion * self.px
-        self.beam['vy'] = velocity_conversion * self.py
-        self.beam['vz'] = velocity_conversion * self.pz
-        self.beam['Bx'] = self.vx / constants.speed_of_light
-        self.beam['By'] = self.vy / constants.speed_of_light
-        self.beam['Bz'] = self.vz / constants.speed_of_light
         self.beam['t'] = [clock if status == -1 else (z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
@@ -177,29 +156,13 @@ class beam(object):
         self.beam['x'] = x
         self.beam['y'] = y
         self.beam['z'] = z
-        self.beam['cpx'] = cpx
-        self.beam['cpy'] = cpy
-        self.beam['cpz'] = cpz
         self.beam['px'] = cpx * self.q_over_c
         self.beam['py'] = cpy * self.q_over_c
         self.beam['pz'] = cpz * self.q_over_c
-        self.beam['cp'] = cp
-        self.beam['p'] = cp * self.q_over_c
-        self.beam['xp'] = np.arctan(self.px/self.pz)
-        self.beam['yp'] = np.arctan(self.py/self.pz)
         self.beam['clock'] = np.full(len(self.x), 0)
         self.beam['clock'][0] = data[0, 0] * 1e-9
-        # self.beam['charge'] = 1e-9*charge
         self.beam['index'] = np.full(len(self.x), 5)
         self.beam['status'] = np.full(len(self.x), 1)
-        self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
-        velocity_conversion = 1 / (constants.m_e * self.gamma)
-        self.beam['vx'] = velocity_conversion * self.px
-        self.beam['vy'] = velocity_conversion * self.py
-        self.beam['vz'] = velocity_conversion * self.pz
-        self.beam['Bx'] = self.vx / constants.speed_of_light
-        self.beam['By'] = self.vy / constants.speed_of_light
-        self.beam['Bz'] = self.vz / constants.speed_of_light
         self.beam['t'] = self.z / (-1 * self.Bz * constants.speed_of_light)# [time if status is -1 else 0 for time, status in zip(clock, self.beam['status'])]
         self.beam['charge'] = charge
         self.beam['total_charge'] = np.sum(self.beam['charge'])
@@ -331,16 +294,13 @@ class beam(object):
         self.beam['code'] = "GPT"
         self.beam['x'] = gdfbeamdata.x
         self.beam['y'] = gdfbeamdata.y
-        self.beam['Bx'] = gdfbeamdata.Bx
-        self.beam['By'] = gdfbeamdata.By
-        self.beam['Bz'] = gdfbeamdata.Bz
         if hasattr(gdfbeamdata,'z'):
             self.beam['z'] = gdfbeamdata.z
             self.beam['t'] = np.full(len(self.z), 0)# self.z / (-1 * self.Bz * constants.speed_of_light)
         elif hasattr(gdfbeamdata,'t'):
             self.beam['t'] = gdfbeamdata.t
             self.beam['z'] = np.full(len(self.t), 0)#(-1 * self.Bz * constants.speed_of_light) * self.t
-        self.beam['gamma'] = gdfbeamdata.G
+        # self.beam['gamma'] = gdfbeamdata.G
         if hasattr(gdfbeamdata,'q'):
             self.beam['charge'] = gdfbeamdata.q
             self.beam['total_charge'] = np.sum(self.beam['charge'])
@@ -349,31 +309,24 @@ class beam(object):
                 self.beam['total_charge'] = 0
             else:
                 self.beam['total_charge'] = charge
-        self.beam['vx'] = self.Bx * constants.speed_of_light
-        self.beam['vy'] = self.By * constants.speed_of_light
-        self.beam['vz'] = self.Bz * constants.speed_of_light
+        vx = gdfbeamdata.Bx * constants.speed_of_light
+        vy = gdfbeamdata.By * constants.speed_of_light
+        vz = gdfbeamdata.Bz * constants.speed_of_light
         velocity_conversion = 1 / (constants.m_e * self.gamma)
-        self.beam['px'] = self.beam['vx'] / velocity_conversion
-        self.beam['py'] = self.beam['vy'] / velocity_conversion
-        self.beam['pz'] = self.beam['vz'] / velocity_conversion
-        self.beam['p'] = np.sqrt(self.px**2 + self.py**2 + self.pz**2)
-        self.beam['cpx'] = self.px / self.q_over_c
-        self.beam['cpy'] = self.py / self.q_over_c
-        self.beam['cpz'] = self.pz / self.q_over_c
-        self.beam['cp'] = self.p / self.q_over_c
-        self.beam['xp'] = np.arctan(self.px/self.pz)
-        self.beam['yp'] = np.arctan(self.py/self.pz)
+        self.beam['px'] = vx / velocity_conversion
+        self.beam['py'] = vy / velocity_conversion
+        self.beam['pz'] = vz / velocity_conversion
 
     def rotate_beamXZ(self, theta, preOffset=[0,0,0], postOffset=[0,0,0]):
         preOffset=np.array(preOffset)
         postOffset=np.array(postOffset)
 
         rotation_matrix = np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
-        beam = np.array([self.beam['x'],self.beam['y'],self.beam['z']]).transpose()
+        beam = np.array([self.x,self.y,self.z]).transpose()
         self.beam['x'],self.beam['y'],self.beam['z'] = (np.dot(beam-preOffset, rotation_matrix)-postOffset).transpose()
 
-        beam = np.array([self.beam['cpx'], self.beam['cpy'], self.beam['cpz']]).transpose()
-        self.beam['cpx'], self.beam['cpy'], self.beam['cpz'] = np.dot(beam, rotation_matrix).transpose()
+        beam = np.array([self.px, self.py, self.pz]).transpose()
+        self.beam['px'], self.beam['py'], self.beam['pz'] = np.dot(beam, rotation_matrix).transpose()
 
         if 'reference_particle' in self.beam:
             beam = np.array([self.beam['reference_particle'][0], self.beam['reference_particle'][1], self.beam['reference_particle'][2]])
@@ -382,18 +335,6 @@ class beam(object):
             beam = np.array([self.beam['reference_particle'][3], self.beam['reference_particle'][4], self.beam['reference_particle'][5]])
             self.beam['reference_particle'][3], self.beam['reference_particle'][4], self.beam['reference_particle'][5] = np.dot([beam], rotation_matrix)[0]
 
-        self.beam['px'] = self.beam['cpx'] * self.q_over_c
-        self.beam['py'] = self.beam['cpy'] * self.q_over_c
-        self.beam['pz'] = self.beam['cpz'] * self.q_over_c
-        self.beam['xp'] = np.arctan(self.px/self.pz)
-        self.beam['yp'] = np.arctan(self.py/self.pz)
-        velocity_conversion = 1 / (constants.m_e * self.gamma)
-        self.beam['vx'] = velocity_conversion * self.px
-        self.beam['vy'] = velocity_conversion * self.py
-        self.beam['vz'] = velocity_conversion * self.pz
-        self.beam['Bx'] = self.vx / constants.speed_of_light
-        self.beam['By'] = self.vy / constants.speed_of_light
-        self.beam['Bz'] = self.vz / constants.speed_of_light
         self.beam['rotation'] = theta
         self.beam['offset'] = preOffset
 
@@ -453,25 +394,25 @@ class beam(object):
             self.beam['x'] = x
             self.beam['y'] = y
             self.beam['z'] = z
-            self.beam['cpx'] = cpx
-            self.beam['cpy'] = cpy
-            self.beam['cpz'] = cpz
+            # self.beam['cpx'] = cpx
+            # self.beam['cpy'] = cpy
+            # self.beam['cpz'] = cpz
             self.beam['px'] = cpx * self.q_over_c
             self.beam['py'] = cpy * self.q_over_c
             self.beam['pz'] = cpz * self.q_over_c
-            self.beam['cp'] = cp
-            self.beam['p'] = cp * self.q_over_c
-            self.beam['xp'] = np.arctan(self.px/self.pz)
-            self.beam['yp'] = np.arctan(self.py/self.pz)
+            # self.beam['cp'] = cp
+            # self.beam['p'] = cp * self.q_over_c
+            # self.beam['xp'] = np.arctan(self.px/self.pz)
+            # self.beam['yp'] = np.arctan(self.py/self.pz)
             self.beam['clock'] = np.full(len(self.x), 0)
-            self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
-            velocity_conversion = 1 / (constants.m_e * self.gamma)
-            self.beam['vx'] = velocity_conversion * self.px
-            self.beam['vy'] = velocity_conversion * self.py
-            self.beam['vz'] = velocity_conversion * self.pz
-            self.beam['Bx'] = self.vx / constants.speed_of_light
-            self.beam['By'] = self.vy / constants.speed_of_light
-            self.beam['Bz'] = self.vz / constants.speed_of_light
+            # self.beam['gamma'] = np.sqrt(1+(self.cp/self.E0_eV)**2)
+            # velocity_conversion = 1 / (constants.m_e * self.gamma)
+            # self.beam['vx'] = velocity_conversion * self.px
+            # self.beam['vy'] = velocity_conversion * self.py
+            # self.beam['vz'] = velocity_conversion * self.pz
+            # self.beam['Bx'] = self.vx / constants.speed_of_light
+            # self.beam['By'] = self.vy / constants.speed_of_light
+            # self.beam['Bz'] = self.vz / constants.speed_of_light
             self.beam['t'] = t
             self.beam['charge'] = charge
             self.beam['total_charge'] = np.sum(self.beam['charge'])
@@ -761,61 +702,147 @@ class beam(object):
         return self.beam['pz']
     @property
     def cpx(self):
-        return self.beam['cpx']
+        return self.beam['px'] / self.q_over_c
     @property
     def cpy(self):
-        return self.beam['cpy']
+        return self.beam['py'] / self.q_over_c
     @property
     def cpz(self):
-        return self.beam['cpz']
+        return self.beam['pz'] / self.q_over_c
     @property
     def xp(self):
-        return self.beam['xp']
+        return np.arctan(self.px/self.pz)
     @property
     def yp(self):
-        return self.beam['yp']
+        return np.arctan(self.py/self.pz)
     @property
     def t(self):
         return self.beam['t']
     @property
     def p(self):
-        return self.beam['p']
+        return self.cp * self.q_over_c
     @property
     def cp(self):
-        return self.beam['cp']
+        return np.sqrt(self.cpx**2 + self.cpy**2 + self.cpz**2)
     @property
     def gamma(self):
-        return self.beam['gamma']
+        return np.sqrt(1+(self.cp/self.E0_eV)**2)
     @property
     def BetaGamma(self):
-        return self.beam['cp']/self.E0_eV
+        return self.cp/self.E0_eV
     @property
     def vx(self):
-        return self.beam['vx']
+        velocity_conversion = 1 / (constants.m_e * self.gamma)
+        return velocity_conversion * self.px
     @property
     def vy(self):
-        return self.beam['vy']
+        velocity_conversion = 1 / (constants.m_e * self.gamma)
+        return velocity_conversion * self.py
     @property
     def vz(self):
-        return self.beam['vz']
+        velocity_conversion = 1 / (constants.m_e * self.gamma)
+        return velocity_conversion * self.pz
     @property
     def Bx(self):
-        return self.beam['Bx']
+        return self.vx / constants.speed_of_light
     @property
     def By(self):
-        return self.beam['By']
+        return self.vy / constants.speed_of_light
     @property
     def Bz(self):
-        return self.beam['Bz']
+        return self.vz / constants.speed_of_light
     @property
     def charge(self):
         return self.beam['total_charge']
     @property
     def sigma_z(self):
-        return self.rms(self.beam['Bz']*constants.speed_of_light*(self.beam['t'] - np.mean(self.beam['t'])))
+        return self.rms(self.Bz*constants.speed_of_light*(self.beam['t'] - np.mean(self.beam['t'])))
     @property
     def momentum_spread(self):
-        return self.beam['cp'].std()/np.mean(self.beam['cp'])
+        return self.cp.std()/np.mean(self.cp)
     @property
     def linear_chirp_z(self):
-        return -1*self.rms(self.beam['Bz']*constants.speed_of_light*self.beam['t'])/self.momentum_spread/100
+        return -1*self.rms(self.Bz*constants.speed_of_light*self.t)/self.momentum_spread/100
+
+    def computeCorrelations(self, x, y):
+        xAve = np.mean(x)
+        yAve = np.mean(y)
+        C11 = 0
+        C12 = 0
+        C22 = 0
+        for i, ii in enumerate(x):
+            dx = x[i] - xAve
+            dy = y[i] - yAve
+            C11 += dx*dx
+            C12 += dx*dy
+            C22 += dy*dy
+        C11 /= len(x)
+        C12 /= len(x)
+        C22 /= len(x)
+        return C11, C12, C22
+
+    def performTransformation(self, x, xp, beta=False, alpha=False, nEmit=False):
+        p = self.cp
+        pAve = np.mean(p)
+        p = [a / pAve - 1 for a in p]
+        S11, S16, S66 = self.computeCorrelations(self.x, self.cp)
+        eta1 = S16/S66 if S66 else 0
+        S22, S26, S66 = self.computeCorrelations(self.xp, self.cp)
+        etap1 = S26/S66 if S66 else 0
+        for i, ii in enumerate(x):
+            x[i] -= p[i] * eta1
+            xp[i] -= p[i] * etap1
+
+        S11, S12, S22 = self.computeCorrelations(x, xp)
+        emit = np.sqrt(S11*S22 - S12**2)
+        beta1 = S11/emit
+        alpha1 = -S12/emit
+        beta2 = beta if beta is not False else beta1
+        alpha2 = alpha if alpha is not False else alpha1
+        R11 = beta2/np.sqrt(beta1*beta2)
+        R12 = 0
+        R21 = (alpha1-alpha2)/np.sqrt(beta1*beta2)
+        R22 = beta1/np.sqrt(beta1*beta2)
+        if nEmit is not False:
+            factor = np.sqrt(nEmit / (emit*pAve))
+            R11 *= factor
+            R12 *= factor
+            R22 *= factor
+            R21 *= factor
+        for i, ii in enumerate(x):
+            x0 = x[i]
+            xp0 = xp[i]
+            x[i] = R11 * x0 + R12 * xp0
+            xp[i] = R21*x0 + R22*xp0
+        return x, xp
+
+    def rematchXPlane(self, beta=False, alpha=False, nEmit=False):
+        x, xp = self.performTransformation(self.x, self.xp, beta, alpha, nEmit)
+        self.beam['x'] = x
+        self.beam['xp'] = xp
+
+        cpz = self.cp / np.sqrt(self.beam['xp']**2 + self.yp**2 + 1)
+        cpx = self.beam['xp'] * cpz
+        cpy = self.yp * cpz
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
+
+    def rematchYPlane(self, beta=False, alpha=False, nEmit=False):
+        y, yp = self.performTransformation(self.y, self.yp, beta, alpha, nEmit)
+        self.beam['y'] = y
+        self.beam['yp'] = yp
+
+        cpz = self.cp / np.sqrt(self.xp**2 + self.beam['yp']**2 + 1)
+        cpx = self.xp * cpz
+        cpy = self.beam['yp'] * cpz
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
+
+    @property
+    def Sx(self):
+        return np.sqrt(self.covariance(self.x,self.x))
+    @property
+    def Sy(self):
+        return np.sqrt(self.covariance(self.y,self.y))
