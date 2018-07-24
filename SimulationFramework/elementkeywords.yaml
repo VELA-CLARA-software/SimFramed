@@ -45,6 +45,7 @@ dipole:
   - sr_enable
   - isr_enable
   - csr_output_filename
+  - gap
 kicker:
   keywords:
   - sr_enable
