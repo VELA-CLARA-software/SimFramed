@@ -58,6 +58,7 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 
 type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'mapsolenoid', 'wall_current_monitor': 'charge', 'cavity': 'rfcw',
                          'rf_deflecting_cavity': 'rfdf'}
+
 keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
                             'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins'}
 
@@ -1235,11 +1236,18 @@ class dipole(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(dipole, self).__init__(name, type, **kwargs)
-        self.bins = 100
-        self.csr = 1
+        if not hasattr(self,'bins'):
+            self.bins = 100
+        if not hasattr(self,'csr'):
+            self.csr = 1
         self.SG_HALFWIDTH = 2
-        self.isr = 1
+        if not hasattr(self,'isr'):
+            self.isr = 1
         self.SYNCH_RAD = 1
+        if not hasattr(self,'n_kicks'):
+            self.n_kicks = 10
+        if not hasattr(self,'integration_order'):
+            self.integration_order = 4
 
     @property
     def width(self):
@@ -1352,6 +1360,7 @@ class quadrupole(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(quadrupole, self).__init__(name, type, **kwargs)
         self.add_default('k1', 0)
+        self.n_kicks = 20
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
