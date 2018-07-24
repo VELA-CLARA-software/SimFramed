@@ -418,7 +418,8 @@ class astraPlotWidget(QWidget):
         i = -1
         screenfirstpos = []
         for f in self.screenpositions:
-            screenfirstpos.append([f, min(self.screenpositions[f]['screenpositions'])])
+            if len(self.screenpositions[f]['screenpositions']) > 0:
+                screenfirstpos.append([f, min(self.screenpositions[f]['screenpositions'])])
         screenfirstpos = np.array(screenfirstpos)
         sortedscreennames = screenfirstpos[np.argsort(np.array(screenfirstpos)[:,1])]
         print 'sortedscreennames = ', sortedscreennames

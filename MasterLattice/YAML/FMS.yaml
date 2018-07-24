@@ -15,6 +15,7 @@ elements:
     type: dipole
     length: 0.100167
     angle: -0.1
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.1
     k1: 0.0
@@ -28,6 +29,7 @@ elements:
     type: dipole
     length: 0.100167
     angle: 0.1
+    gap: 0.005
     entrance_edge_angle: 0.1
     exit_edge_angle: 0.0
     k1: 0.0
@@ -47,6 +49,7 @@ elements:
     type: dipole
     length: 0.100167
     angle: 0.1
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: 0.1
     k1: 0.0
@@ -60,6 +63,7 @@ elements:
     type: dipole
     length: 0.100167
     angle: -0.1
+    gap: 0.005
     entrance_edge_angle: -0.1
     exit_edge_angle: 0.0
     k1: 0.0
@@ -94,6 +98,7 @@ elements:
     type: dipole
     length: 0.01875
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -104,6 +109,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -114,6 +120,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -124,6 +131,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -134,6 +142,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -144,6 +153,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -154,6 +164,7 @@ elements:
     type: dipole
     length: 0.01875
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: 0.0
     k1: 0.0
@@ -170,6 +181,7 @@ elements:
     type: dipole
     length: 0.01875
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -180,6 +192,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -190,6 +203,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -200,6 +214,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -210,6 +225,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -220,6 +236,7 @@ elements:
     type: dipole
     length: 0.0375
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -230,6 +247,7 @@ elements:
     type: dipole
     length: 0.01875
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: 0.0
     k1: 0.0
@@ -254,7 +272,7 @@ elements:
   CLA-FMS-MAG-QUAD-01:
     type: quadrupole
     length: 0.028
-    k1: 18.5273
+    k1: 18.152692796877
     buffer_start: [-1.6e-06, 0, 51.8568]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
@@ -265,6 +283,7 @@ elements:
     type: dipole
     length: 0.100257
     angle: -0.124
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.124
     k1: 0.0
@@ -278,6 +297,7 @@ elements:
     type: dipole
     length: 0.200513
     angle: 0.248
+    gap: 0.005
     entrance_edge_angle: 0.124
     exit_edge_angle: 0.124
     k1: 0.0
@@ -291,6 +311,7 @@ elements:
     type: dipole
     length: 0.200513
     angle: -0.248
+    gap: 0.005
     entrance_edge_angle: -0.124
     exit_edge_angle: -0.124
     k1: 0.0
@@ -304,6 +325,7 @@ elements:
     type: dipole
     length: 0.100257
     angle: 0.124
+    gap: 0.005
     entrance_edge_angle: 0.124
     exit_edge_angle: 0.0
     k1: 0.0
@@ -334,7 +356,7 @@ elements:
   CLA-FMS-MAG-QUAD-02:
     type: quadrupole
     length: 0.028
-    k1: 20.007
+    k1: 19.942887479099
     buffer_start: [2.68734e-05, 0, 53.5541]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
@@ -360,6 +382,7 @@ elements:
     type: dipole
     length: 0.016719
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -370,6 +393,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -380,6 +404,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -390,6 +415,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -400,6 +426,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -410,6 +437,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -420,6 +448,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -430,6 +459,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -440,6 +470,7 @@ elements:
     type: dipole
     length: 0.016719
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: 0.0
     k1: 0.0
@@ -456,6 +487,7 @@ elements:
     type: dipole
     length: 0.016719
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -466,6 +498,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -476,6 +509,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -486,6 +520,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -496,6 +531,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -506,6 +542,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -516,6 +553,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: -0.008537
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: -0.004268
     k1: 0.0
@@ -526,6 +564,7 @@ elements:
     type: dipole
     length: 0.033438
     angle: 0.008537
+    gap: 0.005
     entrance_edge_angle: 0.004268
     exit_edge_angle: 0.004268
     k1: 0.0
@@ -536,6 +575,7 @@ elements:
     type: dipole
     length: 0.016719
     angle: -0.004268
+    gap: 0.005
     entrance_edge_angle: -0.004268
     exit_edge_angle: 0.0
     k1: 0.0
@@ -561,6 +601,7 @@ elements:
     type: dipole
     length: 0.07500
     angle: -0.01
+    gap: 0.005
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.01
     k1: 0.0
@@ -571,6 +612,7 @@ elements:
     type: dipole
     length: 0.15000
     angle: 0.02
+    gap: 0.005
     entrance_edge_angle: 0.01
     exit_edge_angle: 0.01
     k1: 0.0
@@ -581,6 +623,7 @@ elements:
     type: dipole
     length: 0.07500
     angle: -0.01
+    gap: 0.005
     entrance_edge_angle: -0.01
     exit_edge_angle: 0.0
     k1: 0.0

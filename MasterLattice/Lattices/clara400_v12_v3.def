@@ -33,7 +33,6 @@ global:
     Lmagnetized: False
 generator:
   default: clara_400_3ps
-  number_of_particles: 2**(3*4)
 files:
   injector400:
     code: ASTRA
@@ -123,7 +122,7 @@ files:
       cathode: False
       space_charge_mode: 3D
     csr:
-      csr_mode: 3D
+      csr_mode: 1D
     input:
       particle_definition: $output['start_element']$.astra
     output:
@@ -165,12 +164,11 @@ files:
       start_element: CLA-S07-APER-01
       end_element: CLA-FMS-APER-01
   FMS:
-    code: ASTRA
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-FMS-APER-01
       end_element: CLA-FMS-APER-02
