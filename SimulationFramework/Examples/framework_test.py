@@ -1,6 +1,6 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
-from FrameworkTest.Framework import *
+from SimulationFramework.Framework import *
 
 # lattice = framework('C2V', clean=False, verbose=False)
 # lattice.loadSettings('Lattices/cla400-ba1.def')
@@ -15,9 +15,9 @@ from FrameworkTest.Framework import *
 # lattice.track()#startfile='C2V')
 
 lattice = Framework('short_240', clean=False, verbose=True)
-lattice.loadSettings('Lattices/clara400_v12_elegant.def')
+lattice.loadSettings('Lattices/clara400_v12_v3.def')
 if not os.name == 'nt':
-    scaling = 6
+    scaling = 3
     lattice.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
     lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
     lattice.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
@@ -37,4 +37,4 @@ lattice['CLA-L4H-CAV']['phase'] = 181.5
 lattice['CLA-L04-CAV']['field_amplitude'] = 1e6*31.522
 lattice['CLA-L04-CAV']['phase'] = 6.032
 lattice['bunch_compressor'].update(dipoleangle=0.11715)
-lattice.track(run=True)
+lattice.track(track=True)

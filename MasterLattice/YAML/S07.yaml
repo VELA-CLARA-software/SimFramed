@@ -291,7 +291,7 @@ elements:
   CLA-S07-MAG-QUAD-08:
     type: quadrupole
     length: 0.15
-    k1: -0.68422
+    k1: 5.287877850629
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 46.6178]
@@ -303,7 +303,7 @@ elements:
   CLA-S07-MAG-QUAD-09:
     type: quadrupole
     length: 0.162
-    k1: 0.57919
+    k1: 2.427194224543
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 47.1678]
@@ -341,7 +341,7 @@ elements:
   CLA-S07-MAG-QUAD-10:
     type: quadrupole
     length: 0.162
-    k1: -0.700207
+    k1: -7.005242342736
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 47.9478]
@@ -353,7 +353,7 @@ elements:
   CLA-S07-MAG-QUAD-11:
     type: quadrupole
     length: 0.162
-    k1: 8.09672
+    k1: 11.82321761974
     buffer_start: [0, 0, 48.6978]
     buffer_start_length: 0.088
     buffer_end_length: 0.1
