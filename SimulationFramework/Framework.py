@@ -1367,8 +1367,7 @@ class quadrupole(frameworkElement):
         ]), n)
 
     def write_GPT(self, Brho):
-        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+
-        ', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
         return output
 
 class cavity(frameworkElement):
