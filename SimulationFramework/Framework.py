@@ -1194,7 +1194,7 @@ class frameworkElement(frameworkObject):
         wholestring=''
         etype = self._convertType_Elegant(self.objectType)
         string = self.objectName+': '+ etype
-        for key, value in self.objectProperties.iteritems():
+        for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 tmpstring = ', '+key+' = '+str(value)
@@ -1236,18 +1236,11 @@ class dipole(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(dipole, self).__init__(name, type, **kwargs)
-        if not hasattr(self,'bins'):
-            self.bins = 100
-        if not hasattr(self,'csr'):
-            self.csr = 1
-        self.SG_HALFWIDTH = 2
-        if not hasattr(self,'isr'):
-            self.isr = 1
-        self.SYNCH_RAD = 1
-        if not hasattr(self,'n_kicks'):
-            self.n_kicks = 10
-        if not hasattr(self,'integration_order'):
-            self.integration_order = 4
+        self.add_default('bins',20)
+        self.add_default('csr', 1)
+        self.add_default('isr', 1)
+        self.add_default('n_kicks', 10)
+        self.add_default('integration_order', 4)
 
     @property
     def width(self):
@@ -1360,7 +1353,7 @@ class quadrupole(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(quadrupole, self).__init__(name, type, **kwargs)
         self.add_default('k1', 0)
-        self.n_kicks = 20
+        self.add_default('n_kicks', 20)
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
@@ -1374,7 +1367,8 @@ class quadrupole(frameworkElement):
         ]), n)
 
     def write_GPT(self, Brho):
-        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+
+        ', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
         return output
 
 class cavity(frameworkElement):

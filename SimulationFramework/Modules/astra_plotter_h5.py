@@ -380,6 +380,8 @@ class astraPlotWidget(QWidget):
         self.loadDataFile()
 
     def changeDirectory(self, directory=None):
+        self.screenSelector.currentIndexChanged.disconnect(self.changeScreen)
+        self.fileSelector.currentIndexChanged.disconnect(self.updateScreenCombo)
         if directory == None or directory == False:
             self.directory = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.directory, QFileDialog.ShowDirsOnly))
         else:
@@ -391,6 +393,9 @@ class astraPlotWidget(QWidget):
         self.updateFileCombo()
         self.updateScreenCombo()
         self.loadDataFile()
+        self.screenSelector.currentIndexChanged.connect(self.changeScreen)
+        self.fileSelector.currentIndexChanged.connect(self.updateScreenCombo)
+        self.changeScreen(self.screenSelector.currentIndex())
 
     def getSposition(self, file):
         file = h5py.File(self.directory+'/'+file+'.hdf5', "r")
