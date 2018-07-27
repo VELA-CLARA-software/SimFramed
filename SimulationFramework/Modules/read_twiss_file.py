@@ -133,7 +133,7 @@ class twiss(dict):
             self['sigma_x'] = np.concatenate([self['sigma_x'], rms_x])
             self['sigma_y'] = np.concatenate([self['sigma_y'], rms_y])
             self['sigma_z'] = np.concatenate([self['sigma_z'], rms_z])
-            beta = np.sqrt(1-((gamma)^-2))
+            beta = np.sqrt(1-((gamma)**-2))
             self['sigma_t'] = np.concatenate([self['sigma_z'], rms_z / (beta * constants.speed_of_light)])
             self['sigma_p'] = np.concatenate([self['sigma_p'], (rms_e / e_kin)])
             self['sigma_cp'] = np.concatenate([self['sigma_cp'], (rms_e / e_kin) * p])
