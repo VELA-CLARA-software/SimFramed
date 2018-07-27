@@ -99,15 +99,16 @@ class mainWindow(QMainWindow):
 
 class astraPlotWidget(QWidget):
 
-    twissplotLayout = [{'name': 'sigma_x', 'range': [0,1], 'scale': 1e3},
+    twissplotLayout = [
+                   {'name': 'sigma_x', 'range': [0,1], 'scale': 1e3},
                    {'name': 'sigma_y', 'range': [0,1], 'scale': 1e3},
-                   {'name': 'kinetic_energy', 'range': [0,250], 'scale': 1e-6},
+                   {'name': 'kinetic_energy', 'range': [0,275], 'scale': 1e-6},
                    'next_row',
                    {'name': 'sigma_p', 'range': [0,0.015], 'scale': 1e6},
                    {'name': 'sigma_z', 'range': [0,0.6], 'scale': 1e3},
-                   {'name': 'enx', 'range': [0.5,1.5], 'scale': 1e6},
+                   {'name': 'enx', 'range': [0.25,1.5], 'scale': 1e6},
                    'next_row',
-                   {'name': 'eny', 'range':  [0.5,1.5], 'scale': 1e6},
+                   {'name': 'eny', 'range':  [0.25,1.5], 'scale': 1e6},
                    {'name': 'beta_x', 'range': [0,150], 'scale': 1},
                    {'name': 'beta_y', 'range': [0,150], 'scale': 1},
                   ]
