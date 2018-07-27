@@ -21,6 +21,7 @@ if not os.name == 'nt':
     lattice.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
     lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
     lattice.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+    lattice.defineElegantCommand(['elegant'])
     lattice.generator.number_of_particles = 2**(3*scaling)
 else:
     lattice.generator.number_of_particles = 2**(3*3)

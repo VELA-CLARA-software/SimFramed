@@ -97,9 +97,9 @@ class beam(object):
     def set_beam_charge(self, charge):
         self.beam['total_charge'] = charge
 
-    def read_csv_file(self, file):
+    def read_csv_file(self, file, delimiter=' '):
         with open(file, 'r') as f:
-            data = np.array([l for l in csv.reader(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)])
+            data = np.array([l for l in csv.reader(f, delimiter=delimiter,  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)])
         return data
 
     def write_csv_file(self, file, data):
@@ -167,6 +167,24 @@ class beam(object):
         self.beam['charge'] = charge
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
+    def read_pacey_beam_file(self, file, charge=250e-12):
+        self.reset_dicts()
+        data = self.read_csv_file(file, delimiter='\t')
+        self.beam['code'] = "TPaceyASTRA"
+        self.beam['longitudinal_reference'] = 'z'
+        x, y, z, cpx, cpy, cpz = np.transpose(data)
+        cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
+        self.beam['x'] = x
+        self.beam['y'] = y
+        self.beam['z'] = z
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
+        self.beam['t'] = [(z / (1 * Bz * constants.speed_of_light)) for z, Bz in zip(self.z, self.Bz)]
+        # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
+        self.beam['total_charge'] = charge
+        self.beam['charge'] = []
+
     def convert_csrtrackfile_to_astrafile(self, csrtrackfile, astrafile):
         data = self.read_csv_file(csrtrackfile)
         z, x, y, cpz, cpx, cpy, charge = np.transpose(data[1:])
@@ -194,9 +212,9 @@ class beam(object):
     def write_astra_beam_file(self, file, index=1, status=5, charge=None, normaliseZ=False):
         if not isinstance(index,(list, tuple, np.ndarray)):
             if len(self.beam['charge']) == len(self.x):
-                chargevector = self.beam['charge']
+                chargevector = np.around(1e9*self.beam['charge'],6)
             else:
-                chargevector = np.full(len(self.x), self.charge/len(self.x))
+                chargevector = np.full(len(self.x), 1e9*self.charge/len(self.x))
         if not isinstance(index,(list, tuple, np.ndarray)):
             indexvector = np.full(len(self.x), index)
         statusvector = self.beam['status'] if 'status' in self.beam else status if isinstance(status,(list, tuple, np.ndarray)) else np.full(len(self.x), status)
@@ -208,7 +226,7 @@ class beam(object):
         ''' if the clock value is finite, we calculate it from the z value, using Betaz '''
         clockvector = [1e9*z / (-1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
         ''' this is the ASTRA array in all it's glory '''
-        array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, 1e9*chargevector, indexvector, statusvector]).transpose()
+        array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
         if 'reference_particle' in self.beam:
             ref_particle = self.beam['reference_particle']
         else:
@@ -263,7 +281,7 @@ class beam(object):
             raise Exception('file is not str or gdf object!')
         return gdfbeam
 
-    def read_gdf_beam_file(self, file, position=None, time=None, block=None, charge=None):
+    def read_gdf_beam_file(self, file, position=None, time=None, block=None, charge=None, longitudinal_reference='t'):
         self.reset_dicts()
         gdfbeamdata = None
         gdfbeam = self.read_gdf_beam_file_object(file)
@@ -294,25 +312,29 @@ class beam(object):
         self.beam['code'] = "GPT"
         self.beam['x'] = gdfbeamdata.x
         self.beam['y'] = gdfbeamdata.y
-        if hasattr(gdfbeamdata,'z'):
+        if hasattr(gdfbeamdata,'z') and longitudinal_reference == 'z':
+            print 'z!'
+            print gdfbeamdata.z
             self.beam['z'] = gdfbeamdata.z
             self.beam['t'] = np.full(len(self.z), 0)# self.z / (-1 * self.Bz * constants.speed_of_light)
-        elif hasattr(gdfbeamdata,'t'):
+        elif hasattr(gdfbeamdata,'t') and longitudinal_reference == 't':
+            print 't!'
             self.beam['t'] = gdfbeamdata.t
-            self.beam['z'] = np.full(len(self.t), 0)#(-1 * self.Bz * constants.speed_of_light) * self.t
-        # self.beam['gamma'] = gdfbeamdata.G
-        if hasattr(gdfbeamdata,'q'):
-            self.beam['charge'] = gdfbeamdata.q
+            self.beam['z'] = (-1 * gdfbeamdata.Bz * constants.speed_of_light) * gdfbeamdata.t
+        self.beam['gamma'] = gdfbeamdata.G
+        if hasattr(gdfbeamdata,'q') and  hasattr(gdfbeamdata,'nmacro'):
+            self.beam['charge'] = gdfbeamdata.q * gdfbeamdata.nmacro
             self.beam['total_charge'] = np.sum(self.beam['charge'])
         else:
             if charge is None:
                 self.beam['total_charge'] = 0
             else:
                 self.beam['total_charge'] = charge
+        print self.beam['charge']
         vx = gdfbeamdata.Bx * constants.speed_of_light
         vy = gdfbeamdata.By * constants.speed_of_light
         vz = gdfbeamdata.Bz * constants.speed_of_light
-        velocity_conversion = 1 / (constants.m_e * self.gamma)
+        velocity_conversion = 1 / (constants.m_e * self.beam['gamma'])
         self.beam['px'] = vx / velocity_conversion
         self.beam['py'] = vy / velocity_conversion
         self.beam['pz'] = vz / velocity_conversion

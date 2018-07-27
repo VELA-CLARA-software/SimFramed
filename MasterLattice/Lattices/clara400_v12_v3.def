@@ -61,6 +61,7 @@ files:
     output:
       start_element: CLA-L02-APER
       end_element: CLA-S03-APER
+    input: {}
   S03:
     code: ASTRA
     charge:
