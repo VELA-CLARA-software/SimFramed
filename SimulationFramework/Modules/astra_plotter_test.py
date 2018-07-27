@@ -1,4 +1,4 @@
-import sys, os, time, math, datetime, copy, re,  h5py
+import sys, os, time, math, datetime, copy, re,  h5py, csv
 from collections import OrderedDict
 import glob
 from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
@@ -434,6 +434,11 @@ class astraPlotWidget(QWidget):
                 y = getattr(self.beam, param['name'])
                 self.curve[param['name']].setData(x=x, y=y)
                 self.sliceaxis[param['name']][0].setVisible(True)
+                with open(self.directory+'/'+self.fileSelector.currentText()+'.'+self.screenSelector.currentText()+'.'+param['name']+'_slices.csv', 'wb') as csvfile:
+                    spamwriter = csv.writer(csvfile, delimiter=',',
+                                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                    for row in zip(x,y):
+                        spamwriter.writerow(row)
                 # currentrange = self.sliceaxis[param['name']][0].range
                 # print 'currentrange = ', currentrange
                 # self.sliceaxis[param['name']][0].setRange(0, currentrange[1])
