@@ -646,7 +646,7 @@ class elegantLattice(frameworkLattice):
     def run(self):
         """Run the code with input 'filename'"""
         if not os.name == 'nt':
-            command = self.executables[self.code] + ['-rpnDefns', master_subdir+'/Codes/defns.rpn'] + [self.objectName+'.ele']
+            command = self.executables[self.code] + ['-rpnDefns='+master_subdir+'/../'+master_lattice_location+'/Codes/defns.rpn'] + [self.objectName+'.ele']
         else:
             command = self.executables[self.code] + [self.objectName+'.ele']
         with open(os.path.relpath(master_subdir+'/'+self.objectName+'.log', '.'), "w") as f:
