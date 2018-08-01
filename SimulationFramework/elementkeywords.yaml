@@ -15,6 +15,25 @@ cavity:
   - lsc_cutoff_high
   - field_amplitude
   - cell_length
+longitudinal_wakefield:
+  keywords:
+  - n_cells
+  - field_definition
+  - field_amplitude
+  - cell_length
+  - waketype
+  - scale_field_ex
+  - scale_field_ey
+  - scale_field_ez
+  - scale_field_hx
+  - scale_field_hy
+  - scale_field_hz
+  - equal_grid
+  - nbins
+  - interpolation_method
+  - smooth
+  - subbins
+  - scale_kick
 collimator:
   keywords:
   - shape
