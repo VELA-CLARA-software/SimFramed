@@ -63,6 +63,7 @@ keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', '
                             'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins'}
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
+                             'wakefields': {'header': 'WAKE', 'bool': 'LWAKE'},
                              'solenoids': {'header': 'SOLENOID', 'bool': 'LBField'},
                              'quadrupoles': {'header': 'QUADRUPOLE', 'bool': 'LQuad'},
                              'dipoles': {'header': 'DIPOLE', 'bool': 'LDipole'},
@@ -423,6 +424,10 @@ class frameworkLattice(object):
         return sorted(self.getElementType('dipole') + self.getElementType('kicker'), key=lambda x: x.position_end[2])
 
     @property
+    def wakefields(self):
+        return self.getElementType('longitudinal_wakefield')
+
+    @property
     def screens(self):
         return self.getElementType('screen')
 
@@ -646,9 +651,10 @@ class elegantLattice(frameworkLattice):
     def run(self):
         """Run the code with input 'filename'"""
         if not os.name == 'nt':
-            command = self.executables[self.code] + ['-rpnDefns', master_subdir+'/Codes/defns.rpn'] + [self.objectName+'.ele']
+            command = self.executables[self.code] + ['-rpnDefns='+master_subdir+'/../'+master_lattice_location+'/Codes/defns.rpn'] + [self.objectName+'.ele']
         else:
             command = self.executables[self.code] + [self.objectName+'.ele']
+        print command
         with open(os.path.relpath(master_subdir+'/'+self.objectName+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=master_subdir)
 
@@ -736,7 +742,7 @@ class astraLattice(frameworkLattice):
         for header in self.headers:
             fulltext += self.headers[header].write_ASTRA()+'\n'
         counter = frameworkCounter(sub={'kicker': 'dipole'})
-        for t in [['cavities'], ['solenoids'], ['quadrupoles'], ['dipoles', 'dipoles_and_kickers']]:
+        for t in [['cavities'], ['wakefields'], ['solenoids'], ['quadrupoles'], ['dipoles', 'dipoles_and_kickers']]:
             fulltext += '&' + section_header_text_ASTRA[t[0]]['header']+'\n'
             elements = getattr(self, t[-1])
             fulltext += section_header_text_ASTRA[t[0]]['bool']+' = '+str(len(elements) > 0)+'\n'
@@ -748,6 +754,8 @@ class astraLattice(frameworkLattice):
                     fulltext += elemstr+'\n'
                     if element.objectType == 'kicker':
                         counter.add(element.objectType,2)
+                    elif element.objectType == 'longitudinal_wakefield':
+                        counter.add(element.objectType, element.cells)
                     else:
                         counter.add(element.objectType)
             fulltext += '\n/\n'
@@ -1378,7 +1386,8 @@ class cavity(frameworkElement):
     def __init__(self, name=None, type=None, **kwargs):
         super(cavity, self).__init__(name, type, **kwargs)
 
-    def write_ASTRA(self, n):
+    @property
+    def cells(self):
         if (self.n_cells is 0 or self.n_cells is None) and self.cell_length > 0:
                 cells = round((self.length-self.cell_length)/self.cell_length)
                 cells = int(cells - (cells % 3))
@@ -1386,10 +1395,13 @@ class cavity(frameworkElement):
             cells = int(self.n_cells - (self.n_cells % 3))
         else:
             cells = None
+        return cells
+
+    def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['C_pos', {'value': self.start[2], 'default': 0}],
             ['FILE_EFieLD', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'')+'\'', 'default': 0}],
-            ['C_numb', {'value': cells}],
+            ['C_numb', {'value': self.cells}],
             ['Nue', {'value': self.frequency / 1e9, 'default': 2998.5}],
             ['MaxE', {'value': self.field_amplitude / 1e6, 'default': 0}],
             ['Phi', {'value': self.phase, 'default': 0.0}],
@@ -1511,6 +1523,40 @@ class charge(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(charge, self).__init__(name, type, **kwargs)
+
+class longitudinal_wakefield(cavity):
+
+    def __init__(self, name=None, type=None, **kwargs):
+        super(longitudinal_wakefield, self).__init__(name, type, **kwargs)
+
+    def write_ASTRA(self, startn):
+        output = ''
+        for n in range(startn, startn+self.cells):
+            output += self._write_ASTRA(OrderedDict([
+                ['Wk_Type', {'value': self.waketype, 'default': '\'Taylor_Method_F\''}],
+                ['Wk_filename', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'')+'\'', 'default': 0}],
+                ['Wk_x', {'value': self.x_offset, 'default': 0}],
+                ['Wk_y', {'value': self.y_offset, 'default': 0}],
+                ['Wk_z', {'value': self.start[2] + (n+1.5-0.5)*self.cell_length}],
+                ['Wk_ex', {'value': self.scale_field_ex, 'default': 0}],
+                ['Wk_ey', {'value': self.scale_field_ey, 'default': 0}],
+                ['Wk_ez', {'value': self.scale_field_ez, 'default': 1}],
+                ['Wk_hx', {'value': self.scale_field_hx, 'default': 1}],
+                ['Wk_hy', {'value': self.scale_field_hy, 'default': 0}],
+                ['Wk_hz', {'value': self.scale_field_hz, 'default': 0}],
+                ['Wk_equi_grid', {'value': self.equal_grid, 'default': 0}],
+                ['Wk_N_bin', {'value': self.nbins, 'default': 11}],
+                ['Wk_ip_method', {'value': self.interpolation_method, 'default': 2}],
+                ['Wk_smooth', {'value': self.smooth, 'default': 0.5}],
+                ['Wk_sub', {'value': self.subbins, 'default': 4}],
+                ['Wk_scaling', {'value': self.scale_kick, 'default': 1}],
+            ]), n)
+            output += '\n'
+        return output
+
+    def write_GPT(self, Brho):
+        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+        return output
 
 class astra_header(frameworkElement):
 
