@@ -26,8 +26,8 @@ if not os.name == 'nt':
 else:
     lattice.generator.number_of_particles = 2**(3*3)
 
-print lattice.getElement('CLA-S02-MAG-QUAD-01')['k1']
-exit()
+#print lattice.getElement('CLA-S02-MAG-QUAD-01')['k1']
+#exit()
 lattice['CLA-HRG1-GUN-SOL']['field_amplitude'] = 0.345
 lattice['CLA-L01-CAV']['field_amplitude'] = 1e6*27.26
 lattice['CLA-L01-CAV']['phase'] = -20.13
