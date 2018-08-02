@@ -281,6 +281,13 @@ class beam(object):
             raise Exception('file is not str or gdf object!')
         return gdfbeam
 
+    def read_gdf_beam_file_info(self, file):
+        self.reset_dicts()
+        gdfbeamdata = None
+        gdfbeam = self.read_gdf_beam_file_object(file)
+        print 'Positions = ', gdfbeam.positions
+        print 'Times = ', gdfbeam.times
+
     def read_gdf_beam_file(self, file, position=None, time=None, block=None, charge=None, longitudinal_reference='t'):
         self.reset_dicts()
         gdfbeamdata = None

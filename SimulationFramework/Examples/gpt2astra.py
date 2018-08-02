@@ -10,6 +10,7 @@ parser.add_argument('outputfile')
 args = parser.parse_args()
 
 beam = rbf.beam()
-beam.read_gdf_beam_file(args.inputfile)
+# beam.read_gdf_beam_file_info(args.inputfile)
+beam.read_gdf_beam_file(args.inputfile, block=0)
 beam.beam['longitudinal_reference'] = 'z'
 beam.write_astra_beam_file(args.outputfile, normaliseZ=True)
