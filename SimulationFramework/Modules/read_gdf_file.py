@@ -87,6 +87,7 @@ class read_gdf_file(object):
             if hasattr(datagrab.groups['param'],'time'):
                 if str(datagrab.groups['param'].time) == str(time):
                     return datagrab.groups['data']
+
     def get_grab(self, grab_group_number=0):
         for name, datagrab in self.grab_groups.items():
             if name == 'datagrab_' + str(grab_group_number):
