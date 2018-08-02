@@ -33,3 +33,4 @@ elements:
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 10.8557]
         position_start: [0, 0, 6.78904]
+        scale_kick: 1
