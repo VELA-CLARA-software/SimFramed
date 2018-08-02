@@ -26,3 +26,13 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 16.1586]
     position_start: [0, 0, 12.0919]
+    sub_elements:
+      CLA-L03-WAKE:
+        type: longitudinal_wakefield
+        length: 4.06667
+        cell_length: 0.0333333
+        field_definition: $master_lattice_location$Data_Files/SzSx5um10mm.dat
+        global_rotation: [0, 0, 0]
+        position_end: [0, 0, 16.1586]
+        position_start: [0, 0, 12.0919]
+        scale_kick: 1

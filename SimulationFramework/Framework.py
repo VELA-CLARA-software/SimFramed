@@ -1531,27 +1531,28 @@ class longitudinal_wakefield(cavity):
 
     def write_ASTRA(self, startn):
         output = ''
-        for n in range(startn, startn+self.cells):
-            output += self._write_ASTRA(OrderedDict([
-                ['Wk_Type', {'value': self.waketype, 'default': '\'Taylor_Method_F\''}],
-                ['Wk_filename', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'')+'\'', 'default': 0}],
-                ['Wk_x', {'value': self.x_offset, 'default': 0}],
-                ['Wk_y', {'value': self.y_offset, 'default': 0}],
-                ['Wk_z', {'value': self.start[2] + (n+1.5-0.5)*self.cell_length}],
-                ['Wk_ex', {'value': self.scale_field_ex, 'default': 0}],
-                ['Wk_ey', {'value': self.scale_field_ey, 'default': 0}],
-                ['Wk_ez', {'value': self.scale_field_ez, 'default': 1}],
-                ['Wk_hx', {'value': self.scale_field_hx, 'default': 1}],
-                ['Wk_hy', {'value': self.scale_field_hy, 'default': 0}],
-                ['Wk_hz', {'value': self.scale_field_hz, 'default': 0}],
-                ['Wk_equi_grid', {'value': self.equal_grid, 'default': 0}],
-                ['Wk_N_bin', {'value': self.nbins, 'default': 11}],
-                ['Wk_ip_method', {'value': self.interpolation_method, 'default': 2}],
-                ['Wk_smooth', {'value': self.smooth, 'default': 0.5}],
-                ['Wk_sub', {'value': self.subbins, 'default': 4}],
-                ['Wk_scaling', {'value': self.scale_kick, 'default': 1}],
-            ]), n)
-            output += '\n'
+        if self.scale_kick > 0:
+            for n in range(startn, startn+self.cells):
+                output += self._write_ASTRA(OrderedDict([
+                    ['Wk_Type', {'value': self.waketype, 'default': '\'Taylor_Method_F\''}],
+                    ['Wk_filename', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'')+'\'', 'default': 0}],
+                    ['Wk_x', {'value': self.x_offset, 'default': 0}],
+                    ['Wk_y', {'value': self.y_offset, 'default': 0}],
+                    ['Wk_z', {'value': self.start[2] + (n+1.5-0.5)*self.cell_length}],
+                    ['Wk_ex', {'value': self.scale_field_ex, 'default': 0}],
+                    ['Wk_ey', {'value': self.scale_field_ey, 'default': 0}],
+                    ['Wk_ez', {'value': self.scale_field_ez, 'default': 1}],
+                    ['Wk_hx', {'value': self.scale_field_hx, 'default': 1}],
+                    ['Wk_hy', {'value': self.scale_field_hy, 'default': 0}],
+                    ['Wk_hz', {'value': self.scale_field_hz, 'default': 0}],
+                    ['Wk_equi_grid', {'value': self.equal_grid, 'default': 0}],
+                    ['Wk_N_bin', {'value': self.nbins, 'default': 11}],
+                    ['Wk_ip_method', {'value': self.interpolation_method, 'default': 2}],
+                    ['Wk_smooth', {'value': self.smooth, 'default': 0.5}],
+                    ['Wk_sub', {'value': self.subbins, 'default': 4}],
+                    ['Wk_scaling', {'value': self.scale_kick, 'default': 1}],
+                ]), n)
+                output += '\n'
         return output
 
     def write_GPT(self, Brho):
