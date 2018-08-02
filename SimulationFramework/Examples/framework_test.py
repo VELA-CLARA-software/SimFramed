@@ -17,9 +17,9 @@ from SimulationFramework.Framework import *
 lattice = Framework('short_240', clean=False, verbose=True)
 lattice.loadSettings('Lattices/clara400_v12_v3.def')
 if not os.name == 'nt':
-    scaling = 3
-    # lattice.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
-    lattice.defineASTRACommand(['/opt/ASTRA/astra.sh'])
+    scaling = 5
+    lattice.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
+    # lattice.defineASTRACommand(['/opt/ASTRA/astra.sh'])
     lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
     lattice.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
     lattice.defineElegantCommand(['elegant'])
@@ -39,4 +39,8 @@ lattice['CLA-L4H-CAV']['phase'] = 181.5
 lattice['CLA-L04-CAV']['field_amplitude'] = 1e6*31.522
 lattice['CLA-L04-CAV']['phase'] = 6.032
 lattice['bunch_compressor'].update(dipoleangle=0.11715)
-lattice.track(track=True, postprocess=False, files=['L02'])
+lattice['CLA-L01-WAKE'].scale_kick = 0
+lattice['CLA-L02-WAKE'].scale_kick = 0
+lattice['CLA-L03-WAKE'].scale_kick = 0
+lattice['CLA-L04-WAKE'].scale_kick = 0
+lattice.track(track=True, postprocess=True)
