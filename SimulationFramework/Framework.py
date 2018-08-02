@@ -200,7 +200,10 @@ class Framework(object):
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
         global master_run_no
-        stream = file(master_lattice_location+filename, 'r')
+        if os.path.exists(filename):
+            stream = file(filename, 'r')
+        else:
+            stream = file(master_lattice_location+filename, 'r')
         self.settings = yaml.load(stream)
         self.globalSettings = self.settings['global']
         master_run_no = self.globalSettings['run_no'] if 'run_no' in self.globalSettings else 1
@@ -651,10 +654,10 @@ class elegantLattice(frameworkLattice):
     def run(self):
         """Run the code with input 'filename'"""
         if not os.name == 'nt':
-            command = self.executables[self.code] + ['-rpnDefns='+master_subdir+'/../'+master_lattice_location+'/Codes/defns.rpn'] + [self.objectName+'.ele']
+            command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(master_lattice_location,master_subdir)+'/Codes/defns.rpn'] + [self.objectName+'.ele']
         else:
             command = self.executables[self.code] + [self.objectName+'.ele']
-        print command
+        # print command
         with open(os.path.relpath(master_subdir+'/'+self.objectName+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=master_subdir)
 
