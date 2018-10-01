@@ -176,7 +176,7 @@ class Framework(object):
         """Modify the defined ASTRA command variable"""
         self.executables['astra'] = command
 
-    def defineElegantCommand(self, command=['astra']):
+    def defineElegantCommand(self, command=['elegant']):
         """Modify the defined Elegant command variable"""
         self.executables['elegant'] = command
 
