@@ -1,13 +1,18 @@
-import os, time, csv
+import os, time, csv, sys
 import h5py
 import numpy as np
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
+from scipy.spatial import ConvexHull
 try:
     import sdds
 except:
     pass
 import read_gdf_file as rgf
+
+sys.path.append(os.path.abspath(__file__+'/../../../../'))
+import Software.Procedures.minimumVolumeEllipse as mve
+MVE = mve.EllipsoidTool()
 
 class beam(object):
 
@@ -469,6 +474,19 @@ class beam(object):
             gamma = np.mean(p)/self.E0_eV
             return gamma*emittance
 
+    def volume6D(self, x, y, t, xp, yp, cp):
+        beam = zip(x, y, t, xp, yp, cp)
+        return ConvexHull(beam).volume
+
+    def mve_emittance(self, x, xp, p=None):
+        (center, radii, rotation, hullP) = MVE.getMinVolEllipse(zip(x,xp), .01)
+        emittance = radii[0] * radii[1]
+        if p is None:
+            return emittance
+        else:
+            gamma = np.mean(p)/self.E0_eV
+            return gamma*emittance
+
     @property
     def normalized_horizontal_emittance(self):
         return self.emittance(self.x, self.xp, self.cp)
@@ -481,6 +499,18 @@ class beam(object):
     @property
     def vertical_emittance(self):
         return self.emittance(self.y, self.yp)
+    @property
+    def normalized_mve_horizontal_emittance(self):
+        return self.mve_emittance(self.x, self.xp, self.cp)
+    @property
+    def normalized_mve_vertical_emittance(self):
+        return self.mve_emittance(self.y, self.yp, self.cp)
+    @property
+    def horizontal_mve_emittance(self):
+        return self.mve_emittance(self.x, self.xp)
+    @property
+    def vertical_mve_emittance(self):
+        return self.mve_emittance(self.y, self.yp)
     @property
     def horizontal_emittance_90(self):
         emit = self.horizontal_emittance
@@ -652,24 +682,56 @@ class beam(object):
             self.bin_time()
         self.slice['Relative_Momentum_Spread'] = np.array([100*cpbin.std()/cpbin.mean() for cpbin in self._cpbins])
         return self.slice['Relative_Momentum_Spread']
+
+    def slice_data(self, data):
+        return [data[tbin] for tbin in self._tbins]
+
+    def emitbins(self, x, y):
+        xbins = self.slice_data(x)
+        ybins = self.slice_data(y)
+        return zip(*[xbins, ybins, self._cpbins])
+
+    @property
+    def slice_6D_Volume(self):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
+            self.bin_time()
+        xbins = self.slice_data(self.x)
+        ybins = self.slice_data(self.y)
+        zbins = self.slice_data(self.z)
+        pxbins = self.slice_data(self.px)
+        pybins = self.slice_data(self.py)
+        pzbins = self.slice_data(self.pz)
+        emitbins = zip(xbins, ybins, zbins, pxbins, pybins, pzbins)
+        self.slice['6D_Volume'] = np.array([self.volume6D(xbin, ybin, zbin, pxbin, pybin, pzbin) for xbin, ybin, zbin, pxbin, pybin, pzbin in emitbins])
+        return self.slice['6D_Volume']
     @property
     def slice_normalized_horizontal_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
-        xbins = [self.x[tbin] for tbin in self._tbins]
-        xpbins = [self.xp[tbin] for tbin in self._tbins]
-        emitbins = zip(*[xbins, xpbins, self._cpbins])
+        emitbins = self.emitbins(self.x, self.xp)
         self.slice['Normalized_Horizontal_Emittance'] = np.array([self.emittance(xbin, xpbin, cpbin) for xbin, xpbin, cpbin in emitbins])
         return self.slice['Normalized_Horizontal_Emittance']
     @property
     def slice_normalized_vertical_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
-        ybins = [self.y[tbin] for tbin in self._tbins]
-        ypbins = [self.yp[tbin] for tbin in self._tbins]
-        emitbins = zip(*[ybins, ypbins, self._cpbins])
+        emitbins = self.emitbins(self.y, self.yp)
         self.slice['Normalized_Vertical_Emittance'] = np.array([self.emittance(ybin, ypbin, cpbin) for ybin, ypbin, cpbin in emitbins])
         return self.slice['Normalized_Vertical_Emittance']
+    @property
+    def slice_normalized_mve_horizontal_emittance(self):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
+            self.bin_time()
+        emitbins = self.emitbins(self.x, self.xp)
+        self.slice['Normalized_mve_Horizontal_Emittance'] = np.array([self.mve_emittance(xbin, xpbin, cpbin) for xbin, xpbin, cpbin in emitbins])
+        return self.slice['Normalized_mve_Horizontal_Emittance']
+    @property
+    def slice_normalized_mve_vertical_emittance(self):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
+            self.bin_time()
+        emitbins = self.emitbins(self.y, self.yp)
+        self.slice['Normalized_mve_Vertical_Emittance'] = np.array([self.mve_emittance(ybin, ypbin, cpbin) for ybin, ypbin, cpbin in emitbins])
+        return self.slice['Normalized_mve_Vertical_Emittance']
     @property
     def slice_peak_current(self):
         if not hasattr(self,'_hist'):
@@ -690,7 +752,19 @@ class beam(object):
             self.slice_relative_momentum_spread[peakIPosition], \
             self.slice_normalized_horizontal_emittance[peakIPosition], \
             self.slice_normalized_vertical_emittance[peakIPosition], \
-            self.slice_momentum[peakIPosition]
+            self.slice_momentum[peakIPosition], \
+            self.slice_6D_Volume[peakIPosition],
+
+    def mvesliceAnalysis(self):
+        self.slice = {}
+        self.bin_time()
+        peakIPosition = self.slice_max_peak_current_slice
+        return self.slice_peak_current[peakIPosition], \
+            self.slice_relative_momentum_spread[peakIPosition], \
+            self.slice_normalized_mve_horizontal_emittance[peakIPosition], \
+            self.slice_normalized_mve_vertical_emittance[peakIPosition], \
+            self.slice_momentum[peakIPosition], \
+            self.slice_6D_Volume[peakIPosition],
 
     @property
     def chirp(self):
