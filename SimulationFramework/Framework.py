@@ -282,6 +282,33 @@ class Framework(object):
         else:
             self.generator = frameworkGenerator(self.executables, **kwargs)
 
+    def loadParametersFile(self, file):
+        pass
+
+    def saveParametersFile(self, file, parameters):
+        output = {}
+        if isinstance(parameters, dict):
+            for k,v in parameters.iteritems():
+                output[k] = {}
+                if isinstance(v, (list, tuple)):
+                    for p in v:
+                        output[k][p] = getattr(self[k],p)
+                else:
+                    output[k][v] = getattr(self[k],v)
+        elif isinstance(parameters, (list,tuple)):
+            for k, v in parameters:
+                output[k] = {}
+                if isinstance(v, (list, tuple)):
+                    for p in v:
+                        output[k][p] = getattr(self[k],p)
+                else:
+                    output[k][v] = getattr(self[k],v)
+        with open(file,"w") as yaml_file:
+            yaml.dump(output, yaml_file, default_flow_style=False)
+        # try:
+        # elem = self.getelement(k, v)
+        # outputfile.write(k+' '+v+' ')
+
     def __getitem__(self,key):
         if key in self.elementObjects:
             return self.elementObjects[key]
@@ -307,12 +334,15 @@ class Framework(object):
     def modifyElement(self, elementName, parameter, value):
         setattr(self.elementObjects[elementName], parameter, value)
 
-    def track(self, files=None, startfile=None, preprocess=True, write=True, track=True, postprocess=True):
+    def track(self, files=None, startfile=None, endfile=None, preprocess=True, write=True, track=True, postprocess=True):
         if files is None:
             files = ['generator'] + self.lines if hasattr(self, 'generator') else self.lines
-        if startfile is not None:
+        if startfile is not None and startfile in files:
             index = files.index(startfile)
             files = files[index:]
+        if endfile is not None and endfile in files:
+            index = files.index(endfile)
+            files = files[:index+1]
         if self.verbose:
             format_custom_text = progressbar.FormatCustomText(
                 'File: %(running)s', {'running': ''}
@@ -948,7 +978,7 @@ class chicane(frameworkGroup):
     @property
     def angle(self):
         obj = [self.allElementObjects[e] for e in self.elements]
-        return obj[0].angle
+        return float(obj[0].angle)
 
     def set_angle(self, a):
         obj = [self.allElementObjects[e] for e in self.elements]
