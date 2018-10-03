@@ -1,0 +1,238 @@
+START: charge, total = 2.5e-10;
+CLA-FMS-APER-01: watch, filename = CLA-FMS-APER-01.sdds;
+CLA-FMS-MARK-01: watch, filename = CLA-FMS-MARK-01.sdds;
+drift1: drift, l = 0.05;
+CLA-FMS-DIP-01: csrcsbend, integration_order = 4, angle = -0.1, e1 = 0.0,&
+synch_rad = 1, isr = 1, e2 = -0.1, sg_halfwidth = 2, l = 0.100167, csr = 1,&
+n_kicks = 10, bins = 100;
+drift2: drift, l = 0.200501678504;
+CLA-FMS-DIP-02: csrcsbend, integration_order = 4, angle = 0.1, e1 = 0.1,&
+synch_rad = 1, isr = 1, e2 = 0.0, sg_halfwidth = 2, l = 0.100167, csr = 1,&
+n_kicks = 10, bins = 100;
+drift3: drift, l = 0.06;
+CLA-FMS-MARK-02: watch, filename = CLA-FMS-MARK-02.sdds;
+drift4: drift, l = 0.06;
+CLA-FMS-DIP-03: csrcsbend, integration_order = 4, angle = 0.1, e1 = 0.0,&
+synch_rad = 1, isr = 1, e2 = 0.1, sg_halfwidth = 2, l = 0.100167, csr = 1,&
+n_kicks = 10, bins = 100;
+drift5: drift, l = 0.200501678504;
+CLA-FMS-DIP-04: csrcsbend, integration_order = 4, angle = -0.1, e1 = -0.1,&
+synch_rad = 1, isr = 1, e2 = 0.0, sg_halfwidth = 2, l = 0.100167, csr = 1,&
+n_kicks = 10, bins = 100;
+drift6: drift, l = 0.05;
+CLA-FMS-MARK-03: watch, filename = CLA-FMS-MARK-03.sdds;
+drift7: drift, l = 0.0216;
+CLA-FMS-DIA-SCR-01-W: watch, filename = CLA-FMS-DIA-SCR-01-W.sdds;
+drift8: drift, l = 0.0384;
+CLA-FMS-MU-1APER-01: watch, filename = CLA-FMS-MU-1APER-01.sdds;
+drift9: drift, l = 0.05;
+CLA-FMS-MU1-WH1-HS: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = 0.0, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.01875, csr = 1, n_kicks = 10, bins = 100;
+drift10: drift, l = 0.0375003415434;
+CLA-FMS-MU1-WH1-1: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift11: drift, l = 0.0375003417022;
+CLA-FMS-MU1-WH1-2: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift12: drift, l = 0.0375003415434;
+CLA-FMS-MU1-WH1-3: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift13: drift, l = 0.0375003417022;
+CLA-FMS-MU1-WH1-4: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift14: drift, l = 0.0375003415434;
+CLA-FMS-MU1-WH1-5: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift15: drift, l = 0.0375003417022;
+CLA-FMS-MU1-WH1-HM: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = -0.004268, isr = 1, e2 = 0.0, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.01875, csr = 1, n_kicks = 10, bins = 100;
+CLA-FMS-MU1-MARK01: watch, filename = CLA-FMS-MU1-MARK01.sdds;
+CLA-FMS-MU1-WH2-HM: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = 0.0, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.01875, csr = 1, n_kicks = 10, bins = 100;
+drift16: drift, l = 0.0375003413843;
+CLA-FMS-MU1-WH2-1: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift17: drift, l = 0.0375003418615;
+CLA-FMS-MU1-WH2-2: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift18: drift, l = 0.0375003413843;
+CLA-FMS-MU1-WH2-3: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift19: drift, l = 0.0375003418615;
+CLA-FMS-MU1-WH2-4: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift20: drift, l = 0.0375003413843;
+CLA-FMS-MU1-WH2-5: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.0375, csr = 1, n_kicks = 10, bins = 100;
+drift21: drift, l = 0.0375003418615;
+CLA-FMS-MU1-WH2-HE: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = -0.004268, isr = 1, e2 = 0.0, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.01875, csr = 1, n_kicks = 10, bins = 100;
+drift22: drift, l = 0.0716000000001;
+CLA-FMS-DIA-SCR-02W: watch, filename = CLA-FMS-DIA-SCR-02W.sdds;
+drift23: drift, l = 0.0384000000001;
+CLA-FMS-DIA-BPM-01: moni, l = 0.21;
+drift24: drift, l = 0.0800000000002;
+CLA-FMS-MAG-QUAD-01: kquad, n_kicks = 20, k1 = 18.1526927969, l = 0.028;
+drift25: drift, l = 0.1;
+CLA-FMS-DIP-05: csrcsbend, integration_order = 4, angle = -0.124, e1 = 0.0,&
+synch_rad = 1, isr = 1, e2 = -0.124, sg_halfwidth = 2, l = 0.100257, csr = 1,&
+n_kicks = 10, bins = 100;
+drift26: drift, l = 0.120928488311;
+CLA-FMS-DIP-06: csrcsbend, integration_order = 4, angle = 0.248, e1 = 0.124,&
+synch_rad = 1, isr = 1, e2 = 0.124, sg_halfwidth = 2, l = 0.200513, csr = 1,&
+n_kicks = 10, bins = 100;
+drift27: drift, l = 0.341926373131;
+CLA-FMS-DIP-07: csrcsbend, integration_order = 4, angle = -0.248,&
+e1 = -0.124, synch_rad = 1, isr = 1, e2 = -0.124, sg_halfwidth = 2,&
+l = 0.200513, csr = 1, n_kicks = 10, bins = 100;
+drift28: drift, l = 0.120928488311;
+CLA-FMS-DIP-08: csrcsbend, integration_order = 4, angle = 0.124, e1 = 0.124,&
+synch_rad = 1, isr = 1, e2 = 0.0, sg_halfwidth = 2, l = 0.100257, csr = 1,&
+n_kicks = 10, bins = 100;
+drift29: drift, l = 0.0500000000001;
+CLA-FMS-DIA-BPM-02: moni, l = 0.21;
+CLA-FMS-CBPM-APER-01: watch, filename = CLA-FMS-CBPM-APER-01.sdds;
+drift30: drift, l = 0.0800000000002;
+CLA-FMS-MU-1APER-02: watch, filename = CLA-FMS-MU-1APER-02.sdds;
+drift31: drift, l = 0.0500000000001;
+CLA-FMS-MAG-QUAD-02: kquad, n_kicks = 20, k1 = 19.9428874791, l = 0.028;
+drift32: drift, l = 0.0717000000001;
+CLA-FMS-DIA-SCR-03-W: watch, filename = CLA-FMS-DIA-SCR-03-W.sdds;
+drift33: drift, l = 0.0383000000001;
+CLA-FMS-MU2-APER: watch, filename = CLA-FMS-MU2-APER.sdds;
+drift34: drift, l = 0.015;
+CLA-FMS-MU2-WH1-HS: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = 0.0, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.016719, csr = 1, n_kicks = 10, bins = 100;
+drift35: drift, l = 0.0335003036975;
+CLA-FMS-MU2-WH1-1: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift36: drift, l = 0.0335003044124;
+CLA-FMS-MU2-WH1-2: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift37: drift, l = 0.0334003046085;
+CLA-FMS-MU2-WH1-3: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift38: drift, l = 0.0334003053208;
+CLA-FMS-MU2-WH1-4: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift39: drift, l = 0.0335003037005;
+CLA-FMS-MU2-WH1-5: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift40: drift, l = 0.0335003044111;
+CLA-FMS-MU2-WH1-6: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift41: drift, l = 0.0334003046072;
+CLA-FMS-MU2-WH1-7: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift42: drift, l = 0.0334003053242;
+CLA-FMS-MU2-WH1-HM: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = -0.004268, isr = 1, e2 = 0.0, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.016719, csr = 1, n_kicks = 10, bins = 100;
+CLA-FMS-MU2-MARK-01: watch, filename = CLA-FMS-MU2-MARK-01.sdds;
+CLA-FMS-MU2-WH2-HM: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = 0.0, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.016719, csr = 1, n_kicks = 10, bins = 100;
+drift43: drift, l = 0.0334003044667;
+CLA-FMS-MU2-WH2-1: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift44: drift, l = 0.0335003045552;
+CLA-FMS-MU2-WH2-2: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift45: drift, l = 0.0334003044629;
+CLA-FMS-MU2-WH2-3: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift46: drift, l = 0.0334003054632;
+CLA-FMS-MU2-WH2-4: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift47: drift, l = 0.0334003044637;
+CLA-FMS-MU2-WH2-5: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift48: drift, l = 0.0335003045523;
+CLA-FMS-MU2-WH2-6: csrcsbend, integration_order = 4, angle = -0.008537,&
+e1 = -0.004268, isr = 1, e2 = -0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift49: drift, l = 0.0334003044641;
+CLA-FMS-MU2-WH2-7: csrcsbend, integration_order = 4, angle = 0.008537,&
+e1 = 0.004268, isr = 1, e2 = 0.004268, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.033438, csr = 1, n_kicks = 10, bins = 100;
+drift50: drift, l = 0.0334006099199;
+CLA-FMS-MU2-WH2-HE: csrcsbend, integration_order = 4, angle = -0.004268,&
+e1 = -0.004268, isr = 1, e2 = 0.0, synch_rad = 1, sg_halfwidth = 2,&
+l = 0.016719, csr = 1, n_kicks = 10, bins = 100;
+drift51: drift, l = 0.0367;
+CLA-FMS-DIA-SCR-04-W: watch, filename = CLA-FMS-DIA-SCR-04-W.sdds;
+drift52: drift, l = 0.0383;
+CLA-FMS-DIA-BPM-03: moni, l = 0.21;
+drift53: drift, l = 0.03;
+CLA-FMS-PMD-01: csrcsbend, integration_order = 4, angle = -0.01, e1 = 0.0,&
+isr = 1, e2 = -0.01, synch_rad = 1, sg_halfwidth = 2, l = 0.075, csr = 1,&
+n_kicks = 10, bins = 100;
+CLA-FMS-PMD-02: csrcsbend, integration_order = 4, angle = 0.02, e1 = 0.01,&
+isr = 1, e2 = 0.01, synch_rad = 1, sg_halfwidth = 2, l = 0.15, csr = 1,&
+n_kicks = 10, bins = 100;
+CLA-FMS-PMD-03: csrcsbend, integration_order = 4, angle = -0.01, e1 = -0.01,&
+isr = 1, e2 = 0.0, synch_rad = 1, sg_halfwidth = 2, l = 0.075, csr = 1,&
+n_kicks = 10, bins = 100;
+drift54: drift, l = 0.0217;
+CLA-FMS-DIA-SCR-05-W: watch, filename = CLA-FMS-DIA-SCR-05-W.sdds;
+drift55: drift, l = 0.0383;
+CLA-FMS-APER-02: watch, filename = CLA-FMS-APER-02.sdds;
+end: watch, filename = CLA-FMS-APER-02.SDDS;
+FMS: Line=(START, CLA-FMS-APER-01, CLA-FMS-MARK-01, drift1, &
+CLA-FMS-DIP-01, drift2, CLA-FMS-DIP-02, drift3, &
+CLA-FMS-MARK-02, drift4, CLA-FMS-DIP-03, drift5, &
+CLA-FMS-DIP-04, drift6, CLA-FMS-MARK-03, drift7, &
+CLA-FMS-DIA-SCR-01-W, drift8, CLA-FMS-MU-1APER-01, drift9, &
+CLA-FMS-MU1-WH1-HS, drift10, CLA-FMS-MU1-WH1-1, drift11, &
+CLA-FMS-MU1-WH1-2, drift12, CLA-FMS-MU1-WH1-3, drift13, &
+CLA-FMS-MU1-WH1-4, drift14, CLA-FMS-MU1-WH1-5, drift15, &
+CLA-FMS-MU1-WH1-HM, CLA-FMS-MU1-MARK01, CLA-FMS-MU1-WH2-HM, &
+drift16, CLA-FMS-MU1-WH2-1, drift17, CLA-FMS-MU1-WH2-2, &
+drift18, CLA-FMS-MU1-WH2-3, drift19, CLA-FMS-MU1-WH2-4, &
+drift20, CLA-FMS-MU1-WH2-5, drift21, CLA-FMS-MU1-WH2-HE, &
+drift22, CLA-FMS-DIA-SCR-02W, drift23, CLA-FMS-DIA-BPM-01, &
+drift24, CLA-FMS-MAG-QUAD-01, drift25, CLA-FMS-DIP-05, &
+drift26, CLA-FMS-DIP-06, drift27, CLA-FMS-DIP-07, drift28, &
+CLA-FMS-DIP-08, drift29, CLA-FMS-DIA-BPM-02, &
+CLA-FMS-CBPM-APER-01, drift30, CLA-FMS-MU-1APER-02, drift31, &
+CLA-FMS-MAG-QUAD-02, drift32, CLA-FMS-DIA-SCR-03-W, drift33, &
+CLA-FMS-MU2-APER, drift34, CLA-FMS-MU2-WH1-HS, drift35, &
+CLA-FMS-MU2-WH1-1, drift36, CLA-FMS-MU2-WH1-2, drift37, &
+CLA-FMS-MU2-WH1-3, drift38, CLA-FMS-MU2-WH1-4, drift39, &
+CLA-FMS-MU2-WH1-5, drift40, CLA-FMS-MU2-WH1-6, drift41, &
+CLA-FMS-MU2-WH1-7, drift42, CLA-FMS-MU2-WH1-HM, &
+CLA-FMS-MU2-MARK-01, CLA-FMS-MU2-WH2-HM, drift43, &
+CLA-FMS-MU2-WH2-1, drift44, CLA-FMS-MU2-WH2-2, drift45, &
+CLA-FMS-MU2-WH2-3, drift46, CLA-FMS-MU2-WH2-4, drift47, &
+CLA-FMS-MU2-WH2-5, drift48, CLA-FMS-MU2-WH2-6, drift49, &
+CLA-FMS-MU2-WH2-7, drift50, CLA-FMS-MU2-WH2-HE, drift51, &
+CLA-FMS-DIA-SCR-04-W, drift52, CLA-FMS-DIA-BPM-03, drift53, &
+CLA-FMS-PMD-01, CLA-FMS-PMD-02, CLA-FMS-PMD-03, drift54, &
+CLA-FMS-DIA-SCR-05-W, drift55, CLA-FMS-APER-02, END )
