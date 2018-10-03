@@ -1,0 +1,159 @@
+START: charge, total = 2.5e-10;
+CLA-FEB-W-START: watch, filename = CLA-FEB-W-START.sdds;
+CLA-FEB-MAG-DIP-01: csrcsbend, angle = -0.244346, e1 = -0.122173, isr = 1,&
+e2 = -0.122173, synch_rad = 1, sg_halfwidth = 2, l = 0.2, csr = 1,&
+bins = 100;
+CLA-FEB-W-DIP-01: watch, filename = CLA-FEB-W-DIP-01.sdds;
+drift1: drift, l = 0.634963407976;
+CLA-FEB-MAG-QUAD-01: kquad, l = 0.15, k1 = 10.3941;
+drift2: drift, l = 0.0999712601901;
+CLA-FEB-DIA-BPM-01: moni, l = 0.2;
+drift3: drift, l = 0.0999715021844;
+CLA-FEB-MAG-QUAD-02: kquad, l = 0.15, k1 = -7.28967;
+drift4: drift, l = 0.594974686225;
+CLA-FEB-DIA-SCR-01: watch, filename = CLA-FEB-DIA-SCR-01.sdds;
+drift5: drift, l = 0.067504954633;
+CLA-FEB-DIA-COR-01: kicker, isr = 1, synch_rad = 1, l = 0.2;
+drift6: drift, l = 0.367516005977;
+CLA-FEB-MAG-QUAD-03: kquad, l = 0.15, k1 = 10.3941;
+drift7: drift, l = 0.0999712601901;
+CLA-FEB-DIA-BPM-02: moni, l = 0.2;
+drift8: drift, l = 0.100068291002;
+CLA-FEB-MAG-QUAD-04: kquad, l = 0.15, k1 = -7.28967;
+drift9: drift, l = 0.395032166388;
+CLA-FEB-MAG-DIP-02: csrcsbend, angle = -0.244346, e1 = -0.122173, isr = 1,&
+e2 = -0.122173, synch_rad = 1, sg_halfwidth = 2, l = 0.2, csr = 1,&
+bins = 100;
+CLA-FEB-W-DIP-02: watch, filename = CLA-FEB-W-DIP-02.sdds;
+drift10: drift, l = 0.635026638751;
+CLA-FEB-MAG-QUAD-05: kquad, l = 0.15, k1 = 10.3941;
+drift11: drift, l = 0.100001267992;
+CLA-FEB-DIA-BPM-03: moni, l = 0.2;
+drift12: drift, l = 0.100005962322;
+CLA-FEB-MAG-QUAD-06: kquad, l = 0.15, k1 = -7.28967;
+drift13: drift, l = 0.594949862509;
+CLA-FEB-DIA-SCR-02: watch, filename = CLA-FEB-DIA-SCR-02.sdds;
+drift14: drift, l = 0.0675012303592;
+CLA-FEB-DIA-COR-02: kicker, isr = 1, synch_rad = 1, l = 0.2;
+drift15: drift, l = 0.36751442271;
+CLA-FEB-MAG-QUAD-07: kquad, l = 0.15, k1 = 10.3941;
+drift16: drift, l = 0.100001267992;
+CLA-FEB-DIA-BPM-04: moni, l = 0.2;
+drift17: drift, l = 0.100005962322;
+CLA-FEB-MAG-QUAD-08: kquad, l = 0.15, k1 = -7.28967;
+drift18: drift, l = 0.394942633303;
+CLA-FEB-MAG-DIPSWITCH-01: csrcsbend, angle = 0.244346, e1 = 0.122173,&
+isr = 1, e2 = 0.122173, synch_rad = 1, sg_halfwidth = 2, l = 0.2, csr = 1,&
+bins = 100;
+CLA-FEB-W-DIP-03: watch, filename = CLA-FEB-W-DIP-03.sdds;
+drift19: drift, l = 0.634963238621;
+CLA-FEB-MAG-QUAD-09: kquad, l = 0.15, k1 = 10.3941;
+drift20: drift, l = 0.0999707762299;
+CLA-FEB-DIA-BPM-05: moni, l = 0.2;
+drift21: drift, l = 0.0999707762299;
+CLA-FEB-MAG-QUAD-10: kquad, l = 0.15, k1 = -7.28967;
+drift22: drift, l = 0.595070990387;
+CLA-FEB-DIA-SCR-03: watch, filename = CLA-FEB-DIA-SCR-03.sdds;
+drift23: drift, l = 0.0674079290588;
+CLA-FEB-DIA-COR-03: kicker, isr = 1, synch_rad = 1, l = 0.2;
+drift24: drift, l = 0.367514312646;
+CLA-FEB-MAG-QUAD-11: kquad, l = 0.15, k1 = 10.3941;
+drift25: drift, l = 0.100067807511;
+CLA-FEB-DIA-BPM-06: moni, l = 0.2;
+drift26: drift, l = 0.100067807511;
+CLA-FEB-MAG-QUAD-12: kquad, l = 0.15, k1 = -7.28967;
+drift27: drift, l = 0.395032408291;
+CLA-FEB-MAG-DIPSWITCH-02: csrcsbend, angle = 0.244346, e1 = 0.122173,&
+isr = 1, e2 = 0.122173, synch_rad = 1, sg_halfwidth = 2, l = 0.2, csr = 1,&
+bins = 100;
+CLA-FEB-W-DIP-04: watch, filename = CLA-FEB-W-DIP-04.sdds;
+drift28: drift, l = 0.635;
+CLA-FEB-MAG-QUAD-13: kquad, l = 0.15, k1 = 10.3941;
+drift29: drift, l = 0.1;
+CLA-FEB-DIA-BPM-07: moni, l = 0.2;
+drift30: drift, l = 0.1;
+CLA-FEB-MAG-QUAD-14: kquad, l = 0.15, k1 = -19.0953;
+drift31: drift, l = 0.595;
+CLA-FEB-DIA-SCR-04: watch, filename = CLA-FEB-DIA-SCR-04.sdds;
+drift32: drift, l = 0.0675;
+CLA-FEB-DIA-COR-04: kicker, isr = 1, synch_rad = 1, l = 0.2;
+drift33: drift, l = 0.3675;
+CLA-FEB-MAG-QUAD-15: kquad, l = 0.15, k1 = 7.12468;
+drift34: drift, l = 0.1;
+CLA-FEB-DIA-BPM-08: moni, l = 0.2;
+drift35: drift, l = 0.1;
+CLA-FEB-MAG-QUAD-16: kquad, l = 0.15, k1 = -7.62236;
+drift36: drift, l = 0.195;
+CLA-FEB-DIA-COR-05: kicker, isr = 1, synch_rad = 1, l = 0.2;
+CLA-FEB-W-WALLSTART: watch, filename = CLA-FEB-W-WALLSTART.sdds;
+drift37: drift, l = 2.4;
+CLA-FEB-W-WALLEND: watch, filename = CLA-FEB-W-WALLEND.sdds;
+CLA-FEB-MAG-QUAD-18: kquad, l = 0.15, k1 = 11.9126;
+drift38: drift, l = 0.15;
+CLA-FEB-MAG-QUAD-19: kquad, l = 0.15, k1 = -12.8969;
+drift39: drift, l = 0.025;
+CLA-FEB-DIA-ICT-01: moni, l = 0.05;
+drift40: drift, l = 0.025;
+CLA-FEB-DIA-SCR-05: moni, l = 0.1;
+drift41: drift, l = 1.125;
+CLA-FEB-W-FOCUS: watch, filename = CLA-FEB-W-FOCUS.sdds;
+drift42: drift, l = 1.125;
+CLA-FEB-DIA-ICT-02: moni, l = 0.05;
+drift43: drift, l = 0.025;
+CLA-FEB-DIA-SCR-06: moni, l = 0.1;
+drift44: drift, l = 0.025;
+CLA-FEB-MAG-QUAD-20: kquad, l = 0.15, k1 = -12.6967;
+drift45: drift, l = 0.15;
+CLA-FEB-MAG-QUAD-21: kquad, l = 0.15, k1 = 11.3313;
+drift46: drift, l = 1.85;
+CLA-FEB-MAG-QUAD-22-01: kquad, l = 0.15, k1 = -1.92074;
+drift47: drift, l = 1.85;
+CLA-FEB-MAG-QUAD-23: kquad, l = 0.15, k1 = 3.53893;
+CLA-FEB-W-WALLSTART2: watch, filename = CLA-FEB-W-WALLSTART2.sdds;
+drift48: drift, l = 1.85;
+CLA-FEB-W-WALLEND2: watch, filename = CLA-FEB-W-WALLEND2.sdds;
+CLA-FEB-MAG-QUAD-22-02: kquad, l = 0.15, k1 = -1.92074;
+drift49: drift, l = 1.85;
+CLA-FEB-MAG-DIP-03: csrcsbend, angle = 0.523599, isr = 1, synch_rad = 1,&
+sg_halfwidth = 2, l = 1.0, bins = 100, csr = 1;
+drift50: drift, l = 0.349992299915;
+CLA-FEB-MAG-QUAD-24: kquad, l = 0.15, k1 = 11.3369;
+drift51: drift, l = 0.349992299915;
+CLA-FEB-MAG-QUAD-25: kquad, l = 0.15, k1 = -25.0;
+drift52: drift, l = 0.349992299915;
+CLA-FEB-W-DUMPSTART: watch, filename = CLA-FEB-W-DUMPSTART.sdds;
+drift53: drift, l = 1.00006460291;
+CLA-FEB-W-DUMPEND: watch, filename = CLA-FEB-W-DUMPEND.sdds;
+end: watch, filename = CLA-FEB-W-DUMPEND.SDDS;
+FEBE: Line=(START, CLA-FEB-W-START, CLA-FEB-MAG-DIP-01, &
+CLA-FEB-W-DIP-01, drift1, CLA-FEB-MAG-QUAD-01, drift2, &
+CLA-FEB-DIA-BPM-01, drift3, CLA-FEB-MAG-QUAD-02, drift4, &
+CLA-FEB-DIA-SCR-01, drift5, CLA-FEB-DIA-COR-01, drift6, &
+CLA-FEB-MAG-QUAD-03, drift7, CLA-FEB-DIA-BPM-02, drift8, &
+CLA-FEB-MAG-QUAD-04, drift9, CLA-FEB-MAG-DIP-02, &
+CLA-FEB-W-DIP-02, drift10, CLA-FEB-MAG-QUAD-05, drift11, &
+CLA-FEB-DIA-BPM-03, drift12, CLA-FEB-MAG-QUAD-06, drift13, &
+CLA-FEB-DIA-SCR-02, drift14, CLA-FEB-DIA-COR-02, drift15, &
+CLA-FEB-MAG-QUAD-07, drift16, CLA-FEB-DIA-BPM-04, drift17, &
+CLA-FEB-MAG-QUAD-08, drift18, CLA-FEB-MAG-DIPSWITCH-01, &
+CLA-FEB-W-DIP-03, drift19, CLA-FEB-MAG-QUAD-09, drift20, &
+CLA-FEB-DIA-BPM-05, drift21, CLA-FEB-MAG-QUAD-10, drift22, &
+CLA-FEB-DIA-SCR-03, drift23, CLA-FEB-DIA-COR-03, drift24, &
+CLA-FEB-MAG-QUAD-11, drift25, CLA-FEB-DIA-BPM-06, drift26, &
+CLA-FEB-MAG-QUAD-12, drift27, CLA-FEB-MAG-DIPSWITCH-02, &
+CLA-FEB-W-DIP-04, drift28, CLA-FEB-MAG-QUAD-13, drift29, &
+CLA-FEB-DIA-BPM-07, drift30, CLA-FEB-MAG-QUAD-14, drift31, &
+CLA-FEB-DIA-SCR-04, drift32, CLA-FEB-DIA-COR-04, drift33, &
+CLA-FEB-MAG-QUAD-15, drift34, CLA-FEB-DIA-BPM-08, drift35, &
+CLA-FEB-MAG-QUAD-16, drift36, CLA-FEB-DIA-COR-05, &
+CLA-FEB-W-WALLSTART, drift37, CLA-FEB-W-WALLEND, &
+CLA-FEB-MAG-QUAD-18, drift38, CLA-FEB-MAG-QUAD-19, drift39, &
+CLA-FEB-DIA-ICT-01, drift40, CLA-FEB-DIA-SCR-05, drift41, &
+CLA-FEB-W-FOCUS, drift42, CLA-FEB-DIA-ICT-02, drift43, &
+CLA-FEB-DIA-SCR-06, drift44, CLA-FEB-MAG-QUAD-20, drift45, &
+CLA-FEB-MAG-QUAD-21, drift46, CLA-FEB-MAG-QUAD-22-01, &
+drift47, CLA-FEB-MAG-QUAD-23, CLA-FEB-W-WALLSTART2, drift48, &
+CLA-FEB-W-WALLEND2, CLA-FEB-MAG-QUAD-22-02, drift49, &
+CLA-FEB-MAG-DIP-03, drift50, CLA-FEB-MAG-QUAD-24, drift51, &
+CLA-FEB-MAG-QUAD-25, drift52, CLA-FEB-W-DUMPSTART, drift53, &
+CLA-FEB-W-DUMPEND, END )

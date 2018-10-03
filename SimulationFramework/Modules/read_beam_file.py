@@ -474,9 +474,16 @@ class beam(object):
             gamma = np.mean(p)/self.E0_eV
             return gamma*emittance
 
+    @property
+    def volume(self):
+        return self.volume6D(self.x, self.y, self.z, self.cpx/self.cp, self.cpy/self.cp, self.cpz/self.cp)
+
     def volume6D(self, x, y, t, xp, yp, cp):
-        beam = zip(x, y, t, xp, yp, cp)
-        return ConvexHull(beam).volume
+        if len(x) < 10:
+            return 1e6
+        else:
+            beam = zip(x, y, t, xp, yp, cp)
+            return ConvexHull(beam, qhull_options='QJ').volume
 
     def mve_emittance(self, x, xp, p=None):
         (center, radii, rotation, hullP) = MVE.getMinVolEllipse(zip(x,xp), .01)
@@ -698,11 +705,11 @@ class beam(object):
         xbins = self.slice_data(self.x)
         ybins = self.slice_data(self.y)
         zbins = self.slice_data(self.z)
-        pxbins = self.slice_data(self.px)
-        pybins = self.slice_data(self.py)
-        pzbins = self.slice_data(self.pz)
+        pxbins = self.slice_data(self.cpx/self.cp)
+        pybins = self.slice_data(self.cpy/self.cp)
+        pzbins = self.slice_data(self.cpz/self.cp)
         emitbins = zip(xbins, ybins, zbins, pxbins, pybins, pzbins)
-        self.slice['6D_Volume'] = np.array([self.volume6D(xbin, ybin, zbin, pxbin, pybin, pzbin) for xbin, ybin, zbin, pxbin, pybin, pzbin in emitbins])
+        self.slice['6D_Volume'] = np.array([self.volume6D(*a) for a in emitbins])
         return self.slice['6D_Volume']
     @property
     def slice_normalized_horizontal_emittance(self):
