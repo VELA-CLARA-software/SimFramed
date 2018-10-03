@@ -1,0 +1,28 @@
+&run_setup
+	always_change_p0 = 1
+	p_central = 487.357443095
+	lattice = FMS.lte
+	centroid = %s.cen
+	sigma = %s.sig
+	use_beamline = FMS
+&end
+&run_control
+	n_steps = 1
+	n_passes = 1
+&end
+&twiss_output
+	statistics = 1
+	output_at_each_step = 0
+	beta_y = 10.5987823203
+	beta_x = 3.34281737365
+	filename = %s.twi
+	matched = 0
+	radiation_integrals = 1
+	alpha_x = 2.31000930979
+	alpha_y = -2.93430302396
+&end
+&sdds_beam
+	input = CLA-FMS-APER-01.sdds
+&end
+&track
+&end
