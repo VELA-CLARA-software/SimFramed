@@ -1,0 +1,106 @@
+START: charge, total = 2.5e-10;
+CLA-S07-APER-01: rcol, x_max = 0.017, y_max = 0.017;
+CLA-S07-DIA-BPM-01: moni, l = 0.21;
+drift1: drift, l = 0.15;
+CLA-S07-MAG-HVCOR-01: kicker, isr = 1, synch_rad = 1, l = 0.05;
+drift2: drift, l = 0.1;
+CLA-S07-MAG-QUAD-01: kquad, n_kicks = 20, l = 0.15, k1 = 2.41791;
+drift3: drift, l = 0.1;
+CLA-S07-MARK-01: watch, filename = CLA-S07-MARK-01.sdds;
+drift4: drift, l = 0.2;
+CLA-S07-MAG-QUAD-02: kquad, n_kicks = 20, l = 0.15, k1 = -0.773553;
+drift5: drift, l = 0.1;
+CLA-S07-DIA-BPM-02: moni, l = 0.21;
+drift6: drift, l = 0.1002;
+CLA-S07-MAG-HVCOR-02: kicker, isr = 1, synch_rad = 1, l = 0.05;
+drift7: drift, l = 0.0931;
+CLA-S07-DIA-SCR-01-W: watch, filename = CLA-S07-DIA-SCR-01.SDDS;
+drift8: drift, l = 0.0767;
+CLA-S07-TDC-01-APER: rcol, x_max = 0.005, y_max = 0.005;
+drift9: drift, l = 0.3467;
+CLA-S07-TDC-01-R: rfdf, l = 0.45, phase = 0.0;
+drift10: drift, l = 0.3033;
+CLA-S07-APER-02: rcol, x_max = 0.017, y_max = 0.017;
+drift11: drift, l = 0.1;
+CLA-S07-MAG-HVCOR-03: kicker, isr = 1, synch_rad = 1, l = 0.05;
+drift12: drift, l = 0.05;
+CLA-S07-DIA-BPM-03: moni;
+drift13: drift, l = 0.1;
+CLA-S07-MAG-QUAD-03: kquad, n_kicks = 20, l = 0.15, k1 = -1.26982;
+drift14: drift, l = 0.6;
+CLA-S07-MAG-QUAD-04: kquad, n_kicks = 20, l = 0.15, k1 = -1.12984;
+drift15: drift, l = 0.1;
+CLA-S07-DIA-BPM-04: moni, l = 0.21;
+drift16: drift, l = 0.0433;
+CLA-S07-DIA-SCR-02-W: watch, filename = CLA-S07-DIA-SCR-02.SDDS;
+drift17: drift, l = 0.1767;
+CLA-S07-MAG-QUAD-05: kquad, n_kicks = 20, l = 0.15, k1 = 1.0291;
+drift18: drift, l = 0.1702;
+CLA-S07-MAG-HVCOR-04: kicker, isr = 1, synch_rad = 1, l = 0.05;
+drift19: drift, l = 0.017;
+CLA-S07-DIA-CDR-01: moni, l = 0.3;
+drift20: drift, l = 0.0628;
+CLA-S07-MAG-QUAD-06: kquad, n_kicks = 20, l = 0.15, k1 = 0.132193;
+drift21: drift, l = 0.194;
+CLA-S07-DCP-01: ecol, x_max = 0.017, l = 0.596, y_max = 0.017;
+drift22: drift, l = 0.596;
+CLA-S07-DCP-01-SCR: watch, filename = CLA-S07-DCP-01-SCR.SDDS;
+drift23: drift, l = 0.596;
+CLA-S07-APER-03: rcol, x_max = 0.017, y_max = 0.017;
+CLA-S07-DIA-BPM-05: moni, l = 0.21;
+drift24: drift, l = 0.1;
+CLA-S07-MAG-QUAD-07: kquad, n_kicks = 20, l = 0.15, k1 = -1.50181;
+drift25: drift, l = 0.125;
+CLA-S07-MAG-HVCOR-05: kicker, isr = 1, synch_rad = 1, l = 0.05;
+drift26: drift, l = 0.81;
+CLA-S07-MAG-HVCOR-06: kicker, isr = 1, synch_rad = 1, l = 0.05;
+drift27: drift, l = 0.225;
+CLA-S07-DIA-BPM-06: moni, l = 0.05;
+drift28: drift, l = 0.1433;
+CLA-S07-DIA-SCR-03-W: watch, filename = CLA-S07-DIA-SCR-03.SDDS;
+drift29: drift, l = 0.0767;
+CLA-S07-MARK-02: watch, filename = CLA-S07-MARK-02.sdds;
+drift30: drift, l = 0.2;
+CLA-S07-MAG-QUAD-08: kquad, n_kicks = 20, l = 0.15, k1 = 5.28787785063;
+drift31: drift, l = 0.388;
+CLA-S07-MAG-QUAD-09: kquad, n_kicks = 20, l = 0.162, k1 = 2.42719422454;
+drift32: drift, l = 0.1;
+CLA-S07-DIA-BPM-07: moni, l = 0.21;
+drift33: drift, l = 0.025;
+CLA-S07-MAG-HVCOR-07: kicker, isr = 1, synch_rad = 1, l = 0.05;
+drift34: drift, l = 0.0683;
+CLA-S07-DIA-SCR-04-W: watch, filename = CLA-S07-DIA-SCR-04.SDDS;
+drift35: drift, l = 0.1647;
+CLA-S07-MAG-QUAD-10: kquad, n_kicks = 20, l = 0.162, k1 = -7.00524234274;
+drift36: drift, l = 0.588;
+CLA-S07-MAG-QUAD-11: kquad, n_kicks = 20, k1 = 11.8232176197, l = 0.162;
+drift37: drift, l = 0.1;
+CLA-S07-DIA-BPM-08: moni, l = 0.21;
+drift38: drift, l = 0.0433;
+CLA-S07-DIA-SCR-05-W: watch, filename = CLA-S07-DIA-SCR-05-W.sdds;
+drift39: drift, l = 0.1767;
+CLA-S07-MARK-03: watch, filename = CLA-S07-MARK-03.sdds;
+CLA-FMS-APER-01: watch, filename = CLA-FMS-APER-01.sdds;
+end: watch, filename = CLA-FMS-APER-01.SDDS;
+S07: Line=(START, CLA-S07-APER-01, CLA-S07-DIA-BPM-01, &
+drift1, CLA-S07-MAG-HVCOR-01, drift2, CLA-S07-MAG-QUAD-01, &
+drift3, CLA-S07-MARK-01, drift4, CLA-S07-MAG-QUAD-02, drift5, &
+CLA-S07-DIA-BPM-02, drift6, CLA-S07-MAG-HVCOR-02, drift7, &
+CLA-S07-DIA-SCR-01-W, drift8, CLA-S07-TDC-01-APER, drift9, &
+CLA-S07-TDC-01-R, drift10, CLA-S07-APER-02, drift11, &
+CLA-S07-MAG-HVCOR-03, drift12, CLA-S07-DIA-BPM-03, drift13, &
+CLA-S07-MAG-QUAD-03, drift14, CLA-S07-MAG-QUAD-04, drift15, &
+CLA-S07-DIA-BPM-04, drift16, CLA-S07-DIA-SCR-02-W, drift17, &
+CLA-S07-MAG-QUAD-05, drift18, CLA-S07-MAG-HVCOR-04, drift19, &
+CLA-S07-DIA-CDR-01, drift20, CLA-S07-MAG-QUAD-06, drift21, &
+CLA-S07-DCP-01, drift22, CLA-S07-DCP-01-SCR, drift23, &
+CLA-S07-APER-03, CLA-S07-DIA-BPM-05, drift24, &
+CLA-S07-MAG-QUAD-07, drift25, CLA-S07-MAG-HVCOR-05, drift26, &
+CLA-S07-MAG-HVCOR-06, drift27, CLA-S07-DIA-BPM-06, drift28, &
+CLA-S07-DIA-SCR-03-W, drift29, CLA-S07-MARK-02, drift30, &
+CLA-S07-MAG-QUAD-08, drift31, CLA-S07-MAG-QUAD-09, drift32, &
+CLA-S07-DIA-BPM-07, drift33, CLA-S07-MAG-HVCOR-07, drift34, &
+CLA-S07-DIA-SCR-04-W, drift35, CLA-S07-MAG-QUAD-10, drift36, &
+CLA-S07-MAG-QUAD-11, drift37, CLA-S07-DIA-BPM-08, drift38, &
+CLA-S07-DIA-SCR-05-W, drift39, CLA-S07-MARK-03, &
+CLA-FMS-APER-01, END )
