@@ -15,3 +15,7 @@ FEBE/
 *.cen
 *.twi
 *.sig
+*.ini
+test*/
+*.csv
+*.lnk

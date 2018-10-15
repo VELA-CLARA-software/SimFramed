@@ -59,6 +59,7 @@ with open('CLARA_longitudinal_best_solutions_simplex.csv.tmp', 'r') as csvfile:
   for row in reader:
     results.append(row)
 best = results[0]
+best = [22930206.535622053,-19.919884243633238,23009930.128022004,-8.084999503888273,20332245.251669575,156.72188403590755,32399709.39536675,31.949905578189217,0.1882468402535032]
 print 'starting values = ', best
 
 ''' export best results to a yaml file '''
@@ -72,8 +73,8 @@ print 'starting values = ', best
 ''' ELSE '''
 # best = parameters
 
-optfunc3 = partial(optfunc, dir=None, scaling=3, post_injector=False)
-optfunc4 = partial(optfunc, dir=None, scaling=4, post_injector=False)
+optfunc3 = partial(optfunc, dir=None, scaling=3, post_injector=True)
+optfunc4 = partial(optfunc, dir=None, scaling=4, post_injector=True)
 
 with open('best_solutions_running_simplex.csv','w') as out:
     pass
@@ -81,7 +82,7 @@ res = minimize(optfunc4, best, method='nelder-mead', options={'xtol': 1e-8, 'dis
 print res
 
 try:
-    print 'best fitness = ', optfunc(res.x, dir=os.getcwd()+'/CLARA_best_longitudinal_simplex', scaling=6, overwrite=True, verbose=True, summary=True, post_injector=False)
+    print 'best fitness = ', optfunc(res.x, dir=os.getcwd()+'/CLARA_best_longitudinal_simplex', scaling=6, overwrite=True, verbose=True, summary=True, post_injector=True)
 except:
     pass
 
