@@ -120,11 +120,10 @@ class fitnessFunc():
             meanp = np.mean(self.beam.p)
             emitx = 1e6*self.beam.normalized_mve_horizontal_emittance
             emity = 1e6*self.beam.normalized_mve_horizontal_emittance
-            volume = 1/((1e-6)**5) * self.beam.volume
+            density = self.beam.density
             fitp = 100*sigmap/meanp
             fhcfield = self.parameters['fhcfield']
-            peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIVolume = self.beam.mvesliceAnalysis()
-            peakIVolume = peakIVolume/((1e-6)**5)
+            peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.mvesliceAnalysis()
             chirp = self.beam.chirp
             constraintsList = {
                 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 600, 'weight': 60},
@@ -133,16 +132,16 @@ class fitnessFunc():
                 # 'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 5},
                 # 'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 5},
                 'peakIMomentum': {'type': 'equalto','value': 1e-6*peakIMomentum, 'limit': 220, 'weight': 20},
-                'sband_linac fields': {'type': 'lessthan', 'value': 1e-6*self.sbandlinacfields, 'limit': 32, 'weight': 100},
+                'sband_linac fields': {'type': 'lessthan', 'value': 1e-6*self.sbandlinacfields, 'limit': 32, 'weight': 200},
                 # 'xband_linac fields': {'type': 'lessthan', 'value': 1e-6*self.xbandlinacfields, 'limit': 100, 'weight': 100},
                 '4hc field': {'type': 'lessthan', 'value': 1e-6*fhcfield, 'limit': 35, 'weight': 100},
                 # 'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 2, 'weight': 0},
                 # 'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 2, 'weight': 0},
                 # 'momentum_spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.1, 'weight': 2},
-                'chirp': {'type': 'equalto', 'value': abs(chirp), 'limit': 0, 'weight': 10},
+                'chirp': {'type': 'equalto', 'value': abs(chirp), 'limit': 0, 'weight': 5},
                 'positive_chirp': {'type': 'lessthan', 'value': chirp, 'limit': 0, 'weight': 1},
-                'peakI_volume': {'type': 'lessthan', 'value': peakIVolume, 'limit': 50, 'weight': 5},
-                'volume': {'type': 'lessthan', 'value': volume, 'limit': 5000, 'weight': 2},
+                'peakI_volume': {'type': 'greaterthan', 'value': peakIDensity, 'limit': 1e32, 'weight': 5},
+                'volume': {'type': 'greaterthan', 'value': density, 'limit': 1e30, 'weight': 5},
             }
             # self.twiss.read_astra_emit_files(self.dirname+'/S07.Zemit.001')
             # constraintsList5 = {
@@ -156,7 +155,7 @@ class fitnessFunc():
             if self.summary:
                 np.save('summary_constraints.txt', self.cons.constraintsList(constraintsList))
                 # self.astra.createHDF5Summary(reference='Longitudinal_GA')
-            print fitness, 1e-6*peakIMomentum, abs(peakI), 1e6*peakIEmittanceX, 1e6*peakIEmittanceY, chirp, peakIVolume, volume
+            print fitness, 1e-6*peakIMomentum, abs(peakI), 1e6*peakIEmittanceX, 1e6*peakIEmittanceY, chirp, peakIDensity, density
             return fitness
         except Exception as e:
             print(e)
