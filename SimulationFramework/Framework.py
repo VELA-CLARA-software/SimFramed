@@ -417,6 +417,11 @@ class frameworkLattice(object):
                 return self.allElementObjects[element][param]
             else:
                 return self.allElements[element]
+        elif element in self.groupObjects.keys():
+            if param is not None:
+                return self.groupObjects[element][param]
+            else:
+                return self.groupObjects[element]
         else:
             print 'WARNING: Element ', element,' does not exist'
             return {}

@@ -476,7 +476,11 @@ class beam(object):
 
     @property
     def volume(self):
-        return self.volume6D(self.x, self.y, self.z, self.cpx/self.cp, self.cpy/self.cp, self.cpz/self.cp)
+        return self.volume6D(self.x, self.y, self.z-np.mean(self.z), self.cpx/self.cpz, self.cpy/self.cpz, ((self.cpz/np.mean(self.cp)) - 1))
+
+    @property
+    def density(self):
+        return len(self.x) / self.volume
 
     def volume6D(self, x, y, t, xp, yp, cp):
         if len(x) < 10:
@@ -704,13 +708,21 @@ class beam(object):
             self.bin_time()
         xbins = self.slice_data(self.x)
         ybins = self.slice_data(self.y)
-        zbins = self.slice_data(self.z)
-        pxbins = self.slice_data(self.cpx/self.cp)
-        pybins = self.slice_data(self.cpy/self.cp)
-        pzbins = self.slice_data(self.cpz/self.cp)
+        zbins = self.slice_data(self.z-np.mean(self.z))
+        pxbins = self.slice_data(self.cpx/self.cpz)
+        pybins = self.slice_data(self.cpy/self.cpz)
+        pzbins = self.slice_data(((self.cpz/np.mean(self.cp)) - 1))
         emitbins = zip(xbins, ybins, zbins, pxbins, pybins, pzbins)
         self.slice['6D_Volume'] = np.array([self.volume6D(*a) for a in emitbins])
         return self.slice['6D_Volume']
+    @property
+    def slice_density(self):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
+            self.bin_time()
+        xbins = self.slice_data(self.x)
+        volume = self.slice_6D_Volume
+        self.slice['Density'] = np.array([len(x)/v for x, v in zip(xbins, volume)])
+        return self.slice['Density']
     @property
     def slice_normalized_horizontal_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
@@ -760,7 +772,7 @@ class beam(object):
             self.slice_normalized_horizontal_emittance[peakIPosition], \
             self.slice_normalized_vertical_emittance[peakIPosition], \
             self.slice_momentum[peakIPosition], \
-            self.slice_6D_Volume[peakIPosition],
+            self.slice_density[peakIPosition],
 
     def mvesliceAnalysis(self):
         self.slice = {}
@@ -771,7 +783,7 @@ class beam(object):
             self.slice_normalized_mve_horizontal_emittance[peakIPosition], \
             self.slice_normalized_mve_vertical_emittance[peakIPosition], \
             self.slice_momentum[peakIPosition], \
-            self.slice_6D_Volume[peakIPosition],
+            self.slice_density[peakIPosition],
 
     @property
     def chirp(self):
