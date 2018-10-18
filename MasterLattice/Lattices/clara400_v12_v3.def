@@ -67,8 +67,7 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-S03-APER
       end_element: CLA-L03-APER
@@ -77,8 +76,7 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-L03-APER
       end_element: CLA-S04-APER
@@ -87,8 +85,7 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-S04-APER
       end_element: CLA-L4H-APER
@@ -102,8 +99,7 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-L4H-APER
       end_element: CLA-S05-APER
@@ -112,8 +108,7 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-S05-APER
       end_element: CLA-S05-MARK-01
@@ -124,8 +119,7 @@ files:
       space_charge_mode: 3D
     csr:
       csr_mode: 1D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-S05-MARK-01
       end_element: CLA-S06-MARK-01
@@ -139,8 +133,7 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      prefix: ''
+    input: {}
     output:
       start_element: CLA-S06-MARK-01
       end_element: CLA-L04-APER
@@ -159,8 +152,7 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-S07-APER-01
       end_element: CLA-FMS-APER-01
