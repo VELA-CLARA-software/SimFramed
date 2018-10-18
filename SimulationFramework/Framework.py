@@ -654,13 +654,15 @@ class elegantLattice(frameworkLattice):
         fulltext = ''
         fulltext += self.q.write_Elegant()
         for element in elements.values():
-            fulltext += element.write_Elegant()
+            if not element.subelement:
+                fulltext += element.write_Elegant()
         fulltext += self.w.write_Elegant()
         fulltext += self.objectName+': Line=(START, '
-        for e in elements.keys():
-            if len((fulltext + e).splitlines()[-1]) > 60:
-                fulltext += '&\n'
-            fulltext += e+', '
+        for e, element in elements.iteritems():
+            if not element.subelement:
+                if len((fulltext + e).splitlines()[-1]) > 60:
+                    fulltext += '&\n'
+                fulltext += e+', '
         return fulltext[:-2] + ', END )\n'
 
     def write(self):
