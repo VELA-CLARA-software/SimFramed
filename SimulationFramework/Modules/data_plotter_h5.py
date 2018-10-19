@@ -251,7 +251,8 @@ class astraPlotWidget(QWidget):
         self.beamPlotLayout.addWidget(self.canvasWidget)
 
         ''' slicePlotWidget '''
-        self.sliceParams = [{'name': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'text': 'enx'},
+        self.sliceParams = [
+        {'name': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'text': 'enx'},
         {'name': 'slice_normalized_vertical_emittance', 'units': 'm-rad', 'text': 'eny'},
         {'name': 'slice_peak_current', 'units': 'A', 'text': 'PeakI'},
         {'name': 'slice_relative_momentum_spread', 'units': '%', 'text': 'sigma-p'},
