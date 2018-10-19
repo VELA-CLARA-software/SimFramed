@@ -1249,6 +1249,13 @@ class frameworkElement(frameworkObject):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                if self.objectType == 'cavity':
+                    # In ELEGANT all phases are +90degrees!!
+                    value = value + 90 if key.lower() == 'phase' else value
+                    # In ELEGANT the voltages  need to be compensated
+                    value = self.cells * self.cell_length * (1 / np.sqrt(2)) * value if key.lower() == 'volt' else value
+                    # In CAVITY NKICK = n_cells
+                    value = self.cells if key.lower() == 'n_kicks' else value
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
