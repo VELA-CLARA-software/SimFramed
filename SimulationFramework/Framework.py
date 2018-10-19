@@ -1248,6 +1248,7 @@ class frameworkElement(frameworkObject):
         for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -1509,16 +1510,16 @@ class screen(frameworkElement):
             tempfilename = lattice + '.' + str(int(round((self.middle[2]+i-self.zstart[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
             if os.path.isfile(master_subdir + '/' + tempfilename):
                 astrabeamfilename = tempfilename
-        beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+        beam.read_astra_beam_file((master_subdir + '/' + astrabeamfilename).strip('\"'), normaliseZ=False)
         beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
 
-        HDF5filename = self.objectName+'.hdf5'
+        HDF5filename = (self.objectName+'.hdf5').strip('\"')
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
 
     def sdds_to_hdf5(self):
-        elegantbeamfilename = self.output_filename.replace('.sdds','.SDDS')
+        elegantbeamfilename = self.output_filename.replace('.sdds','.SDDS').strip('\"')
         beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename)
-        HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5')
+        HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle)
 
 class monitor(screen):

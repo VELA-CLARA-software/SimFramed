@@ -1,0 +1,16 @@
+global:
+  total_charge: 0.25
+files:
+  BA1:
+    code: elegant
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      particle_definition: clara_10k_100pC-coffinIP.astra
+    output:
+      start_element: EBT-BA1-DIA-YAG-01
+      end_element: EBT-BA1-DIA-FCUP-01
+groups:
+elements:
+  filename: ['YAML/BA1.yaml']
