@@ -111,20 +111,24 @@ elements:
     length: 0.3
     sr_enable: true
     isr_enable: true
+    global_rotation: [0, 0, 1.0472]
     position_end: [-2.07159, 0, 29.3038]
     position_start: [-1.81178, 0, 29.1538]
   EBT-BA1-DIA-BPM-04:
     type: beam_position_monitor
     length: 0.235
+    global_rotation: [0, 0, 1.0472]
     position_end: [-2.51153, 0, 29.5578]
     position_start: [-2.30801, 0, 29.4403]
   EBT-BA1-DIA-YAG-03:
     type: watch_point
     output_filename: EBT-BA1-DIA-YAG-03.SDDS
+    global_rotation: [0, 0, 1.0472]
     position_end: [-3.19136, 0, 29.9503]
     position_start: [-3.19136, 0, 29.9503]
   EBT-BA1-DIA-FCUP-01:
     type: watch_point
     output_filename: EBT-BA1-DIA-FCUP-01.SDDS
+    global_rotation: [0, 0, 1.0472]
     position_end: [-3.19136, 0, 29.9503]
     position_start: [-3.19136, 0, 29.9503]
