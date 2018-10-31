@@ -22,25 +22,9 @@ if not os.name == 'nt':
     # lattice.defineASTRACommand(['/opt/ASTRA/astra.sh'])
     lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
     lattice.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
-    lattice.defineElegantCommand(['elegant'])
     lattice.generator.number_of_particles = 2**(3*scaling)
 else:
     lattice.generator.number_of_particles = 2**(3*3)
-
-lattice['CLA-HRG1-GUN-SOL']['field_amplitude'] = 0.345
-lattice['CLA-L01-CAV']['field_amplitude'] = 1e6*27.26
-lattice['CLA-L01-CAV']['phase'] = -20.13
-lattice['CLA-L02-CAV']['field_amplitude'] = 1e6*23.685
-lattice['CLA-L02-CAV']['phase'] = -18.342
-lattice['CLA-L03-CAV']['field_amplitude'] = 1e6*18.5463
-lattice['CLA-L03-CAV']['phase'] = -10.319
-lattice['CLA-L4H-CAV']['field_amplitude'] = 1e6*22.91
-lattice['CLA-L4H-CAV']['phase'] = 181.5
-lattice['CLA-L04-CAV']['field_amplitude'] = 1e6*31.522
-lattice['CLA-L04-CAV']['phase'] = 6.032
-lattice['bunch_compressor'].update(dipoleangle=0.11715)
-lattice['CLA-L01-WAKE'].scale_kick = 0
-lattice['CLA-L02-WAKE'].scale_kick = 0
-lattice['CLA-L03-WAKE'].scale_kick = 0
-lattice['CLA-L04-WAKE'].scale_kick = 0
-lattice.track(track=True, postprocess=True)
+lattice.defineElegantCommand(['elegant'])
+lattice.change_Lattice_Code('S02','elegant')
+lattice.track(files=['S02'])#,preprocess=True, track=False, postprocess=False)

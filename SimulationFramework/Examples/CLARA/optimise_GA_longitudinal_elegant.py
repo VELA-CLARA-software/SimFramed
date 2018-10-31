@@ -2,7 +2,7 @@ import numpy as np
 import os, sys
 sys.path.append(os.path.abspath(__file__+'/../../../../'))
 from SimulationFramework.Framework import *
-import FitnessFunc_Longitudinal as FF
+import FitnessFunc_Longitudinal_elegant as FF
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -32,7 +32,6 @@ def create_base_files(scaling):
 #     create_base_files(i)
 # exit()
 
-
 def optfunc(args, dir=None, **kwargs):
     if dir == None:
         with FF.TemporaryDirectory(dir=os.getcwd()) as tmpdir:
@@ -44,7 +43,7 @@ def optfunc(args, dir=None, **kwargs):
     return (fitvalue,)
 
 framework = Framework('longitudinal_best', overwrite=False)
-framework.loadSettings('Lattices/clara400_v12_v3.def')
+framework.loadSettings('Lattices/clara400_v12_v3_elegant.def')
 parameters = []
 ''' if including injector'''
 # parameters.append(framework.getElement('CLA-HRG1-GUN-CAV', 'phase'))
@@ -62,16 +61,16 @@ parameters.append(framework.getElement('CLA-L4H-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L4H-CAV', 'phase'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'phase'))
-parameters.append(framework.fileSettings['VBC']['groups']['bunch_compressor']['dipoleangle'])
+parameters.append(framework.fileSettings['POSTINJ']['groups']['bunch_compressor']['dipoleangle'])
 # parameters.append(0.15)
 best = parameters
 
 results = []
-with open('CLARA_longitudinal_best_solutions_simplex.csv.tmp', 'r') as csvfile:
-  reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
-  for row in reader:
-    results.append(row)
-best = results[0][-len(parameters):]
+# with open('CLARA_longitudinal_best_solutions_simplex_elegant.csv.tmp', 'r') as csvfile:
+#   reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONNUMERIC)
+#   for row in reader:
+#     results.append(row)
+# best = results[0][-len(parameters):]
 best = [22185322.734269936, -21.286741272540496, 21489244.414371535, -6.6342446206192349, 23130142.104636863, 154.10130966427795, 29087650.234409146, 32.420717003643887, 0.21456997946824966]
 print 'starting values = ', best
 
@@ -109,9 +108,10 @@ toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
 if os.name == 'nt':
-    toolbox.register("evaluate", optfunc, scaling=3, post_injector=True)
+    toolbox.register("evaluate", optfunc, scaling=5, post_injector=True)
 else:
-    toolbox.register("evaluate", optfunc, scaling=3, post_injector=True)
+    toolbox.register("evaluate", optfunc, scaling=5, post_injector=True)
+
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
 toolbox.register("select", tools.selTournament, tournsize=3)
@@ -148,17 +148,17 @@ if __name__ == "__main__":
     print hof
 
     try:
-        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/CLARA_best_longitudinal', scaling=5, overwrite=True, verbose=True, summary=True)
-        with open('CLARA_best_longitudinal/CLARA_longitudinal_best_solutions.csv','wb') as out:
+        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/CLARA_best_longitudinal_elegant', scaling=6, overwrite=True, verbose=True, summary=True)
+        with open('CLARA_best_longitudinal_elegant/CLARA_longitudinal_best_solutions_elegant.csv','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)
-        with open('CLARA_best_longitudinal/CLARA_longitudinal_best_stats.csv','wb') as out:
+        with open('CLARA_best_longitudinal_elegant/CLARA_longitudinal_best_stats_elegant.csv','wb') as out:
             csv_out=csv.writer(out)
             for row in stats:
                 csv_out.writerow(row)
     except:
-        with open('CLARA_longitudinal_best_solutions.csv.tmp','wb') as out:
+        with open('CLARA_longitudinal_best_solutions_elegant.csv.tmp','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)
