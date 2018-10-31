@@ -74,7 +74,8 @@ class fitnessFunc():
         try:
             self.framework['POSTINJ'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
             self.framework.track()#startfile='FMS')
-
+            self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FMS-APER-01.hdf5')
+            ## CONVERT THIS TO A DIST FILE!!!
         except Exception as e:
             print(e)
             return 1e6
