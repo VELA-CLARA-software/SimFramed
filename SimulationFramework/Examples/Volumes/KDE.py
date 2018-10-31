@@ -1,7 +1,7 @@
 import sys, os, time
 sys.path.append(os.path.abspath(__file__+'/../../../../'))
 import SimulationFramework.Modules.read_beam_file as rbf
-from scipy import stats
+from fastkde import fastKDE
 import numpy as np
 
 def measure(n):
@@ -16,20 +16,21 @@ dirname = '../CLARA/CLARA_best_longitudinal'
 beam = rbf.beam()
 beam.read_HDF5_beam_file(dirname+'/CLA-FMS-APER-01.hdf5')
 print 'Read beam files = ', time.clock() - start
-m1 = beam.x
-m2 = beam.xp
-xmin = m1.min()
-xmax = m1.max()
-ymin = m2.min()
-ymax = m2.max()
+m1 = 100*beam.x
+m2 = 100*beam.y
+print max(beam.x)
+xmin = -0.03
+xmax = 0.03
+ymin = -0.03
+ymax = 0.03
 
 X, Y = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
 print 'Grid = ', time.clock() - start
 positions = np.vstack([X.ravel(), Y.ravel()])
 print 'Positions = ', time.clock() - start
-values = np.vstack([m1, m2])
+values = [m1, m2]
 print 'Values = ', time.clock() - start
-kernel = stats.gaussian_kde(values)
+kernel,axes = fastKDE.pdf(m1, m2)
 print 'Kernel = ', time.clock() - start
 kpos = kernel(positions)
 print 'Kpos = ', time.clock() - start

@@ -229,6 +229,10 @@ class Framework(object):
         code = lattice['code'] if 'code' in lattice else 'astra'
         self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
+    def change_Lattice_Code(self, name, code):
+        currentLattice = self.latticeObjects[name]
+        self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectName, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables)
+
     def read_Element(self, name, element, subelement=False):
         if name == 'filename':
             self.load_Elements_File(element)
@@ -758,11 +762,12 @@ class astraLattice(frameworkLattice):
         self.code = 'astra'
         self.headers = OrderedDict()
         self.starting_offset = eval(expand_substitution(self, self.file_block['starting_offset'])) if 'starting_offset' in self.file_block else [0,0,0]
-        # self.starting_rotation = eval(expand_substitution(self, str(self.file_block['starting_rotation']))) if 'starting_rotation' in self.file_block else 0
         self.starting_rotation = -1*self.allElementObjects[self.start].global_rotation[2] if self.allElementObjects[self.start].global_rotation is not None else 0
         for d in self.dipoles:
             self.starting_rotation -= d.angle
+        self.starting_rotation = eval(expand_substitution(self, str(self.file_block['starting_rotation']))) if 'starting_rotation' in self.file_block else self.starting_rotation
         if 'input' in self.file_block:
+            print 'self.starting_rotation = ', self.starting_rotation
             self.headers['newrun'] = astra_newrun(self.starting_offset, self.starting_rotation, **merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
         else:
             self.headers['newrun'] = astra_newrun(self.starting_offset, self.starting_rotation, **self.globalSettings['ASTRAsettings'])
@@ -1187,7 +1192,7 @@ class frameworkElement(frameworkObject):
     @property
     def start(self):
         start = self.position_start
-        length_vector = self.rotated_position([0,0, 0], offset=[0,0,0], theta=self.theta)
+        length_vector = self.rotated_position([0,0,0], offset=[0,0,0], theta=self.theta)
         starting_middle = np.array(self.position_start) + length_vector
         return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
@@ -1417,6 +1422,8 @@ class quadrupole(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['Q_pos', {'value': self.middle[2], 'default': 0}],
+            ['Q_xoff', {'value': self.middle[0], 'default': 0}],
+            ['Q_xrot', {'value': -1*self.theta, 'default': 0}],
             ['Q_k', {'value': self.k1, 'default': 0}],
             ['Q_length', {'value': self.length, 'default': 0}],
             ['Q_smooth', {'value': self.smooth, 'default': 10}],
@@ -1502,6 +1509,7 @@ class screen(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['Screen', {'value': self.middle[2], 'default': 0}],
+            ['Scr_xrot', {'value': -1*self.theta, 'default': 0}],
         ]), n)
 
     def write_CSRTrack(self, n):
@@ -1513,15 +1521,18 @@ class screen(frameworkElement):
         return output
 
     def astra_to_hdf5(self, lattice):
+        astrabeamfilename = None
         for i in [0, -0.001, 0.001]:
             tempfilename = lattice + '.' + str(int(round((self.middle[2]+i-self.zstart[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
             if os.path.isfile(master_subdir + '/' + tempfilename):
                 astrabeamfilename = tempfilename
-        beam.read_astra_beam_file((master_subdir + '/' + astrabeamfilename).strip('\"'), normaliseZ=False)
-        beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
-
-        HDF5filename = (self.objectName+'.hdf5').strip('\"')
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
+        if astrabeamfilename is None:
+            print 'Screen Error: ', lattice, self.middle[2], self.zstart[2]
+        else:
+            beam.read_astra_beam_file((master_subdir + '/' + astrabeamfilename).strip('\"'), normaliseZ=False)
+            beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
+            HDF5filename = (self.objectName+'.hdf5').strip('\"')
+            beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
 
     def sdds_to_hdf5(self):
         elegantbeamfilename = self.output_filename.replace('.sdds','.SDDS').strip('\"')
@@ -1647,6 +1658,7 @@ class astra_newrun(astra_header):
         # print 'self.particle_definition = ', self.particle_definition
         HDF5filename = prefix+self.particle_definition.replace('.astra','')+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        print 'self.theta = ', self.theta
         beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
         astrabeamfilename = self.particle_definition
         beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
@@ -1671,6 +1683,8 @@ class astra_output(astra_header):
             element.starting_offset = self.starting_offset
             element.starting_rotation = self.starting_rotation
             keyworddict['Screen('+str(i)+')'] = {'value': element.middle[2]}
+            if abs(element.theta) > 0:
+                keyworddict['Scr_xrot('+str(i)+')'] = {'value': element.theta}
         return keyworddict
 
 class astra_charge(astra_header):
