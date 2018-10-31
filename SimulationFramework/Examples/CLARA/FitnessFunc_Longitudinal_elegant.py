@@ -71,7 +71,7 @@ class fitnessFunc():
             self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         self.framework.defineElegantCommand(['elegant'])
-        self.framework.loadSettings('Lattices/clara400_v12_v3.def')
+        self.framework.loadSettings('Lattices/clara400_v12_v3_elegant.def')
         if not self.post_injector:
             self.framework.generator.particles = self.npart
             self.framework.modifyElement('CLA-HRG1-GUN-CAV', 'phase', gunphase)
@@ -98,18 +98,15 @@ class fitnessFunc():
         return result
 
     def calculateBeamParameters(self):
-        bcangle = self.framework['bunch_compressor'].angle
+        # bcangle = self.framework['bunch_compressor'].angle
         # print 'bcangle = ', bcangle
         try:
             # if abs(bcangle) < 0.01 or abs(bcangle) > 0.175:
                 # raise ValueError
             if self.overwrite:
-                startS = self.framework['L02'].startObject['position_start'][2]
-                if self.post_injector:
-                    self.framework['L02'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
-                    self.framework.track(startfile='L02', endfile='S07')#startfile='FMS')
-                else:
-                    self.framework.track(endfile='S07')
+                startS = self.framework['POSTINJ'].startObject['position_start'][2]
+                self.framework['POSTINJ'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
+                self.framework.track()#startfile='FMS')
 
             # self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
             self.beam.read_HDF5_beam_file(self.dirname+'/CLA-S07-MARK-03.hdf5')
@@ -118,30 +115,30 @@ class fitnessFunc():
             sigmat = 1e12*np.std(self.beam.t)
             sigmap = np.std(self.beam.p)
             meanp = np.mean(self.beam.p)
-            emitx = 1e6*self.beam.normalized_mve_horizontal_emittance
-            emity = 1e6*self.beam.normalized_mve_horizontal_emittance
+            emitx = 1e6*self.beam.normalized_horizontal_emittance
+            emity = 1e6*self.beam.normalized_horizontal_emittance
             density = self.beam.density
             fitp = 100*sigmap/meanp
             fhcfield = self.parameters['fhcfield']
-            peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.mvesliceAnalysis()
+            peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
             chirp = self.beam.chirp
             constraintsList = {
                 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 600, 'weight': 60},
                 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 750, 'weight': 10},
-                # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
-                # 'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 5},
-                # 'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 5},
+                'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
+                'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 5},
+                'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 5},
                 'peakIMomentum': {'type': 'equalto','value': 1e-6*peakIMomentum, 'limit': 220, 'weight': 20},
                 'sband_linac fields': {'type': 'lessthan', 'value': 1e-6*self.sbandlinacfields, 'limit': 32, 'weight': 200},
                 # 'xband_linac fields': {'type': 'lessthan', 'value': 1e-6*self.xbandlinacfields, 'limit': 100, 'weight': 100},
                 '4hc field': {'type': 'lessthan', 'value': 1e-6*fhcfield, 'limit': 35, 'weight': 100},
-                # 'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 2, 'weight': 0},
-                # 'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 2, 'weight': 0},
-                # 'momentum_spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.1, 'weight': 2},
+                'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 2, 'weight': 0},
+                'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 2, 'weight': 0},
+                'momentum_spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.1, 'weight': 2},
                 'chirp': {'type': 'equalto', 'value': abs(chirp), 'limit': 0.75, 'weight': 5},
                 'correct_chirp': {'type': 'lessthan', 'value': chirp, 'limit': 0, 'weight': 100},
-                'peakI_volume': {'type': 'greaterthan', 'value': peakIDensity, 'limit': 1e32, 'weight': 5},
-                'volume': {'type': 'greaterthan', 'value': density, 'limit': 1e30, 'weight': 5},
+                # 'peakI_volume': {'type': 'greaterthan', 'value': peakIDensity, 'limit': 1e32, 'weight': 5},
+                # 'volume': {'type': 'greaterthan', 'value': density, 'limit': 1e30, 'weight': 5},
             }
             # self.twiss.read_astra_emit_files(self.dirname+'/S07.Zemit.001')
             # constraintsList5 = {

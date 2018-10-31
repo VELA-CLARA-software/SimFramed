@@ -73,10 +73,10 @@ with open('CLARA_longitudinal_best_solutions_simplex.csv.tmp', 'r') as csvfile:
     results.append(row)
 best = results[0][-len(parameters):]
 
-best = [22200198.49138267,-14.219929641344065,21501627.591965452,0.45153757793072558,23141833.859653812,161.16443024124007,29079460.798801307,39.477777098720388,7.2856647892383979]
+best = [x  -7.07101854925 for x in [22200198.49138267,-14.219929641344065,21501627.591965452,0.45153757793072558,23141833.859653812,161.16443024124007,29079460.798801307,39.477777098720388,7.2856647892383979]]
 
 print 'starting values = ', best
-
-fit = FF.fitnessFunc(best, os.getcwd()+'/test_4', scaling=4, overwrite=True, verbose=True, summary=False)
+# exit()
+fit = FF.fitnessFunc(best, os.getcwd()+'/test_6', scaling=6, overwrite=True, verbose=True, summary=False)
 print fit.calculateBeamParameters()
 exit()

@@ -42,6 +42,7 @@ files:
     output:
       start_element: CLA-S02-APER-01
       end_element: CLA-FMS-APER-01
+    input: {}
     groups:
       laser-heater:
         dipoleangle: 0.0001

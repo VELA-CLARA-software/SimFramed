@@ -1,0 +1,165 @@
+&NEWRUN
+Distribution = 'CLA-S02-APER-01.astra',
+high_res = True,
+auto_phase = True,
+track_all = True,
+check_ref_part = False,
+head = trial,
+max_step = 1e8,
+run = 1,
+h_max = 0.0007,
+n_red = 1,
+h_min = 0.0007,
+phase_scan = False,
+lprompt = False
+/
+
+&OUTPUT
+zstart = 3.37147,
+zstop = 29.9503,
+Screen(1) = 3.60014,
+Screen(2) = 4.08983,
+Screen(3) = 5.01083,
+Screen(4) = 5.72687,
+Screen(5) = 6.40624,
+Scr_xrot(5) = 0.785398,
+Screen(6) = 6.9819,
+Scr_xrot(6) = 0.785398,
+Screen(7) = 7.83179,
+Screen(8) = 9.53979,
+Screen(9) = 9.88979,
+Screen(10) = 10.536299999999999,
+Screen(11) = 12.0898,
+Screen(12) = 13.9118,
+Screen(13) = 15.5898,
+Screen(14) = 17.1398,
+Screen(15) = 17.1398,
+Screen(16) = 18.2448,
+Screen(17) = 21.3888,
+Screen(18) = 21.2713,
+Screen(19) = 23.0673,
+Screen(20) = 23.6848,
+Screen(21) = 24.3348,
+Screen(22) = 24.4348,
+Screen(23) = 25.4848,
+Screen(24) = 26.7948,
+Screen(25) = 26.9123,
+Screen(26) = 28.1558,
+Screen(27) = 29.499049750814525,
+Scr_xrot(27) = 1.0472,
+Screen(28) = 29.9503,
+Scr_xrot(28) = 1.0472,
+Screen(29) = 29.9503,
+Scr_xrot(29) = 1.0472,
+zphase = 1,
+phases = True,
+refs = True,
+tracks = True,
+zemit = 1050,
+emits = True
+/
+
+&CHARGE
+Lmirror = False,
+LSPCH = False,
+LSPCH3D = False,
+max_scale = 0.1,
+cell_var = 2,
+max_count = 100,
+smooth_z = 2,
+smooth_y = 2,
+smooth_x = 2,
+min_grid = 3.424657e-13
+/
+
+&CAVITY
+LEField = False
+
+/
+&WAKE
+LWAKE = False
+
+/
+&SOLENOID
+LBField = False
+
+/
+&QUADRUPOLE
+LQuad = True
+Q_pos(1) = 3.52715, Q_xoff(1) = 0, Q_xrot(1) = 0, Q_k(1) = -3.09253, 
+Q_length(1) = 0.1007, Q_smooth(1) = 10, Q_bore(1) = 0.016
+Q_pos(2) = 3.9271499999999997, Q_xoff(2) = 0, Q_xrot(2) = 0, 
+Q_k(2) = 6.34871, Q_length(2) = 0.1007, Q_smooth(2) = 10, 
+Q_bore(2) = 0.016
+Q_pos(3) = 5.22715, Q_xoff(3) = 0, Q_xrot(3) = 0, Q_k(3) = -4.07613, 
+Q_length(3) = 0.1007, Q_smooth(3) = 10, Q_bore(3) = 0.016
+Q_pos(4) = 5.62715, Q_xoff(4) = 0, Q_xrot(4) = 0, Q_k(4) = -4.07613, 
+Q_length(4) = 0.1007, Q_smooth(4) = 10, Q_bore(4) = 0.016
+Q_pos(5) = 6.4577728322501535, Q_xoff(5) = -0.4199388206153312, 
+Q_xrot(5) = -0.785398, Q_k(5) = 55.9853, Q_length(5) = 0.1007, 
+Q_smooth(5) = 10, Q_bore(5) = 0.016
+Q_pos(6) = 6.662832832250153, Q_xoff(6) = -0.6249998206153311, 
+Q_xrot(6) = -0.785398, Q_k(6) = -50.2792, Q_length(6) = 0.1007, 
+Q_smooth(6) = 10, Q_bore(6) = 0.016
+Q_pos(7) = 6.867892832250154, Q_xoff(7) = -0.8300608206153312, 
+Q_xrot(7) = -0.785398, Q_k(7) = 55.9853, Q_length(7) = 0.1007, 
+Q_smooth(7) = 10, Q_bore(7) = 0.016
+Q_pos(8) = 8.21279, Q_xoff(8) = -1.25, Q_xrot(8) = 0, 
+Q_k(8) = 17.0945, Q_length(8) = 0.1, Q_smooth(8) = 10, 
+Q_bore(8) = 0.016
+Q_pos(9) = 8.482790000000001, Q_xoff(9) = -1.25, Q_xrot(9) = 0, 
+Q_k(9) = -17.8686, Q_length(9) = 0.1, Q_smooth(9) = 10, 
+Q_bore(9) = 0.016
+Q_pos(10) = 10.3773, Q_xoff(10) = -1.25, Q_xrot(10) = 0, 
+Q_k(10) = 4.14677, Q_length(10) = 0.075, Q_smooth(10) = 10, 
+Q_bore(10) = 0.016
+Q_pos(11) = 12.5293, Q_xoff(11) = -1.25, Q_xrot(11) = 0, 
+Q_k(11) = -4.2847, Q_length(11) = 0.075, Q_smooth(11) = 10, 
+Q_bore(11) = 0.016
+Q_pos(12) = 14.677299999999999, Q_xoff(12) = -1.25, Q_xrot(12) = 0, 
+Q_k(12) = 5.66182, Q_length(12) = 0.075, Q_smooth(12) = 10, 
+Q_bore(12) = 0.016
+Q_pos(13) = 17.7723, Q_xoff(13) = -1.25, Q_xrot(13) = 0, 
+Q_k(13) = 4.0731, Q_length(13) = 0.075, Q_smooth(13) = 10, 
+Q_bore(13) = 0.016
+Q_pos(14) = 22.4698, Q_xoff(14) = -1.25, Q_xrot(14) = 0, Q_k(14) = 0, 
+Q_length(14) = 0.16, Q_smooth(14) = 10, Q_bore(14) = 0.016
+Q_pos(15) = 22.869799999999998, Q_xoff(15) = -1.25, Q_xrot(15) = 0, 
+Q_k(15) = 0, Q_length(15) = 0.16, Q_smooth(15) = 10, 
+Q_bore(15) = 0.016
+Q_pos(16) = 23.264799999999997, Q_xoff(16) = -1.25, Q_xrot(16) = 0, 
+Q_k(16) = 0, Q_length(16) = 0.16, Q_smooth(16) = 10, 
+Q_bore(16) = 0.016
+Q_pos(17) = 27.1098, Q_xoff(17) = -1.25, Q_xrot(17) = 0, Q_k(17) = 0, 
+Q_length(17) = 0.16, Q_smooth(17) = 10, Q_bore(17) = 0.016
+Q_pos(18) = 27.5428, Q_xoff(18) = -1.25, Q_xrot(18) = 0, Q_k(18) = 0, 
+Q_length(18) = 0.16, Q_smooth(18) = 10, Q_bore(18) = 0.016
+Q_pos(19) = 27.9758, Q_xoff(19) = -1.25, Q_xrot(19) = 0, Q_k(19) = 0, 
+Q_length(19) = 0.16, Q_smooth(19) = 10, Q_bore(19) = 0.016
+Q_pos(20) = 29.228799681890884, Q_xoff(20) = -1.9416839942275315, 
+Q_xrot(20) = -1.0472, Q_k(20) = 0, Q_length(20) = 0.3, 
+Q_smooth(20) = 10, Q_bore(20) = 0.016
+
+/
+&DIPOLE
+LDipole = True
+D_Type(1) = 'horizontal', D_Gap(1,1) = 0.02, D_Gap(2,1) = 0.02, 
+D1(1) = (0.0800006, 5.82687),
+D3(1) = (-0.09260202399778342, 6.243568957515767),
+D4(1) = (-0.20573997600221658, 6.130431042484234),
+D2(1) = (-0.0800006, 5.82687),
+D_radius(1) = 0.50929974357
+D_Type(2) = 'horizontal', D_Gap(1,2) = 0.02, D_Gap(2,2) = 0.02, 
+D1(2) = (-1.0442610239977834, 7.195228957515766),
+D3(2) = (-1.1699994, 7.49879),
+D4(2) = (-1.3300006, 7.49879),
+D2(2) = (-1.1573989760022165, 7.082091042484233),
+D_radius(2) = -0.50929974357
+D_Type(3) = 'horizontal', D_Gap(1,3) = 0.02, D_Gap(2,3) = 0.02, 
+D1(3) = (-1.1499926, 28.5538),
+D3(3) = (-1.4387465120884388, 29.053909071415404),
+D4(3) = (-1.5387534879115612, 28.8806909285846),
+D2(3) = (-1.3500074, 28.5538),
+D_radius(3) = 0.477499045073
+
+/
