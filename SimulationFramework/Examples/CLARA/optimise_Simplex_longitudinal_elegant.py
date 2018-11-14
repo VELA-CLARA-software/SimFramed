@@ -61,7 +61,8 @@ for p in parameternames:
 #   for row in reader:
 #     results.append(row)
 # best = results[0]
-best = [21937707.15643109,-19.69402630723058,20730148.29623335,-8.085324458606465,27523152.262458388,165.6365900692502,27649139.10995977,34.65396438539781,0.23305265450852905]
+best = [27477812.476143554,-24.149079998274154,27185718.693607226,-8.078720301316636,24326877.45572499,188.9222526372106,30434366.8035302,45.17175610232019,-0.12770679325302878]
+# best = parameters
 
 print 'starting values = ', best
 
@@ -80,10 +81,13 @@ optfunc3 = partial(optfunc, dir=None, scaling=3, post_injector=True)
 optfunc4 = partial(optfunc, dir=None, scaling=4, post_injector=True)
 optfunc5 = partial(optfunc, dir=None, scaling=5, post_injector=True)
 
+print 'start fitness = ', optfunc(best, dir=os.getcwd()+'/CLARA_best_longitudinal_simplex_elegant', scaling=4, overwrite=True, verbose=True, summary=True, post_injector=True)
+exit()
+
 with open('best_solutions_running_simplex_elegant.csv','w') as out:
     pass
 res = minimize(optfunc4, best, method='nelder-mead', options={'xtol': 1e-3, 'disp': True})
-print res
+print res.x
 
 try:
     print 'best fitness = ', optfunc(res.x, dir=os.getcwd()+'/CLARA_best_longitudinal_simplex_elegant', scaling=6, overwrite=True, verbose=True, summary=True, post_injector=True)
