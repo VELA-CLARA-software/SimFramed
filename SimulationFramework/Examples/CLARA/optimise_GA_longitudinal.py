@@ -75,9 +75,10 @@ best = results[0][-len(parameters):]
 best = [22185322.734269936, -21.286741272540496, 21489244.414371535, -6.6342446206192349, 23130142.104636863, 154.10130966427795, 29087650.234409146, 32.420717003643887, 0.21456997946824966]
 print 'starting values = ', best
 
-# fit = FF.fitnessFunc(best, os.getcwd()+'/test_3', scaling=3, overwrite=True, verbose=True, summary=False)
-# print fit.calculateBeamParameters()
-# exit()
+startingvalues = best = [27477812.476143554,-24.149079998274154,27185718.693607226,-8.078720301316636,24326877.45572499,188.9222526372106,30434366.8035302,45.17175610232019,-0.12770679325302878]
+fit = FF.fitnessFunc(best, os.getcwd()+'/testing_astra', scaling=5, overwrite=True, verbose=True, summary=False, post_injector=True)
+print fit.calculateBeamParameters()
+exit()
 
 
 # startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 50], [135,200],

@@ -53,8 +53,9 @@ files:
     output:
       start_element: CLA-S02-APER-01
       end_element: CLA-L02-APER
+    input: {}
   L02:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -63,7 +64,7 @@ files:
       end_element: CLA-S03-APER
     input: {}
   S03:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -72,7 +73,7 @@ files:
       start_element: CLA-S03-APER
       end_element: CLA-L03-APER
   L03:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -81,7 +82,7 @@ files:
       start_element: CLA-L03-APER
       end_element: CLA-S04-APER
   S04:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -95,7 +96,7 @@ files:
         width: 0.2
         gap: 0.02
   L4H:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -104,7 +105,7 @@ files:
       start_element: CLA-L4H-APER
       end_element: CLA-S05-APER
   S05:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -113,7 +114,7 @@ files:
       start_element: CLA-S05-APER
       end_element: CLA-S05-MARK-01
   VBC:
-    code: elegant
+    code: csrtrack
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -129,7 +130,7 @@ files:
         width: 0.2
         gap: 0.02
   S06:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -138,7 +139,7 @@ files:
       start_element: CLA-S06-MARK-01
       end_element: CLA-L04-APER
   L04:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -148,7 +149,7 @@ files:
       start_element: CLA-L04-APER
       end_element: CLA-S07-APER-01
   S07:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -157,7 +158,7 @@ files:
       start_element: CLA-S07-APER-01
       end_element: CLA-FMS-APER-01
   FMS:
-    code: elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D

@@ -104,10 +104,10 @@ class fitnessFunc():
             # if abs(bcangle) < 0.01 or abs(bcangle) > 0.175:
                 # raise ValueError
             if self.overwrite:
-                startS = self.framework['L02'].startObject['position_start'][2]
+                startS = self.framework['S02'].startObject['position_start'][2]
                 if self.post_injector:
-                    self.framework['L02'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
-                    self.framework.track(startfile='L02', endfile='S07')#startfile='FMS')
+                    self.framework['S02'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
+                    self.framework.track(startfile='S02', endfile='S07')#startfile='FMS')
                 else:
                     self.framework.track(endfile='S07')
 

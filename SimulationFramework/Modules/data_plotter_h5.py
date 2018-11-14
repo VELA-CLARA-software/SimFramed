@@ -176,7 +176,8 @@ class astraPlotWidget(QWidget):
         self.beamPlotXAxisDict = OrderedDict()
         self.beamPlotXAxisDict['x'] = {'scale':1e3, 'axis': 'x [mm]'}
         self.beamPlotXAxisDict['y'] = {'scale':1e3, 'axis': 'y [mm]'}
-        self.beamPlotXAxisDict['z'] = {'scale':1e3, 'axis': 'z [micron]', 'norm': True}
+        self.beamPlotXAxisDict['z'] = {'scale':1e6, 'axis': 'z [micron]', 'norm': True}
+        self.beamPlotXAxisDict['t'] = {'scale':1e12, 'axis': 't [ps]', 'norm': True}
         self.beamPlotXAxisDict['cpx'] = {'scale':1e3, 'axis': 'cpx [keV]'}
         self.beamPlotXAxisDict['cpy'] = {'scale':1e3, 'axis': 'cpy [keV]'}
         self.beamPlotXAxisDict['BetaGamma']= {'scale':0.511 , 'axis': 'cp [MeV]'}
@@ -192,9 +193,11 @@ class astraPlotWidget(QWidget):
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.beamPlotXAxisCombo = QComboBox(Form)
         self.beamPlotXAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotXAxisCombo.setCurrentIndex(2)
         self.horizontalLayout.addWidget(self.beamPlotXAxisCombo)
         self.beamPlotYAxisCombo = QComboBox(Form)
         self.beamPlotYAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotYAxisCombo.setCurrentIndex(6)
         self.horizontalLayout.addWidget(self.beamPlotYAxisCombo)
         self.groupBox = QGroupBox(Form)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
