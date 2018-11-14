@@ -61,7 +61,8 @@ class beam(object):
         self.beam['px'] = cpx * self.q_over_c
         self.beam['py'] = cpy * self.q_over_c
         self.beam['pz'] = cpz * self.q_over_c
-        self.beam['z'] = (1 * self.Bz * constants.speed_of_light) * self.t #np.full(len(self.t), 0)
+        self.beam['t'] = self.beam['t']
+        self.beam['z'] = (-1*self.Bz * constants.speed_of_light) * (self.t-np.mean(self.t)) #np.full(len(self.t), 0)
         if 'Charge' in self.SDDSparameters:
             self.beam['total_charge'] = self.SDDSparameters['Charge'][0]
         elif charge is None:
@@ -71,7 +72,7 @@ class beam(object):
         self.beam['charge'] = []
 
     def write_SDDS_file(self, filename, ascii=False):
-        """Save an demo SDDS file using the SDDS class."""
+        """Save an SDDS file using the SDDS class."""
         x = sdds.SDDS(0)
         if ascii:
             x.mode = x.SDDS_ASCII
@@ -119,9 +120,9 @@ class beam(object):
         # datanp = np.loadtxt(file)
         self.interpret_astra_data(data, normaliseZ=normaliseZ)
 
-    def read_hdf5_beam(self, data):
-        self.reset_dicts()
-        self.interpret_astra_data(data)
+    # def read_hdf5_beam(self, data):
+    #     self.reset_dicts()
+    #     self.interpret_astra_data(data)
 
     def interpret_astra_data(self, data, normaliseZ=False):
         x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.transpose(data)
@@ -144,7 +145,7 @@ class beam(object):
         self.beam['charge'] = 1e-9*charge
         self.beam['index'] = index
         self.beam['status'] = status
-        self.beam['t'] = [clock if status == -1 else (z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
+        self.beam['t'] = [clock if status == -1 else (-1*z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
@@ -377,7 +378,7 @@ class beam(object):
         if 'rotation' in self.beam or abs(self.beam['rotation']) > 0:
             self.rotate_beamXZ(-1*self.beam['rotation'], -1*offset)
 
-    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None, rotation=None, longitudinal_reference='t'):
+    def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None, rotation=None, longitudinal_reference='t', zoffset=0):
         with h5py.File(filename, "w") as f:
             inputgrp = f.create_group("Parameters")
             if not 'total_charge' in self.beam or self.beam['total_charge'] == 0:
@@ -407,7 +408,7 @@ class beam(object):
                 chargevector = self.beam['charge']
             else:
                 chargevector = np.full(len(self.x), self.charge/len(self.x))
-            array = np.array([self.x, self.y, self.z, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
+            array = np.array([self.x, self.y, self.z + zoffset, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
             beamgrp['columns'] = ("x","y","z","cpx","cpy","cpz","t","q")
             beamgrp['units'] = ("m","m","m","eV","eV","eV","s","e")
             beamgrp.create_dataset("beam", data=array)

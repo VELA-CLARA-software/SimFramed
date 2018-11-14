@@ -165,12 +165,15 @@ class astraPlotWidget(QWidget):
         self.beamPlotXAxisDict['x'] = {'scale':1e3, 'axis': 'x [mm]'}
         self.beamPlotXAxisDict['y'] = {'scale':1e3, 'axis': 'y [mm]'}
         self.beamPlotXAxisDict['z'] = {'scale':1e6, 'axis': 'z [micron]', 'norm': True}
+        self.beamPlotXAxisDict['t'] = {'scale':1e12, 'axis': 't [ps]', 'norm': True}
         self.beamPlotXAxisDict['cpx'] = {'scale':1e3, 'axis': 'cpx [keV]'}
         self.beamPlotXAxisDict['cpy'] = {'scale':1e3, 'axis': 'cpy [keV]'}
         self.beamPlotXAxisDict['BetaGamma']= {'scale':0.511 , 'axis': 'cp [MeV]'}
         self.beamPlotXAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotXAxisCombo.setCurrentIndex(2)
         self.beamPlotYAxisCombo = QComboBox()
         self.beamPlotYAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotXAxisCombo.setCurrentIndex(6)
         self.beamPlotNumberBins = QSpinBox()
         self.beamPlotNumberBins.setRange(10,500)
         self.beamPlotNumberBins.setSingleStep(10)
@@ -186,8 +189,8 @@ class astraPlotWidget(QWidget):
         self.beamPlotXAxisCombo.currentIndexChanged.connect(self.plotDataBeam)
         self.beamPlotYAxisCombo.currentIndexChanged.connect(self.plotDataBeam)
         self.beamPlotNumberBins.valueChanged.connect(self.plotDataBeam)
-            # self.beamPlotXAxisCombo.setCurrentIndex(2)
-            # self.beamPlotYAxisCombo.setCurrentIndex(5)
+        self.beamPlotXAxisCombo.setCurrentIndex(2)
+        self.beamPlotYAxisCombo.setCurrentIndex(6)
         self.canvasWidget = QWidget()
         l = QVBoxLayout(self.canvasWidget)
         self.sc = MyStaticMplCanvas(self.canvasWidget, width=1, height=1, dpi=150)

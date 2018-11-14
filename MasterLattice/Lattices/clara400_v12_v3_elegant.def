@@ -34,6 +34,17 @@ global:
 generator:
   default: clara_400_3ps
 files:
+  injector400:
+    code: ASTRA
+    charge:
+      cathode: True
+      space_charge_mode: 2D
+      mirror_charge: True
+    input:
+      particle_definition: 'initial_distribution'
+    output:
+      zstart: 0
+      end_element: CLA-S02-APER-01
   POSTINJ:
     code: elegant
     charge:

@@ -259,11 +259,11 @@ class Framework(object):
             raise NameError('Element \'%s\' does not exist' % type)
 
     def getElement(self, element, param=None):
-        if element in self.elementObjects:
+        if self.__getitem__(element) is not None:
             if param is not None:
-                return self.elementObjects[element][param]
+                return self[element][param]
             else:
-                return self.elementObjects[element]
+                return self[element]
         else:
             print 'WARNING: Element ', element,' does not exist'
             return {}
@@ -322,6 +322,8 @@ class Framework(object):
             return self.groupObjects[key]
         elif hasattr(self, key):
             return getattr(self,key.lower())
+        else:
+            return None
 
     @property
     def elements(self):
@@ -767,7 +769,7 @@ class astraLattice(frameworkLattice):
             self.starting_rotation -= d.angle
         self.starting_rotation = eval(expand_substitution(self, str(self.file_block['starting_rotation']))) if 'starting_rotation' in self.file_block else self.starting_rotation
         if 'input' in self.file_block:
-            print 'self.starting_rotation = ', self.starting_rotation
+            # print 'self.starting_rotation = ', self.starting_rotation
             self.headers['newrun'] = astra_newrun(self.starting_offset, self.starting_rotation, **merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
         else:
             self.headers['newrun'] = astra_newrun(self.starting_offset, self.starting_rotation, **self.globalSettings['ASTRAsettings'])
@@ -928,7 +930,8 @@ class csrtrackLattice(frameworkLattice):
         saveFile(self.code_file, self.writeElements())
 
     def preProcess(self):
-        self.CSRTrackelementObjects['particles'].hdf5_to_astra()
+        prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
+        self.CSRTrackelementObjects['particles'].hdf5_to_astra(prefix)
 
     def postProcess(self):
         self.CSRTrackelementObjects['monitor'].csrtrack_to_hdf5()
@@ -950,6 +953,9 @@ class frameworkGroup(object):
 
     def __str__(self):
         return str([self.allElementObjects[e].objectName for e in self.elements])
+
+    def __getitem__(self, key):
+        return getattr(self, key)
 
 class chicane(frameworkGroup):
     def __init__(self, name, elementObjects, type, elements, **kwargs):
@@ -999,7 +1005,7 @@ class chicane(frameworkGroup):
             x1 = np.transpose([self.allElementObjects[self.elements[i]].position_start])
             angle = obj[i].angle
             obj[i].global_rotation[2] = starting_angle
-            obj[i].angle = -1*np.sign(angle)*a
+            obj[i].angle = np.sign(angle)*a
             localXYZ = self.xform(starting_angle, 0, 0, x1, np.identity(3))[1]
             x1, localXYZ = self.xform(obj[i].angle, 0, obj[i].length, x1, localXYZ)
             xstart, ystart, zstart = x1
@@ -1258,7 +1264,7 @@ class frameworkElement(frameworkObject):
                     # In ELEGANT all phases are +90degrees!!
                     value = value + 90 if key.lower() == 'phase' else value
                     # In ELEGANT the voltages  need to be compensated
-                    value = self.cells * self.cell_length * (1 / np.sqrt(2)) * value if key.lower() == 'volt' else value
+                    value = (self.cells+4.8) * self.cell_length * (1 / np.sqrt(2)) * value if key.lower() == 'volt' else value
                     # In CAVITY NKICK = n_cells
                     value = self.cells if key.lower() == 'n_kicks' else value
                 tmpstring = ', '+key+' = '+str(value)
@@ -1300,7 +1306,7 @@ class dipole(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(dipole, self).__init__(name, type, **kwargs)
-        self.add_default('bins',20)
+        self.add_default('bins',100)
         self.add_default('csr', 1)
         self.add_default('isr', 1)
         self.add_default('n_kicks', 10)
@@ -1538,7 +1544,7 @@ class screen(frameworkElement):
         elegantbeamfilename = self.output_filename.replace('.sdds','.SDDS').strip('\"')
         beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename)
         HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle)
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle, zoffset=self.end[2])
 
 class monitor(screen):
 
@@ -1655,10 +1661,8 @@ class astra_newrun(astra_header):
         ])
 
     def hdf5_to_astra(self, prefix=''):
-        # print 'self.particle_definition = ', self.particle_definition
         HDF5filename = prefix+self.particle_definition.replace('.astra','')+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
-        print 'self.theta = ', self.theta
         beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
         astrabeamfilename = self.particle_definition
         beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
@@ -1798,9 +1802,17 @@ class csrtrack_particles(csrtrack_element):
         super(csrtrack_particles, self).__init__('particles', 'csrtrack_particles', **kwargs)
         self.header = 'particles'
 
-    def hdf5_to_astra(self):
-        HDF5filename = self.particle_definition+'.hdf5'
+    # def hdf5_to_astra(self):
+    #     HDF5filename = self.particle_definition+'.hdf5'
+    #     beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+    #     astrabeamfilename = self.particle_definition+'.astra'
+    #     beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+    def hdf5_to_astra(self, prefix=''):
+        # print 'self.particle_definition = ', self.particle_definition
+        HDF5filename = prefix+self.particle_definition.replace('.astra','')+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        # print 'self.theta = ', self.theta
+        # beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
         astrabeamfilename = self.particle_definition+'.astra'
         beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
 
