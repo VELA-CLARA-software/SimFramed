@@ -1469,6 +1469,31 @@ class cavity(frameworkElement):
             ['C_smooth', {'value': self.smooth, 'default': 10}],
         ]), n)
 
+    def _write_Elegant(self):
+        wholestring=''
+        etype = self._convertType_Elegant(self.objectType)
+        string = self.objectName+': '+ etype
+        for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
+            key = self._convertKeword_Elegant(key)
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                if self.objectType == 'cavity':
+                    # In ELEGANT all phases are +90degrees!!
+                    value = value + 90 if key.lower() == 'phase' else value
+                    # In ELEGANT the voltages  need to be compensated
+                    value = (self.cells+4.8) * self.cell_length * (1 / np.sqrt(2)) * value if key.lower() == 'volt' else value
+                    # In CAVITY NKICK = n_cells
+                    value = self.cells if key.lower() == 'n_kicks' else value
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
+
 class rf_deflecting_cavity(cavity):
 
     def __init__(self, name=None, type=None, **kwargs):
