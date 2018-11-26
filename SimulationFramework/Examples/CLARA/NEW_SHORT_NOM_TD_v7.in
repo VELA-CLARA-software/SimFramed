@@ -1,7 +1,7 @@
  $newrun
  outputfile =   'NEW_SHORT_NOM_TD_v7.out'
  beamfile = 'beamfile.txt'
- nslice= 600
+ nslice= -1
   aw0   =  0.8667E-00
  xkx   =  1.0000E+00
  xky   =  0.0E+00
@@ -73,7 +73,7 @@
  nbins =    16
  igamgaus =    1
  lout  = 1 1 1 1 1 0 1 1 1 1 1 1 1 1 1 1 1 0 0
- iphsty=    10
+ iphsty=    1
  ishsty=    1
  ippart=    0
  ispart=    0
@@ -83,7 +83,7 @@
  iotail=    1
  nharm =    1
  curlen=  7.460000E-05
- ntail = 0
+ ntail = -20
  shotnoise=  0.000000E+00
  isntyp=    0
  iall  =    0

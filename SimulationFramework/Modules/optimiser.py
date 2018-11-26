@@ -12,7 +12,7 @@ class optimiser():
         print('Finishing after this generation!')
 
     def eaSimple(self, population, toolbox, cxpb, mutpb, ngen, stats=None,
-                 halloffame=None, verbose=__debug__):
+                 halloffame=None, hoffile=None, verbose=__debug__):
 
         logbook = tools.Logbook()
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
@@ -25,6 +25,11 @@ class optimiser():
 
         if halloffame is not None:
             halloffame.update(population)
+            with open(hoffile,'wb') as out:
+                csv_out=csv.writer(out)
+                for row in halloffame:
+                    row.append(0)
+                    csv_out.writerow(row)
 
         record = stats.compile(population) if stats else {}
         logbook.record(gen=0, nevals=len(invalid_ind), **record)
@@ -51,9 +56,10 @@ class optimiser():
             # Update the hall of fame with the generated individuals
             if halloffame is not None:
                 halloffame.update(offspring)
-                with open('best_solutions_running.csv','wb') as out:
+                with open(hoffile,'a') as out:
                     csv_out=csv.writer(out)
                     for row in halloffame:
+                        row.append(gen)
                         csv_out.writerow(row)
 
             # Replace the current population by the offspring
@@ -67,7 +73,7 @@ class optimiser():
 
         return population, logbook
 
-    def eaMuPlusLambda(self, population, toolbox, mu, lambda_, cxpb, mutpb, ngen, stats=None, halloffame=None, file=None, verbose=__debug__):
+    def eaMuPlusLambda(self, population, toolbox, mu, lambda_, cxpb, mutpb, ngen, stats=None, halloffame=None, hoffile=None, verbose=__debug__):
 
         logbook = tools.Logbook()
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
@@ -80,6 +86,11 @@ class optimiser():
 
         if halloffame is not None:
             halloffame.update(population)
+            with open(hoffile,'wb') as out:
+                csv_out=csv.writer(out)
+                for row in halloffame:
+                    row.append(0)
+                    csv_out.writerow(row)
 
         record = stats.compile(population) if stats is not None else {}
         logbook.record(gen=0, nevals=len(invalid_ind), **record)
@@ -100,9 +111,10 @@ class optimiser():
             # Update the hall of fame with the generated individuals
             if halloffame is not None:
                 halloffame.update(offspring)
-                with open(file,'wb') as out:
+                with open(hoffile,'a') as out:
                     csv_out=csv.writer(out)
                     for row in halloffame:
+                        row.append(gen)
                         csv_out.writerow(row)
 
             # Select the next generation population
