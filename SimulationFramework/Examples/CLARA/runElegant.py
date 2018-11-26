@@ -35,7 +35,10 @@ class TemporaryDirectory(object):
         return self.name
 
     def __exit__(self, exc_type, exc_value, traceback):
-        shutil.rmtree(self.name)
+        try:
+            shutil.rmtree(self.name)
+        except:
+            pass
 
 class fitnessFunc():
 

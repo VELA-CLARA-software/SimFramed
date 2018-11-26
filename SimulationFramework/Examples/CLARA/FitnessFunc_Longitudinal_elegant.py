@@ -37,12 +37,23 @@ class TemporaryDirectory(object):
     def __exit__(self, exc_type, exc_value, traceback):
         shutil.rmtree(self.name)
 
+
+def saveState(args, fitness, *values):
+    global csv_out
+    args=list(args)
+    for v in values:
+        args.append(v)
+    args.append(fitness)
+    csv_out.writerow(args)
+    # csv_out.flush()
+
 class fitnessFunc():
 
     def __init__(self, args, tempdir, scaling=4, overwrite=True, verbose=False, summary=False, post_injector=True):
         self.cons = constraintsClass()
         self.beam = rbf.beam()
         self.twiss = rtf.twiss()
+        self.args = args
         self.scaling = scaling
         self.tmpdir = tempdir
         self.verbose = verbose
@@ -103,14 +114,16 @@ class fitnessFunc():
         try:
             # if abs(bcangle) < 0.01 or abs(bcangle) > 0.175:
                 # raise ValueError
-            if self.overwrite:
+            if self.post_injector:
                 startS = self.framework['POSTINJ'].startObject['position_start'][2]
                 self.framework['POSTINJ'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
-                self.framework.track()#startfile='FMS')
+                self.framework.track(startfile='POSTINJ')
+            else:
+                self.framework.track()
 
             # self.beam.read_astra_beam_file(self.dirname+'/S07.4928.001')
             self.beam.read_HDF5_beam_file(self.dirname+'/CLA-S07-MARK-03.hdf5')
-            self.beam.slices = 10
+            self.beam.slices = 100
             self.beam.bin_time()
             sigmat = 1e12*np.std(self.beam.t)
             sigmap = np.std(self.beam.p)
@@ -120,11 +133,16 @@ class fitnessFunc():
             density = self.beam.density
             fitp = 100*sigmap/meanp
             fhcfield = self.parameters['fhcfield']
-            peakI, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
+            peakI, peakIstd, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
+            I400Slices = [a for a in self.beam.slice_peak_current if a > 450]
+            if len(I400Slices) < 5:
+                I400Slices = [0,1000000]
             chirp = self.beam.chirp
             constraintsList = {
-                'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 600, 'weight': 60},
-                'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 750, 'weight': 10},
+                'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 450, 'weight': 100},
+                'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 550, 'weight': 10},
+                'peakI_std': {'type': 'equalto', 'value': np.std(I400Slices), 'limit': 0, 'weight': 0.1},
+                'peakI_len': {'type': 'greaterthan', 'value': len(I400Slices), 'limit': 25, 'weight': 3},
                 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
                 'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 5},
                 'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 5},
@@ -135,8 +153,8 @@ class fitnessFunc():
                 # 'horizontal emittance': {'type': 'lessthan', 'value': emitx, 'limit': 2, 'weight': 1},
                 # 'vertical emittance': {'type': 'lessthan', 'value': emity, 'limit': 0.75, 'weight': 1},
                 'momentum_spread': {'type': 'lessthan', 'value': fitp, 'limit': 0.1, 'weight': 1},
-                # 'chirp': {'type': 'equalto', 'value': abs(chirp), 'limit': 0.75, 'weight': 5},
-                # 'correct_chirp': {'type': 'lessthan', 'value': chirp, 'limit': 0, 'weight': 100},
+                'chirp': {'type': 'equalto', 'value': abs(chirp), 'limit': 1, 'weight': 5},
+                'correct_chirp': {'type': 'lessthan', 'value': chirp, 'limit': 0, 'weight': 100},
                 # 'peakI_volume': {'type': 'greaterthan', 'value': peakIDensity, 'limit': 1e32, 'weight': 5},
                 # 'volume': {'type': 'greaterthan', 'value': density, 'limit': 1e30, 'weight': 5},
             }
@@ -147,12 +165,14 @@ class fitnessFunc():
             # }
             # constraintsList = merge_two_dicts(constraintsList, constraintsList5)
             fitness = self.cons.constraints(constraintsList)
+            fitness = 1e6 if np.isnan(fitness) else fitness
             if self.verbose:
                 print self.cons.constraintsList(constraintsList)
             if self.summary:
                 np.save('summary_constraints.txt', self.cons.constraintsList(constraintsList))
                 # self.astra.createHDF5Summary(reference='Longitudinal_GA')
-            print fitness, 1e-6*peakIMomentum, abs(peakI), 1e6*peakIEmittanceX, 1e6*peakIEmittanceY, chirp, peakIDensity, density
+            print fitness, 1e-6*peakIMomentum, abs(peakI), np.std(I400Slices), len(I400Slices), 1e6*peakIEmittanceX, 1e6*peakIEmittanceY, sigmat, chirp
+            saveState(self.args, fitness, 1e-6*peakIMomentum, abs(peakI), np.std(I400Slices), len(I400Slices), 1e6*peakIEmittanceX, 1e6*peakIEmittanceY, sigmat, chirp)
             return fitness
         except Exception as e:
             print(e)

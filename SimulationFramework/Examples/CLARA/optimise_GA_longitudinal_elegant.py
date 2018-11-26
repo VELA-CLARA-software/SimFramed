@@ -44,14 +44,15 @@ def optfunc(args, dir=None, **kwargs):
 
 framework = Framework('longitudinal_best', overwrite=False)
 framework.loadSettings('Lattices/clara400_v12_v3_elegant.def')
+injparameters = []
 parameters = []
 ''' if including injector'''
-# parameters.append(framework.getElement('CLA-HRG1-GUN-CAV', 'phase'))
-# parameters.append(framework.getElement('CLA-HRG1-GUN-SOL', 'field_amplitude'))
-# parameters.append(framework.getElement('CLA-L01-CAV', 'field_amplitude'))
-# parameters.append(framework.getElement('CLA-L01-CAV', 'phase'))
-# parameters.append(framework.getElement('CLA-L01-CAV-SOL-01', 'field_amplitude'))
-# parameters.append(framework.getElement('CLA-L01-CAV-SOL-02', 'field_amplitude'))
+injparameters.append(framework.getElement('CLA-HRG1-GUN-CAV', 'phase'))
+injparameters.append(framework.getElement('CLA-HRG1-GUN-SOL', 'field_amplitude'))
+injparameters.append(framework.getElement('CLA-L01-CAV', 'field_amplitude'))
+injparameters.append(framework.getElement('CLA-L01-CAV', 'phase'))
+injparameters.append(framework.getElement('CLA-L01-CAV-SOL-01', 'field_amplitude'))
+injparameters.append(framework.getElement('CLA-L01-CAV-SOL-02', 'field_amplitude'))
 ''' always '''
 parameters.append(framework.getElement('CLA-L02-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L02-CAV', 'phase'))
@@ -62,8 +63,11 @@ parameters.append(framework.getElement('CLA-L4H-CAV', 'phase'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'field_amplitude'))
 parameters.append(framework.getElement('CLA-L04-CAV', 'phase'))
 parameters.append(framework.fileSettings['POSTINJ']['groups']['bunch_compressor']['dipoleangle'])
-# parameters.append(0.15)
-best = parameters
+best = injparameters + parameters
+
+#######################
+post_inj = True
+#######################
 
 results = []
 # with open('CLARA_longitudinal_best_solutions_simplex_elegant.csv.tmp', 'r') as csvfile:
@@ -71,7 +75,9 @@ results = []
 #   for row in reader:
 #     results.append(row)
 # best = results[0][-len(parameters):]
-best = [22185322.734269936, -21.286741272540496, 21489244.414371535, -6.6342446206192349, 23130142.104636863, 154.10130966427795, 29087650.234409146, 32.420717003643887, 0.21456997946824966]
+best = [2.6338457327938296e7,-23.9868215448966,2.581910905052696e7,-7.618916138788988,2.43070395756709e7,188.3521131983386,2.7944819565259825e7,43.7590747875747,-0.1278008605127734]
+if not post_inj:
+    best = injparameters + best
 print 'starting values = ', best
 
 # fit = FF.fitnessFunc(best, os.getcwd()+'/test_3', scaling=3, overwrite=True, verbose=True, summary=False)
@@ -82,7 +88,7 @@ print 'starting values = ', best
 # startranges = [[10, 32], [-40,40], [10, 32], [-40,40], [10, 50], [135,200],
 #                [70, 100], [-40,40], [70, 100], [-40,40], [70, 100], [-40,40], [0.8,0.15]
 #               ]
-startranges = [[0.8*i, 1.2*i] if abs(i) > 0 else [-20,20] for i in best]
+startranges = [[0.95*i, 1.05*i] if abs(i) > 0 else [-20,20] for i in best]
 print 'startranges = ', startranges
 generateHasBeenCalled = False
 def generate():
@@ -108,9 +114,9 @@ toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
 if os.name == 'nt':
-    toolbox.register("evaluate", optfunc, scaling=5, post_injector=True)
+    toolbox.register("evaluate", optfunc, scaling=5, post_injector=post_inj)
 else:
-    toolbox.register("evaluate", optfunc, scaling=5, post_injector=True)
+    toolbox.register("evaluate", optfunc, scaling=5, post_injector=post_inj)
 
 toolbox.register("mate", tools.cxBlend, alpha=0.2)
 toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=3, indpb=0.3)
@@ -121,15 +127,23 @@ if __name__ == "__main__":
     global hof
     random.seed(64)
 
+    if not post_inj:
+        out = open('best_solutions_longitudinal_GA_elegant_Inj.csv','w', buffering=0)
+        hoffile='CLARA_HOF_longitudinal_Elegant_Inj.csv'
+    else:
+        out = open('best_solutions_longitudinal_GA_elegant.csv','w', buffering=0)
+        hoffile='CLARA_HOF_longitudinal_Elegant.csv'
+    FF.csv_out = csv.writer(out)
+
     # Process Pool of 4 workers
     if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=12)
+        pool = multiprocessing.Pool(processes=8)
     else:
         pool = multiprocessing.Pool(processes=3)
     toolbox.register("map", pool.map)
 
     if not os.name == 'nt':
-        pop = toolbox.population(n=48)
+        pop = toolbox.population(n=24)
     else:
         pop = toolbox.population(n=6)
     hof = tools.HallOfFame(10)
@@ -140,25 +154,26 @@ if __name__ == "__main__":
     stats.register("max", np.max)
 
     pop, logbook = opt.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=50,
-                            stats=stats, halloffame=hof, verbose=True)
+                            stats=stats, halloffame=hof, verbose=True,
+                            hoffile=hoffile)
 
     pool.close()
     # print 'pop = ', pop
     print logbook
     print hof
 
-    try:
-        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/CLARA_best_longitudinal_elegant', scaling=6, overwrite=True, verbose=True, summary=True)
-        with open('CLARA_best_longitudinal_elegant/CLARA_longitudinal_best_solutions_elegant.csv','wb') as out:
-            csv_out=csv.writer(out)
-            for row in hof:
-                csv_out.writerow(row)
-        with open('CLARA_best_longitudinal_elegant/CLARA_longitudinal_best_stats_elegant.csv','wb') as out:
-            csv_out=csv.writer(out)
-            for row in stats:
-                csv_out.writerow(row)
-    except:
-        with open('CLARA_longitudinal_best_solutions_elegant.csv.tmp','wb') as out:
-            csv_out=csv.writer(out)
-            for row in hof:
-                csv_out.writerow(row)
+    # try:
+    print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/CLARA_best_longitudinal_elegant', scaling=6, overwrite=True, verbose=True, summary=True, post_injector=post_inj)
+    #     with open('CLARA_best_longitudinal_elegant/CLARA_longitudinal_best_solutions_elegant.csv','wb') as out:
+    #         csv_out=csv.writer(out)
+    #         for row in hof:
+    #             csv_out.writerow(row)
+    #     with open('CLARA_best_longitudinal_elegant/CLARA_longitudinal_best_stats_elegant.csv','wb') as out:
+    #         csv_out=csv.writer(out)
+    #         for row in stats:
+    #             csv_out.writerow(row)
+    # except:
+    #     with open('CLARA_longitudinal_best_solutions_elegant.csv.tmp','wb') as out:
+    #         csv_out=csv.writer(out)
+    #         for row in hof:
+    #             csv_out.writerow(row)

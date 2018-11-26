@@ -667,7 +667,7 @@ class beam(object):
         self.slice['t_Bins'] = binst
         self._t_binned = np.digitize(t, self.slice['t_Bins'])
         self._tbins = [[self._t_binned == i] for i in range(1, len(binst))]
-        self._cpbins = [self.cp[tbin] for tbin in self._tbins]
+        self._cpbins = [self.cp[tuple(tbin)] for tbin in self._tbins]
 
     @property
     def slice_bins(self):
@@ -696,7 +696,7 @@ class beam(object):
         return self.slice['Relative_Momentum_Spread']
 
     def slice_data(self, data):
-        return [data[tbin] for tbin in self._tbins]
+        return [data[tuple(tbin)] for tbin in self._tbins]
 
     def emitbins(self, x, y):
         xbins = self.slice_data(x)
@@ -769,6 +769,7 @@ class beam(object):
         self.bin_time()
         peakIPosition = self.slice_max_peak_current_slice
         return self.slice_peak_current[peakIPosition], \
+            np.std(self.slice_peak_current), \
             self.slice_relative_momentum_spread[peakIPosition], \
             self.slice_normalized_horizontal_emittance[peakIPosition], \
             self.slice_normalized_vertical_emittance[peakIPosition], \
@@ -780,6 +781,7 @@ class beam(object):
         self.bin_time()
         peakIPosition = self.slice_max_peak_current_slice
         return self.slice_peak_current[peakIPosition], \
+            np.std(self.slice_peak_current), \
             self.slice_relative_momentum_spread[peakIPosition], \
             self.slice_normalized_mve_horizontal_emittance[peakIPosition], \
             self.slice_normalized_mve_vertical_emittance[peakIPosition], \
