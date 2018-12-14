@@ -19,6 +19,7 @@ import multiprocessing
 from scoop import futures
 from deap import base, creator, tools, algorithms
 import copy
+import SimulationFramework.Examples.CLARA.Elegant.runElegant as runEle
 
 class FEL_sim(FEL_simulation_block.FEL_simulation_block):
     def __init__(self,*initial_data,**kwargs):
@@ -291,7 +292,6 @@ def saveState(args, fitness, *values):
     # csv_out.flush()
 
 
-import runElegant as runEle
 def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, **kwargs):
     global global_best
     process = multiprocessing.current_process()
@@ -301,7 +301,9 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
     with runEle.TemporaryDirectory(dir=os.getcwd()) as tmpdir:
         if dir is not None:
             tmpdir = dir
-        try:
+            if not os.path.exists(tmpdir):
+                os.makedirs(tmpdir)
+        # try:
             sys.stdout = open(tmpdir+'/'+'std.out', 'w')
             sys.stderr = open(tmpdir+'/'+'std.err', 'w')
             fit = runEle.fitnessFunc(inputargs, tmpdir, *args, **kwargs)
@@ -323,13 +325,14 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
             # print cons.constraintsList(constraintsList)
 
             return 1e4*e, 1e2*b, l
-        except Exception as e:
-            print 'Error! ', e
-            return 0, 10, 0
+        # except Exception as e:
+        #     print 'Error! ', e
+        #     return 0, 10, 0
 
 
 if __name__ == "__main__":
     startingvalues = best = [2.6338457327938296e7,-23.9868215448966,2.581910905052696e7,-7.618916138788988,2.43070395756709e7,188.3521131983386,2.7944819565259825e7,43.7590747875747,-0.1278008605127734]
     global_best = 0
-    print optfunc(best, dir='testing', scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
+    print os.path.abspath('testing')
+    print optfunc(best, dir=os.path.abspath('testing'), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
     exit()
