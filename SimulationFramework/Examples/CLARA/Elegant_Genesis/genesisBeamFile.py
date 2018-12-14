@@ -314,16 +314,6 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
             sys.stderr = sys.__stderr__
             if verbose:
                 print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  saturation length =', l
-            constraintsList = {
-                'energy': {'type': 'greaterthan', 'value': abs(1e4*e), 'limit': 3, 'weight': 1},
-                'bandwidth': {'type': 'lessthan', 'value': abs(1e2*b), 'limit': 1, 'weight': 1},
-            }
-            cons = constraintsClass()
-            fitness = cons.constraints(constraintsList)
-            if savestate:
-                saveState(inputargs, fitness, e, b, l)
-            # print cons.constraintsList(constraintsList)
-
             return 1e4*e, 1e2*b, l
         except Exception as e:
             print 'Error! ', e
