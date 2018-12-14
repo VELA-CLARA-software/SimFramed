@@ -134,7 +134,7 @@ files:
       start_element: CLA-L04-APER
       end_element: CLA-S07-APER-01
   S07:
-    code: ASTRA
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -142,7 +142,7 @@ files:
       particle_definition: $output['start_element']$.astra
     output:
       start_element: CLA-S07-APER-01
-      end_element: CLA-FEB-W-START
+      end_element: CLA-FEB-W-START-01
   FEBE:
     code: elegant
     charge:
@@ -151,8 +151,8 @@ files:
     input:
       particle_definition: $output['start_element']$.astra
     output:
-      start_element: CLA-FEB-W-START
-      end_element: CLA-FEB-W-DUMPEND
+      start_element: CLA-FEB-W-START-01
+      end_element: CLA-FEB-W-DUMPSTART-01
 groups:
   laser-heater:
     type: chicane

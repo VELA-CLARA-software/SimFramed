@@ -49,7 +49,7 @@ files:
       end_element: CLA-S02-APER-01
   S02BA1:
     starting_rotation: 0
-    code: ASTRA
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: False
