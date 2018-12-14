@@ -94,7 +94,7 @@ class fitnessFunc():
     def calculateBeamParameters(self):
         try:
             if self.post_injector:
-                self.framework['POSTINJ'].file_block['input']['prefix'] = '../basefiles_'+str(self.scaling)+'/'
+                self.framework['POSTINJ'].file_block['input']['prefix'] = '../../basefiles_'+str(self.scaling)+'/'
                 self.framework.track(startfile='POSTINJ')
             else:
                 self.framework.track()#startfile='FMS')
