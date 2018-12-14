@@ -57,7 +57,7 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 
 
 type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'mapsolenoid', 'wall_current_monitor': 'charge', 'cavity': 'rfcw',
-                         'rf_deflecting_cavity': 'rfdf'}
+                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift'}
 
 keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
                             'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins'}
@@ -553,6 +553,27 @@ class frameworkLattice(object):
                     })
                     newelements[name] = newdrift
         return newelements
+
+    def getSValues(self):
+        elems = self.createDrifts()
+        s = [0]
+        for e in elems.itervalues():
+            s.append(s[-1]+e.length)
+        return s[1:]
+
+    def getNames(self):
+        elems = self.createDrifts()
+        return [e.objectName for e in elems.itervalues()]
+
+    def getSNames(self):
+        s = self.getSValues()
+        names = self.getNames()
+        return zip(names, s)
+
+    def findS(self, elem):
+        if elem in self.allElements:
+            sNames = self.getSNames()
+            return [a for a in sNames if a[0] == elem]
 
     def write(self):
         pass
@@ -1608,6 +1629,24 @@ class drift(frameworkElement):
 
     def __init__(self, name=None, type=None, **kwargs):
         super(drift, self).__init__(name, type, **kwargs)
+
+    def _write_Elegant(self):
+        wholestring=''
+        etype = self._convertType_Elegant(self.objectType)
+        string = self.objectName+': '+ etype
+        for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
+            key = self._convertKeword_Elegant(key)
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
 
 class charge(frameworkElement):
 
