@@ -303,7 +303,7 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
             tmpdir = dir
             if not os.path.exists(tmpdir):
                 os.makedirs(tmpdir)
-        # try:
+        try:
             sys.stdout = open(tmpdir+'/'+'std.out', 'w')
             sys.stderr = open(tmpdir+'/'+'std.err', 'w')
             fit = runEle.fitnessFunc(inputargs, tmpdir, *args, **kwargs)
@@ -325,9 +325,9 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
             # print cons.constraintsList(constraintsList)
 
             return 1e4*e, 1e2*b, l
-        # except Exception as e:
-        #     print 'Error! ', e
-        #     return 0, 10, 0
+        except Exception as e:
+            print 'Error! ', e
+            return 0, 10, 0
 
 
 if __name__ == "__main__":
