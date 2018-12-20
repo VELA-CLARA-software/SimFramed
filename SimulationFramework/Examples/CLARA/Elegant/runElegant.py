@@ -42,7 +42,7 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, scaling=5, overwrite=True, verbose=False, summary=False, post_injector=True):
+    def __init__(self, args, tempdir, id=None, scaling=5, overwrite=True, verbose=False, summary=False, post_injector=True):
         self.cons = constraintsClass()
         self.beam = rbf.beam()
         self.scaling = scaling
@@ -51,6 +51,7 @@ class fitnessFunc():
         self.summary = summary
         self.overwrite = overwrite
         self.post_injector = post_injector
+        # self.id = id
         ''' if only post-injector optimisation'''
         if self.post_injector:
             linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
@@ -98,8 +99,7 @@ class fitnessFunc():
                 self.framework.track(startfile='POSTINJ')
             else:
                 self.framework.track()#startfile='FMS')
-            self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FMS-APER-01.hdf5')
-            ## CONVERT THIS TO A DIST FILE!!!
+            # self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FMS-APER-01.hdf5')
         except Exception as e:
             print(e)
             return 1e6
