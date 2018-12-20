@@ -14,12 +14,16 @@ class optimiser():
     def eaSimple(self, population, toolbox, cxpb, mutpb, ngen, stats=None,
                  halloffame=None, hoffile=None, verbose=__debug__):
 
+        evaluationID = 0
+
         logbook = tools.Logbook()
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
 
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in population if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        ids = range(evaluationID, evaluationID + len(invalid_ind))
+        evaluationID += len(invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
 
@@ -49,8 +53,10 @@ class optimiser():
 
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            ids = range(evaluationID, evaluationID + len(invalid_ind))
+            evaluationID += len(invalid_ind)
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-            for ind, fit in zip(invalid_ind, fitnesses):
+            for ind, fit in zip(invalid_ind, fitnesses, ids):
                 ind.fitness.values = fit
 
             # Update the hall of fame with the generated individuals
@@ -75,13 +81,19 @@ class optimiser():
 
     def eaMuPlusLambda(self, population, toolbox, mu, lambda_, cxpb, mutpb, ngen, stats=None, halloffame=None, hoffile=None, verbose=__debug__):
 
+        evaluationID = 0
+
         logbook = tools.Logbook()
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
 
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in population if not ind.fitness.valid]
+        ids = range(evaluationID, evaluationID + len(invalid_ind))
+        for ind, id in zip(invalid_ind, ids):
+            ind.id = id
+        evaluationID += len(invalid_ind)
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        for ind, fit in zip(invalid_ind, fitnesses):
+        for ind, fit, id in zip(invalid_ind, fitnesses, ids):
             ind.fitness.values = fit
 
         if halloffame is not None:
@@ -90,6 +102,7 @@ class optimiser():
                 csv_out=csv.writer(out)
                 for row in halloffame:
                     row.append(0)
+                    row.append(row.id)
                     csv_out.writerow(row)
 
         record = stats.compile(population) if stats is not None else {}
@@ -104,8 +117,12 @@ class optimiser():
 
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            ids = range(evaluationID, evaluationID + len(invalid_ind))
+            for ind, id in zip(invalid_ind, ids):
+                ind.id = id
+            evaluationID += len(invalid_ind)
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-            for ind, fit in zip(invalid_ind, fitnesses):
+            for ind, fit, id in zip(invalid_ind, fitnesses, ids):
                 ind.fitness.values = fit
 
             # Update the hall of fame with the generated individuals
@@ -115,6 +132,7 @@ class optimiser():
                     csv_out=csv.writer(out)
                     for row in halloffame:
                         row.append(gen)
+                        row.append(row.id)
                         csv_out.writerow(row)
 
             # Select the next generation population

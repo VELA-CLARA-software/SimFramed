@@ -20,6 +20,7 @@ from scoop import futures
 from deap import base, creator, tools, algorithms
 import copy
 import SimulationFramework.Examples.CLARA.Elegant.runElegant as runEle
+from shutil import copyfile
 
 class FEL_sim(FEL_simulation_block.FEL_simulation_block):
     def __init__(self,*initial_data,**kwargs):
@@ -250,7 +251,7 @@ def evalBeamWithGenesis(dir, run=True):
           'HDF5_file': dir+'/'+'CLA-FMS-APER-01.hdf5',
           'i_match': 0}
     if run:
-        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 600 -np 5 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
+        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 180 -np 5 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
     else:
         data['gen_launch'] = ''
     f = FEL_sim(data)
@@ -282,17 +283,17 @@ def evalBeamWithGenesis(dir, run=True):
 
 csv_out = ''
 
-def saveState(args, fitness, *values):
+def saveState(args, id, *values):
     global csv_out
     args=list(args)
     for v in values:
         args.append(v)
-    args.append(fitness)
+    args.append(id)
     csv_out.writerow(args)
     # csv_out.flush()
 
 
-def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, **kwargs):
+def optfunc(inputargs, id=None, verbose=True, dir=None, savestate=True, run=True, *args, **kwargs):
     global global_best
     process = multiprocessing.current_process()
     runno = process.pid
@@ -304,20 +305,35 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
             if not os.path.exists(tmpdir):
                 os.makedirs(tmpdir)
         try:
+            # raise Exception('My error!')
             sys.stdout = open(tmpdir+'/'+'std.out', 'w')
             sys.stderr = open(tmpdir+'/'+'std.err', 'w')
-            fit = runEle.fitnessFunc(inputargs, tmpdir, *args, **kwargs)
+            fit = runEle.fitnessFunc(inputargs, tmpdir, id=inputargs.id, *args, **kwargs)
             if run:
                 fitvalue = fit.calculateBeamParameters()
             e, b, l = evalBeamWithGenesis(tmpdir, run=run)
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
             if verbose:
-                print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  saturation length =', l
-            return 1e4*e, 1e2*b, l
+                print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e
+            #### Save Output files to dir named after runno #####
+            if inputargs.id is not None:
+                if not os.path.exists('./outData/'):
+                    os.makedirs('./outData/')
+                dir = './outData/' + str(inputargs.id)
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
+                copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
+            if savestate:
+                try:
+                    saveState(inputargs, inputargs.id, e, b, l)
+                except:
+                    pass
+            return 1e4*e, 1e2*b
         except Exception as e:
             print 'Error! ', e
-            return 0, 10, 0
+            return 0, 10
 
 
 if __name__ == "__main__":
