@@ -27,7 +27,7 @@ startingvalues = best = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000
 # optfunc(best, scaling=5, post_injector=True, verbose=True)
 # exit()
 # print best
-startranges = [[0.8 * i, 1.2 * i] for i in best]
+startranges = [[0.95 * i, 1.05 * i] for i in best]
 MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2]
 MAX = [32e6, 90, 32e6, 90, 45e6, 270, 32e6, 90, -0.1]
 
@@ -57,7 +57,7 @@ def generate():
 
 # print generate()
 
-creator.create("FitnessMin", base.Fitness, weights=(1.0, -1.0, 1.0,))
+creator.create("FitnessMin", base.Fitness, weights=(1.0, -1.0))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
 toolbox = base.Toolbox()
