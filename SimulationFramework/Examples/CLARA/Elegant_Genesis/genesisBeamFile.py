@@ -293,22 +293,24 @@ def saveState(args, id, *values):
     # csv_out.flush()
 
 
-def optfunc(inputargs, id=None, verbose=True, dir=None, savestate=True, run=True, *args, **kwargs):
+def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, **kwargs):
     global global_best
     process = multiprocessing.current_process()
     runno = process.pid
-    # inputargs = [a*b for a,b in zip(startingvalues,inputargsmult)]
-    # print 'inputargs = ', inputargs
+
     with runEle.TemporaryDirectory(dir=os.getcwd()) as tmpdir:
         if dir is not None:
             tmpdir = dir
             if not os.path.exists(tmpdir):
                 os.makedirs(tmpdir)
         try:
-            # raise Exception('My error!')
+            if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
+                idNumber = os.path.basename(dir)
+            else:
+                idNumber = inputargs.id
             sys.stdout = open(tmpdir+'/'+'std.out', 'w')
             sys.stderr = open(tmpdir+'/'+'std.err', 'w')
-            fit = runEle.fitnessFunc(inputargs, tmpdir, id=inputargs.id, *args, **kwargs)
+            fit = runEle.fitnessFunc(inputargs, tmpdir, id=idNumber, *args, **kwargs)
             if run:
                 fitvalue = fit.calculateBeamParameters()
             e, b, l = evalBeamWithGenesis(tmpdir, run=run)
@@ -317,17 +319,16 @@ def optfunc(inputargs, id=None, verbose=True, dir=None, savestate=True, run=True
             if verbose:
                 print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e
             #### Save Output files to dir named after runno #####
-            if inputargs.id is not None:
-                if not os.path.exists('./outData/'):
-                    os.makedirs('./outData/')
-                dir = './outData/' + str(inputargs.id)
-                if not os.path.exists(dir):
-                    os.makedirs(dir)
-                copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
-                copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
+            if not os.path.exists('./outData/'):
+                os.makedirs('./outData/')
+            dir = './outData/' + str(idNumber)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
+            copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
             if savestate:
                 try:
-                    saveState(inputargs, inputargs.id, e, b, l)
+                    saveState(inputargs, idNumber, e, b, l)
                 except:
                     pass
             return 1e4*e, 1e2*b
