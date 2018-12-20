@@ -51,7 +51,7 @@ class fitnessFunc():
         self.summary = summary
         self.overwrite = overwrite
         self.post_injector = post_injector
-        # self.id = id
+        self.id = id
         ''' if only post-injector optimisation'''
         if self.post_injector:
             linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
@@ -73,7 +73,7 @@ class fitnessFunc():
             self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         self.framework.defineElegantCommand(['elegant'])
-        self.framework.loadSettings('Lattices/clara400_v12_v3_elegant.def')
+        self.framework.loadSettings('Lattices/clara400_v12_v3_elegant_jkj.def')
         if not self.post_injector:
             self.framework.generator.particles = self.npart
             self.framework.modifyElement('CLA-HRG1-GUN-CAV', 'phase', gunphase)
