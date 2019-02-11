@@ -3,8 +3,20 @@ import numpy as np
 sys.path.append(os.path.abspath(__file__+'/../../../../'))
 import SimulationFramework.Framework as Fw
 
-#Framework = Fw.Framework('phw_test')
-#Framework.loadSettings('Lattices/clara400_v12_v3.def')
+''' Run the injector part once if only optimising post-injector parameters'''
+def create_base_files(scaling):
+    framework = Fw.Framework('basefiles_'+str(scaling), overwrite=True)
+    framework.loadSettings('Lattices/clara400_v12_v3_elegantVBC.def')
+    if not os.name == 'nt':
+        framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
+        framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
+        framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+    framework.generator.number_of_particles = 2**(3*scaling)
+    framework.track(files=['generator','injector400','S02'])
+
+for i in [3,4,]:
+    create_base_files(i)
+
 Framework = Fw.Framework('phw_test_elegant_VBC')
 Framework.loadSettings('Lattices/clara400_v12_v3_elegantVBC.def')
 scaling = 4
