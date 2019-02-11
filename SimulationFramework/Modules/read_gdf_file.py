@@ -223,10 +223,10 @@ class read_gdf_file(object):
                         value = struct.unpack('i', f.read(4))[0]
                         param_group.create_dataset(name, data=value)
                     else:
-                        print 'unknown datatype of value!!!'
-                        print 'name=', name
-                        print 'type=', typee
-                        print 'size=', size
+                        print( 'unknown datatype of value!!!')
+                        print( 'name=', name)
+                        print( 'type=', typee)
+                        print( 'size=', size)
                         value = f.read(size)
 
                 #Read data array
@@ -238,10 +238,10 @@ class read_gdf_file(object):
                         data_group.create_dataset(name, data=value)
                         # print 'new dataset = ', name
                     else:
-                        print 'unknown datatype of value!!!'
-                        print 'name=', name
-                        print 'type=', typee
-                        print 'size=', size
+                        print( 'unknown datatype of value!!!')
+                        print( 'name=', name)
+                        print( 'type=', typee)
+                        print( 'size=', size)
                         value = f.read(size)
 
                 lastarr = arr;

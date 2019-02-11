@@ -1,0 +1,71 @@
+&NEWRUN
+Distribution = 'laser.astra',
+high_res = True,
+auto_phase = True,
+track_all = True,
+check_ref_part = False,
+head = trial,
+run = 1,
+h_max = 0.0007,
+n_red = 1,
+h_min = 0.0007,
+phase_scan = False,
+lprompt = False
+/
+
+&OUTPUT
+zstart = 0,
+zstop = 0.981033,
+Screen(1) = 0.8837,
+Screen(2) = 0.981033,
+zphase = 1,
+phases = True,
+high_res = True,
+refs = True,
+tracks = True,
+zemit = 1050,
+lmagnetized = False,
+emits = True
+/
+
+&CHARGE
+Lmirror = True,
+LSPCH = True,
+LSPCH3D = False,
+nrad = 32,
+nlong_in = 32,
+max_scale = 0.1,
+cell_var = 2,
+max_count = 100,
+smooth_z = 2,
+smooth_y = 2,
+smooth_x = 2,
+min_grid = 3.424657e-13
+/
+
+&CAVITY
+LEField = True
+C_pos(1) = 0, 
+FILE_EFieLD(1) = '../../../../MasterLattice/Data_Files/bas_gun.txt', 
+Nue(1) = 2.99744, MaxE(1) = 70.0, Phi(1) = -5, C_smooth(1) = 10
+
+/
+&WAKE
+LWAKE = False
+
+/
+&SOLENOID
+LBField = True
+S_pos(1) = 0, 
+FILE_BFieLD(1) = '../../../../MasterLattice/Data_Files/bas_sol.txt', 
+MaxB(1) = 0.237, S_smooth(1) = 10
+
+/
+&QUADRUPOLE
+LQuad = False
+
+/
+&DIPOLE
+LDipole = True
+
+/
