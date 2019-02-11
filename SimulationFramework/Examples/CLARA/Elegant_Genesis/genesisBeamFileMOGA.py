@@ -21,15 +21,27 @@ from deap import base, creator, tools, algorithms
 import copy
 import genesisBeamFile
 
-startingvalues = best = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000000.0, 45, -0.1185]
-# startingvalues = best = [2.8402606734470144e7,-23.87291947335911,2.68466121312303e7,-7.242082679462308,2.9406974785703007e7,187.27195646324122,3.2e7,45.9474285840646,-0.12588717418644094]
+# startingvalues = best = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000000.0, 45, -0.1185]
+Seed_1 = best = [2.3585526155380692e7,-22.999073707686943,2.486130449744217e7,-7.237725866562107,1.622853800181868e7,178.52911894321934,3.192294695330927e7,44.41787168727792,
+   -0.1305599202908936,
+   -0.189, 3.76, 0, 1.44]
+Seed_2 = best = [2.419795232631066e7,-22.178575566386428,2.4785523422962036e7,-6.973474497176279,2.218174980313417e7,193.96837396718945,3.2e7,40.117140384844404,
+   -0.13376448744285824,
+   -0.189, 3.76, 0, 1.44]
+
 # print 'starting values = ', best
 # optfunc(best, scaling=5, post_injector=True, verbose=True)
 # exit()
 # print best
-startranges = [[0.95 * i, 1.05 * i] for i in best]
-MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2]
-MAX = [32e6, 90, 32e6, 90, 45e6, 270, 32e6, 90, -0.1]
+def rangeFunc(i):
+    if abs(i) > 0:
+        return [0.95 * i, 1.05 * i]
+    else:
+        return [-1,1]
+
+startranges = [rangeFunc(i) for i in best]
+MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2, -5, 0.1, -5, 0.1]
+MAX = [33e6, 90, 33e6, 90, 45e6, 270, 32e6, 90, -0.05, 5, 50, 5, 50]
 
 
 def checkBounds(min, max):
@@ -57,7 +69,7 @@ def generate():
 
 # print generate()
 
-creator.create("FitnessMin", base.Fitness, weights=(1.0, -1.0))
+creator.create("FitnessMin", base.Fitness, weights=(1.0, -1.0, 1.0, -1.0))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
 toolbox = base.Toolbox()
@@ -72,9 +84,9 @@ toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 if os.name == 'nt':
     toolbox.register("evaluate", genesisBeamFile.optfunc, scaling=3, post_injector=True)
 else:
-    toolbox.register("evaluate", genesisBeamFile.optfunc, scaling=5, post_injector=True)
+    toolbox.register("evaluate", genesisBeamFile.optfunc, scaling=6, post_injector=True)
 toolbox.register("mate", tools.cxUniform, indpb=0.3)
-toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003], indpb=0.3)
+toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003,0.1,0.1,0.1,0.1], indpb=0.3)
 
 toolbox.decorate("mate", checkBounds(MIN, MAX))
 toolbox.decorate("mutate", checkBounds(MIN, MAX))
@@ -86,7 +98,7 @@ global_best = 0
 if __name__ == "__main__":
     random.seed(64)
 
-    out = open('best_solutions_running_simplex_elegant_genesis.csv','a', buffering=0)
+    out = open('best_solutions_running_simplex_elegant_genesis.csv','wb', buffering=0)
     genesisBeamFile.csv_out = csv.writer(out)
 
     NGEN = 100

@@ -1,143 +1,157 @@
 aperture:
-  keywords:
-  - shape
-  - horizontal_size
-  - vertical_size
+  keywords: {
+    shape,
+    horizontal_size,
+    vertical_size,
+  }
 beam_position_monitor:
-  keywords: []
+  keywords: {}
 cavity:
-  keywords:
-  - n_cells
-  - Structure_Type
-  - frequency
-  - phase
-  - field_definition
-  - lsc_cutoff_high
-  - field_amplitude
-  - cell_length
+  keywords: {
+    n_cells,
+    Structure_Type,
+    frequency,
+    phase,
+    field_definition,
+    lsc_cutoff_high,
+    field_amplitude,
+    cell_length,
+  }
 longitudinal_wakefield:
-  keywords:
-  - n_cells
-  - field_definition
-  - field_amplitude
-  - cell_length
-  - waketype
-  - scale_field_ex
-  - scale_field_ey
-  - scale_field_ez
-  - scale_field_hx
-  - scale_field_hy
-  - scale_field_hz
-  - equal_grid
-  - nbins
-  - interpolation_method
-  - smooth
-  - subbins
-  - scale_kick
+  keywords: {
+    n_cells,
+    field_definition,
+    field_amplitude,
+    cell_length,
+    waketype,
+    scale_field_ex,
+    scale_field_ey,
+    scale_field_ez,
+    scale_field_hx,
+    scale_field_hy,
+    scale_field_hz,
+    equal_grid,
+    nbins,
+    interpolation_method,
+    smooth,
+    subbins,
+    scale_kick,
+  }
 collimator:
-  keywords:
-  - shape
-  - horizontal_size
-  - vertical_size
+  keywords: {
+    shape,
+    horizontal_size,
+    vertical_size,
+  }
 common:
-  keywords:
-  - subelement
-  - length
-  - Online_Model_Name
-  - Controller_Name
-  - PV
-  - global_rotation
-  - position_end
-  - position_start
-  - buffer_start
-  - buffer_end
-  - buffer_start_length
-  - buffer_end_length
+  keywords: {
+    subelement,
+    length,
+    Online_Model_Name,
+    Controller_Name,
+    PV,
+    global_rotation,
+    position_end,
+    position_start,
+    buffer_start,
+    buffer_end,
+    buffer_start_length,
+    buffer_end_length,
+  }
 dipole:
-  keywords:
-  - angle
-  - entrance_edge_angle
-  - exit_edge_angle
-  - half_gap
-  - edge_field_integral
-  - csr_bins
-  - sr_enable
-  - isr_enable
-  - csr_output_filename
-  - gap
+  keywords: {
+    angle,
+    entrance_edge_angle,
+    exit_edge_angle,
+    half_gap,
+    edge_field_integral,
+    csr_bins,
+    sr_enable,
+    isr_enable,
+    csr_output_filename,
+    gap,
+  }
 kicker:
-  keywords:
-  - sr_enable
-  - isr_enable
-  - Horizontal_PV
-  - Vertical_PV
+  keywords: {
+    sr_enable,
+    isr_enable,
+    Horizontal_PV,
+    Vertical_PV,
+  }
 marker:
-  keywords:
-  - fit_point
+  keywords: {
+    fit_point,
+  }
 monitor:
-  keywords: []
+  keywords: {}
 quadrupole:
-  keywords:
-  - k1
-  - sr_enable
-  - isr_enable
+  keywords: {
+    k1,
+    sr_enable,
+    isr_enable,
+  }
 rf_deflecting_cavity:
-  keywords:
-  - phase
+  keywords: {
+    phase,
+  }
 screen:
-  keywords:
-  - output_filename
+  keywords: {
+    output_filename,
+  }
 solenoid:
-  keywords:
-  - field_amplitude
-  - field_definition
+  keywords: {
+    field_amplitude,
+    field_definition,
+  }
 wall_current_monitor:
-  keywords: []
+  keywords: {}
 drift:
-  keywords: []
+  keywords: {}
+csrdrift:
+  keywords: {'dz', 'use_stupakov','lsc_bins'}
 charge:
-  keywords: ["TOTAL"]
+  keywords: {"TOTAL"}
 astra_newrun:
-  keywords: ["NLoop", "ion_mass", "N_red",
+  keywords: {"NLoop", "ion_mass", "N_red",
   "Xoff", "Yoff", "xp", "yp", "Zoff", "Toff", "Xrms", "Yrms", "XYrms",
   "Zrms", "Trms", "Tau", "cor_px", "cor_py",
   "SRT_Q_Schottky", "Q_Schottky", "debunch", "Track_All",
   "Track_On_Axis", "Auto_Phase", "Phase_Scan", "check_ref_part",
   "L_rm_back", "Z_min", "Z_Cathode", "H_max", "H_min", "Max_step",
-  "Lmonitor", 'RUN', 'HEAD', 'lprompt']
-  framework_keywords: ["particle_definition"]
+  "Lmonitor", 'RUN', 'HEAD', 'lprompt'}
+  framework_keywords: {"particle_definition"}
 astra_output:
-  keywords: ["ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
+  keywords: {"ZSTART", "ZSTOP", "ZEMIT", "ZPHASE",
     "SCREEN", "SCR_XROT", "SCR_YROT", "STEP_WIDTH", "STEP_MAX",
     "LPROJECT_EMIT", "LOCAL_EMIT", "LMAGNETIZED", "LSUB_ROT",
     "LSUB_LARMOR", "LSUB_COUP", "ROT_ANG", "LSUB_COR", "REFS", "EMITS",
     "C_EMITS", "c99_EMITS", "TR_EMITS", "SUB_EMITS", "CROSS_START",
     "CROSS_END", "PHASES", "T_PHASES", "HIGH_RES", "BINARY", "TRACKS",
-    "TCHECKS", "SIGMAS", "CATHODES", "LANDFS", "LARMORS"]
-  framework_keywords: ["start_element", "end_element"]
+    "TCHECKS", "SIGMAS", "CATHODES", "LANDFS", "LARMORS"}
+  framework_keywords: {"start_element", "end_element"}
 astra_charge:
-  keywords: ["L2D_3D",
+  keywords: {"L2D_3D",
      "LMIRROR", "L_CURVED_CATHODE", "CATHODE_CONTOUR", "R_ZERO",
       "CELL_VAR", "N_MIN", "MIN_GRID", "MERGE_1", "MERGE_2",
       "MERGE_3", "MERGE_4", "MERGE_5", "MERGE_6", "MERGE_7", "MERGE_8",
      "MERGE_9", "MERGE_10", "Z_TRANS", "MIN_GIRD_TRANS", "NX0",
      "NY0", "NZF", "SMOOTH_X", "SMOOTH_Y", "SMOOTH_Z",
-     "MAX_SCALE", "MAX_COUNT", "EXP_CONTROL"]
-  framework_keywords: ["cathode", "space_charge_mode"]
+     "MAX_SCALE", "MAX_COUNT", "EXP_CONTROL"}
+  framework_keywords: {"cathode", "space_charge_mode"}
 csrtrack_particles:
-  keywords: [
+  keywords: {
     reference_momentum,
     reference_point_x,
     reference_point_y,
     reference_point_phi,
     format,
     array,
-  ]
-  framework_keywords: [
+  }
+  framework_keywords: {
   particles,
-  ]
+  }
 csrtrack_online_monitor:
-  keywords: [
+  keywords: {
     name,
     type,
     start_time_c0,
@@ -148,16 +162,16 @@ csrtrack_online_monitor:
     time_step_c0,
     particle,
     format,
-  ]
+  }
 csrtrack_forces:
-  keywords: [
+  keywords: {
     type,
     shape,
     sigma_long,
     relative_long,
-  ]
+  }
 csrtrack_track_step:
-  keywords: [
+  keywords: {
     precondition,
     iterative,
     error_per_ct,
@@ -168,19 +182,36 @@ csrtrack_track_step:
     increase_factor,
     arc_factor,
     duty_steps,
-  ]
+  }
 csrtrack_tracker:
-  keywords: [
+  keywords: {
     end_time_marker,
     end_time_shift_c0,
-  ]
+  }
 csrtrack_monitor:
-  keywords: [
+  keywords: {
     format,
     name,
-  ]
+  }
 gpt_setfile:
-  keywords: [
+  keywords: {
     set,
     filename
-  ]
+  }
+global_error:
+  keywords: {
+    'Log_Error', 'Suppress_output', 'generate_output', 'global_errors',
+    'charge', 'initial_x', 'initial_y', 'initial_t', 'initial_sigma_x', 'initial_sigma_y', 'initial_sigma_t', 'initial_sigma_z', 'initial_sigma_xy',
+    'cavity_x','cavity_y','cavity_xrot', 'cavity_yrot', 'cavity_zrot', 'cavity_phase', 'cavity_gradient',
+    'solenoid_x', 'solenoid_y', 'solenoid_xrot', 'solenoid_yrot', 'solenoid_field',
+    'quadrupole_x', 'quadrupole_y', 'quadrupole_xrot', 'quadrupole_yrot', 'quadrupole_zrot', 'quadrupole_gradient', 'quadrupole_k',
+    'dipole_x', 'dipole_y', 'dipole_z', 'dipole_xrot', 'dipole_yrot', 'dipole_zrot', 'dipole_field', 'dipole_radius',
+  }
+  astra_keywords: {
+    'Log_Error', 'Suppress_output', 'ErrorS', 'Lerror',
+    'Err_Qbunch', 'Err_Xoff', 'Err_Yoff', 'Err_Toff', 'Err_Xrms', 'Err_Yrms', 'Err_Trms', 'Err_Zrms', 'Err_XYrms',
+    'Err_C_xoff', 'Err_C_yoff', 'Err_C_xrot', 'Err_C_yrot', 'Err_C_zrot', 'Err_phi', 'Err_MaxE',
+    'Err_S_xoff', 'Err_S_yoff', 'Err_S_xrot', 'Err_S_yrot', 'Err_MaxB',
+    'Err_Q_xoff', 'Err_Q_yoff', 'Err_Q_xrot', 'Err_Q_yrot', 'Err_Q_zrot', 'Err_Q_Grad', 'Err_Q_K',
+    'Err_D_xoff', 'Err_D_yoff', 'Err_D_zoff', 'Err_D_xrot', 'Err_D_yrot', 'Err_D_zrot', 'Err_D_Strength', 'Err_D_Radius',
+    }
