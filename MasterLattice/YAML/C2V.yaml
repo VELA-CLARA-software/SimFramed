@@ -121,3 +121,10 @@ elements:
     global_rotation: [0, 0, 0.785398]
     position_end: [-1.25, 0, 7.49879]
     position_start: [-1.10083, 0, 7.13866]
+  CLA-C2V-MARK-02:
+    type: marker
+    fit_point: 1.0
+    PV: 'None'
+    global_rotation: [0, 0, 0]
+    position_end: [-1.25, 0, 7.59879]
+    position_start: [-1.25, 0, 7.59879]

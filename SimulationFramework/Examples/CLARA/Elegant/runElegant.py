@@ -90,12 +90,12 @@ class fitnessFunc():
         self.framework.modifyElement('CLA-L4H-CAV', 'phase', fhcphase)
         self.framework.modifyElement('CLA-L04-CAV', 'field_amplitude', abs(linac4field))
         self.framework.modifyElement('CLA-L04-CAV', 'phase', linac4phase)
-        self.framework['bunch_compressor'].set_angle(abs(bcangle))
+        self.framework['bunch_compressor'].set_angle(bcangle)
 
     def calculateBeamParameters(self):
         try:
             if self.post_injector:
-                self.framework['POSTINJ'].file_block['input']['prefix'] = '../../basefiles_'+str(self.scaling)+'/'
+                self.framework['POSTINJ'].file_block['input']['prefix'] = '../../../basefiles_'+str(self.scaling)+'/'
                 self.framework.track(startfile='POSTINJ')
             else:
                 self.framework.track()#startfile='FMS')

@@ -1,11 +1,6 @@
-import numpy as np
 import os, sys
-sys.path.append(os.path.abspath(__file__+'/../../../../'))
+sys.path.append(os.path.abspath(__file__+'/../../../'))
 from SimulationFramework.Framework import *
-import FitnessFunc_Longitudinal as FF
-import csv
-import shutil
-import uuid
 
 ''' Run the injector part once if only optimising post-injector parameters'''
 def create_base_files(scaling):
@@ -19,6 +14,6 @@ def create_base_files(scaling):
     framework.track(files=['generator','injector400','S02'])
 
 ## Modify as appropriate! ##
-for i in [3,4,5,6]:
+for i in [5]:
     create_base_files(i)
 exit()

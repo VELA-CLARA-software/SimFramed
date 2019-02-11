@@ -2,12 +2,12 @@ import os, errno, sys
 import numpy as np
 import random
 from scipy.constants import c
+sys.path.append(os.path.abspath(__file__+'/../../../../../'))
 from ocelot.S2E_STFC import FEL_simulation_block
 from ocelot.adaptors.genesis import generate_input, get_genesis_launcher, run_genesis, rematch_edist, edist2beam
 from ocelot.gui.genesis_plot import fwhm3
 from ocelot.common.math_op import *
 from ocelot.cpbd.beam import Twiss
-sys.path.append(os.path.abspath(__file__+'/../../../../../'))
 import SimulationFramework.Modules.read_beam_file as rbf
 from SimulationFramework.Modules.optimiser import optimiser
 opt = optimiser()
@@ -23,24 +23,29 @@ import SimulationFramework.Examples.CLARA.Elegant.runElegant as runEle
 from shutil import copyfile
 
 class FEL_sim(FEL_simulation_block.FEL_simulation_block):
-    def __init__(self,*initial_data,**kwargs):
-       super(FEL_sim,self).__init__(*initial_data,**kwargs)
+    def __init__(self, initial_data, alphax=-0.189, betax=3.76, alphay=0, betay=1.44, **kwargs):
+       print 'initial_data = ', (initial_data)
+       super(FEL_sim,self).__init__((initial_data),**kwargs)
+       self.alphax = alphax
+       self.betax = betax
+       self.alphay = alphay
+       self.betay = betay
 
     def convert_HDF5_edist(self, inp, filename='CLA-FMS-APER-01.hdf5', center=True):
         from ocelot.adaptors.genesis import GenesisElectronDist
         inp_out = inp
         beam = rbf.beam()
         beam.read_HDF5_beam_file(filename)
-        beam.rematchXPlane(beta=3.76, alpha=-0.189)
-        beam.rematchYPlane(beta=1.44, alpha=0)
+        beam.rematchXPlane(beta=self.betax, alpha=self.alphax)
+        beam.rematchYPlane(beta=self.betay, alpha=self.alphay)
         # print 'beta_x = ', beam.beta_x, ' alpha_x = ', beam.alpha_x
         # print 'beta_y = ', beam.beta_y, ' alpha_y = ', beam.alpha_y
         edist = GenesisElectronDist()
         edist.x = beam.x
         edist.y = beam.y
         # edist.t = -(adist[:, 2] - np.mean(adist[:, 2])) / speed_of_light  # long position normalized to 0 and converted to time #HMCC add -
-        edist.t = beam.t
-        edist.t = edist.t - np.amin(edist.t) - 1.80e-13
+        edist.t = -1*beam.t
+        edist.t = edist.t - np.mean(edist.t)# - 1.80e-13
         edist.xp = beam.xp
         edist.yp = beam.yp
         p_tot = beam.p
@@ -232,7 +237,7 @@ def find_saturation(power, z, n_smooth=20):
 
     return z[ii+1], ii+1
 
-def evalBeamWithGenesis(dir, run=True):
+def evalBeamWithGenesis(dir, alphax, betax, alphay, betay, run=True):
 
     # Genesis run:
     data={'gen_file':'NEW_SHORT_NOM_TD_v7.in',
@@ -254,8 +259,8 @@ def evalBeamWithGenesis(dir, run=True):
         data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 5 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
     else:
         data['gen_launch'] = ''
-    f = FEL_sim(data)
-    A_inp=f.read_GEN_input_file()
+    f = FEL_sim(data, alphax, betax, alphay, betay)
+    A_inp = f.read_GEN_input_file()
     g = f.GEN_simul_preproc(A_inp, dirno=dir)
 
     p = map(np.mean, zip(*g.p_int))
@@ -278,8 +283,14 @@ def evalBeamWithGenesis(dir, run=True):
                 # spectrum_lamdwidth_fwhm[zz] = abs(g.freq_lamd[arr[0]] - g.freq_lamd[arr[-1]]) / g.freq_lamd[pos]  # the FWHM of spectral line (error when peakpos is at the edge of lamdscale)
             spectrum_lamdwidth_std[zz] = std_moment(g.freq_lamd, g.spec[:, zz]) / n_moment(g.freq_lamd, g.spec[:, zz], 0, 1)
     ######### end of section copied from genesis_plot.py
+    brightness = g.energy / spectrum_lamdwidth_std
 
-    return g.energy[-1], spectrum_lamdwidth_std[-1], g.Lsat
+    for i in range(len(g.z)):
+        if g.z[i] < 5:
+            brightness[i] = 0
+    max = np.argmax(brightness)
+    maxe = np.argmax(g.energy)
+    return g.energy[max], spectrum_lamdwidth_std[max], g.z[max], g.energy[maxe], spectrum_lamdwidth_std[maxe], g.z[maxe]
 
 csv_out = ''
 
@@ -310,14 +321,15 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
                 idNumber = inputargs.id
             sys.stdout = open(tmpdir+'/'+'std.out', 'w')
             sys.stderr = open(tmpdir+'/'+'std.err', 'w')
-            fit = runEle.fitnessFunc(inputargs, tmpdir, id=idNumber, *args, **kwargs)
+            fit = runEle.fitnessFunc(inputargs[:9], tmpdir, id=idNumber, *args, **kwargs)
             if run:
                 fitvalue = fit.calculateBeamParameters()
-            e, b, l = evalBeamWithGenesis(tmpdir, run=run)
+            e, b, l, ee, be, le = evalBeamWithGenesis(tmpdir, *inputargs[9:], run=run)
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
             if verbose:
-                print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e
+                print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
+                print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
             #### Save Output files to dir named after runno #####
             if not os.path.exists('./outData/'):
                 os.makedirs('./outData/')
@@ -331,15 +343,40 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
                     saveState(inputargs, idNumber, e, b, l)
                 except:
                     pass
-            return 1e4*e, 1e2*b
+            return 1e4*e, 1e2*b, 1e4*ee, 1e2*be
         except Exception as e:
             print 'Error! ', e
-            return 0, 10
+            return 0, 10, 0, 10
 
 
 if __name__ == "__main__":
-    startingvalues = best = [2.6338457327938296e7,-23.9868215448966,2.581910905052696e7,-7.618916138788988,2.43070395756709e7,188.3521131983386,2.7944819565259825e7,43.7590747875747,-0.1278008605127734]
+    startingvalues = best = [2.419795232631066e7,-22.178575566386428,2.399632921676352e7,-6.973474497176279,2.218174980313417e7,193.96837396718945,3.3e7,39.42181898223578,
+   -0.13376448744285824, 0, 5, 0, 1]
     global_best = 0
-    print os.path.abspath('testing')
-    print optfunc(best, dir=os.path.abspath('testing'), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
+    from SimulationFramework.Framework import Framework
+    framework = Framework('longitudinal_best', overwrite=False)
+    framework.loadSettings('Lattices/clara400_v12_v3_elegant_jkj.def')
+    parameters = []
+    parameters.append(framework.getElement('CLA-L02-CAV', 'field_amplitude'))
+    parameters.append(framework.getElement('CLA-L02-CAV', 'phase'))
+    parameters.append(framework.getElement('CLA-L03-CAV', 'field_amplitude'))
+    parameters.append(framework.getElement('CLA-L03-CAV', 'phase'))
+    parameters.append(framework.getElement('CLA-L4H-CAV', 'field_amplitude'))
+    parameters.append(framework.getElement('CLA-L4H-CAV', 'phase'))
+    parameters.append(framework.getElement('CLA-L04-CAV', 'field_amplitude'))
+    parameters.append(framework.getElement('CLA-L04-CAV', 'phase'))
+    parameters.append(framework['bunch_compressor']['angle'])
+
+    # best = parameters
+    # for i in np.arange(-0.135,-0.125,0.0025):
+    #     i = np.round(i, decimals=4)
+    #     best[-1] = i
+    #     print 'values = ', best
+    #     print optfunc(best, dir=os.path.abspath('testing_vbc_'+str(i)), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
+    # for i in np.arange(40,60,5):
+    #     i = np.round(i, decimals=4)
+    #     best[-2] = i
+    #     print 'values = ', best
+    #     print optfunc(best, dir=os.path.abspath('testing_l04_'+str(i)), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
+    optfunc(best, dir=os.path.abspath('testing_4267'), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
     exit()
