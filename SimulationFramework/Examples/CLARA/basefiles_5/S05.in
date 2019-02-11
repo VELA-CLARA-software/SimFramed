@@ -1,0 +1,74 @@
+&NEWRUN
+Distribution = 'CLA-S05-APER.astra',
+high_res = True,
+auto_phase = True,
+track_all = True,
+check_ref_part = False,
+head = trial,
+run = 1,
+h_max = 0.0007,
+n_red = 1,
+h_min = 0.0007,
+phase_scan = False,
+lprompt = False
+/
+
+&OUTPUT
+zstart = 24.4222,
+zstop = 25.8251,
+Screen(1) = 25.125600000000002,
+Screen(2) = 25.1794,
+Screen(3) = 25.8251,
+Screen(4) = 25.720100000000002,
+zphase = 1,
+phases = True,
+high_res = True,
+refs = True,
+tracks = True,
+zemit = 1050,
+lmagnetized = False,
+emits = True
+/
+
+&CHARGE
+Lmirror = False,
+LSPCH = True,
+LSPCH3D = True,
+nxf = 6,
+nyf = 6,
+nzf = 6,
+max_scale = 0.1,
+cell_var = 2,
+max_count = 100,
+smooth_z = 2,
+smooth_y = 2,
+smooth_x = 2,
+min_grid = 3.424657e-13
+/
+
+&CAVITY
+LEField = False
+
+/
+&WAKE
+LWAKE = False
+
+/
+&SOLENOID
+LBField = False
+
+/
+&QUADRUPOLE
+LQuad = True
+Q_pos(1) = 24.734199999999998, Q_xoff(1) = 0, Q_xrot(1) = 0, 
+Q_k(1) = -0.781822, Q_length(1) = 0.162, Q_smooth(1) = 10, 
+Q_bore(1) = 0.016
+Q_pos(2) = 25.484099999999998, Q_xoff(2) = 0, Q_xrot(2) = 0, 
+Q_k(2) = 1.29238, Q_length(2) = 0.162, Q_smooth(2) = 10, 
+Q_bore(2) = 0.016
+
+/
+&DIPOLE
+LDipole = True
+
+/

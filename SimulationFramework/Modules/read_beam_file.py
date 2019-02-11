@@ -8,7 +8,7 @@ try:
     import sdds
 except:
     pass
-import read_gdf_file as rgf
+from . import read_gdf_file as rgf
 
 sys.path.append(os.path.abspath(__file__+'/../../../../'))
 import Software.Procedures.minimumVolumeEllipse as mve
@@ -90,7 +90,7 @@ class beam(object):
         Ptypes = [x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_LONG]
         Psymbols = ["p$bcen$n", "", ""]
         Punits = ["m$be$nc", "C", ""]
-        parameterData = [[np.mean(self.BetaGamma)], [-1*self.beam['total_charge']], [len(self.x)]]
+        parameterData = [[np.mean(self.BetaGamma)], [abs(self.beam['total_charge'])], [len(self.x)]]
         for i in range(len(Ptypes)):
             x.defineParameter(Pnames[i], Psymbols[i], Punits[i],"","", Ptypes[i], "")
             x.setParameterValueList(Pnames[i], parameterData[i])
@@ -145,7 +145,7 @@ class beam(object):
         self.beam['charge'] = 1e-9*charge
         self.beam['index'] = index
         self.beam['status'] = status
-        self.beam['t'] = [clock if status == -1 else (-1*z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
+        self.beam['t'] = [clock if status == -1 else (z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
@@ -230,11 +230,14 @@ class beam(object):
         else:
             zvector = self.z
         ''' if the clock value is finite, we calculate it from the z value, using Betaz '''
-        clockvector = [1e9*z / (-1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
+        clockvector = [1e9*z / (1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
+
         ''' this is the ASTRA array in all it's glory '''
         array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
         if 'reference_particle' in self.beam:
             ref_particle = self.beam['reference_particle']
+            print 'we have a reference particle! ', ref_particle[6]
+            # array = [ref_particle] + array
         else:
             ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
             rms_vector = [a if abs(a) > 0 else 1 for a in self.rms(array, axis=0)]
@@ -243,11 +246,10 @@ class beam(object):
             ''' take the meen of the normalised array '''
             mean_vector = np.mean(norm_array, axis=0)
             ''' find the index of the vector that is closest to the mean - if you read in an ASTRA file, this should actually return the reference particle! '''
-            nearest_idx = self.find_nearest_vector(norm_array, mean_vector)
+            nearest_idx = self.find_nearest_vector(norm_array, mean_vector);
             ref_particle = array[nearest_idx]
             ''' set the closest mean vector to be in position 0 in the array '''
             array = np.roll(array, -1*nearest_idx, axis=0)
-        # print 'ref_particle = ', ref_particle
 
         ''' normalise Z to the reference particle '''
         array[1:,2] = array[1:,2] - ref_particle[2]
@@ -291,8 +293,8 @@ class beam(object):
         self.reset_dicts()
         gdfbeamdata = None
         gdfbeam = self.read_gdf_beam_file_object(file)
-        print 'Positions = ', gdfbeam.positions
-        print 'Times = ', gdfbeam.times
+        print( 'Positions = ', gdfbeam.positions)
+        print( 'Times = ', gdfbeam.times)
 
     def read_gdf_beam_file(self, file, position=None, time=None, block=None, charge=None, longitudinal_reference='t'):
         self.reset_dicts()
@@ -300,7 +302,7 @@ class beam(object):
         gdfbeam = self.read_gdf_beam_file_object(file)
 
         if position is not None and (time is not None or block is not None):
-            print 'Assuming position over time!'
+            # print 'Assuming position over time!'
             self.beam['longitudinal_reference'] = 't'
             gdfbeamdata = gdfbeam.get_position(position)
             if gdfbeamdata is not None:
@@ -309,7 +311,7 @@ class beam(object):
             else:
                  position = None
         if position is None and time is not None and block is not None:
-            print 'Assuming time over block!'
+            # print 'Assuming time over block!'
             self.beam['longitudinal_reference'] = 'p'
             gdfbeamdata = gdfbeam.get_time(time)
             if gdfbeamdata is not None:
@@ -326,12 +328,12 @@ class beam(object):
         self.beam['x'] = gdfbeamdata.x
         self.beam['y'] = gdfbeamdata.y
         if hasattr(gdfbeamdata,'z') and longitudinal_reference == 'z':
-            print 'z!'
-            print gdfbeamdata.z
+            print( 'z!')
+            print( gdfbeamdata.z)
             self.beam['z'] = gdfbeamdata.z
             self.beam['t'] = np.full(len(self.z), 0)# self.z / (-1 * self.Bz * constants.speed_of_light)
         elif hasattr(gdfbeamdata,'t') and longitudinal_reference == 't':
-            print 't!'
+            print( 't!')
             self.beam['t'] = gdfbeamdata.t
             self.beam['z'] = (-1 * gdfbeamdata.Bz * constants.speed_of_light) * gdfbeamdata.t
         self.beam['gamma'] = gdfbeamdata.G
@@ -343,7 +345,7 @@ class beam(object):
                 self.beam['total_charge'] = 0
             else:
                 self.beam['total_charge'] = charge
-        print self.beam['charge']
+        print( self.beam['charge'])
         vx = gdfbeamdata.Bx * constants.speed_of_light
         vy = gdfbeamdata.By * constants.speed_of_light
         vz = gdfbeamdata.Bz * constants.speed_of_light
@@ -653,7 +655,7 @@ class beam(object):
             self.slice = {}
         if not hasattr(self,'_slicelength'):
             self.slice_length = 0.1e-12
-            print("Assuming slice length is 100 fs")
+            # print("Assuming slice length is 100 fs")
         twidth = (max(self.t) - min(self.t))
         if twidth == 0:
             t = self.z / (-1 * self.Bz * constants.speed_of_light)
