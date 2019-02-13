@@ -10,7 +10,7 @@ for scaling in [3,4,5,6]:
         Framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
         Framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
         Framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
-
+	Framework.defineElegantCommand(['elegant'])
     Framework['L02'].file_block['input']['prefix'] = '../basefiles_'+str(scaling)+'/'
     oldl02grad = Framework.getElement('CLA-L02-CAV', 'field_amplitude')
     oldl02phase = Framework.getElement('CLA-L02-CAV', 'phase')
