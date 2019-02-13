@@ -160,6 +160,8 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
             setattr(inp,'beam',None)
             energy = np.average(inp.edist.g)
             setattr(inp,'xlamds',float(inp.xlamd*(1.0+np.square(inp.aw0))/(2.0*np.square(energy))))
+            print 'aw0 = ', inp.aw0
+            print 'awd = ', inp.awd
             print 'xlamds = ', inp.xlamds
 
         elif  (hasattr(self,'i_HDF5') and getattr(self,'i_HDF5')==1) and not (hasattr(self,'HDF5_file')):
@@ -256,7 +258,7 @@ def evalBeamWithGenesis(dir, alphax, betax, alphay, betay, run=True):
           'HDF5_file': dir+'/'+'CLA-FMS-APER-01.hdf5',
           'i_match': 0}
     if run:
-        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 5 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
+        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 25 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
     else:
         data['gen_launch'] = ''
     f = FEL_sim(data, alphax, betax, alphay, betay)
@@ -304,7 +306,7 @@ def saveState(args, id, *values):
     # csv_out.flush()
 
 
-def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, **kwargs):
+def optfunc(inputargs, verbose=True, dir=None, savestate=True, runGenesis=True, runElegant=True, *args, **kwargs):
     global global_best
     process = multiprocessing.current_process()
     runno = process.pid
@@ -321,10 +323,10 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, run=True, *args, 
                 idNumber = inputargs.id
             sys.stdout = open(tmpdir+'/'+'std.out', 'w')
             sys.stderr = open(tmpdir+'/'+'std.err', 'w')
-            fit = runEle.fitnessFunc(inputargs[:9], tmpdir, id=idNumber, *args, **kwargs)
-            if run:
+            if runElegant:
+                fit = runEle.fitnessFunc(inputargs[:9], tmpdir, id=idNumber, *args, **kwargs)
                 fitvalue = fit.calculateBeamParameters()
-            e, b, l, ee, be, le = evalBeamWithGenesis(tmpdir, *inputargs[9:], run=run)
+            e, b, l, ee, be, le = evalBeamWithGenesis(tmpdir, *inputargs[9:], run=runGenesis)
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
             if verbose:
@@ -378,5 +380,14 @@ if __name__ == "__main__":
     #     best[-2] = i
     #     print 'values = ', best
     #     print optfunc(best, dir=os.path.abspath('testing_l04_'+str(i)), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
-    optfunc(best, dir=os.path.abspath('testing_4267'), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
+
+    ## This is for the Gaussian Beam Test!
+    master_subdir = 'gaussianBeam'
+    beam = rbf.beam()
+    elegantbeamfilename = 'CLA-FMS-APER-01.sdds'
+    beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename, charge=250e-12)
+    beam.beam['total_charge'] = 250e-12
+    HDF5filename = elegantbeamfilename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
+    beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename)
+    optfunc(best, dir=os.path.abspath('gaussianBeam'), scaling=6, post_injector=True, verbose=True, savestate=False, runGenesis=True, runElegant=False)
     exit()

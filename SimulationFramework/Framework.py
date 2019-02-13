@@ -285,9 +285,10 @@ class Framework(object):
     def getElement(self, element, param=None):
         if self.__getitem__(element) is not None:
             if param is not None:
-                return self[element][param]
+                param = param.lower()
+                return getattr(self.__getitem__(element), param)
             else:
-                return self[element]
+                return self.__getitem__(element)
         else:
             print( 'WARNING: Element ', element,' does not exist')
             return {}
@@ -303,6 +304,9 @@ class Framework(object):
         else:
             print( len(elems), len(values))
             raise ValueError
+
+    def modifyElement(self, elementName, parameter, value):
+        setattr(self.elementObjects[elementName], parameter, value)
 
     def add_Generator(self, default=None, **kwargs):
         if default in astra_generator_keywords['defaults']:
@@ -361,9 +365,6 @@ class Framework(object):
     @property
     def commands(self):
         return self.commandObjects.keys()
-
-    def modifyElement(self, elementName, parameter, value):
-        setattr(self.elementObjects[elementName], parameter, value)
 
     def track(self, files=None, startfile=None, endfile=None, preprocess=True, write=True, track=True, postprocess=True):
         if files is None:
@@ -446,12 +447,12 @@ class frameworkLattice(object):
     def getElement(self, element, param=None):
         if element in self.allElements:
             if param is not None:
-                return self.allElementObjects[element][param]
+                return getattr(self.allElementObjects[element], param.lower())
             else:
                 return self.allElements[element]
         elif element in self.groupObjects.keys():
             if param is not None:
-                return self.groupObjects[element][param]
+                return getattr(self.groupObjects[element], param.lower())
             else:
                 return self.groupObjects[element]
         else:
