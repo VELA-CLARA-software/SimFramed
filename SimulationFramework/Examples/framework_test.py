@@ -26,5 +26,8 @@ if not os.name == 'nt':
 else:
     lattice.generator.number_of_particles = 2**(3*3)
 lattice.defineElegantCommand(['elegant'])
-lattice.change_Lattice_Code('S02','elegant')
-lattice.track(files=['S02'])#,preprocess=True, track=False, postprocess=False)
+print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
+lattice.modifyElement('CLA-S02-MAG-QUAD-01','k1', 10)
+print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
+# lattice.change_Lattice_Code('S02','elegant')
+# lattice.track(files=['S02'])#,preprocess=True, track=False, postprocess=False)
