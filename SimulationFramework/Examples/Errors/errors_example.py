@@ -126,7 +126,7 @@ def frange(start, stop, step):
 #     vary_charge(q)
 
 # toff is in ps!
-for t in frange(-1,-1,0.1):
+for t in frange(-1,1,0.1):
     vary_initial_t(t)
 # errors = Framework_Errors(lattice)
 # print lattice['CLA-S02-MAG-QUAD-01'].start

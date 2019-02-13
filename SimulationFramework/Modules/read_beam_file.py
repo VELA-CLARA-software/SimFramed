@@ -141,8 +141,8 @@ class beam(object):
         self.beam['px'] = cpx * self.q_over_c
         self.beam['py'] = cpy * self.q_over_c
         self.beam['pz'] = cpz * self.q_over_c
-        self.beam['clock'] = 1e-9*clock
-        self.beam['charge'] = 1e-9*charge
+        self.beam['clock'] = 1.0e-9*clock
+        self.beam['charge'] = 1.0e-9*charge
         self.beam['index'] = index
         self.beam['status'] = status
         self.beam['t'] = [clock if status == -1 else (z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
@@ -218,7 +218,7 @@ class beam(object):
     def write_astra_beam_file(self, file, index=1, status=5, charge=None, normaliseZ=False):
         if not isinstance(index,(list, tuple, np.ndarray)):
             if len(self.beam['charge']) == len(self.x):
-                chargevector = np.around(1e9*self.beam['charge'],6)
+                chargevector = 1e9*self.beam['charge']
             else:
                 chargevector = np.full(len(self.x), 1e9*self.charge/len(self.x))
         if not isinstance(index,(list, tuple, np.ndarray)):
@@ -230,14 +230,15 @@ class beam(object):
         else:
             zvector = self.z
         ''' if the clock value is finite, we calculate it from the z value, using Betaz '''
-        clockvector = [1e9*z / (1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
+        # clockvector = [1e9*z / (1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1.0e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
+        clockvector = [1.0e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
 
         ''' this is the ASTRA array in all it's glory '''
         array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
         if 'reference_particle' in self.beam:
             ref_particle = self.beam['reference_particle']
-            print 'we have a reference particle! ', ref_particle[6]
-            # array = [ref_particle] + array
+            print 'we have a reference particle! ', (array[0] - ref_particle)[6]
+            # np.insert(array, 0, ref_particle, axis=0)
         else:
             ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
             rms_vector = [a if abs(a) > 0 else 1 for a in self.rms(array, axis=0)]
