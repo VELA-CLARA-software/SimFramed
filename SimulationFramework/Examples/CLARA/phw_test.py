@@ -32,7 +32,7 @@ for scaling in [3,4,5,6]:
     Framework.modifyElement('CLA-L03-CAV', 'field_amplitude', np.sqrt(2)*11.25e6 )
     Framework.modifyElement('CLA-L04-CAV', 'field_amplitude', np.sqrt(2)*12e6 )
     Framework.modifyElement('CLA-L4H-CAV', 'field_amplitude', np.sqrt(2)*15.75e6 )
-    Framework.modifyElement('CLA-L02-CAV', 'phase', oldl02phase - 5.0)
+    Framework.modifyElement('CLA-L02-CAV', 'phase', oldl02phase + 5.0)
     newl02grad = Framework.getElement('CLA-L02-CAV', 'field_amplitude')
     newl02phase = Framework.getElement('CLA-L02-CAV', 'phase')
     newl03grad = Framework.getElement('CLA-L03-CAV', 'field_amplitude')
