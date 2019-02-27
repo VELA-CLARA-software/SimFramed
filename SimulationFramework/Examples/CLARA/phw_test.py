@@ -6,7 +6,12 @@ import SimulationFramework.Framework as Fw
 Framework = Fw.Framework('phw_test_elegant_VBC')
 Framework.loadSettings('Lattices/clara400_v12_v3_elegantVBC.def')
 for scaling in [3,4,5,6]:
-    Framework['L02'].file_block['input']['prefix'] = './basefiles_'+str(scaling)+'/'
+    if not os.name == 'nt':
+        Framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
+        Framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
+        Framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+	Framework.defineElegantCommand(['elegant'])
+    Framework['L02'].file_block['input']['prefix'] = '../basefiles_'+str(scaling)+'/'
     oldl02grad = Framework.getElement('CLA-L02-CAV', 'field_amplitude')
     oldl02phase = Framework.getElement('CLA-L02-CAV', 'phase')
     oldl03grad = Framework.getElement('CLA-L03-CAV', 'field_amplitude')
@@ -27,7 +32,7 @@ for scaling in [3,4,5,6]:
     Framework.modifyElement('CLA-L03-CAV', 'field_amplitude', np.sqrt(2)*11.25e6 )
     Framework.modifyElement('CLA-L04-CAV', 'field_amplitude', np.sqrt(2)*12e6 )
     Framework.modifyElement('CLA-L4H-CAV', 'field_amplitude', np.sqrt(2)*15.75e6 )
-    Framework.modifyElement('CLA-L02-CAV', 'phase', oldl02phase - 5.0)
+    Framework.modifyElement('CLA-L02-CAV', 'phase', oldl02phase + 5.0)
     newl02grad = Framework.getElement('CLA-L02-CAV', 'field_amplitude')
     newl02phase = Framework.getElement('CLA-L02-CAV', 'phase')
     newl03grad = Framework.getElement('CLA-L03-CAV', 'field_amplitude')
