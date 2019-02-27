@@ -6,6 +6,7 @@ from SimulationFramework.Framework import *
 import read_cavity_phases as rcp
 from scipy.stats import truncnorm
 from collections import defaultdict
+import numpy as np
 
 def create_base_file(settings='./clara400_v12_v3.def'):
     cavity_absolute_phases, cavity_absolute_momenta = rcp.get_Cavity_Phases(dir='../basefiles_4', settings='./clara400_v12_v3.def')
@@ -77,10 +78,10 @@ class Framework_Errors(object):
 def load_lattice():
     global lattice
     lattice = Framework('example', clean=False, verbose=False)
-    lattice.loadSettings('clara400_v12_v3.def')
+    lattice.loadSettings('split.def')
     if not os.name == 'nt':
         scaling = 4
-        lattice.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
+        lattice.defineASTRACommand(['mpiexec','-np',str(4*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
         # lattice.defineASTRACommand(['/opt/ASTRA/astra.sh'])
         lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
         lattice.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
@@ -104,17 +105,39 @@ def track_with_absolute_phases(global_errors=False):
 
 def vary_charge(q):
     load_lattice()
-    lattice.setSubDirectory('charge_'+str(q))
+    lattice.setSubDirectory('charge_'+str(np.round(q, decimals=2)))
     lattice['generator'].charge = 250e-12 * q
     print 'Setting charge to ', lattice['generator'].charge
     track_with_absolute_phases()
 
 def vary_initial_t(t):
     load_lattice()
-    lattice.setSubDirectory('initial_t_'+str(t)+'ps')
+    lattice.setSubDirectory('initial_t_'+str(np.round(t, decimals=2))+'ps')
     lattice['injector400'].headers['newrun'].toff = 1e-3 * t
     print 'Setting T offset to ', 1e3*lattice['injector400'].headers['newrun'].toff, 'ps'
     track_with_absolute_phases()
+
+def vary_initial_x(x):
+    load_lattice()
+    lattice.setSubDirectory('initial_x_'+str(np.round(x, decimals=2))+'mm')
+    lattice['injector400'].headers['newrun'].xoff = x
+    print 'Setting X offset to ', lattice['injector400'].headers['newrun'].xoff, 'mm'
+    track_with_absolute_phases()
+
+def vary_initial_y(y):
+    load_lattice()
+    lattice.setSubDirectory('initial_y_'+str(np.round(y, decimals=2))+'mm')
+    lattice['injector400'].headers['newrun'].yoff = y
+    print 'Setting Y offset to ', lattice['injector400'].headers['newrun'].yoff, 'mm'
+    track_with_absolute_phases()
+
+def vary_quad_dx(quad, x):
+    load_lattice()
+    if lattice.getElement(quad) is not None:
+        lattice.setSubDirectory(quad+'_x_'+str(np.round(x, decimals=2))+'mm')
+        lattice[quad].dx = 1e-3*x
+        print 'Setting ', quad, 'X offset to ', 1e3*lattice[quad].dx, 'mm'
+        track_with_absolute_phases()
 
 def frange(start, stop, step):
     i = start
@@ -126,8 +149,20 @@ def frange(start, stop, step):
 #     vary_charge(q)
 
 # toff is in ps!
-for t in frange(-1,1,0.1):
-    vary_initial_t(t)
+# for t in frange(-1,1,0.1):
+#     vary_initial_t(t)
+
+# xoff is in mm!
+# for x in frange(-1,1,0.1):
+#     vary_initial_x(x)
+# for y in frange(-1,1,0.1):
+#     vary_initial_y(y)
+load_lattice()
+quads = [a.objectName for a in lattice.getElementType('Quadrupole')]
+# print quads
+for q in quads[1:]:
+    for x in frange(-1,1.01,1):
+        vary_quad_dx(q, x)
 # errors = Framework_Errors(lattice)
 # print lattice['CLA-S02-MAG-QUAD-01'].start
 # errors.add_position_error('CLA-S02-MAG-QUAD-01', dx=1e-3, dy=1e-3, dz=1e-3, fractional=False)
