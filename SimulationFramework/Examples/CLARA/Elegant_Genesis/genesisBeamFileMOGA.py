@@ -22,12 +22,7 @@ import copy
 import genesisBeamFile
 
 # startingvalues = best = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000000.0, 45, -0.1185]
-Seed_1 = best = [2.3585526155380692e7,-22.999073707686943,2.486130449744217e7,-7.237725866562107,1.622853800181868e7,178.52911894321934,3.192294695330927e7,44.41787168727792,
-   -0.1305599202908936,
-   -0.189, 3.76, 0, 1.44]
-Seed_2 = best = [2.419795232631066e7,-22.178575566386428,2.4785523422962036e7,-6.973474497176279,2.218174980313417e7,193.96837396718945,3.2e7,40.117140384844404,
-   -0.13376448744285824,
-   -0.189, 3.76, 0, 1.44]
+startingvalues = best = [2.018490050471744e7,-23.04340196585034,2.934266187158792e7,-1.7771024303105327,1.7144513765057914e7,167.20031122662812,3.185636245553371e7,41.97162063476029,-0.14363986757360986,233.91419013665944]
 
 # print 'starting values = ', best
 # optfunc(best, scaling=5, post_injector=True, verbose=True)
@@ -40,8 +35,8 @@ def rangeFunc(i):
         return [-1,1]
 
 startranges = [rangeFunc(i) for i in best]
-MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2, -5, 0.1, -5, 0.1]
-MAX = [33e6, 90, 33e6, 90, 45e6, 270, 32e6, 90, -0.05, 5, 50, 5, 50]
+MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2, 100]
+MAX = [33e6, 90, 33e6, 90, 45e6, 270, 32e6, 90, -0.05, 250]
 
 
 def checkBounds(min, max):
@@ -86,7 +81,7 @@ if os.name == 'nt':
 else:
     toolbox.register("evaluate", genesisBeamFile.optfunc, scaling=6, post_injector=True)
 toolbox.register("mate", tools.cxUniform, indpb=0.3)
-toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003,0.1,0.1,0.1,0.1], indpb=0.3)
+toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003,5], indpb=0.3)
 
 toolbox.decorate("mate", checkBounds(MIN, MAX))
 toolbox.decorate("mutate", checkBounds(MIN, MAX))
@@ -96,12 +91,12 @@ toolbox.register("select", tools.selNSGA2)
 global_best = 0
 
 if __name__ == "__main__":
-    random.seed(64)
+    random.seed(43065)
 
     out = open('best_solutions_running_simplex_elegant_genesis.csv','wb', buffering=0)
     genesisBeamFile.csv_out = csv.writer(out)
 
-    NGEN = 100
+    NGEN = 200
     MU = 24
     LAMBDA = 48
     CXPB = 0.7
