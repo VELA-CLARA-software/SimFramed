@@ -728,6 +728,20 @@ class beam(object):
         self.slice['Density'] = np.array([len(x)/v for x, v in zip(xbins, volume)])
         return self.slice['Density']
     @property
+    def slice_horizontal_emittance(self):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
+            self.bin_time()
+        emitbins = self.emitbins(self.x, self.xp)
+        self.slice['Horizontal_Emittance'] = np.array([self.emittance(xbin, xpbin) for xbin, xpbin, cpbin in emitbins])
+        return self.slice['Horizontal_Emittance']
+    @property
+    def slice_vertical_emittance(self):
+        if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
+            self.bin_time()
+        emitbins = self.emitbins(self.y, self.yp)
+        self.slice['Vertical_Emittance'] = np.array([self.emittance(ybin, ypbin) for ybin, ypbin, cpbin in emitbins])
+        return self.slice['Vertical_Emittance']
+    @property
     def slice_normalized_horizontal_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
@@ -766,6 +780,45 @@ class beam(object):
         peakI = self.slice_peak_current
         self.slice['Max_Peak_Current_Slice'] = list(abs(peakI)).index(max(abs(peakI)))
         return self.slice['Max_Peak_Current_Slice']
+
+    @property
+    def slice_beta_x(self):
+        xbins = self.slice_data(self.beam['x'])
+        exbins =  self.slice_horizontal_emittance
+        emitbins = zip(xbins, exbins)
+        self.slice['slice_beta_x'] = np.array([self.covariance(x, x)/ex for x, ex in emitbins])
+        return self.slice['slice_beta_x']
+    @property
+    def slice_alpha_x(self):
+        xbins = self.slice_data(self.x)
+        xpbins = self.slice_data(self.xp)
+        exbins =  self.slice_horizontal_emittance
+        emitbins = zip(xbins, xpbins, exbins)
+        self.slice['slice_alpha_x'] = np.array([-1*self.covariance(x, xp)/ex for x, xp, ex in emitbins])
+        return self.slice['slice_alpha_x']
+    @property
+    def slice_gamma_x(self):
+        self.twiss['gamma_x'] = self.covariance(self.xp,self.xp) / self.horizontal_emittance
+        return self.twiss['gamma_x']
+    @property
+    def slice_beta_y(self):
+        ybins = self.slice_data(self.beam['y'])
+        eybins =  self.slice_vertical_emittance
+        emitbins = zip(ybins, eybins)
+        self.slice['slice_beta_y'] = np.array([self.covariance(y, y)/ey for y, ey in emitbins])
+        return self.slice['slice_beta_y']
+    @property
+    def slice_alpha_y(self):
+        ybins = self.slice_data(self.y)
+        ypbins = self.slice_data(self.yp)
+        eybins =  self.slice_vertical_emittance
+        emitbins = zip(ybins, ypbins, eybins)
+        self.slice['slice_alpha_y'] = np.array([-1*self.covariance(y,yp)/ey for y, yp, ey in emitbins])
+        return self.twiss['slice_alpha_y']
+    @property
+    def slice_gamma_y(self):
+        self.twiss['gamma_y'] = self.covariance(self.yp,self.yp) / self.vertical_emittance
+        return self.twiss['gamma_y']
 
     def sliceAnalysis(self):
         self.slice = {}
@@ -967,6 +1020,72 @@ class beam(object):
         self.beam['px'] = cpx * self.q_over_c
         self.beam['py'] = cpy * self.q_over_c
         self.beam['pz'] = cpz * self.q_over_c
+
+    def performTransformationPeakISlice(self, xslice, xpslice, x, xp, beta=False, alpha=False, nEmit=False):
+        p = self.cp
+        pAve = np.mean(p)
+        p = [a / pAve - 1 for a in p]
+        S11, S16, S66 = self.computeCorrelations(self.x, self.cp)
+        eta1 = S16/S66 if S66 else 0
+        S22, S26, S66 = self.computeCorrelations(self.xp, self.cp)
+        etap1 = S26/S66 if S66 else 0
+        for i, ii in enumerate(x):
+            x[i] -= p[i] * eta1
+            xp[i] -= p[i] * etap1
+
+        S11, S12, S22 = self.computeCorrelations(xslice, xpslice)
+        emit = np.sqrt(S11*S22 - S12**2)
+        beta1 = S11/emit
+        alpha1 = -S12/emit
+        beta2 = beta if beta is not False else beta1
+        alpha2 = alpha if alpha is not False else alpha1
+        R11 = beta2/np.sqrt(beta1*beta2)
+        R12 = 0
+        R21 = (alpha1-alpha2)/np.sqrt(beta1*beta2)
+        R22 = beta1/np.sqrt(beta1*beta2)
+        if nEmit is not False:
+            factor = np.sqrt(nEmit / (emit*pAve))
+            R11 *= factor
+            R12 *= factor
+            R22 *= factor
+            R21 *= factor
+        for i, ii in enumerate(x):
+            x0 = x[i]
+            xp0 = xp[i]
+            x[i] = R11 * x0 + R12 * xp0
+            xp[i] = R21*x0 + R22*xp0
+        return x, xp
+
+    def rematchXPlanePeakISlice(self, beta=False, alpha=False, nEmit=False):
+        peakIPosition = self.slice_max_peak_current_slice
+        xslice = self.slice_data(self.x)[peakIPosition]
+        xpslice = self.slice_data(self.xp)[peakIPosition]
+        x, xp = self.performTransformationPeakISlice(xslice, xpslice, self.x, self.xp, beta, alpha, nEmit)
+        self.beam['x'] = x
+        self.beam['xp'] = xp
+
+        cpz = self.cp / np.sqrt(self.beam['xp']**2 + self.yp**2 + 1)
+        cpx = self.beam['xp'] * cpz
+        cpy = self.yp * cpz
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
+
+    def rematchYPlanePeakISlice(self, beta=False, alpha=False, nEmit=False):
+        peakIPosition = self.slice_max_peak_current_slice
+        yslice = self.slice_data(self.y)[peakIPosition]
+        ypslice = self.slice_data(self.yp)[peakIPosition]
+        y, yp = self.performTransformationPeakISlice(yslice, ypslice, self.y, self.yp, beta, alpha, nEmit)
+        self.beam['y'] = y
+        self.beam['yp'] = yp
+
+        cpz = self.cp / np.sqrt(self.xp**2 + self.beam['yp']**2 + 1)
+        cpx = self.xp * cpz
+        cpy = self.beam['yp'] * cpz
+        self.beam['px'] = cpx * self.q_over_c
+        self.beam['py'] = cpy * self.q_over_c
+        self.beam['pz'] = cpz * self.q_over_c
+
 
     @property
     def Sx(self):

@@ -101,7 +101,7 @@
  idmpfld=    0
  idmppar=    0
  ilog  =    1
- ffspec=    0
+ ffspec=    -1
  convharm=    1
  ibfield=  0.000000E+00
  imagl=    0.000000E+00
