@@ -715,6 +715,7 @@ class elegantLattice(frameworkLattice):
         #         self.particle_definition = 'laser'
         # else:
         self.particle_definition = self.allElementObjects[self.start].objectName
+        self.bunch_charge = None
         self.q = charge(name='START', type='charge',**{'total': 250e-12})
 
     def writeElements(self):
@@ -754,7 +755,10 @@ class elegantLattice(frameworkLattice):
     def hdf5_to_sdds(self, prefix=''):
         HDF5filename = prefix+self.particle_definition+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
-        self.q = charge(name='START', type='charge',**{'total': abs(beam.charge)})
+        if self.bunch_charge is not None:
+            self.q = charge(name='START', type='charge',**{'total': abs(self.bunch_charge)})
+        else:
+            self.q = charge(name='START', type='charge',**{'total': abs(beam.charge)})
         sddsbeamfilename = self.particle_definition+'.sdds'
         beam.write_SDDS_file(master_subdir + '/' + sddsbeamfilename)
 
@@ -826,6 +830,7 @@ class astraLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
         super(astraLattice, self).__init__(*args, **kwargs)
         self.code = 'astra'
+        self.bunch_charge = None
         self.headers = OrderedDict()
         self.starting_offset = eval(expand_substitution(self, self.file_block['starting_offset'])) if 'starting_offset' in self.file_block else [0,0,0]
 
@@ -1367,21 +1372,21 @@ class frameworkElement(frameworkObject):
 
     @property
     def start(self):
-        start = list_add(self.position_start, self.position_errors)
+        start = self.position_start
         length_vector = self.rotated_position([0,0,0], offset=[0,0,0], theta=self.theta)
         starting_middle = np.array(start) + length_vector
         return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def middle(self):
-        start = list_add(self.position_start, self.position_errors)
+        start = self.position_start
         length_vector = self.rotated_position([0,0, self.length / 2.0], offset=[0,0,0], theta=self.theta)
         starting_middle = np.array(start) + length_vector
         return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def end(self):
-        start = list_add(self.position_start, self.position_errors)
+        start = self.position_start
         length_vector = self.rotated_position([0,0, self.length], offset=[0,0,0], theta=self.theta)
         starting_middle = np.array(start) + length_vector
         return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)

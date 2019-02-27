@@ -21,6 +21,13 @@ from deap import base, creator, tools, algorithms
 import copy
 import SimulationFramework.Examples.CLARA.Elegant.runElegant as runEle
 from shutil import copyfile
+import argparse
+
+parser = argparse.ArgumentParser(description='Run Elegant + Genesis')
+parser.add_argument('-g', '--gaussian', default=False)
+parser.add_argument('-s', '--set', default=False)
+parser.add_argument('-v', '--vbc', default=False)
+parser.add_argument('-p', '--postinjector', default=True)
 
 class FEL_sim(FEL_simulation_block.FEL_simulation_block):
     def __init__(self, initial_data, alphax=-0.189, betax=3.76, alphay=0, betay=1.44, **kwargs):
@@ -36,21 +43,25 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
         inp_out = inp
         beam = rbf.beam()
         beam.read_HDF5_beam_file(filename)
-        beam.rematchXPlane(beta=self.betax, alpha=self.alphax)
-        beam.rematchYPlane(beta=self.betay, alpha=self.alphay)
+        # print 'beta_x = ', beam.beta_x, ' alpha_x = ', beam.alpha_x
+        # print 'beta_y = ', beam.beta_y, ' alpha_y = ', beam.alpha_y
+        beam.rematchXPlanePeakISlice(beta=self.betax, alpha=self.alphax)
+        beam.rematchYPlanePeakISlice(beta=self.betay, alpha=self.alphay)
         # print 'beta_x = ', beam.beta_x, ' alpha_x = ', beam.alpha_x
         # print 'beta_y = ', beam.beta_y, ' alpha_y = ', beam.alpha_y
         edist = GenesisElectronDist()
         edist.x = beam.x
         edist.y = beam.y
         # edist.t = -(adist[:, 2] - np.mean(adist[:, 2])) / speed_of_light  # long position normalized to 0 and converted to time #HMCC add -
-        edist.t = -1*beam.t
+        edist.t = beam.t
         edist.t = edist.t - np.mean(edist.t)# - 1.80e-13
         edist.xp = beam.xp
         edist.yp = beam.yp
         p_tot = beam.p
         edist.g = beam.gamma
-        edist.part_charge = 250e-12 / len(beam.x)
+        edist.part_charge = abs(self.startcharge)*1e-12 / len(beam.x)
+        print 'self.startcharge = ', self.startcharge
+        self.bunch_length = np.std(beam.t)
 
         if center:
             edist.x -= np.mean(edist.x)
@@ -61,7 +72,8 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
         setattr(inp_out,'edist',edist)
         return inp_out, beam
 
-    def GEN_simul_preproc(self, A_input, i_aft=0, dirno=1):
+    def GEN_simul_preproc(self, A_input, i_aft=0, dirno=1, startcharge=250):
+        self.startcharge = startcharge
         if not self.file_pout.endswith('/'):
             self.file_pout=self.file_pout+'/'
         #print('\n\n\nis it working?\n\n')
@@ -158,8 +170,9 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
         if hasattr(self,'i_HDF5') and getattr(self,'i_HDF5')==1 and hasattr(self,'HDF5_file'):
             inp, beam = self.convert_HDF5_edist(inp, getattr(self,'HDF5_file'))
             setattr(inp,'beam',None)
-            energy = np.average(inp.edist.g)
-            setattr(inp,'xlamds',float(inp.xlamd*(1.0+np.square(inp.aw0))/(2.0*np.square(energy))))
+            gamma = np.average(inp.edist.g)
+            # setattr(inp,'xlamds',float(inp.xlamd*(1.0+np.square(inp.aw0))/(2.0*np.square(gamma))))
+            setattr(inp,'xlamds', float(0.022058051560136/(gamma**2))) ## DJD 15/02/2019
             print 'aw0 = ', inp.aw0
             print 'awd = ', inp.awd
             print 'xlamds = ', inp.xlamds
@@ -212,6 +225,7 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
                 g = run_genesis(inp,launcher,i_aft=i_aft)
                 setattr(g,'filePath',str(inp.run_dir))
                 # g.Lsat = g.z[np.argmax(g.bunching[np.argmax(g.p_int[:,-1])])]
+                g.bunch_length = self.bunch_length
                 g.Lsat = g.z[np.argmax(g.bunching[np.argmax(g.I)])]
         return g
 
@@ -239,7 +253,7 @@ def find_saturation(power, z, n_smooth=20):
 
     return z[ii+1], ii+1
 
-def evalBeamWithGenesis(dir, alphax, betax, alphay, betay, run=True):
+def evalBeamWithGenesis(dir, run=True, startcharge=250):
 
     # Genesis run:
     data={'gen_file':'NEW_SHORT_NOM_TD_v7.in',
@@ -258,12 +272,12 @@ def evalBeamWithGenesis(dir, alphax, betax, alphay, betay, run=True):
           'HDF5_file': dir+'/'+'CLA-FMS-APER-01.hdf5',
           'i_match': 0}
     if run:
-        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 25 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
+        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 44 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
     else:
         data['gen_launch'] = ''
-    f = FEL_sim(data, alphax, betax, alphay, betay)
+    f = FEL_sim(data)
     A_inp = f.read_GEN_input_file()
-    g = f.GEN_simul_preproc(A_inp, dirno=dir)
+    g = f.GEN_simul_preproc(A_inp, dirno=dir, startcharge=startcharge)
 
     p = map(np.mean, zip(*g.p_int))
     g.Lsat, g.Lsatindex = find_saturation(p, g.z)
@@ -292,7 +306,8 @@ def evalBeamWithGenesis(dir, alphax, betax, alphay, betay, run=True):
             brightness[i] = 0
     max = np.argmax(brightness)
     maxe = np.argmax(g.energy)
-    return g.energy[max], spectrum_lamdwidth_std[max], g.z[max], g.energy[maxe], spectrum_lamdwidth_std[maxe], g.z[maxe]
+    g.spectrum_lamdwidth_std = spectrum_lamdwidth_std
+    return g.energy[max], g.spectrum_lamdwidth_std[max], g.z[max], g.energy[maxe], g.spectrum_lamdwidth_std[maxe], g.z[maxe], g.bunch_length, g
 
 csv_out = ''
 
@@ -306,7 +321,7 @@ def saveState(args, id, *values):
     # csv_out.flush()
 
 
-def optfunc(inputargs, verbose=True, dir=None, savestate=True, runGenesis=True, runElegant=True, *args, **kwargs):
+def optfunc(inputargs, verbose=True, dir=None, savestate=True, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
     global global_best
     process = multiprocessing.current_process()
     runno = process.pid
@@ -316,44 +331,72 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, runGenesis=True, 
             tmpdir = dir
             if not os.path.exists(tmpdir):
                 os.makedirs(tmpdir)
-        try:
-            if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
-                idNumber = os.path.basename(dir)
+        # try:
+        if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
+            idNumber = os.path.basename(tmpdir)
+        else:
+            idNumber = inputargs.id
+
+        # print 'post_injector = ', post_injector
+
+        if len(inputargs) == 9:
+            inputargs = np.append(inputargs, 250)
+        elif len(inputargs) == 15:
+            inputargs = np.append(inputargs, 250)
+            # print 'inputargs = ', inputargs
+        sys.stdout = open(tmpdir+'/'+'std.out', 'w')
+        sys.stderr = open(tmpdir+'/'+'std.err', 'w')
+        if runElegant:
+            if post_injector:
+                fit = runEle.fitnessFunc(inputargs[:9], tmpdir, id=idNumber, startcharge=inputargs[9], post_injector=True, *args, **kwargs)
             else:
-                idNumber = inputargs.id
-            sys.stdout = open(tmpdir+'/'+'std.out', 'w')
-            sys.stderr = open(tmpdir+'/'+'std.err', 'w')
-            if runElegant:
-                fit = runEle.fitnessFunc(inputargs[:9], tmpdir, id=idNumber, *args, **kwargs)
-                fitvalue = fit.calculateBeamParameters()
-            e, b, l, ee, be, le = evalBeamWithGenesis(tmpdir, *inputargs[9:], run=runGenesis)
-            sys.stdout = sys.__stdout__
-            sys.stderr = sys.__stderr__
-            if verbose:
-                print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
-                print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
-            #### Save Output files to dir named after runno #####
-            if not os.path.exists('./outData/'):
-                os.makedirs('./outData/')
-            dir = './outData/' + str(idNumber)
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
-            copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
-            if savestate:
-                try:
-                    saveState(inputargs, idNumber, e, b, l)
-                except:
-                    pass
-            return 1e4*e, 1e2*b, 1e4*ee, 1e2*be
-        except Exception as e:
-            print 'Error! ', e
-            return 0, 10, 0, 10
+                print 'inputargs = ', inputargs
+                fit = runEle.fitnessFunc(inputargs[:15], tmpdir, id=idNumber, startcharge=inputargs[15], post_injector=False, *args, **kwargs)
+            fitvalue = fit.calculateBeamParameters()
+        if post_injector:
+            e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=inputargs[9])
+        else:
+            e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=inputargs[15])
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+        if verbose:
+            print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
+            print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
+        #### Save Output files to dir named after runno #####
+        if not os.path.exists('./outData/'):
+            os.makedirs('./outData/')
+        dir = './outData/' + str(idNumber)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
+        copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
+        copyfile(tmpdir+'/std.out',dir+'/std.out')
+        if savestate:
+            try:
+                saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
+            except:
+                pass
+        return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
+        # except Exception as e:
+            # print 'Error! ', e
+            # return 0, 10, 0, 10
 
 
 if __name__ == "__main__":
-    startingvalues = best = [2.419795232631066e7,-22.178575566386428,2.399632921676352e7,-6.973474497176279,2.218174980313417e7,193.96837396718945,3.3e7,39.42181898223578,
-   -0.13376448744285824, 0, 5, 0, 1]
+    args = parser.parse_args()
+
+    injector_startingvalues = [-8.906156010951616,0.3420474160090586,2.0515744815221354e7,-16.281405933324855,0.05036027437405955,-0.0502414403704962]
+    startingvalues = best = [1.879700695321506e7,-27.832442932602543,2.583534801151637e7,-1.2644316016467563,1.446505414414888e7,181.03888866546697,
+                             3.1987431329329092e7,44.128256932519484,-0.1560424081528136]
+
+    if args.postinjector == False or args.postinjector == 'False' or args.postinjector == 0:
+        best = injector_startingvalues + startingvalues
+        POST_INJECTOR = False
+    else:
+        best = startingvalues
+        POST_INJECTOR = True
+    print 'Post Injector = ', POST_INJECTOR, ' [', args.postinjector,']'
+
     global_best = 0
     from SimulationFramework.Framework import Framework
     framework = Framework('longitudinal_best', overwrite=False)
@@ -369,25 +412,41 @@ if __name__ == "__main__":
     parameters.append(framework.getElement('CLA-L04-CAV', 'phase'))
     parameters.append(framework['bunch_compressor']['angle'])
 
-    # best = parameters
-    # for i in np.arange(-0.135,-0.125,0.0025):
-    #     i = np.round(i, decimals=4)
-    #     best[-1] = i
-    #     print 'values = ', best
-    #     print optfunc(best, dir=os.path.abspath('testing_vbc_'+str(i)), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
-    # for i in np.arange(40,60,5):
-    #     i = np.round(i, decimals=4)
-    #     best[-2] = i
-    #     print 'values = ', best
-    #     print optfunc(best, dir=os.path.abspath('testing_l04_'+str(i)), scaling=5, post_injector=True, verbose=True, savestate=False, run=True)
+    def gaussian_beam_test():
+        ## This is for the Gaussian Beam Test!
+        master_subdir = 'gaussianBeam'
+        beam = rbf.beam()
+        elegantbeamfilename = 'CLA-FMS-APER-01.sdds'
+        beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename, charge=250e-12)
+        beam.beam['total_charge'] = 250e-12
+        HDF5filename = elegantbeamfilename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename)
+        optfunc(best, dir=os.path.abspath('gaussianBeam'), scaling=6, post_injector=POST_INJECTOR, verbose=True, savestate=False, runGenesis=True, runElegant=False)
 
-    ## This is for the Gaussian Beam Test!
-    master_subdir = 'gaussianBeam'
-    beam = rbf.beam()
-    elegantbeamfilename = 'CLA-FMS-APER-01.sdds'
-    beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename, charge=250e-12)
-    beam.beam['total_charge'] = 250e-12
-    HDF5filename = elegantbeamfilename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
-    beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename)
-    optfunc(best, dir=os.path.abspath('gaussianBeam'), scaling=6, post_injector=True, verbose=True, savestate=False, runGenesis=True, runElegant=False)
+    # 1351 == 50uJ
+    set253 = [2.3133382987191193e7,-19.372618068598406,3.0612137974426482e7,-3.772434513198637,2.198461283242174e7,173.7485023073137,3.13847229015289e7,42.038068437372736,-0.15496116784319712, 150]
+    def npart_test():
+        ## This is for the set Beam Test!
+        for n in [253]:
+            best = eval('set'+str(n))
+            print n,' = ', best
+            optfunc(best, dir=os.path.abspath('set'+str(n)+'_32k'), scaling=5, post_injector=POST_INJECTOR, verbose=True, savestate=False)
+            # optfunc(best, dir=os.path.abspath('set'+str(n)+'_262k'), scaling=6, post_injector=True, verbose=True, savestate=False)
+
+    def scan_vbc_angle():
+        for vbc in np.arange(startingvalues[-1]-0.01, startingvalues[-1]+0.01,0.002):
+            newbest = best
+            newbest[-1] = vbc
+            print 'VBC angle = ', vbc
+            optfunc(newbest, dir='simplex/vbc_angle_'+str(vbc)+'_262k', scaling=6, post_injector=POST_INJECTOR, verbose=True, savestate=False)
+
+    if args.gaussian or args.gaussian == 'True' or args.gaussian > 0:
+        print 'Gaussian Beam'
+        gaussian_beam_test()
+    elif args.set or args.set == 'True' or args.set > 0:
+        print 'Set Test'
+        npart_test()
+    elif args.vbc or args.vbc == 'True' or args.vbc > 0:
+        print 'VBC Scan'
+        scan_vbc_angle()
     exit()
