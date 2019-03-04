@@ -46,6 +46,7 @@ for scaling in [3,4,5,6]:
     print 'newl03grad = ', newl03grad
     print 'newl03phase = ', newl03phase
     print 'newl04grad = ', newl04grad
+
     print 'newl04phase = ', newl04phase
     print 'newl0xgrad = ', newl0xgrad
     print 'newl0xphase = ', newl0xphase
