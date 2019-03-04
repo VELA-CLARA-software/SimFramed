@@ -3,9 +3,9 @@ import numpy as np
 sys.path.append(os.path.abspath(__file__+'/../../../../'))
 import SimulationFramework.Framework as Fw
 
-Framework = Fw.Framework('phw_test_elegant_VBC')
-Framework.loadSettings('Lattices/clara400_v12_v3_elegantVBC.def')
 for scaling in [3,4,5,6]:
+    Framework = Fw.Framework('phw_test_elegant_VBC')
+    Framework.loadSettings('Lattices/clara400_v12_v3_elegantVBC.def')
     if not os.name == 'nt':
         Framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
         Framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
@@ -46,6 +46,7 @@ for scaling in [3,4,5,6]:
     print 'newl03grad = ', newl03grad
     print 'newl03phase = ', newl03phase
     print 'newl04grad = ', newl04grad
+
     print 'newl04phase = ', newl04phase
     print 'newl0xgrad = ', newl0xgrad
     print 'newl0xphase = ', newl0xphase
