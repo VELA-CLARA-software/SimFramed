@@ -421,7 +421,7 @@ class astraPlotWidget(QWidget):
             files = glob.glob(self.directory+'/'+f+'*.hdf5')
             screennames = sorted([os.path.basename(s).split('.')[0] for s in files], key=lambda x: self.getSposition(x))
             screenpositions = [self.getSposition(s) for s in screennames]
-            print 'screenpositions = ', screenpositions
+            # print 'screenpositions = ', screenpositions
             self.screenpositions[f] = {'screenpositions': screenpositions, 'screennames': screennames, 'run': r}
 
     def updateFileCombo(self):
@@ -432,7 +432,8 @@ class astraPlotWidget(QWidget):
             if len(self.screenpositions[f]['screenpositions']) > 0:
                 screenfirstpos.append([f, min(self.screenpositions[f]['screenpositions'])])
         screenfirstpos = np.array(screenfirstpos)
-        sortedscreennames = screenfirstpos[np.argsort(np.array(screenfirstpos)[:,1])]
+        # print 'screenfirstpos = ', screenfirstpos
+        sortedscreennames = sorted(screenfirstpos, key=lambda x: float(x[1]))
         print 'sortedscreennames = ', sortedscreennames
         for f in sortedscreennames:
             self.fileSelector.addItem(f[0])
