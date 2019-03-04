@@ -1,6 +1,6 @@
 import numpy as np
 import os, sys
-sys.path.append(os.path.abspath(__file__+'/../../../../../'))
+sys.path.append(os.path.abspath(__file__+'/../../../'))
 from FitnessFunc_Longitudinal import *
 import operator
 import random
@@ -20,9 +20,9 @@ def create_base_files(scaling):
     framework.generator.number_of_particles = 2**(3*scaling)
     framework.track(files=['S02','L02','S03','L03','S04','L4H','S05','VBC','S06','L04','S07','FMS'])
 
-for i in [3,4]:
-    create_base_files(i)
-exit()
+# for i in [3,4]:
+#     create_base_files(i)
+# exit()
 
 def saveState(args, fitness):
     with open('best_solutions_running_simplex.csv','a') as out:
@@ -67,6 +67,9 @@ for p in injparameternames:
 ''' always '''
 for p in parameternames:
     parameters.append(framework.getElement(*p))
+
+print injparameters
+exit()
 
 results = []
 with open('CLARA_longitudinal_best_solutions_simplex.csv.tmp', 'r') as csvfile:
