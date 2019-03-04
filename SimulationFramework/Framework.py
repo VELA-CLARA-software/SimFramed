@@ -836,10 +836,13 @@ class astraLattice(frameworkLattice):
 
         # This calculated the starting rotation based on the input file and the number of dipoles
         self.starting_rotation = -1*self.allElementObjects[self.start].global_rotation[2] if self.allElementObjects[self.start].global_rotation is not None else 0
+        # print 'self.starting_rotation = ', self.starting_rotation
         # Calculate the correct starting offset by adding up the dipole angles
         for d in self.dipoles:
             self.starting_rotation -= d.angle
+        # print 'self.starting_rotation after subtraction = ', self.starting_rotation
         self.starting_rotation = eval(expand_substitution(self, str(self.file_block['starting_rotation']))) if 'starting_rotation' in self.file_block else self.starting_rotation
+        # print 'self.starting_rotation at end = ', self.starting_rotation
 
         # Create a "newrun" block
         if 'input' not in self.file_block:
@@ -1559,12 +1562,12 @@ class dipole(frameworkElement):
                 ['D3', {'type': 'array', 'value': [corners[2][0],corners[2][2]] }],
                 ['D4', {'type': 'array', 'value': [corners[1][0],corners[1][2]] }],
                 ['D2', {'type': 'array', 'value': [corners[0][0],corners[0][2]] }],
-                ['D_xoff', {'value': self.start[0] + self.dx, 'default': 0}],
-                ['D_yoff', {'value': self.start[1] + self.dy, 'default': 0}],
-                ['D_zoff', {'value': self.dz, 'default': 0}],
-                ['D_xrot', {'value': self.y_rot + self.dy_rot, 'default': 0}],
-                ['D_yrot', {'value': self.x_rot + self.dx_rot, 'default': 0}],
-                ['D_zrot', {'value': self.z_rot + self.dz_rot, 'default': 0}],
+                # ['D_xoff', {'value': self.start[0] + self.dx, 'default': 0}],
+                # ['D_yoff', {'value': self.start[1] + self.dy, 'default': 0}],
+                # ['D_zoff', {'value': self.dz, 'default': 0}],
+                # ['D_xrot', {'value': self.y_rot + self.dy_rot, 'default': 0}],
+                # ['D_yrot', {'value': self.x_rot + self.dx_rot, 'default': 0}],
+                # ['D_zrot', {'value': self.z_rot + self.dz_rot, 'default': 0}],
                 ])
             if abs(checkValue(self, 'strength', default=0)) > 0 or not abs(self.rho) > 0:
                 params['D_strength'] = {'value': checkValue(self, 'strength', 0), 'default': 1e6}
