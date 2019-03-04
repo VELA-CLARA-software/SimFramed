@@ -15,9 +15,10 @@ def create_base_files(scaling):
         framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
         framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
     framework.generator.number_of_particles = 2**(3*scaling)
-    framework.track(files=['generator','injector400','S02'])
+    # framework.change_Lattice_Code('VBC', 'ASTRA')
+    framework.track()#startfile='VBC')
 
 ## Modify as appropriate! ##
-for i in [3,4,5,6]:
+for i in [5]:
     create_base_files(i)
 exit()

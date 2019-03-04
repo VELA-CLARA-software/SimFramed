@@ -1,4 +1,7 @@
-import sys, os
+import sys
+import time
+import os
+import csv
 sys.path.append(os.path.abspath(__file__+'/../../../../../../S2E_FEL_dev_gen/'))
 from ocelot.adaptors.genesis import read_out_file
 from ocelot.gui.genesis_plot import fwhm3
@@ -61,7 +64,6 @@ def analyse_image(mw, dir=None):
             print 'bandwidth[en] = ', 1e2*b[en], '%  pulse energy[max] =', 1e6*e[en], 'uJ  Sat. Length[en] =', l[en], 'm  Brightness[en] = ', bright[en]
             beam = beam_analysis(dir)
             print 'bunchlength = ', 1e6*beam.sigma_z, 'um  chirp = ', -1*beam.chirp, 'MeV/ps'
-
             plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.25, hspace=0.15)
             ax1 = mw.getFigure().add_subplot(421)
             ax1.plot(l, bright)
@@ -192,7 +194,7 @@ class mainApp(qt.QMainWindow):
         self.table.itemDoubleClicked.connect(self.change_directory)
 
         sys.stdout = OutLog( self.textedit, sys.stdout)
-        sys.stderr = OutLog( self.textedit, sys.stderr, qt.QColor(255,0,0) )
+        # sys.stderr = OutLog( self.textedit, sys.stderr, qt.QColor(255,0,0) )
 
     def analyse_image(self, item):
         dir = self.currentDirectory + '/'+str(item.text())
@@ -206,12 +208,27 @@ class mainApp(qt.QMainWindow):
     def update_directory_list(self):
         index = None
         self.table.clear()
-        dirs = filter(os.path.isdir, os.listdir(self.currentDirectory))
-        dirs = [os.path.abspath(self.currentDirectory + '/' + a) for a in os.listdir(self.currentDirectory)]
-        dirs.sort(key=os.path.getmtime, reverse=True)
+        start = time.time()
+        dirs = [os.path.abspath(self.currentDirectory + '/' + a) for a in os.listdir(self.currentDirectory) if os.path.isdir(a)]
+        # print 'read dirs in ', time.time() - start
+        if os.path.isfile(self.currentDirectory + '/' + 'best_solutions_running.csv'):
+            solutions = []
+            with open(self.currentDirectory + '/' + 'best_solutions_running.csv', 'rb') as csvfile:
+                spamreader = csv.reader(csvfile, csv.QUOTE_NONE, delimiter=',')
+                for row in spamreader:
+                    solutions.append([float(a) for a in row])
+            solutions = np.array(sorted(solutions, key=lambda a: a[-1]))
+            iterdirs = ['iteration_'+str(int(a)) for a in solutions[:,-2] if os.path.isdir(self.currentDirectory + '/' +'iteration_'+str(int(a))) ]
+            basedirs = [a for a in dirs if 'basefiles_' in a]
+            vbcdirs = [a for a in dirs if 'vbc_' in a]
+            setdirs = [a for a in dirs if 'set' in a]
+            dirs = iterdirs + setdirs + vbcdirs + basedirs
+            # print 'sorted dirs in ', time.time() - start
+        else:
+            dirs.sort(key=os.path.getmtime, reverse=True)
         self.table.addItem('.')
         self.table.addItem('..')
-        for i, d in enumerate(dirs):
+        for i, d in enumerate(dirs[:100]):
             d = d.replace(self.currentDirectory+'/', '').replace(self.currentDirectory+'\\', '')
             item = self.table.addItem(d)
             if d == self.selectedDir:
