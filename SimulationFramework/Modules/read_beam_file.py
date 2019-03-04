@@ -145,7 +145,7 @@ class beam(object):
         self.beam['charge'] = 1.0e-9*charge
         self.beam['index'] = index
         self.beam['status'] = status
-        self.beam['t'] = [clock if status == -1 else (z / (1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
+        self.beam['t'] = [clock if status == -1 else (z / (-1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
@@ -237,7 +237,7 @@ class beam(object):
         array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
         if 'reference_particle' in self.beam:
             ref_particle = self.beam['reference_particle']
-            print 'we have a reference particle! ', (array[0] - ref_particle)[6]
+            # print 'we have a reference particle! ', (array[0] - ref_particle)[6]
             # np.insert(array, 0, ref_particle, axis=0)
         else:
             ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
@@ -275,7 +275,7 @@ class beam(object):
         else:
             tvector = self.t
             zvector = self.z
-        zvector = [t * (-1 * Bz * constants.speed_of_light) if z == 0 else z for z, t, Bz in zip(zvector, tvector, self.Bz)]
+        zvector = [t * (1 * Bz * constants.speed_of_light) if z == 0 else z for z, t, Bz in zip(zvector, tvector, self.Bz)]
         ''' this is the VSIM array in all it's glory '''
         array = np.array([zvector, self.y, self.x, self.Bz*self.gamma*constants.speed_of_light, self.By*self.gamma*constants.speed_of_light, self.Bx*self.gamma*constants.speed_of_light]).transpose()
         ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
