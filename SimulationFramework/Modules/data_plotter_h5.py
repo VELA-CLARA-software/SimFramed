@@ -259,6 +259,8 @@ class astraPlotWidget(QWidget):
         {'name': 'slice_normalized_vertical_emittance', 'units': 'm-rad', 'text': 'eny'},
         {'name': 'slice_peak_current', 'units': 'A', 'text': 'PeakI'},
         {'name': 'slice_relative_momentum_spread', 'units': '%', 'text': 'sigma-p'},
+        {'name': 'slice_beta_x', 'units': 'm', 'text': 'beta_x'},
+        {'name': 'slice_beta_y', 'units': 'm', 'text': 'beta_y'},
         ]
         self.slicePlotWidget = QWidget()
         self.slicePlotLayout = QVBoxLayout()
@@ -276,7 +278,7 @@ class astraPlotWidget(QWidget):
         self.slicePlot.showAxis('left', False)
         self.slicePlot.showGrid(x=True, y=True)
         i = -1;
-        colors = ['b','r','g','k']
+        colors = ['b','r','g','k','y','m','c']
         for param in self.sliceParams:
             i += 1;
             axis = AxisItem("left")
