@@ -42,7 +42,7 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, id=None, scaling=5, overwrite=True, verbose=False, summary=False, post_injector=True):
+    def __init__(self, args, tempdir, id=None, scaling=5, overwrite=True, verbose=False, summary=False, post_injector=True, startcharge=None, basefiles=None):
         self.cons = constraintsClass()
         self.beam = rbf.beam()
         self.scaling = scaling
@@ -52,6 +52,8 @@ class fitnessFunc():
         self.overwrite = overwrite
         self.post_injector = post_injector
         self.id = id
+        self.startcharge = startcharge
+        self.basefiles = basefiles
         ''' if only post-injector optimisation'''
         if self.post_injector:
             linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
@@ -66,7 +68,7 @@ class fitnessFunc():
             self.sbandlinacfields = np.array([linac2field, linac3field, linac4field])
         else:
             self.sbandlinacfields = np.array([linac1field, linac2field, linac3field, linac4field])
-        self.dirname = os.path.basename(self.tmpdir)
+        self.dirname = self.tmpdir
         self.framework = Framework(self.dirname, overwrite=overwrite, verbose=verbose)
         if not os.name == 'nt':
             self.framework.defineGeneratorCommand(['/opt/ASTRA/generator'])
@@ -93,16 +95,21 @@ class fitnessFunc():
         self.framework['bunch_compressor'].set_angle(bcangle)
 
     def calculateBeamParameters(self):
-        try:
+        # try:
             if self.post_injector:
-                self.framework['POSTINJ'].file_block['input']['prefix'] = '../../../basefiles_'+str(self.scaling)+'/'
+                if self.basefiles is not None:
+                    self.framework['POSTINJ'].file_block['input']['prefix'] = self.basefiles
+                else:
+                    self.framework['POSTINJ'].file_block['input']['prefix'] = '../../../../basefiles_'+str(self.scaling)+'/'
+                if self.startcharge is not None:
+                    self.framework['POSTINJ'].bunch_charge = 1e-12*self.startcharge
                 self.framework.track(startfile='POSTINJ')
             else:
                 self.framework.track()#startfile='FMS')
             # self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FMS-APER-01.hdf5')
-        except Exception as e:
-            print(e)
-            return 1e6
+        # except Exception as e:
+        #     print(e)
+        #     return 1e6
 
 def optfunc(inputargs, dir=None, *args, **kwargs):
     if dir == None:

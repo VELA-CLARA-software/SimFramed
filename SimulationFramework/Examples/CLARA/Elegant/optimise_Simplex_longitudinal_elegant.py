@@ -10,13 +10,13 @@ import yaml
 from functools import partial
 
 def saveState(args, fitness):
-    with open('best_solutions_running_simplex_elegant.csv','a') as out:
+    with open('best_solutions_running_simplex_elegantgenesis.csv','a') as out:
         csv_out=csv.writer(out)
         args=list(args)
         args.append(fitness)
         csv_out.writerow(args)
 
-def saveParameterFile(best, file='clara_longitudinal_best.yaml'):
+def saveParameterFile(best, file='clara_elegantgenesis_best.yaml'):
     allparams = zip(*(injparameternames+parameternames))
     output = {}
     for p, k, v in zip(allparams[0], allparams[1], best):
