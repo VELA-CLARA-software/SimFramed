@@ -342,13 +342,13 @@ class astraPlotWidget(QWidget):
 
     def getScreenFiles(self):
         self.screenpositions = {}
-        files = glob.glob(self.directory+'/*.????.???')
-        filenames = ['.'.join(os.path.basename(f).split('.')[:-2]) for f in files]
+        files = glob.glob(self.directory+'/*[.][0-9][0-9][0-9][0-9][.][0-9][0-9][0-9]')
+        filenames = ['.'.join(os.path.basename(f).split('.')[:-2]) for f in files if not 'ren_' in f]
         print 'filenames = ', filenames
         runnumber = [os.path.basename(f).split('.')[-1] for f in files]
         print 'runnumber = ', runnumber
         for f, r in list(set(zip(filenames, runnumber))):
-            files = glob.glob(self.directory+'/'+f+'.????.???')
+            files = glob.glob(self.directory+'/'+f+'.[0-9][0-9][0-9][0-9].[0-9][0-9][0-9]')
             screenpositions = [re.search(f+'\.(\d\d\d\d)\.\d\d\d', s).group(1) for s in files]
             print 'screenpositions = ', screenpositions
             self.screenpositions[f] = {'screenpositions': sorted(screenpositions), 'run': r}

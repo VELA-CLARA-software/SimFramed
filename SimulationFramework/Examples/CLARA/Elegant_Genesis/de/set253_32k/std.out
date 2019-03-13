@@ -1,0 +1,14 @@
+basefiles defined as  None
+basefiles not defined! Using default location
+initial_data =  {'HDF5_file': 'de/set253_32k/CLA-FMS-APER-01.hdf5', 'i_HDF5': 1, 'idump': 0, 'i_beam': 0, 'i_rad': 0, 'i_dfl': 0, 'i_dpa': 0, 'i_edist': 0, 'file_pout': 'de/set253_32k', 'i_match': 0, 'gen_file': 'NEW_SHORT_NOM_TD_v7.in', 'file_beam': 'beamfile.txt', 'gen_launch': '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 6 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null', 'stat_run': 1, 'i_scan': 0}
+++++ Undulator Parameters +++
+Undulator parameters:
+('L=', 0.675)
+('gamma(electron)=', 487.0)
+('K=', 1.2256988945087615)
+('B[T]=', 0.525076870934103)
+('test', 13.433407703723338)
+Radiation parameters:
+('w1(first harmonic, zero angle)=', 2.0408939931182692e+16, 'Hz/2pi', 13.433407703723338, '[eV]', 9.229541434588838e-08, 'm')
+('Total energy loss [Gev]', 7.2918331650573265e-09)
+Error!  local variable 'sase3' referenced before assignment

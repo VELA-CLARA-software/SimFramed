@@ -14,7 +14,7 @@ from SimulationFramework.Framework import *
 #     lattice.generator.number_of_particles = 2**(3*3)
 # lattice.track()#startfile='C2V')
 
-lattice = Framework('short_240', clean=False, verbose=True)
+lattice = Framework('example', clean=False, verbose=True)
 lattice.loadSettings('Lattices/clara400_v12_v3.def')
 if not os.name == 'nt':
     scaling = 5
@@ -29,5 +29,5 @@ lattice.defineElegantCommand(['elegant'])
 print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
 lattice.modifyElement('CLA-S02-MAG-QUAD-01','k1', 10)
 print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
-# lattice.change_Lattice_Code('S02','elegant')
-# lattice.track(files=['S02'])#,preprocess=True, track=False, postprocess=False)
+lattice.change_Lattice_Code('S02','elegant')
+lattice.track(files=['S02'])#,preprocess=True, track=False, postprocess=False)
