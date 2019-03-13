@@ -10,6 +10,7 @@ import SimulationFramework.Modules.read_beam_file as rbf
 beam = rbf.beam()
 from operator import add
 import progressbar
+import munch
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -71,11 +72,12 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 
     elements_Elegant = yaml.load(infile)
 
 type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
-                         'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'mapsolenoid', 'wall_current_monitor': 'charge', 'cavity': 'rfcw',
+                         'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'cavity': 'rfcw',
                          'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift'}
 
 keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
-                            'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins'}
+                            'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick', 'field_amplitude': 'b',
+                            'csrdz': 'dz'}
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'wakefields': {'header': 'WAKE', 'bool': 'LWAKE'},
@@ -215,8 +217,12 @@ class Framework(object):
         else:
             filename = [input]
         for f in filename:
-            with file(master_lattice_location + f, 'r') as stream:
-                elements = yaml.load(stream)['elements']
+            if os.path.isfile(f):
+                with file(f, 'r') as stream:
+                    elements = yaml.load(stream)['elements']
+            else:
+                with file(master_lattice_location + f, 'r') as stream:
+                    elements = yaml.load(stream)['elements']
             for name, elem in elements.iteritems():
                 self.read_Element(name, elem)
 
@@ -254,7 +260,7 @@ class Framework(object):
 
     def change_Lattice_Code(self, name, code):
         currentLattice = self.latticeObjects[name]
-        self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectName, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables)
+        self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectname, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
     def read_Element(self, name, element, subelement=False):
         if name == 'filename':
@@ -274,13 +280,13 @@ class Framework(object):
                 raise NameError('Element does not have a name')
             else:
                 name = kwargs['name']
-        try:
-            element = globals()[type](name, type, **kwargs)
-            # print element
-            self.elementObjects[name] = element
-            return element
-        except Exception as e:
-            raise NameError('Element \'%s\' does not exist' % type)
+        # try:
+        element = globals()[type](name, type, **kwargs)
+        # print element
+        self.elementObjects[name] = element
+        return element
+        # except Exception as e:
+        #     raise NameError('Element \'%s\' does not exist' % type)
 
     def getElement(self, element, param=None):
         if self.__getitem__(element) is not None:
@@ -307,6 +313,7 @@ class Framework(object):
 
     def modifyElement(self, elementName, parameter, value):
         setattr(self.elementObjects[elementName], parameter, value)
+        # set(getattr(self.elementObjects[elementName], parameter), value)
 
     def add_Generator(self, default=None, **kwargs):
         if default in astra_generator_keywords['defaults']:
@@ -424,10 +431,10 @@ class Framework(object):
                     if postprocess:
                         self.latticeObjects[l].postProcess()
 
-class frameworkLattice(object):
+class frameworkLattice(munch.Munch):
     def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables):
         super(frameworkLattice, self).__init__()
-        self.objectName = name
+        self.objectname = name
         self.allElementObjects = elementObjects
         self.groupObjects = groupObjects
         self.allElements = self.allElementObjects.keys()
@@ -579,7 +586,7 @@ class frameworkLattice(object):
                          'position_start': list(d[0]),
                          'position_end': list(d[1]),
                          'use_stupakov': 1,
-                         'dz': 0.01,
+                         'csrdz': 0.01,
                          'lsc_bins': 100,
                         })
                     else:
@@ -587,7 +594,7 @@ class frameworkLattice(object):
                          'position_start': list(d[0]),
                          'position_end': list(d[1]),
                          'use_stupakov': 1,
-                         'dz': 0.01,
+                         'csrdz': 0.01,
                         })
 
                     newelements[name] = newdrift
@@ -602,7 +609,7 @@ class frameworkLattice(object):
 
     def getNames(self):
         elems = self.createDrifts()
-        return [e.objectName for e in elems.itervalues()]
+        return [e.objectname for e in elems.itervalues()]
 
     def getSNames(self):
         s = self.getSValues()
@@ -619,8 +626,8 @@ class frameworkLattice(object):
 
     def run(self):
         """Run the code with input 'filename'"""
-        command = self.executables[self.code] + [self.objectName]
-        with open(os.path.relpath(master_subdir+'/'+self.objectName+'.log', '.'), "w") as f:
+        command = self.executables[self.code] + [self.objectname]
+        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=master_subdir)
 
     def postProcess(self):
@@ -629,83 +636,65 @@ class frameworkLattice(object):
     def preProcess(self):
         pass
 
-class frameworkObject(object):
+class frameworkObject(munch.Munch):
 
-    def __init__(self, objectName=None, objectType=None, **kwargs):
+    def __init__(self, objectname=None, objectType=None, **kwargs):
         super(frameworkObject, self).__init__()
-        if objectName == None:
+        if objectname == None:
             raise NameError('Command does not have a name')
         if objectType == None:
             raise NameError('Command does not have a type')
-        object.__setattr__(self, 'objectProperties', dict())
-        object.__setattr__(self, 'objectDefaults', dict())
-        object.__setattr__(self, 'objectName', objectName)
-        object.__setattr__(self, 'objectType', objectType)
-        self.objectProperties['objectname'] = objectName
-        self.objectProperties['objecttype'] = objectType
-        if self.objectType in commandkeywords:
-            self.allowedKeyWords = commandkeywords[self.objectType]
-        elif self.objectType in elementkeywords:
-            self.allowedKeyWords = merge_two_dicts(elementkeywords[self.objectType]['keywords'], elementkeywords['common']['keywords'])
-            if 'framework_keywords' in  elementkeywords[self.objectType]:
-                 self.allowedKeyWords = merge_two_dicts(self.allowedKeyWords, elementkeywords[self.objectType]['framework_keywords'])
+        setattr(self, 'objectdefaults', munch.Munch())
+        setattr(self, 'objectname', objectname)
+        setattr(self, 'objecttype', objectType)
+        if self.objecttype in commandkeywords:
+            self.allowedkeywords = commandkeywords[self.objecttype]
+        elif self.objecttype in elementkeywords:
+            self.allowedkeywords = merge_two_dicts(elementkeywords[self.objecttype]['keywords'], elementkeywords['common']['keywords'])
+            if 'framework_keywords' in  elementkeywords[self.objecttype]:
+                 self.allowedkeywords = merge_two_dicts(self.allowedkeywords, elementkeywords[self.objecttype]['framework_keywords'])
         else:
             print( 'Unknown type = ', objectType)
             raise NameError
-        self.allowedKeyWords = map(lambda x: x.lower(), self.allowedKeyWords)
+        self.allowedkeywords = map(lambda x: x.lower(), self.allowedkeywords)
         for key, value in kwargs.iteritems():
             self.add_property(key, value)
 
     def add_property(self, key, value):
         key = key.lower()
-        if key in self.allowedKeyWords:
-            try:
-                self.objectProperties[key] = value
-                # self.__setattr__(key.lower(), value)
-            except:
-                print(key)
+        if key in self.allowedkeywords:
+            # try:
+            setattr(self, key, value)
+            # except Exception as e:
+            #
+            #     print e, ' :', self.objecttype, key
 
     def add_default(self, key, value):
-        self.objectDefaults[key] = value
+        self.objectdefaults[key] = value
 
     @property
     def parameters(self):
-        return self.objectProperties
+        return self.keys()
 
-    def __getattr__(self, key):
-        # print 'in __getattribute__!'
+    @property
+    def objectproperties(self):
+        return self
+
+    def __getattr__(self, key, default=None):
         key = key.lower()
-        propobj = getattr(self.__class__, key, None)
-        if isinstance(propobj, property) and propobj.fget is not None:
-            propobj.fget(self, value)
-        elif key in self.objectProperties:
-            return self.objectProperties[key]
-        elif key in self.objectDefaults:
-            return self.objectDefaults[key]
+        defaults = self.get('objectdefaults')
+        if key in defaults:
+            return self.get(key, defaults[key])
         else:
-            return None
+            return self.get(key, None)
 
-    def __getitem__(self, key):
-        self.__getattr__(key)
-
-    def __setattr__(self, key, value):
-        propobj = getattr(self.__class__, key, None)
-        if isinstance(propobj, property) and propobj.fset is not None:
-                propobj.fset(self, value)
+    def __getitem__(self, key, default=None):
+        key = key.lower()
+        defaults = self.get('objectdefaults')
+        if key in defaults:
+            return self.get(key, defaults[key])
         else:
-            self.objectProperties.__setitem__(key.lower(),value)
-
-    def __setitem__(self, key, value):
-        self.__setattr__(key.lower(),value)
-
-    def long(self, value):
-        return int(value)
-
-    def double(self, value):
-        return float(value)
-
-    def string(self, value):
-        return str(value)
+            return self.get(key, None)
 
 class elegantLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -714,7 +703,7 @@ class elegantLattice(frameworkLattice):
         # if 'input' in self.file_block and 'particle_definition' in self.file_block['input'] and self.file_block['input'].particle_definition == 'initial_distribution':
         #         self.particle_definition = 'laser'
         # else:
-        self.particle_definition = self.allElementObjects[self.start].objectName
+        self.particle_definition = self.allElementObjects[self.start].objectname
         self.bunch_charge = None
         self.q = charge(name='START', type='charge',**{'total': 250e-12})
 
@@ -727,7 +716,7 @@ class elegantLattice(frameworkLattice):
             if not element.subelement:
                 fulltext += element.write_Elegant()
         fulltext += self.w.write_Elegant()
-        fulltext += self.objectName+': Line=(START, '
+        fulltext += self.objectname+': Line=(START, '
         for e, element in elements.iteritems():
             if not element.subelement:
                 if len((fulltext + e).splitlines()[-1]) > 60:
@@ -736,10 +725,10 @@ class elegantLattice(frameworkLattice):
         return fulltext[:-2] + ', END )\n'
 
     def write(self):
-        self.lattice_file = master_subdir+'/'+self.objectName+'.lte'
+        self.lattice_file = master_subdir+'/'+self.objectname+'.lte'
         saveFile(self.lattice_file, self.writeElements())
-        commandFile = elegantCommandFile(lattice=self.objectName, elegantbeamfilename=self.particle_definition+'.sdds')
-        self.command_file = master_subdir+'/'+self.objectName+'.ele'
+        commandFile = elegantCommandFile(lattice=self.objectname, elegantbeamfilename=self.particle_definition+'.sdds')
+        self.command_file = master_subdir+'/'+self.objectname+'.ele'
         saveFile(self.command_file, commandFile.write())
 
     def preProcess(self):
@@ -765,11 +754,11 @@ class elegantLattice(frameworkLattice):
     def run(self):
         """Run the code with input 'filename'"""
         if not os.name == 'nt':
-            command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(master_lattice_location,master_subdir)+'/Codes/defns.rpn'] + [self.objectName+'.ele']
+            command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(master_lattice_location,master_subdir)+'/Codes/defns.rpn'] + [self.objectname+'.ele']
         else:
-            command = self.executables[self.code] + [self.objectName+'.ele']
+            command = self.executables[self.code] + [self.objectname+'.ele']
         # print command
-        with open(os.path.relpath(master_subdir+'/'+self.objectName+'.log', '.'), "w") as f:
+        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=master_subdir)
 
 class elegantCommandFile(object):
@@ -820,7 +809,7 @@ class frameworkCommand(frameworkObject):
     def write(self):
         wholestring=''
         string = '&'+self.objectType+'\n'
-        for key, value in self.objectProperties.iteritems():
+        for key, value in self.objectproperties.iteritems():
             if not key =='name' and not key == 'type' and key in commandkeywords[self.objectType]:
                 string+='\t'+key+' = '+str(value)+'\n'
         string+='&end\n'
@@ -852,7 +841,7 @@ class astraLattice(frameworkLattice):
         if self.headers['newrun'].particle_definition == 'initial_distribution':
             self.headers['newrun'].particle_definition = 'laser.astra'
         else:
-            self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectName+'.astra'
+            self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectname+'.astra'
 
         # Create an "output" block
         if 'output' not in self.file_block:
@@ -870,7 +859,7 @@ class astraLattice(frameworkLattice):
         if 'global_errors' not in self.globalSettings:
             self.globalSettings['global_errors'] = {}
         if 'global_errors' in self.file_block or 'global_errors' in self.globalSettings:
-            self.global_error = global_error(name=self.objectName+'_global_error')
+            self.global_error = global_error(name=self.objectname+'_global_error')
             self.headers['global_errors'] = astra_errors(element=self.global_error, **merge_two_dicts(self.file_block['global_errors'], self.globalSettings['global_errors']))
         # print 'errors = ', self.file_block, self.headers['global_errors']
 
@@ -904,7 +893,7 @@ class astraLattice(frameworkLattice):
         return fulltext
 
     def write(self):
-        self.code_file = master_subdir+'/'+self.objectName+'.in'
+        self.code_file = master_subdir+'/'+self.objectname+'.in'
         saveFile(self.code_file, self.writeElements())
 
     def preProcess(self):
@@ -917,7 +906,7 @@ class astraLattice(frameworkLattice):
                 e.zstart = self.allElementObjects[self.start].start
             else:
                 e.zstart = [0,0,0]
-            e.astra_to_hdf5(self.objectName)
+            e.astra_to_hdf5(self.objectname)
         self.astra_to_hdf5()
 
     def astra_to_hdf5(self):
@@ -926,10 +915,10 @@ class astraLattice(frameworkLattice):
         else:
             zstart = [0,0,0]
         endpos = np.array(self.allElementObjects[self.end].end)-np.array(zstart)
-        astrabeamfilename = self.objectName + '.' + str(int(round(endpos[2]*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
+        astrabeamfilename = self.objectname + '.' + str(int(round(endpos[2]*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
         beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
-        HDF5filename = self.allElementObjects[self.end].objectName+'.hdf5'
+        HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.allElementObjects[self.end].middle)
 
 class gptLattice(frameworkLattice):
@@ -943,7 +932,7 @@ class gptLattice(frameworkLattice):
         # if self.headers['newrun'].particle_definition == 'initial_distribution':
         #             self.headers['newrun'].particle_definition = 'laser.astra'
         # else:
-        #     self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectName+'.astra'
+        #     self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectname+'.astra'
     def writeElements(self):
         fulltext = ''
         for element in self.elements.values():
@@ -952,7 +941,7 @@ class gptLattice(frameworkLattice):
         return fulltext
 
     def write(self):
-        self.code_file = master_subdir+'/'+self.objectName+'.in'
+        self.code_file = master_subdir+'/'+self.objectname+'.in'
         # saveFile(self.code_file, self.writeElements())
         return self.writeElements()
 
@@ -961,13 +950,13 @@ class gptLattice(frameworkLattice):
 
     def postProcess(self):
         for e in self.screens_and_bpms:
-            e.astra_to_hdf5(self.objectName)
+            e.astra_to_hdf5(self.objectname)
         self.astra_to_hdf5()
 
     def astra_to_hdf5(self):
-        astrabeamfilename = self.objectName + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
+        astrabeamfilename = self.objectname + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
-        HDF5filename = self.allElementObjects[self.end].objectName+'.hdf5'
+        HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
 
 class csrtrackLattice(frameworkLattice):
@@ -985,8 +974,8 @@ class csrtrackLattice(frameworkLattice):
             self.CSRTrackelementObjects['particles'].particle_definition = 'laser.astra'
             self.CSRTrackelementObjects['particles'].add_default('array', '#file{name=laser.astra}')
         else:
-            self.CSRTrackelementObjects['particles'].particle_definition = self.allElementObjects[self.start].objectName
-            self.CSRTrackelementObjects['particles'].add_default('array', '#file{name='+self.allElementObjects[self.start].objectName+'.astra'+'}')
+            self.CSRTrackelementObjects['particles'].particle_definition = self.allElementObjects[self.start].objectname
+            self.CSRTrackelementObjects['particles'].add_default('array', '#file{name='+self.allElementObjects[self.start].objectname+'.astra'+'}')
 
     @property
     def dipoles_screens_and_bpms(self):
@@ -1034,7 +1023,7 @@ class csrtrackLattice(frameworkLattice):
 class frameworkGroup(object):
     def __init__(self, name, elementObjects, type, elements, **kwargs):
         super(frameworkGroup, self).__init__()
-        self.objectName = name
+        self.objectname = name
         self.type = type
         self.elements = elements
         self.allElementObjects = elementObjects
@@ -1047,7 +1036,7 @@ class frameworkGroup(object):
         return [self.allElementObjects[e].theta for e in self.elements]
 
     def __str__(self):
-        return str([self.allElementObjects[e].objectName for e in self.elements])
+        return str([self.allElementObjects[e].objectname for e in self.elements])
 
     def __getitem__(self, key):
         return getattr(self, key)
@@ -1114,7 +1103,7 @@ class chicane(frameworkGroup):
                 starting_angle += obj[i].angle
 
     def __str__(self):
-        return str([[self.allElementObjects[e].objectName, self.allElementObjects[e].angle, self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
+        return str([[self.allElementObjects[e].objectname, self.allElementObjects[e].angle, self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
 
 class frameworkCounter(dict):
     def __init__(self, sub={}):
@@ -1151,8 +1140,8 @@ class frameworkGenerator(object):
     def __init__(self, executables, **kwargs):
         super(frameworkGenerator, self).__init__()
         self.executables = executables
-        self.objectDefaults = {}
-        self.objectProperties = {}
+        self.objectdefaults = {}
+        self.objectproperties = {}
         self.allowedKeyWords = astra_generator_keywords['keywords'] + astra_generator_keywords['framework_keywords']
         self.allowedKeyWords = map(lambda x: x.lower(), self.allowedKeyWords)
         for key, value in kwargs.iteritems():
@@ -1160,7 +1149,7 @@ class frameworkGenerator(object):
             if key in self.allowedKeyWords:
                 try:
                     # print 'key = ', key
-                    self.objectProperties[key] = value
+                    self.objectproperties[key] = value
                     setattr(self, key, value)
                 except:
                     pass
@@ -1168,7 +1157,7 @@ class frameworkGenerator(object):
                     # exit()
 
     def run(self):
-        command = self.executables['generator'] + [self.objectName+'.in']
+        command = self.executables['generator'] + [self.objectname+'.in']
         with open(os.devnull, "w") as f:
             subprocess.call(command, stdout=f, cwd=master_subdir)
 
@@ -1201,14 +1190,14 @@ class frameworkGenerator(object):
 
     @property
     def charge(self):
-        return float(self.objectProperties['charge']) if 'charge' in self.objectProperties and self.objectProperties['charge'] is not None else 250e-12
+        return float(self.objectproperties['charge']) if 'charge' in self.objectproperties and self.objectproperties['charge'] is not None else 250e-12
     @charge.setter
     def charge(self, q):
-        self.objectProperties['charge'] = q
+        self.objectproperties['charge'] = q
 
     @property
-    def objectName(self):
-        return self.objectProperties['name'] if 'name' in self.objectProperties and self.objectProperties['name'] is not None else 'laser'
+    def objectname(self):
+        return self.objectproperties['name'] if 'name' in self.objectproperties and self.objectproperties['name'] is not None else 'laser'
 
     def write(self):
         output = '&INPUT\n'
@@ -1234,18 +1223,18 @@ class frameworkGenerator(object):
                 keyword_dict[k] = {'value': val}
         output += self._write_ASTRA(merge_two_dicts(framework_dict, keyword_dict))
         output += '\n/\n'
-        saveFile(master_subdir+'/'+self.objectName+'.in', output)
+        saveFile(master_subdir+'/'+self.objectname+'.in', output)
 
     @property
     def parameters(self):
-        return self.objectProperties
+        return self.objectproperties
 
     def __getattr__(self, a):
         return None
 
     def add_property(self, key, value):
         if key.lower() in self.allowedKeyWords:
-            self.objectProperties[key.lower()] = value
+            self.objectproperties[key.lower()] = value
             self.__setattr__(key.lower(), value)
 
     def astra_to_hdf5(self):
@@ -1259,15 +1248,16 @@ class frameworkElement(frameworkObject):
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(frameworkElement, self).__init__(elementName, elementType, **kwargs)
         self.add_default('length', 0)
-        self.position_errors = [0,0,0]
-        self.rotation_errors = [0,0,0]
-        self.global_rotation = [0,0,0]
+        self.add_property('position_errors', [0,0,0])
+        self.add_property('rotation_errors', [0,0,0])
+        self.add_property('global_rotation', [0,0,0])
+        # print 'self.position_errors = ', self['position_errors']
 
     def __mul__(self, other):
-        return [self.objectProperties for x in range(other)]
+        return [self.objectproperties for x in range(other)]
 
     def __rmul__(self, other):
-        return [self.objectProperties for x in range(other)]
+        return [self.objectproperties for x in range(other)]
 
     def __neg__(self):
         return self
@@ -1432,9 +1422,9 @@ class frameworkElement(frameworkObject):
 
     def _write_Elegant(self):
         wholestring=''
-        etype = self._convertType_Elegant(self.objectType)
-        string = self.objectName+': '+ etype
-        for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
+        etype = self._convertType_Elegant(self.objecttype)
+        string = self.objectname+': '+ etype
+        for key, value in merge_two_dicts({'k1': self.k1},merge_two_dicts(self.objectdefaults, self.objectproperties)).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1485,36 +1475,36 @@ class dipole(frameworkElement):
 
     @property
     def width(self):
-        if 'width' in self.objectProperties:
-            return self.objectProperties['width']
+        if 'width' in self.objectproperties:
+            return self.objectproperties['width']
         else:
             return 0.2
     @width.setter
     def width(self, w):
-        self.objectProperties['width'] = w
+        self.objectproperties['width'] = w
 
     def __neg__(self):
         newself = copy.deepcopy(self)
-        if 'exit_edge_angle' in newself.objectProperties and 'entrance_edge_angle' in newself.objectProperties:
+        if 'exit_edge_angle' in newself.objectproperties and 'entrance_edge_angle' in newself.objectproperties:
             e1 = newself['entrance_edge_angle']
             e2 = newself['exit_edge_angle']
-            newself.objectProperties['entrance_edge_angle'] = e2
-            newself.objectProperties['exit_edge_angle'] = e1
-        elif 'entrance_edge_angle' in newself.objectProperties:
-            newself.objectProperties['exit_edge_angle'] = newself.objectProperties['entrance_edge_angle']
-            del newself.objectProperties['entrance_edge_angle']
-        elif 'exit_edge_angle' in newself.objectProperties:
-            newself.objectProperties['entrance_edge_angle'] = newself.objectProperties['exit_edge_angle']
-            del newself.objectProperties['exit_edge_angle']
-        newself.objectName = '-'+newself.objectName
+            newself.objectproperties['entrance_edge_angle'] = e2
+            newself.objectproperties['exit_edge_angle'] = e1
+        elif 'entrance_edge_angle' in newself.objectproperties:
+            newself.objectproperties['exit_edge_angle'] = newself.objectproperties['entrance_edge_angle']
+            del newself.objectproperties['entrance_edge_angle']
+        elif 'exit_edge_angle' in newself.objectproperties:
+            newself.objectproperties['entrance_edge_angle'] = newself.objectproperties['exit_edge_angle']
+            del newself.objectproperties['exit_edge_angle']
+        newself.objectname = '-'+newself.objectname
         return newself
 
     def _edge_angles(self, estr):
-        if estr in self.objectProperties:
-            if isinstance(self.objectProperties[estr], str):
-                return checkValue(self, self.objectProperties[estr],0)
+        if estr in self.objectproperties:
+            if isinstance(self.objectproperties[estr], str):
+                return checkValue(self, self.objectproperties[estr],0)
             else:
-                return self.objectProperties[estr]
+                return self.objectproperties[estr]
         else:
             return 0
 
@@ -1584,7 +1574,12 @@ class kicker(dipole):
 
     @property
     def angle(self):
-        return 0
+        if self.plane == 'horizontal' and hasattr(self, 'hangle') and self.hangle is not None:
+            return self.hangle
+        elif hasattr(self, 'vangle') and self.vangle is not None:
+            return self.vangle
+        else:
+            return 0
 
     def write_ASTRA(self, n):
         output = ''
@@ -1592,6 +1587,8 @@ class kicker(dipole):
         hkick = super(kicker, self).write_ASTRA(n)
         if hkick is not None:
             output += hkick
+        else:
+            n = n-1
         self.plane = 'vertical'
         vkick = super(kicker, self).write_ASTRA(n+1)
         if vkick is not None:
@@ -1602,9 +1599,16 @@ class quadrupole(frameworkElement):
 
     def __init__(self, name=None, type='quadrupole', **kwargs):
         super(quadrupole, self).__init__(name, type, **kwargs)
-        self.add_default('k1', 0)
+        self.add_default('k1l', 0)
         self.add_default('n_kicks', 20)
         self.strength_errors = [0]
+
+    @property
+    def k1(self):
+        return self.k1l / self.length
+    @k1.setter
+    def k1(self, k1):
+        self.k1l = self.length * k1
 
     @property
     def dk1(self):
@@ -1668,8 +1672,8 @@ class cavity(frameworkElement):
     def _write_Elegant(self):
         wholestring=''
         etype = self._convertType_Elegant(self.objectType)
-        string = self.objectName+': '+ etype
-        for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
+        string = self.objectname+': '+ etype
+        for key, value in merge_two_dicts(self.objectdefaults, self.objectproperties).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1735,7 +1739,7 @@ class screen(frameworkElement):
     def __init__(self, name=None, type='screen', **kwargs):
         super(screen, self).__init__(name, type, **kwargs)
         if 'output_filename' not in kwargs:
-            self.objectProperties['output_filename'] = self.objectName+'.sdds'
+            self.output_filename = self.objectname+'.sdds'
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
@@ -1763,7 +1767,7 @@ class screen(frameworkElement):
         else:
             beam.read_astra_beam_file((master_subdir + '/' + astrabeamfilename).strip('\"'), normaliseZ=False)
             beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
-            HDF5filename = (self.objectName+'.hdf5').strip('\"')
+            HDF5filename = (self.objectname+'.hdf5').strip('\"')
             beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
 
     def sdds_to_hdf5(self):
@@ -1815,8 +1819,8 @@ class drift(frameworkElement):
     def _write_Elegant(self):
         wholestring=''
         etype = self._convertType_Elegant(self.objectType)
-        string = self.objectName+': '+ etype
-        for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
+        string = self.objectname+': '+ etype
+        for key, value in merge_two_dicts(self.objectdefaults, self.objectproperties).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1838,8 +1842,8 @@ class csrdrift(frameworkElement):
     def _write_Elegant(self):
         wholestring=''
         etype = self._convertType_Elegant(self.objectType)
-        string = self.objectName+': '+ etype
-        for key, value in merge_two_dicts(self.objectDefaults, self.objectProperties).iteritems():
+        string = self.objectname+': '+ etype
+        for key, value in merge_two_dicts(self.objectdefaults, self.objectproperties).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1933,9 +1937,9 @@ class astra_newrun(astra_header):
         self.starting_offset = offset
         self.starting_rotation = rotation
         if 'run' not in kwargs:
-            self.objectProperties['run'] = 1
+            self.run = 1
         if 'head' not in kwargs:
-            self.objectProperties['head'] = 'trial'
+            self.head = 'trial'
         if 'lprompt' not in kwargs:
             self.add_property('lprompt', False)
 
@@ -2061,8 +2065,8 @@ class csrtrack_element(frameworkElement):
             k = k.lower()
             if getattr(self,k) is not None:
                 output += k+'='+self.CSRTrack_str(getattr(self, k))+'\n'
-            elif k in self.objectDefaults:
-                output += k+'='+self.CSRTrack_str(self.objectDefaults[k])+'\n'
+            elif k in self.objectdefaults:
+                output += k+'='+self.CSRTrack_str(self.objectdefaults[k])+'\n'
         output+='}\n'
         return output
 
@@ -2140,8 +2144,8 @@ class gpt_element(frameworkElement):
             k = k.lower()
             if getattr(self,k) is not None:
                 output += getattr(self, k)+', '
-            elif k in self.objectDefaults :
-                output += self.objectDefaults[k]+', '
+            elif k in self.objectdefaults :
+                output += self.objectdefaults[k]+', '
         output[:-2]+=')\n'
         return output
 

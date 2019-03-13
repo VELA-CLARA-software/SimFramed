@@ -1,0 +1,28 @@
+&run_setup
+	always_change_p0 = 1
+	use_beamline = POSTINJ
+	p_central = 68.93930289345137
+	lattice = POSTINJ.lte
+	centroid = %s.cen
+	sigma = %s.sig
+&end
+&run_control
+	n_steps = 1
+	n_passes = 1
+&end
+&twiss_output
+	statistics = 1
+	output_at_each_step = 0
+	beta_y = 29.87408052479971
+	beta_x = 29.368152682149663
+	alpha_y = -2.8678444334113937
+	matched = 0
+	filename = %s.twi
+	radiation_integrals = 1
+	alpha_x = -2.8261679395936854
+&end
+&sdds_beam
+	input = CLA-S02-APER-01.sdds
+&end
+&track
+&end

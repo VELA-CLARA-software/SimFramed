@@ -54,6 +54,7 @@ class fitnessFunc():
         self.id = id
         self.startcharge = startcharge
         self.basefiles = basefiles
+        print 'basefiles defined as ', self.basefiles
         ''' if only post-injector optimisation'''
         if self.post_injector:
             linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
@@ -98,8 +99,10 @@ class fitnessFunc():
         # try:
             if self.post_injector:
                 if self.basefiles is not None:
+                    # print 'basefiles defined as ', self.basefiles
                     self.framework['POSTINJ'].file_block['input']['prefix'] = self.basefiles
                 else:
+                    print 'basefiles not defined! Using default location'
                     self.framework['POSTINJ'].file_block['input']['prefix'] = '../../../../basefiles_'+str(self.scaling)+'/'
                 if self.startcharge is not None:
                     self.framework['POSTINJ'].bunch_charge = 1e-12*self.startcharge
