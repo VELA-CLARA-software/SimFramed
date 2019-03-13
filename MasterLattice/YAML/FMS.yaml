@@ -272,7 +272,7 @@ elements:
   CLA-FMS-MAG-QUAD-01:
     type: quadrupole
     length: 0.028
-    k1l: 18.152692796877*0.028
+    k1l: 0.508275
     buffer_start: [-1.6e-06, 0, 51.8568]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
@@ -356,7 +356,7 @@ elements:
   CLA-FMS-MAG-QUAD-02:
     type: quadrupole
     length: 0.028
-    k1l: 19.942887479099*0.028
+    k1l: 0.558401
     buffer_start: [2.68734e-05, 0, 53.5541]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
