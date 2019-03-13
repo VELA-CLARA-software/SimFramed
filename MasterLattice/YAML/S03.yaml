@@ -16,7 +16,7 @@ elements:
   CLA-S03-MAG-QUAD-01:
     type: quadrupole
     length: 0.162
-    k1: -0.972061
+    k1l: -0.157474
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 11.2974]
