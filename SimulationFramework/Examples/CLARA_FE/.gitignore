@@ -1,12 +1,9 @@
-C2V/
-DCP/
-VHEE/
-XARA/
-DWA*/
+solenoidEnergy/
+CLARA_BA1/
 BA1/
-FEBE/
-Errors/
-Old/
+DWA_BA1/
+DWA*/
+DCP/
 *.hdf5
 *.001
 *.astra

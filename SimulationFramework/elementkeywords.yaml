@@ -57,6 +57,9 @@ common:
     buffer_end,
     buffer_start_length,
     buffer_end_length,
+    position_errors,
+    rotation_errors,
+    global_rotation
   }
 dipole:
   keywords: {
@@ -77,6 +80,9 @@ kicker:
     isr_enable,
     Horizontal_PV,
     Vertical_PV,
+    hangle,
+    vangle,
+    angle
   }
 marker:
   keywords: {
@@ -86,6 +92,7 @@ monitor:
   keywords: {}
 quadrupole:
   keywords: {
+    k1l,
     k1,
     sr_enable,
     isr_enable,
@@ -108,7 +115,7 @@ wall_current_monitor:
 drift:
   keywords: {}
 csrdrift:
-  keywords: {'dz', 'use_stupakov','lsc_bins'}
+  keywords: {'csrdz', 'use_stupakov','lsc_bins'}
 charge:
   keywords: {"TOTAL"}
 astra_newrun:
