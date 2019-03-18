@@ -132,7 +132,8 @@ def checkValue(self, d, default=None):
     elif isinstance(d, str):
         return getattr(self, d) if hasattr(self, d) and getattr(self, d) is not None else default
 
-def merge_two_dicts(x, y):
+def merge_two_dicts(y, x):
+    '''Combine to dictionaries: first dictionary overwrites keys in the second dictionary'''
     if x is None and y is None:
         return OrderedDict()
     elif x is None:
@@ -157,7 +158,7 @@ def clean_directory(folder):
 def list_add(list1, list2):
     return map(add, list1, list2)
 
-class Framework(object):
+class Framework(munch.Munch):
 
     def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True):
         super(Framework, self).__init__()
@@ -350,16 +351,14 @@ class Framework(object):
         # outputfile.write(k+' '+v+' ')
 
     def __getitem__(self,key):
-        if key in self.elementObjects:
-            return self.elementObjects[key]
-        elif key in self.latticeObjects:
-            return self.latticeObjects[key]
-        elif key in self.groupObjects:
-            return self.groupObjects[key]
-        elif hasattr(self, key):
-            return getattr(self,key.lower())
+        if key in self.get('elementObjects'):
+            return self.elementObjects.get(key)
+        elif key in self.get('latticeObjects'):
+            return self.latticeObjects.get(key)
+        elif key in self.get('groupObjects'):
+            return self.groupObjects.get(key)
         else:
-            return None
+            return self.get(key, None)
 
     @property
     def elements(self):
@@ -435,6 +434,8 @@ class frameworkLattice(munch.Munch):
     def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables):
         super(frameworkLattice, self).__init__()
         self.objectname = name
+        for key, value in elementObjects.iteritems():
+            setattr(self, key, value)
         self.allElementObjects = elementObjects
         self.groupObjects = groupObjects
         self.allElements = self.allElementObjects.keys()
@@ -663,11 +664,10 @@ class frameworkObject(munch.Munch):
     def add_property(self, key, value):
         key = key.lower()
         if key in self.allowedkeywords:
-            # try:
-            setattr(self, key, value)
-            # except Exception as e:
-            #
-            #     print e, ' :', self.objecttype, key
+            try:
+                setattr(self, key, value)
+            except Exception as e:
+                print self.objecttype,'[', key, ']: ', e
 
     def add_default(self, key, value):
         self.objectdefaults[key] = value
@@ -679,14 +679,6 @@ class frameworkObject(munch.Munch):
     @property
     def objectproperties(self):
         return self
-
-    def __getattr__(self, key, default=None):
-        key = key.lower()
-        defaults = self.get('objectdefaults')
-        if key in defaults:
-            return self.get(key, defaults[key])
-        else:
-            return self.get(key, None)
 
     def __getitem__(self, key, default=None):
         key = key.lower()
@@ -1424,7 +1416,7 @@ class frameworkElement(frameworkObject):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts({'k1': self.k1},merge_two_dicts(self.objectdefaults, self.objectproperties)).iteritems():
+        for key, value in merge_two_dicts({'k1': self.k1},merge_two_dicts(self.objectproperties, self.objectdefaults)).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1673,7 +1665,7 @@ class cavity(frameworkElement):
         wholestring=''
         etype = self._convertType_Elegant(self.objectType)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectdefaults, self.objectproperties).iteritems():
+        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1820,7 +1812,7 @@ class drift(frameworkElement):
         wholestring=''
         etype = self._convertType_Elegant(self.objectType)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectdefaults, self.objectproperties).iteritems():
+        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1843,7 +1835,7 @@ class csrdrift(frameworkElement):
         wholestring=''
         etype = self._convertType_Elegant(self.objectType)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectdefaults, self.objectproperties).iteritems():
+        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
