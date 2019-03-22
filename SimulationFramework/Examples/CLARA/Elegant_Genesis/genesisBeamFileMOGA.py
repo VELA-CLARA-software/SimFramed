@@ -21,8 +21,9 @@ from deap import base, creator, tools, algorithms
 import copy
 import genesisBeamFile
 
-# startingvalues = best = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000000.0, 45, -0.1185]
-startingvalues = best = [2.018490050471744e7,-23.04340196585034,2.934266187158792e7,-1.7771024303105327,1.7144513765057914e7,167.20031122662812,3.185636245553371e7,41.97162063476029,-0.14363986757360986,233.91419013665944]
+startingvalues = best = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000000.0, 45, -0.1185, 1]
+# startingvalues = best = [2.018490050471744e7,-23.04340196585034,2.934266187158792e7,
+                        # -1.7771024303105327,1.7144513765057914e7,167.20031122662812,3.185636245553371e7,41.97162063476029,-0.14363986757360986, 1]
 
 # print 'starting values = ', best
 # optfunc(best, scaling=5, post_injector=True, verbose=True)
@@ -35,8 +36,8 @@ def rangeFunc(i):
         return [-1,1]
 
 startranges = [rangeFunc(i) for i in best]
-MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2, 100]
-MAX = [33e6, 90, 33e6, 90, 45e6, 270, 32e6, 90, -0.05, 250]
+MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2, 0.0]
+MAX = [33e6, 90, 33e6, 90, 45e6, 270, 32e6, 90, -0.05, 3]
 
 
 def checkBounds(min, max):
@@ -62,9 +63,12 @@ def generate():
     else:
         return creator.Individual(random.uniform(a,b) for a,b in startranges)
 
-# print generate()
+def MOGAoptFunc(*args, **kwargs):
+    e, b, ee, be, l, g = genesisBeamFile.optfunc(subdir='MOGA', *args, **kwargs)
+    return e/b, ee/be, (l - 10)**2
 
-creator.create("FitnessMin", base.Fitness, weights=(1.0, -1.0, 1.0, -1.0))
+
+creator.create("FitnessMin", base.Fitness, weights=(1.0, 1.0, -1.0, ))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
 toolbox = base.Toolbox()
@@ -77,11 +81,11 @@ toolbox.register("Individual", generate)
 toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
 
 if os.name == 'nt':
-    toolbox.register("evaluate", genesisBeamFile.optfunc, scaling=3, post_injector=True)
+    toolbox.register("evaluate", MOGAoptFunc, scaling=3, post_injector=True)
 else:
-    toolbox.register("evaluate", genesisBeamFile.optfunc, scaling=6, post_injector=True)
+    toolbox.register("evaluate", MOGAoptFunc, scaling=5, post_injector=True)
 toolbox.register("mate", tools.cxUniform, indpb=0.3)
-toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003,5], indpb=0.3)
+toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003,0.1], indpb=0.3)
 
 toolbox.decorate("mate", checkBounds(MIN, MAX))
 toolbox.decorate("mutate", checkBounds(MIN, MAX))
@@ -93,7 +97,7 @@ global_best = 0
 if __name__ == "__main__":
     random.seed(43065)
 
-    out = open('best_solutions_running_simplex_elegant_genesis.csv','wb', buffering=0)
+    out = open('MOGA/best_solutions_running.csv','wb', buffering=0)
     genesisBeamFile.csv_out = csv.writer(out)
 
     NGEN = 200
@@ -121,7 +125,7 @@ if __name__ == "__main__":
     stats.register("max", np.max, axis=0)
 
     opt.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats,
-                        hoffile='CLARA_HOF_longitudinal_Genesis.csv',
+                        hoffile='MOGA/CLARA_HOF_longitudinal_Genesis_DCP.csv',
                         halloffame=hof)
 
     pool.close()
@@ -140,7 +144,7 @@ if __name__ == "__main__":
     #         for row in stats:
     #             csv_out.writerow(row)
     # except:
-    with open('CLARA_best_longitudinal_Genesis_solutions_final.csv','wb') as out:
+    with open('MOGA/CLARA_best_longitudinal_Genesis_solutions_final_DCP.csv','wb') as out:
         hof_out=csv.writer(out)
         for row in hof:
             hof_out.writerow(row)

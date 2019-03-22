@@ -173,7 +173,7 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
         if hasattr(self,'i_HDF5') and getattr(self,'i_HDF5')==1 and hasattr(self,'HDF5_file'):
             inp, beam = self.convert_HDF5_edist(inp, getattr(self,'HDF5_file'))
             setattr(inp,'beam',None)
-            gamma = np.average(inp.edist.g)
+            gamma = np.median(inp.edist.g)
             # setattr(inp,'xlamds',float(inp.xlamd*(1.0+np.square(inp.aw0))/(2.0*np.square(gamma))))
             setattr(inp,'xlamds', float(0.022058051560136/(gamma**2))) ## DJD 15/02/2019
             print 'aw0 = ', inp.aw0
@@ -225,7 +225,7 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
 
                 inp_arr.append(inp)
                 launcher=get_genesis_launcher(self.gen_launch)
-                g = gclient.run_genesis(inp,launcher,i_aft=i_aft)
+                g = run_genesis(inp,launcher,i_aft=i_aft)
                 setattr(g,'filePath',str(inp.run_dir))
                 # g.Lsat = g.z[np.argmax(g.bunching[np.argmax(g.p_int[:,-1])])]
                 g.bunch_length = self.bunch_length
@@ -326,16 +326,18 @@ def saveState(args, id, *values):
     # csv_out.flush()
 
 
-def optfunc(inputargs, verbose=True, dir=None, savestate=True, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
+def optfunc(inputargs, verbose=True, dir=None, subdir='', savestate=True, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
     global global_best
     process = multiprocessing.current_process()
     runno = process.pid
 
-    with runEle.TemporaryDirectory(dir=os.getcwd()) as tmpdir:
+    with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir) as tmpdir:
         if dir is not None:
             tmpdir = dir
             if not os.path.exists(tmpdir):
                 os.makedirs(tmpdir)
+        tmpdir = os.path.relpath(tmpdir)
+        # print 'tmpdir = ', tmpdir
         try:
             if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
                 idNumber = os.path.basename(tmpdir)
@@ -344,24 +346,19 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, runGenesis=True, 
 
             # print 'post_injector = ', post_injector
 
-            if len(inputargs) == 9:
-                inputargs = np.append(inputargs, 250)
-            elif len(inputargs) == 15:
-                inputargs = np.append(inputargs, 250)
-
             sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=0)
             sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=0)
             if runElegant:
                 if post_injector:
-                    fit = runEle.fitnessFunc(inputargs[:9], tmpdir, id=idNumber, startcharge=inputargs[9], post_injector=True, *args, **kwargs)
+                    fit = runEle.fitnessFunc(inputargs[:10], tmpdir, id=idNumber, startcharge=250, post_injector=True, *args, **kwargs)
                 else:
                     print 'inputargs = ', inputargs
-                    fit = runEle.fitnessFunc(inputargs[:15], tmpdir, id=idNumber, startcharge=inputargs[15], post_injector=False, *args, **kwargs)
+                    fit = runEle.fitnessFunc(inputargs[:16], tmpdir, id=idNumber, startcharge=250, post_injector=False, *args, **kwargs)
                 fitvalue = fit.calculateBeamParameters()
             if post_injector:
-                e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=inputargs[9])
+                e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
             else:
-                e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=inputargs[15])
+                e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
             sys.stdout = sys.__stdout__
             sys.stderr = sys.__stderr__
             if verbose:
@@ -386,12 +383,12 @@ def optfunc(inputargs, verbose=True, dir=None, savestate=True, runGenesis=True, 
             print 'Error! ', e
             return 0, 10, 0, 10, 500, {}
 
-
 if __name__ == "__main__":
     args = parser.parse_args()
 
     injector_startingvalues = [-8.906156010951616,0.3420474160090586,2.0515744815221354e7,-16.281405933324855,0.05036027437405955,-0.0502414403704962]
-    startingvalues = best = [18098078.513507977,-28.111766926229137,25441717.849741504,-1.0448097057137171,14144444.379584715,168.92627603174682,31641201.21981612,45.08581803817373,-0.1390956730945702]
+    startingvalues = best = [2.018490050471744e7,-23.04340196585034,2.934266187158792e7,
+                            -1.7771024303105327,1.7144513765057914e7,167.20031122662812,3.185636245553371e7,41.97162063476029,-0.14363986757360986, 1]
 
     if args.postinjector == False or args.postinjector == 'False' or args.postinjector == 0:
         best = injector_startingvalues + startingvalues
@@ -428,13 +425,13 @@ if __name__ == "__main__":
         optfunc(best, dir=os.path.abspath('gaussianBeam'), scaling=6, post_injector=POST_INJECTOR, verbose=True, savestate=False, runGenesis=True, runElegant=False)
 
     # 1351 == 50uJ
-    set253 = [18098078.513507977,-28.111766926229137,31441717.849741504,-1.0448097057137171,14144444.379584715,168.92627603174682,31641201.21981612,45.08581803817373,-0.1570956730945702]
+    set253 = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000000.0, 45, -0.1185, 0]
     def npart_test():
         ## This is for the set Beam Test!
         for n in [253]:
             best = eval('set'+str(n))
             print n,' = ', best
-            optfunc(best, dir='de/set'+str(n)+'_32k', scaling=5, post_injector=True, verbose=True, savestate=False)
+            optfunc(best, dir='test/set'+str(n)+'_32k', scaling=5, post_injector=True, verbose=True, savestate=False)
             # optfunc(best, dir=os.path.abspath('set'+str(n)+'_262k'), scaling=6, post_injector=True, verbose=True, savestate=False)
 
     def scan_vbc_angle():
