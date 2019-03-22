@@ -364,7 +364,7 @@ class astraPlotWidget(QWidget):
         self.layout.addWidget(self.folderBeamWidget)
         self.layout.addWidget(self.tabWidget)
 
-        self.plotType = 'Slice'
+        self.plotType = 'Twiss'
         self.changeDirectory(self.directory)
 
     def findFirstEmptyColumnInGraphicsLayout(self):
@@ -460,6 +460,8 @@ class astraPlotWidget(QWidget):
         if self.plotType == 'Twiss':
             files = sorted(glob.glob(self.directory+"/*Xemit*"))
             self.twiss.read_astra_emit_files(files)
+            files = sorted(glob.glob(self.directory+"/*.flr"))
+            self.twiss.read_elegant_twiss_files(files, reset=False)
             self.plotDataTwiss()
         elif self.plotType == 'Beam' or self.plotType == 'Slice':
             if hasattr(self,'beamFileName') and os.path.isfile(self.directory+'/'+self.beamFileName):

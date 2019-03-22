@@ -10,10 +10,13 @@ elements:
   CLA-L02-CAV:
     type: cavity
     length: 4.06667
-    cell_length: 0.0333333
+    cell_length: 3.3333E-02
+    coupling_cell_length: 0.0495
     field_amplitude: 30000000.0
     frequency: 2998500000.0
     phase: -23
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
@@ -29,6 +32,7 @@ elements:
         type: longitudinal_wakefield
         length: 4.06667
         cell_length: 0.0333333
+        coupling_cell_length: 0.0495
         field_definition: $master_lattice_location$Data_Files/SzSx5um10mm.dat
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 10.8557]

@@ -10,7 +10,7 @@ import SimulationFramework.Modules.read_beam_file as rbf
 beam = rbf.beam()
 from operator import add
 import progressbar
-import munch
+from munch import Munch
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -73,11 +73,7 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 
 
 type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'cavity': 'rfcw',
-                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift'}
-
-keyword_conversion_rules_Elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
-                            'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick', 'field_amplitude': 'b',
-                            'csrdz': 'dz'}
+                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake'}
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'wakefields': {'header': 'WAKE', 'bool': 'LWAKE'},
@@ -134,11 +130,11 @@ def checkValue(self, d, default=None):
 
 def merge_two_dicts(y, x):
     '''Combine to dictionaries: first dictionary overwrites keys in the second dictionary'''
-    if x is None and y is None:
+    if not isinstance(x, (dict, OrderedDict)) and not isinstance(y, (dict, OrderedDict)):
         return OrderedDict()
-    elif x is None:
+    elif not isinstance(x, (dict, OrderedDict)):
         return y
-    elif y is None:
+    elif not isinstance(y, (dict, OrderedDict)):
         return x
     else:
         z = x.copy()   # start with x's keys and values
@@ -158,7 +154,7 @@ def clean_directory(folder):
 def list_add(list1, list2):
     return map(add, list1, list2)
 
-class Framework(munch.Munch):
+class Framework(Munch):
 
     def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True):
         super(Framework, self).__init__()
@@ -186,8 +182,8 @@ class Framework(munch.Munch):
                             'gpt': [r'C:/Program Files/General Particle Tracer/bin/gpt.exe']}
 
     def setSubDirectory(self, dir):
-        global master_subdir
-        self.subdirectory = self.basedirectory+'/'+dir
+        global master_subdir, master_lattice_location
+        self.subdirectory = os.path.abspath(self.basedirectory+'/'+dir)
         master_subdir = self.subdirectory
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory)
@@ -196,7 +192,7 @@ class Framework(munch.Munch):
                 clean_directory(self.subdirectory)
         if self.overwrite == None:
             self.overwrite = True
-
+        # master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
 
     def defineASTRACommand(self, command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -260,8 +256,14 @@ class Framework(munch.Munch):
         self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
     def change_Lattice_Code(self, name, code):
-        currentLattice = self.latticeObjects[name]
-        self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectname, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables)
+        if name == 'All':
+            [self.change_Lattice_Code(l, code) for l in self.latticeObjects]
+        elif isinstance(name, (tuple, list)):
+            [self.change_Lattice_Code(l, code) for l in name]
+        else:
+            if not name == 'generator':
+                currentLattice = self.latticeObjects[name]
+                self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectname, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
     def read_Element(self, name, element, subelement=False):
         if name == 'filename':
@@ -273,7 +275,7 @@ class Framework(munch.Munch):
                 self.add_Element(name, **element)
             if 'sub_elements' in element:
                 for name, elem in element['sub_elements'].iteritems():
-                    self.read_Element(name, elem, True)
+                    self.read_Element(name, elem, subelement=True)
 
     def add_Element(self, name=None, type=None, **kwargs):
         if name == None:
@@ -301,7 +303,7 @@ class Framework(munch.Munch):
             return {}
 
     def getElementType(self, type, setting=None):
-        return [self.elementObjects[element] if setting is None else self.elementObjects[element][setting] for element in self.elementObjects.keys() if self.elementObjects[element].objectType.lower() == type.lower()]
+        return [self.elementObjects[element] if setting is None else self.elementObjects[element][setting] for element in self.elementObjects.keys() if self.elementObjects[element].objecttype.lower() == type.lower()]
 
     def setElementType(self, type, setting, values):
         elems = self.getElementType(type)
@@ -351,11 +353,11 @@ class Framework(munch.Munch):
         # outputfile.write(k+' '+v+' ')
 
     def __getitem__(self,key):
-        if key in self.get('elementObjects'):
+        if key in self.get('elementObjects', {}):
             return self.elementObjects.get(key)
-        elif key in self.get('latticeObjects'):
+        elif key in self.get('latticeObjects', {}):
             return self.latticeObjects.get(key)
-        elif key in self.get('groupObjects'):
+        elif key in self.get('groupObjects', {}):
             return self.groupObjects.get(key)
         else:
             return self.get(key, None)
@@ -430,7 +432,7 @@ class Framework(munch.Munch):
                     if postprocess:
                         self.latticeObjects[l].postProcess()
 
-class frameworkLattice(munch.Munch):
+class frameworkLattice(Munch):
     def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables):
         super(frameworkLattice, self).__init__()
         self.objectname = name
@@ -446,6 +448,17 @@ class frameworkLattice(munch.Munch):
         self.update_groups()
         self.executables = executables
         self.lscDrifts = False
+
+    @property
+    def prefix(self):
+        if 'input' not in self.file_block:
+            self.file_block['input'] = {}
+        if 'prefix' not in self.file_block['input']:
+            self.file_block['input']['prefix'] = ''
+        return self.file_block['input']['prefix']
+    @prefix.setter
+    def prefix(self, prefix):
+        self.file_block['input']['prefix'] = prefix
 
     def update_groups(self):
         for g in self.groupSettings.keys():
@@ -468,7 +481,7 @@ class frameworkLattice(munch.Munch):
             return {}
 
     def getElementType(self, type, setting=None):
-        return [self.elements[element] if setting is None else self.elements[element][setting] for element in self.elements.keys() if self.elements[element].objectType.lower() == type.lower()]
+        return [self.elements[element] if setting is None else self.elements[element][setting] for element in self.elements.keys() if self.elements[element].objecttype.lower() == type.lower()]
 
     def setElementType(self, type, setting, values):
         elems = self.getElementType(type)
@@ -528,6 +541,7 @@ class frameworkLattice(munch.Munch):
                     return e
         else:
             return self.allElementObjects[0]
+
     @property
     def startObject(self):
         return self.allElementObjects[self.start]
@@ -546,6 +560,7 @@ class frameworkLattice(munch.Munch):
             return endelems[-1]
         else:
             return self.allElementObjects[0]
+
     @property
     def endObject(self):
         return self.allElementObjects[self.end]
@@ -637,17 +652,17 @@ class frameworkLattice(munch.Munch):
     def preProcess(self):
         pass
 
-class frameworkObject(munch.Munch):
+class frameworkObject(Munch):
 
-    def __init__(self, objectname=None, objectType=None, **kwargs):
+    def __init__(self, objectname=None, objecttype=None, **kwargs):
         super(frameworkObject, self).__init__()
         if objectname == None:
             raise NameError('Command does not have a name')
-        if objectType == None:
+        if objecttype == None:
             raise NameError('Command does not have a type')
-        setattr(self, 'objectdefaults', munch.Munch())
+        setattr(self, 'objectdefaults', OrderedDict())
         setattr(self, 'objectname', objectname)
-        setattr(self, 'objecttype', objectType)
+        setattr(self, 'objecttype', objecttype)
         if self.objecttype in commandkeywords:
             self.allowedkeywords = commandkeywords[self.objecttype]
         elif self.objecttype in elementkeywords:
@@ -655,7 +670,7 @@ class frameworkObject(munch.Munch):
             if 'framework_keywords' in  elementkeywords[self.objecttype]:
                  self.allowedkeywords = merge_two_dicts(self.allowedkeywords, elementkeywords[self.objecttype]['framework_keywords'])
         else:
-            print( 'Unknown type = ', objectType)
+            print( 'Unknown type = ', objecttype)
             raise NameError
         self.allowedkeywords = map(lambda x: x.lower(), self.allowedkeywords)
         for key, value in kwargs.iteritems():
@@ -682,11 +697,17 @@ class frameworkObject(munch.Munch):
 
     def __getitem__(self, key, default=None):
         key = key.lower()
-        defaults = self.get('objectdefaults')
+        defaults = self.get('objectdefaults', {})
         if key in defaults:
             return self.get(key, defaults[key])
         else:
             return self.get(key, None)
+
+    def __repr__(self):
+        string = ''
+        for k,v in self.iteritems():
+            string+="{} ({})".format(k, v)+'\n'
+        return string
 
 class elegantLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -719,7 +740,7 @@ class elegantLattice(frameworkLattice):
     def write(self):
         self.lattice_file = master_subdir+'/'+self.objectname+'.lte'
         saveFile(self.lattice_file, self.writeElements())
-        commandFile = elegantCommandFile(lattice=self.objectname, elegantbeamfilename=self.particle_definition+'.sdds')
+        commandFile = elegantCommandFile(lattice=self, elegantbeamfilename=self.particle_definition+'.sdds')
         self.command_file = master_subdir+'/'+self.objectname+'.ele'
         saveFile(self.command_file, commandFile.write())
 
@@ -757,10 +778,10 @@ class elegantCommandFile(object):
     def __init__(self, lattice='', elegantbeamfilename='', *args, **kwargs):
         super(elegantCommandFile, self).__init__(*args, **kwargs)
         self.commandObjects = OrderedDict()
-        self.lattice_filename = lattice+'.lte'
+        self.lattice_filename = lattice.objectname+'.lte'
         self.elegantbeamfilename = elegantbeamfilename
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
-            use_beamline=lattice,p_central=np.mean(beam.BetaGamma), \
+            use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
             sigma='%s.sig')
         self.addCommand(type='run_control',n_steps=1, n_passes=1)
@@ -769,6 +790,10 @@ class elegantCommandFile(object):
         alpha_x = beam.alpha_x,
         beta_y  = beam.beta_y,
         alpha_y = beam.alpha_y)
+        flr = self.addCommand(type='floor_coordinates', filename="%s.flr",
+        X0  = lattice.startObject['position_start'][0],
+        Z0 = lattice.startObject['position_start'][2],
+        theta0 = 0)
         self.addCommand(type='sdds_beam', input=self.elegantbeamfilename)
         self.addCommand(type='track')
 
@@ -800,10 +825,10 @@ class frameworkCommand(frameworkObject):
 
     def write(self):
         wholestring=''
-        string = '&'+self.objectType+'\n'
-        for key, value in self.objectproperties.iteritems():
-            if not key =='name' and not key == 'type' and key in commandkeywords[self.objectType]:
-                string+='\t'+key+' = '+str(value)+'\n'
+        string = '&'+self.objecttype+'\n'
+        for key in commandkeywords[self.objecttype]:
+            if key.lower() in self.objectproperties and not key =='name' and not key == 'type':
+                string+='\t'+key+' = '+str(self.objectproperties[key.lower()])+'\n'
         string+='&end\n'
         return string
 
@@ -830,10 +855,10 @@ class astraLattice(frameworkLattice):
             self.file_block['input'] = {}
         self.headers['newrun'] = astra_newrun(self.starting_offset, self.starting_rotation, **merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
         # If the initial distribution is derived from a generator file, we should use that
-        if self.headers['newrun'].particle_definition == 'initial_distribution':
-            self.headers['newrun'].particle_definition = 'laser.astra'
+        if self.headers['newrun']['particle_definition'] == 'initial_distribution':
+            self.headers['newrun']['particle_definition'] = 'laser.astra'
         else:
-            self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectname+'.astra'
+            self.headers['newrun']['particle_definition'] = self.allElementObjects[self.start].objectname+'.astra'
 
         # Create an "output" block
         if 'output' not in self.file_block:
@@ -872,15 +897,15 @@ class astraLattice(frameworkLattice):
             for element in elements:
                 element.starting_offset = self.starting_offset
                 element.starting_rotation = self.starting_rotation
-                elemstr = element.write_ASTRA(counter.counter(element.objectType))
+                elemstr = element.write_ASTRA(counter.counter(element.objecttype))
                 if elemstr is not None and not elemstr == '':
                     fulltext += elemstr+'\n'
-                    if element.objectType == 'kicker':
-                        counter.add(element.objectType,2)
-                    elif element.objectType == 'longitudinal_wakefield':
-                        counter.add(element.objectType, element.cells)
+                    if element.objecttype == 'kicker':
+                        counter.add(element.objecttype,2)
+                    elif element.objecttype == 'longitudinal_wakefield':
+                        counter.add(element.objecttype, element.cells)
                     else:
-                        counter.add(element.objectType)
+                        counter.add(element.objecttype)
             fulltext += '\n/\n'
         return fulltext
 
@@ -891,6 +916,7 @@ class astraLattice(frameworkLattice):
     def preProcess(self):
         prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
         self.headers['newrun'].hdf5_to_astra(prefix)
+        self.headers['charge'].npart = len(beam.x)
 
     def postProcess(self):
         for e in self.screens_and_bpms:
@@ -988,14 +1014,14 @@ class csrtrackLattice(frameworkLattice):
         for e in self.dipoles_screens_and_bpms:
             # if not e.type == 'dipole':
                 # self.CSRTrackelementObjects[e.name] = csrtrack_online_monitor(filename=e.name+'.fmt2', monitor_type='phase', marker='screen'+str(counter.counter(e.type)), particle='all')
-            fulltext += e.write_CSRTrack(counter.counter(e.objectType))
-            counter.add(e.objectType)
-        fulltext += self.endScreen().write_CSRTrack(counter.counter(self.endScreen().objectType))
+            fulltext += e.write_CSRTrack(counter.counter(e.objecttype))
+            counter.add(e.objecttype)
+        fulltext += self.endScreen().write_CSRTrack(counter.counter(self.endScreen().objecttype))
         fulltext += '}\n'
         self.set_particles_filename()
         self.setCSRMode()
         self.CSRTrackelementObjects['track_step'] = csrtrack_track_step()
-        self.CSRTrackelementObjects['tracker'] = csrtrack_tracker(end_time_marker='screen'+str(counter.counter(self.endScreen().objectType))+'a')
+        self.CSRTrackelementObjects['tracker'] = csrtrack_tracker(end_time_marker='screen'+str(counter.counter(self.endScreen().objecttype))+'a')
         self.CSRTrackelementObjects['monitor'] = csrtrack_monitor(name=self.end+'.fmt2')
         for c in self.CSRTrackelementObjects:
             fulltext += self.CSRTrackelementObjects[c].write_CSRTrack()
@@ -1237,13 +1263,22 @@ class frameworkGenerator(object):
 
 class frameworkElement(frameworkObject):
 
+    # as_keyword_conversion_rules_elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
+    #                             'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
+    #                             'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'CHANGE_P0', 'bunched_beam': 'bunched_beam_mode', 'nbins': 'N_BINS'}
+
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(frameworkElement, self).__init__(elementName, elementType, **kwargs)
         self.add_default('length', 0)
         self.add_property('position_errors', [0,0,0])
         self.add_property('rotation_errors', [0,0,0])
         self.add_property('global_rotation', [0,0,0])
-        # print 'self.position_errors = ', self['position_errors']
+        setattr(self, 'keyword_conversion_rules_elegant', {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
+                                     'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
+                                     'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'CHANGE_P0', 'bunched_beam': 'bunched_beam_mode', 'nbins': 'N_BINS'})
+        # self['keyword_conversion_rules_elegant'] = {}
+        # print self['keyword_conversion_rules_elegant']
+
 
     def __mul__(self, other):
         return [self.objectproperties for x in range(other)]
@@ -1416,7 +1451,8 @@ class frameworkElement(frameworkObject):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts({'k1': self.k1},merge_two_dicts(self.objectproperties, self.objectdefaults)).iteritems():
+        k1 = self.k1 if self.k1 is not None else 0
+        for key, value in merge_two_dicts({'k1': k1}, merge_two_dicts(self.objectproperties, self.objectdefaults)).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1438,7 +1474,7 @@ class frameworkElement(frameworkObject):
         return type_conversion_rules_Elegant[etype] if etype in type_conversion_rules_Elegant else etype
 
     def _convertKeword_Elegant(self, keyword):
-        return keyword_conversion_rules_Elegant[keyword] if keyword in keyword_conversion_rules_Elegant else keyword
+        return self.keyword_conversion_rules_elegant[keyword] if keyword in self.keyword_conversion_rules_elegant else keyword
 
     def write_CSRTrack(self, n=0):
         return ""
@@ -1463,7 +1499,11 @@ class dipole(frameworkElement):
         self.add_default('csr', 1)
         self.add_default('isr', 1)
         self.add_default('n_kicks', 10)
+        self.add_default('synch_rad', 1)
         self.add_default('integration_order', 4)
+        self.add_default('nonlinear', 1)
+        self.add_default('sg_halfwidth', 2)
+
 
     @property
     def width(self):
@@ -1626,13 +1666,30 @@ class quadrupole(frameworkElement):
         ]), n)
 
     def write_GPT(self, Brho):
-        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+        output = str(self.objecttype) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
         return output
 
 class cavity(frameworkElement):
 
     def __init__(self, name=None, type='cavity', **kwargs):
         super(cavity, self).__init__(name, type, **kwargs)
+        self.keyword_conversion_rules_elegant['longitudinal_wakefield_sdds'] = 'zwakefile'
+        self.keyword_conversion_rules_elegant['transverse_wakefield_sdds'] = 'trwakefile'
+        self.add_default('tcolumn', '"t"')
+        self.add_default('wzcolumn', '"W"')
+        self.add_default('wxcolumn', '"W"')
+        self.add_default('wycolumn', '"W"')
+        self.add_default('wcolumn', '"Ez"')
+
+    def update_field_definition(self):
+        if hasattr(self, 'field_definition') and self.field_definition is not None:
+            self.field_definition = expand_substitution(self, '\''+self.field_definition+'\'')
+        if hasattr(self, 'field_definition_sdds') and self.field_definition_sdds is not None:
+            self.field_definition_sdds = '"' + expand_substitution(self, '\''+self.field_definition_sdds+'\'')+'"'
+        if hasattr(self, 'longitudinal_wakefield_sdds') and self.longitudinal_wakefield_sdds is not None:
+            self.longitudinal_wakefield_sdds = '"' + expand_substitution(self, '\''+self.longitudinal_wakefield_sdds+'\'')+'"'
+        if hasattr(self, 'transverse_wakefield_sdds') and self.transverse_wakefield_sdds is not None:
+            self.transverse_wakefield_sdds = '"' + expand_substitution(self, '\''+self.transverse_wakefield_sdds+'\'')+'"'
 
     @property
     def cells(self):
@@ -1640,7 +1697,10 @@ class cavity(frameworkElement):
                 cells = round((self.length-self.cell_length)/self.cell_length)
                 cells = int(cells - (cells % 3))
         elif self.n_cells > 0 and self.cell_length > 0:
-            cells = int(self.n_cells - (self.n_cells % 3))
+            if self.cell_length == self.length:
+                cells = 1
+            else:
+                cells = int(self.n_cells - (self.n_cells % 3))
         else:
             cells = None
         return cells
@@ -1662,14 +1722,15 @@ class cavity(frameworkElement):
         ]), n)
 
     def _write_Elegant(self):
+        self.update_field_definition()
         wholestring=''
-        etype = self._convertType_Elegant(self.objectType)
+        etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
-                if self.objectType == 'cavity':
+                if self.objecttype == 'cavity':
                     # In ELEGANT all phases are +90degrees!!
                     value = value + 90 if key.lower() == 'phase' else value
                     # In ELEGANT the voltages  need to be compensated
@@ -1695,6 +1756,7 @@ class solenoid(frameworkElement):
 
     def __init__(self, name=None, type='solenoid', **kwargs):
         super(solenoid, self).__init__(name, type, **kwargs)
+        self.keyword_conversion_rules_elegant['field_amplitude'] = 'B'
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
@@ -1810,7 +1872,7 @@ class drift(frameworkElement):
 
     def _write_Elegant(self):
         wholestring=''
-        etype = self._convertType_Elegant(self.objectType)
+        etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
@@ -1833,7 +1895,7 @@ class csrdrift(frameworkElement):
 
     def _write_Elegant(self):
         wholestring=''
-        etype = self._convertType_Elegant(self.objectType)
+        etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
@@ -1850,9 +1912,8 @@ class csrdrift(frameworkElement):
         return wholestring
 
 class charge(frameworkElement):
-
     def __init__(self, name=None, type='charge', **kwargs):
-        super(charge, self).__init__(name, type, **kwargs)
+        super(charge, self).__init__(name, 'charge', **kwargs)
 
 class global_error(frameworkElement):
 
@@ -1868,24 +1929,26 @@ class global_error(frameworkElement):
         return self._write_ASTRA(OrderedDict([[key, {'value': value}] for key, value in self._errordict]))
 
     def write_GPT(self, Brho):
-        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+        output = str(self.objecttype) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
         return output
 
 class longitudinal_wakefield(cavity):
 
     def __init__(self, name=None, type='longitudinal_wakefield', **kwargs):
         super(longitudinal_wakefield, self).__init__(name, type, **kwargs)
+        self.add_default('coupling_cell_length', 0)
 
     def write_ASTRA(self, startn):
+        self.update_field_definition()
         output = ''
         if self.scale_kick > 0:
             for n in range(startn, startn+self.cells):
                 output += self._write_ASTRA(OrderedDict([
                     ['Wk_Type', {'value': self.waketype, 'default': '\'Taylor_Method_F\''}],
-                    ['Wk_filename', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'')+'\'', 'default': 0}],
+                    ['Wk_filename', {'value': '\''+self.field_definition+'\'', 'default': 0}],
                     ['Wk_x', {'value': self.x_offset, 'default': 0}],
                     ['Wk_y', {'value': self.y_offset, 'default': 0}],
-                    ['Wk_z', {'value': self.start[2] + (n+1.5-0.5)*self.cell_length}],
+                    ['Wk_z', {'value': self.start[2] + self.coupling_cell_length + (n-1)*self.cell_length}],
                     ['Wk_ex', {'value': self.scale_field_ex, 'default': 0}],
                     ['Wk_ey', {'value': self.scale_field_ey, 'default': 0}],
                     ['Wk_ez', {'value': self.scale_field_ez, 'default': 1}],
@@ -1902,9 +1965,27 @@ class longitudinal_wakefield(cavity):
                 output += '\n'
         return output
 
-    def write_GPT(self, Brho):
-        output = str(self.objectType) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
-        return output
+    def _write_Elegant(self):
+        self.update_field_definition()
+        wholestring=''
+        etype = self._convertType_Elegant(self.objecttype)
+        string = self.objectname+': '+ etype
+        if self.length > 0:
+            d = drift(self.objectname+'_drift', type='drift', **{'length': self.length})
+            wholestring+=d._write_Elegant()
+        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+            key = self._convertKeword_Elegant(key)
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
 
 class astra_header(frameworkElement):
 
@@ -1915,11 +1996,11 @@ class astra_header(frameworkElement):
         return OrderedDict()
 
     def write_ASTRA(self):
-        keyword_dict = {}
-        for k in elementkeywords[self.objectType]['keywords']:
+        keyword_dict = OrderedDict()
+        for k in elementkeywords[self.objecttype]['keywords']:
             if getattr(self, k.lower()) is not None:
                 keyword_dict[k.lower()] = {'value': getattr(self,k.lower())}
-        output = '&' + section_header_text_ASTRA[self.objectType]['header']+'\n'
+        output = '&' + section_header_text_ASTRA[self.objecttype]['header']+'\n'
         output += self._write_ASTRA(merge_two_dicts(self.framework_dict(), keyword_dict), None) + '\n/\n'
         return output
 
@@ -1976,6 +2057,8 @@ class astra_output(astra_header):
 class astra_charge(astra_header):
     def __init__(self, **kwargs):
         super(astra_header, self).__init__('charge', 'astra_charge', **kwargs)
+        self.npart = 2**(3*5)
+        self.grids = getGrids(npart=self.npart)
 
     @property
     def space_charge(self):
@@ -1989,6 +2072,11 @@ class astra_charge(astra_header):
     def space_charge_3D(self):
         return True if self.space_charge and not self.space_charge_2D else False
 
+    @property
+    def grid_size(self):
+        # print 'asking for grid sizes n = ', self.npart, ' is ', self.grids.getGridSizes(self.npart)
+        return self.grids.getGridSizes(self.npart)
+
     def framework_dict(self):
         sc_dict = OrderedDict([
             ['Lmirror', {'value': self.cathode, 'default': False}],
@@ -1997,18 +2085,39 @@ class astra_charge(astra_header):
         ])
         if self.space_charge_2D:
             sc_n_dict = OrderedDict([
-                ['nrad', {'value': self.sc_2d_nrad, 'default': 32}],
-                ['nlong_in', {'value': self.sc_2d_nlong, 'default': 32}],
+                ['nrad', {'value': self.grid_size, 'default': 32}],
+                ['nlong_in', {'value': self.grid_size, 'default': 32}],
             ])
         elif self.space_charge_3D:
             sc_n_dict = OrderedDict([
-                ['nxf', {'value': self.sc_3d_nxf, 'default': 6}],
-                ['nyf', {'value': self.sc_3d_nyf, 'default': 6}],
-                ['nzf', {'value': self.sc_3d_nzf, 'default': 6}],
+                ['nxf', {'value': self.grid_size, 'default': 6}],
+                ['nyf', {'value': self.grid_size, 'default': 6}],
+                ['nzf', {'value': self.grid_size, 'default': 6}],
             ])
         else:
             sc_n_dict = OrderedDict([])
         return merge_two_dicts(sc_dict, sc_n_dict)
+
+class getGrids(object):
+
+    def __init__(self, npart=1000):
+        self.powersof8 = np.asarray([ 2**(j) for j in range(1,20) ])
+        self.n = npart
+        self.gridSizes = self.getGridSizes(int(self.n))
+
+    def getGridSizes(self):
+        return self.gridSizes
+
+    def getGridSizes(self, x):
+        self.x = abs(x)
+        self.cuberoot = int(round(self.x ** (1. / 3)))
+        return max([4,self.find_nearest(self.powersof8, self.cuberoot)])
+
+    def find_nearest(self, array, value):
+        self.array = array
+        self.value = value
+        self.idx = (np.abs(self.array - self.value)).argmin()
+        return self.array[self.idx]
 
 class astra_errors(astra_header):
     def __init__(self, element=None, **kwargs):
@@ -2021,14 +2130,14 @@ class astra_errors(astra_header):
 
     def write_ASTRA(self):
         keyword_dict = {}
-        conversion = dict([a, b] for a, b in zip(elementkeywords[self.objectType]['keywords'], elementkeywords[self.objectType]['astra_keywords']))
-        for k in elementkeywords[self.objectType]['keywords']:
+        conversion = dict([a, b] for a, b in zip(elementkeywords[self.objecttype]['keywords'], elementkeywords[self.objecttype]['astra_keywords']))
+        for k in elementkeywords[self.objecttype]['keywords']:
             # print k, conversion[k]
             if getattr(self, k.lower()) is not None:
                 keyword_dict[conversion[k].lower()] = {'value': getattr(self,k.lower())}
         joineddict = merge_two_dicts(self.framework_dict(), keyword_dict)
         if len(joineddict) > 0:
-            output = '&' + section_header_text_ASTRA[self.objectType]['header']+'\n'
+            output = '&' + section_header_text_ASTRA[self.objecttype]['header']+'\n'
             output += self._write_ASTRA(merge_two_dicts(self.framework_dict(), keyword_dict), None) + '\n/\n'
         else:
             output = ''
@@ -2053,7 +2162,7 @@ class csrtrack_element(frameworkElement):
 
     def write_CSRTrack(self):
         output = str(self.header) + '{\n'
-        for k in elementkeywords[self.objectType]['keywords']:
+        for k in elementkeywords[self.objecttype]['keywords']:
             k = k.lower()
             if getattr(self,k) is not None:
                 output += k+'='+self.CSRTrack_str(getattr(self, k))+'\n'
@@ -2132,7 +2241,7 @@ class gpt_element(frameworkElement):
 
     def write_GPT(self):
         output = str(self.elementName) + '('
-        for k in elementkeywords[self.objectType]['keywords']:
+        for k in elementkeywords[self.objecttype]['keywords']:
             k = k.lower()
             if getattr(self,k) is not None:
                 output += getattr(self, k)+', '

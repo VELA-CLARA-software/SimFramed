@@ -9,7 +9,7 @@ import signal
 class genesis_client(object):
 
     def __init__(self, port=9875, host='apclara1.dl.ac.uk'):
-        super(zmqClient, self).__init__()
+        super(genesis_client, self).__init__()
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REQ)
         self.socket.linger = 0

@@ -16,11 +16,19 @@ cavity:
     lsc_cutoff_high,
     field_amplitude,
     cell_length,
+    longitudinal_wakefield_sdds,
+    transverse_wakefield_sdds,
+    tcolumn,
+    wzcolumn,
+    wxcolumn,
+    wycolumn,
+    coupling_cell_length,
   }
 longitudinal_wakefield:
   keywords: {
     n_cells,
     field_definition,
+    field_definition_sdds,
     field_amplitude,
     cell_length,
     waketype,
@@ -31,11 +39,19 @@ longitudinal_wakefield:
     scale_field_hy,
     scale_field_hz,
     equal_grid,
-    nbins,
+    n_bins,
+    factor,
     interpolation_method,
     smooth,
     subbins,
     scale_kick,
+    tcolumn,
+    wcolumn,
+    interpolate,
+    change_momentum,
+    allow_long_beam,
+    bunched_beam,
+    coupling_cell_length
   }
 collimator:
   keywords: {
@@ -46,6 +62,7 @@ collimator:
 common:
   keywords: {
     subelement,
+    sub_elements,
     length,
     Online_Model_Name,
     Controller_Name,

@@ -209,20 +209,20 @@ class mainApp(qt.QMainWindow):
         index = None
         self.table.clear()
         start = time.time()
-        dirs = [os.path.abspath(self.currentDirectory + '/' + a) for a in os.listdir(self.currentDirectory) if os.path.isdir(a)]
+        dirs = [os.path.abspath(self.currentDirectory + '/' + a) for a in os.listdir(self.currentDirectory) if os.path.isdir(self.currentDirectory + '/' + a)]
         # print 'read dirs in ', time.time() - start
-        if os.path.isfile(self.currentDirectory + '/' + 'best_solutions_running.csv'):
+        if os.path.isfile(self.currentDirectory + '/best_solutions_running.csv'):
             solutions = []
-            with open(self.currentDirectory + '/' + 'best_solutions_running.csv', 'rb') as csvfile:
+            with open(self.currentDirectory + '/best_solutions_running.csv', 'rb') as csvfile:
                 spamreader = csv.reader(csvfile, csv.QUOTE_NONE, delimiter=',')
                 for row in spamreader:
                     solutions.append([float(a) for a in row])
             solutions = np.array(sorted(solutions, key=lambda a: a[-1]))
-            iterdirs = ['iteration_'+str(int(a)) for a in solutions[:,-2] if os.path.isdir(self.currentDirectory + '/' +'iteration_'+str(int(a))) ]
+            iterdirs = [self.currentDirectory + '/simplex_iteration_' +str(int(a)) for a in solutions[:,-2] if os.path.isdir(self.currentDirectory + '/simplex_iteration_' +str(int(a))) ]
             basedirs = [a for a in dirs if 'basefiles_' in a]
             vbcdirs = [a for a in dirs if 'vbc_' in a]
             setdirs = [a for a in dirs if 'set' in a]
-            dirs = iterdirs + setdirs + vbcdirs + basedirs
+            dirs = iterdirs# + setdirs + vbcdirs + basedirs
             # print 'sorted dirs in ', time.time() - start
         else:
             dirs.sort(key=os.path.getmtime, reverse=True)
