@@ -7,13 +7,13 @@ def create_base_files(scaling):
     framework = Framework('basefiles_'+str(scaling), overwrite=True)
     framework.loadSettings('Lattices/clara400_v12_v3.def')
     if not os.name == 'nt':
-        framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
+        framework.defineASTRACommand(['mpiexec','-np',str(4*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
         framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
-        framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+        framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(4*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
     framework.generator.number_of_particles = 2**(3*scaling)
-    framework.track(files=['generator','injector400','S02'])
+    framework.track()
 
 ## Modify as appropriate! ##
-for i in [5]:
+for i in [6]: 
     create_base_files(i)
 exit()

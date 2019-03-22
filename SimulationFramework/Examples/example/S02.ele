@@ -1,25 +1,31 @@
 &run_setup
-	always_change_p0 = 1
-	use_beamline = S02
-	p_central = 68.9304338360516
 	lattice = S02.lte
+	use_beamline = S02
 	centroid = %s.cen
 	sigma = %s.sig
+	p_central = 68.92938399522588
+	always_change_p0 = 1
 &end
 &run_control
-	n_passes = 1
 	n_steps = 1
+	n_passes = 1
 &end
 &twiss_output
-	statistics = 1
-	output_at_each_step = 0
-	beta_y = 13.333283562989587
-	beta_x = 13.577810191834814
-	alpha_y = -1.6145177764946193
-	matched = 0
 	filename = %s.twi
+	matched = 0
+	output_at_each_step = 0
+	statistics = 1
 	radiation_integrals = 1
-	alpha_x = -1.52575751831062
+	beta_x = 23.073046872632613
+	alpha_x = -2.422997912919488
+	beta_y = 23.4358175280452
+	alpha_y = -2.452079257917362
+&end
+&floor_coordinates
+	filename = %s.flr
+	X0 = 0
+	Z0 = 3.37147
+	theta0 = 0
 &end
 &sdds_beam
 	input = CLA-S02-APER-01.sdds

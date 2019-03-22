@@ -57,12 +57,21 @@ class fitnessFunc():
         print 'basefiles defined as ', self.basefiles
         ''' if only post-injector optimisation'''
         if self.post_injector:
-            linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
+            if len(args) == 10:
+                dcp_factor = args[9]
+            else:
+                dcp_factor = 1
+            linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args[:9]
             self.parameters = dict(zip(['linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
         else:
             ''' including injector parameters '''
+            if len(args) == 16:
+                dcp_factor = args[15]
+            else:
+                dcp_factor = 1
             gunphase, gunsol, linac1field, linac1phase, linac1sol1, linac1sol2, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
             self.parameters = dict(zip(['gunphase','gunsol','linac1field','linac1phase', 'linac1sol1', 'linac1sol2', 'linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
+        self.parameters['dcp_factor'] = dcp_factor
         self.npart=2**(3*scaling)
         ncpu = scaling*3
         if self.post_injector:
@@ -94,16 +103,17 @@ class fitnessFunc():
         self.framework.modifyElement('CLA-L04-CAV', 'field_amplitude', abs(linac4field))
         self.framework.modifyElement('CLA-L04-CAV', 'phase', linac4phase)
         self.framework['bunch_compressor'].set_angle(bcangle)
+        self.framework.modifyElement('CLA-S07-DCP-01', 'factor', dcp_factor)
 
     def calculateBeamParameters(self):
         # try:
             if self.post_injector:
                 if self.basefiles is not None:
-                    # print 'basefiles defined as ', self.basefiles
-                    self.framework['POSTINJ'].file_block['input']['prefix'] = self.basefiles
+                    print 'basefiles defined as ', self.basefiles
+                    self.framework['POSTINJ'].prefix = self.basefiles
                 else:
                     print 'basefiles not defined! Using default location'
-                    self.framework['POSTINJ'].file_block['input']['prefix'] = '../../../../basefiles_'+str(self.scaling)+'/'
+                    self.framework['POSTINJ'].prefix = '../../../basefiles_'+str(self.scaling)+'/'
                 if self.startcharge is not None:
                     self.framework['POSTINJ'].bunch_charge = 1e-12*self.startcharge
                 self.framework.track(startfile='POSTINJ')

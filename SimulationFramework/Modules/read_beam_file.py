@@ -1,4 +1,5 @@
 import os, time, csv, sys
+import copy
 import h5py
 import numpy as np
 import scipy.constants as constants
@@ -28,6 +29,7 @@ class beam(object):
         self.particle_mass = mass
 
     def normalise_to_ref_particle(self, array, index=0,subtractmean=False):
+        array = copy.copy(array)
         array[1:] = array[0] + array[1:]
         if subtractmean:
             array = array - array[0]#np.mean(array)
@@ -131,6 +133,7 @@ class beam(object):
         # if normaliseZ:
         #     self.beam['reference_particle'][2] = 0
         self.beam['longitudinal_reference'] = 'z'
+        znorm = self.normalise_to_ref_particle(z, subtractmean=True)
         z = self.normalise_to_ref_particle(z, subtractmean=False)
         cpz = self.normalise_to_ref_particle(cpz, subtractmean=False)
         clock = self.normalise_to_ref_particle(clock, subtractmean=True)
@@ -145,7 +148,8 @@ class beam(object):
         self.beam['charge'] = 1.0e-9*charge
         self.beam['index'] = index
         self.beam['status'] = status
-        self.beam['t'] = [clock if status == -1 else (z / (-1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], self.z, self.Bz, self.beam['clock'])]
+        # print self.Bz
+        self.beam['t'] = [clock if status == -1 else (z / (-1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], znorm, self.Bz, self.beam['clock'])]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
@@ -232,7 +236,6 @@ class beam(object):
         ''' if the clock value is finite, we calculate it from the z value, using Betaz '''
         # clockvector = [1e9*z / (1 * Bz * constants.speed_of_light) if status == -1 and t == 0 else 1.0e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
         clockvector = [1.0e9*t for status, z, t, Bz in zip(statusvector, self.z, self.t, self.Bz)]
-
         ''' this is the ASTRA array in all it's glory '''
         array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
         if 'reference_particle' in self.beam:
@@ -261,7 +264,7 @@ class beam(object):
             array[0,2] += normaliseZ
         ''' normalise pz and the clock '''
         array[1:,5] = array[1:,5] - ref_particle[5]
-        array[1:,6] = array[1:,6] - ref_particle[6]
+        array[0,6] = array[0,6] + ref_particle[6]
         np.savetxt(file, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%d','%d'))
 
     def write_vsim_beam_file(self, file, normaliseT=False):

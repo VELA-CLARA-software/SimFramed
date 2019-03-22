@@ -103,6 +103,7 @@ elements:
     length: 2.03333
     Structure_Type: 'TravellingWave'
     cell_length: 0.0333333
+    coupling_cell_length: 0.0495
     n_cells: 61
     field_amplitude: 21000000.0
     frequency: 2998500000.0
@@ -122,6 +123,16 @@ elements:
     position_end: [0, 0, 3.2269]
     position_start: [0, 0, 1.19357]
     sub_elements:
+      CLA-L01-WAKE:
+        type: longitudinal_wakefield
+        length: 2.03333
+        cell_length: 0.0333333333333333
+        coupling_cell_length: 0.0495
+        field_definition: $master_lattice_location$Data_Files/SzSx5um10mm.dat
+        global_rotation: [0, 0, 0]
+        position_end: [0, 0, 3.2269]
+        position_start: [0, 0, 1.19357]
+        scale_kick: 1
       CLA-L01-CAV-SOL-01:
         type: solenoid
         length: 0
