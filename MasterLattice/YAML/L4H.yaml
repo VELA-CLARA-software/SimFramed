@@ -11,11 +11,12 @@ elements:
     type: cavity
     length: 0.75
     cell_length: 0.00833333
+    coupling_cell_length: 0.012375
     field_amplitude: 24000000.0
     frequency: 11994000000.0
     phase: 184
-    longitudinal_wakefield_input: '"Sz20um25mmxband.sdds"'
-    transverse_wakefield_input: '"Sx50um10mmxband.sdds"'
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz20um25mmxband.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx50um10mmxband.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
@@ -26,3 +27,14 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 24.3147]
     position_start: [0, 0, 23.5647]
+    sub_elements:
+      CLA-L4H-WAKE:
+        type: longitudinal_wakefield
+        length: 0.75
+        cell_length: 0.00833333
+        coupling_cell_length: 0.012375
+        field_definition: $master_lattice_location$Data_Files/SzSx20um25mmxband.dat
+        global_rotation: [0, 0, 0]
+        position_end: [0, 0, 24.3147]
+        position_start: [0, 0, 23.5647]
+        scale_kick: 1

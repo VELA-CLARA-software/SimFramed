@@ -5,8 +5,9 @@ import scipy.integrate as integrate
 import scipy.constants as constants
 import sdds
 import read_gdf_file as rgf
+import munch
 
-class twiss(dict):
+class twiss(munch.Munch):
 
     E0 = constants.m_e * constants.speed_of_light**2
     E0_eV = E0 / constants.elementary_charge
@@ -45,8 +46,10 @@ class twiss(dict):
         self['sigma_x'] = []
         self['sigma_y'] = []
         self['sigma_z'] = []
+        self['sigma_t'] = []
         self['sigma_p'] = []
         self['sigma_cp'] = []
+        self.elegant = {}
 
     def read_sdds_file(self, fileName, charge=None, ascii=False):
         # self.reset_dicts()
@@ -55,15 +58,61 @@ class twiss(dict):
         for col in range(len(self.sdds.columnName)):
             # print 'col = ', self.sdds.columnName[col]
             if len(self.sdds.columnData[col]) == 1:
-                self[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col][0])
+                self.elegant[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col][0])
             else:
-                self[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col])
+                self.elegant[self.sdds.columnName[col]] = np.array(self.sdds.columnData[col])
         self.SDDSparameterNames = list()
         for i, param in enumerate(self.sdds.parameterName):
             # print 'param = ', param
-            self[param] = self.sdds.parameterData[i]
+            self.elegant[param] = self.sdds.parameterData[i]
             # if isinstance(self[param][0], (float, long)):
             #     self.SDDSparameterNames.append(param)
+
+    def read_elegant_twiss_files(self, filename, startS=0, reset=True):
+        if reset:
+            self.reset_dicts()
+        if isinstance(filename, (list, tuple)):
+            for f in filename:
+                self.read_elegant_twiss_files(f, reset=False)
+        else:
+            pre, ext = os.path.splitext(filename)
+            self.read_sdds_file(pre+'.flr')
+            self.read_sdds_file(pre+'.sig')
+            self.read_sdds_file(pre+'.twi')
+            z = self.elegant['Z']
+            self['z'] = np.concatenate([self['z'], z])
+            cp = self.elegant['pCentral0'] * self.E0
+            self['cp'] = np.concatenate([self['cp'], cp])
+            ke = (np.sqrt(self.E0**2 + cp**2) - self.E0**2) / constants.elementary_charge
+            self['kinetic_energy'] = np.concatenate([self['kinetic_energy'], ke])
+            gamma = 1 + ke / self.E0_eV
+            self['gamma'] = np.concatenate([self['gamma'], gamma])
+            self['p'] = np.concatenate([self['p'], cp * self.q_over_c])
+            self['enx'] = np.concatenate([self['enx'], self.elegant['enx']])
+            self['ex'] = np.concatenate([self['ex'], self.elegant['ex']])
+            self['eny'] = np.concatenate([self['eny'], self.elegant['eny']])
+            self['ey'] = np.concatenate([self['ey'], self.elegant['ey']])
+            self['enz'] = np.concatenate([self['enz'], np.zeros(len(self.elegant['Z']))])
+            self['ez'] = np.concatenate([self['ez'], np.zeros(len(self.elegant['Z']))])
+            self['beta_x'] = np.concatenate([self['beta_x'], self.elegant['betax']])
+            self['alpha_x'] = np.concatenate([self['alpha_x'], self.elegant['alphax']])
+            self['gamma_x'] = np.concatenate([self['gamma_x'], (1 + self.elegant['alphax']**2) / self.elegant['betax']])
+            self['beta_y'] = np.concatenate([self['beta_y'], self.elegant['betay']])
+            self['alpha_y'] = np.concatenate([self['alpha_y'], self.elegant['alphay']])
+            self['gamma_y'] = np.concatenate([self['gamma_y'], (1 + self.elegant['alphay']**2) / self.elegant['betay']])
+            self['beta_z'] = np.concatenate([self['beta_z'], np.zeros(len(self.elegant['Z']))])
+            self['gamma_z'] = np.concatenate([self['gamma_z'], np.zeros(len(self.elegant['Z']))])
+            self['alpha_z'] = np.concatenate([self['alpha_z'], np.zeros(len(self.elegant['Z']))])
+            self['sigma_x'] = np.concatenate([self['sigma_x'], self.elegant['Sx']])
+            self['sigma_y'] = np.concatenate([self['sigma_y'], self.elegant['Sy']])
+            self['sigma_t'] = np.concatenate([self['sigma_t'], self.elegant['St']])
+            beta = np.sqrt(1-(gamma**-2))
+            # print 'len(z) = ', len(z), '  len(beta) = ', len(beta)
+            self['t'] = np.concatenate([self['t'], z / (beta * constants.speed_of_light)])
+            self['sigma_z'] =  np.concatenate([self['sigma_z'], self.elegant['St'] * (beta * constants.speed_of_light)])
+            self['sigma_cp'] = np.concatenate([self['sigma_cp'], self.elegant['Sdelta'] * cp / self.E0])
+            self['sigma_p'] = np.concatenate([self['sigma_p'], self.elegant['Sdelta'] / 1000000])
+            # print self.elegant['Sdelta']
 
     def read_astra_emit_files(self, filename, reset=True):
         if reset:
@@ -133,8 +182,8 @@ class twiss(dict):
             self['sigma_x'] = np.concatenate([self['sigma_x'], rms_x])
             self['sigma_y'] = np.concatenate([self['sigma_y'], rms_y])
             self['sigma_z'] = np.concatenate([self['sigma_z'], rms_z])
-            beta = np.sqrt(1-((gamma)**-2))
-            self['sigma_t'] = np.concatenate([self['sigma_z'], rms_z / (beta * constants.speed_of_light)])
+            beta = np.sqrt(1-(gamma**-2))
+            self['sigma_t'] = np.concatenate([self['sigma_t'], rms_z / (beta * constants.speed_of_light)])
             self['sigma_p'] = np.concatenate([self['sigma_p'], (rms_e / e_kin)])
             self['sigma_cp'] = np.concatenate([self['sigma_cp'], (rms_e / e_kin) * p])
             self['mux'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)
@@ -168,10 +217,11 @@ class twiss(dict):
             inputgrp['code'] = self.beam['code']
             twissgrp = f.create_group("twiss")
             array = np.array([self.s, self.t, self.sigma_x, self.sigma_y, self.sigma_z, self.sigma_p, self.sigma_t, self.beta_x, self.alpha_x, self.gamma_x,
-                      self.beta_y, self.alpha_y, self.gamma_y, self.beta_z, self.alpha_z, self.gamma_z, self.mux, self.muy]).transpose()
+                      self.beta_y, self.alpha_y, self.gamma_y, self.beta_z, self.alpha_z, self.gamma_z, self.mux, self.muy,
+                      self.ex, self.enx, self.ey, self.eny]).transpose()
             beamgrp['columns'] = ("s","t","Sx","Sy","Sz","Sp","St","betax","alphax","gammax","betay","alphay","gammay","betaz","alphaz","gammaz","mux","muy")
             beamgrp['units'] = ("m","s","m","m","m","eV/c","s","m","","","m","","","m","","","","")
-            beamgrp.create_dataset("beam", data=array)
+            beamgrp.create_dataset("twiss", data=array)
 
     def read_HDF5_beam_file(self, filename, local=False):
         self.reset_dicts()

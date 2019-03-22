@@ -22,3 +22,7 @@ test*/
 *.csv
 *.lnk
 *best*/
+*basefiles*/
+Dechirper/
+gaussian*/
+example*/
