@@ -49,6 +49,8 @@ class twiss(munch.Munch):
         self['sigma_t'] = []
         self['sigma_p'] = []
         self['sigma_cp'] = []
+        self['mux'] = []
+        self['muy'] = []
         self.elegant = {}
 
     def read_sdds_file(self, fileName, charge=None, ascii=False):
@@ -112,7 +114,8 @@ class twiss(munch.Munch):
             self['sigma_z'] =  np.concatenate([self['sigma_z'], self.elegant['St'] * (beta * constants.speed_of_light)])
             self['sigma_cp'] = np.concatenate([self['sigma_cp'], self.elegant['Sdelta'] * cp / self.E0])
             self['sigma_p'] = np.concatenate([self['sigma_p'], self.elegant['Sdelta'] / 1000000])
-            # print self.elegant['Sdelta']
+            self['mux'] = np.concatenate([self['mux'], self.elegant['psix'] / (2*constants.pi)])
+            self['muy'] = np.concatenate([self['muy'], self.elegant['psiy'] / (2*constants.pi)])
 
     def read_astra_emit_files(self, filename, reset=True):
         if reset:
@@ -186,8 +189,8 @@ class twiss(munch.Munch):
             self['sigma_t'] = np.concatenate([self['sigma_t'], rms_z / (beta * constants.speed_of_light)])
             self['sigma_p'] = np.concatenate([self['sigma_p'], (rms_e / e_kin)])
             self['sigma_cp'] = np.concatenate([self['sigma_cp'], (rms_e / e_kin) * p])
-            self['mux'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)
-            self['muy'] = integrate.cumtrapz(x=self['z'], y=1/self['beta_y'], initial=0)
+            self['mux'] = np.concatenate([self['mux'], integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)])
+            self['muy'] = np.concatenate([self['muy'], integrate.cumtrapz(x=self['z'], y=1/self['beta_y'], initial=0)])
 
     def interpolate(self, z=None, value='z', index='z'):
         f = interpolate.interp1d(self[index], self[value], kind='linear')

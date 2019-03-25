@@ -48,13 +48,15 @@ def optfunc(inputargs, *args, **kwargs):
     if e < 1:
         l = 500
     constraintsList = {
-        'brightness': {'type': 'greaterthan', 'value': brightness, 'limit': 0.15, 'weight': 6},
-        'bandwidth': {'type': 'lessthan', 'value': b, 'limit': 0.25, 'weight': 3},
+        'brightness': {'type': 'greaterthan', 'value': brightness, 'limit': 0.15, 'weight': 0},
+        'bandwidth': {'type': 'lessthan', 'value': b, 'limit': 0.2, 'weight': 3},
         'pulse_energy': {'type': 'greaterthan', 'value': e, 'limit': 120, 'weight': 4},
         'bandwidth_end': {'type': 'lessthan', 'value': 1e2*abs(g.spectrum_lamdwidth_std[pos20m]), 'limit': 0.4, 'weight': 1},
         'pulse_energy_end': {'type': 'greaterthan', 'value': 1e6*abs(g.energy[pos20m]), 'limit': 200, 'weight': 2},
         'max_brightness_position': {'type': 'lessthan', 'value': abs(l), 'limit': 12, 'weight': 2.5},
+        'min_brightness_position': {'type': 'greaterthan', 'value': abs(l), 'limit': 10, 'weight': 2.5},
         'energy': {'type': 'greaterthan', 'value': abs(momentum), 'limit': 240, 'weight': 2},
+        'energy': {'type': 'lessthan', 'value': abs(momentum), 'limit': 250, 'weight': 2},
     }
     fitvalue = cons.constraints(constraintsList)
     print cons.constraintsList(constraintsList)

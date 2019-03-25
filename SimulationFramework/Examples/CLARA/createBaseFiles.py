@@ -19,6 +19,6 @@ def create_base_files(scaling):
     framework.track()#startfile='VBC')
 
 ## Modify as appropriate! ##
-for i in [4,6]:
+for i in [4]:
     create_base_files(i)
 exit()
