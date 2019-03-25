@@ -1,5 +1,5 @@
 import time, os, subprocess, re
-import yaml
+from ruamel import yaml
 import traceback
 import itertools
 import copy
@@ -11,6 +11,7 @@ beam = rbf.beam()
 from operator import add
 import progressbar
 from munch import Munch
+# from dotmap import DotMap
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -60,16 +61,16 @@ elegant_generator_keywords = {
 }
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/commands_Elegant.yaml', 'r') as infile:
-    commandkeywords = yaml.load(infile)
+    commandkeywords = yaml.load(infile, Loader=yaml.SafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/csrtrack_defaults.yaml', 'r') as infile:
-    csrtrack_defaults = yaml.load(infile)
+    csrtrack_defaults = yaml.load(infile, Loader=yaml.SafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', 'r') as infile:
-    elementkeywords = yaml.load(infile)
+    elementkeywords = yaml.load(infile, Loader=yaml.SafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 'r') as infile:
-    elements_Elegant = yaml.load(infile)
+    elements_Elegant = yaml.load(infile, Loader=yaml.SafeLoader)
 
 type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'cavity': 'rfcw',
@@ -154,6 +155,26 @@ def clean_directory(folder):
 def list_add(list1, list2):
     return map(add, list1, list2)
 
+def detect_changes(framework):
+    start = time.time()
+    origfw = Framework(None)
+    origfw.loadSettings(framework.settingsFilename)
+    changedict = {}
+    for e in framework.elementObjects:
+        if not origfw.elementObjects[e] == framework.elementObjects[e]:
+            orig = origfw.elementObjects[e]
+            new = framework.elementObjects[e]
+            changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
+    return changedict
+
+def save_change_file(framework, filename=None):
+    if filename is None:
+        pre, ext = os.path.splitext(os.path.basename(framework.settingsFilename))
+        filename =  pre     + '_changes.yaml'
+    changedict = detect_changes(framework)
+    with open(filename,"w") as yaml_file:
+        yaml.dump(changedict, yaml_file, default_flow_style=False)
+
 class Framework(Munch):
 
     def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True):
@@ -171,7 +192,8 @@ class Framework(Munch):
         self.filedirectory = os.path.dirname(os.path.abspath(__file__))
         self.overwrite = overwrite
         self.runname = runname
-        self.setSubDirectory(self.subdir)
+        if self.subdir is not None:
+            self.setSubDirectory(self.subdir)
         if master_lattice is None:
             master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
         else:
@@ -216,21 +238,22 @@ class Framework(Munch):
         for f in filename:
             if os.path.isfile(f):
                 with file(f, 'r') as stream:
-                    elements = yaml.load(stream)['elements']
+                    elements = yaml.load(stream, Loader=yaml.SafeLoader)['elements']
             else:
                 with file(master_lattice_location + f, 'r') as stream:
-                    elements = yaml.load(stream)['elements']
+                    elements = yaml.load(stream, Loader=yaml.SafeLoader)['elements']
             for name, elem in elements.iteritems():
                 self.read_Element(name, elem)
 
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
         global master_run_no
+        self.settingsFilename = filename
         if os.path.exists(filename):
             stream = file(filename, 'r')
         else:
             stream = file(master_lattice_location+filename, 'r')
-        self.settings = yaml.load(stream)
+        self.settings = yaml.load(stream, Loader=yaml.SafeLoader)
         self.globalSettings = self.settings['global']
         master_run_no = self.globalSettings['run_no'] if 'run_no' in self.globalSettings else 1
         if 'generator' in self.settings:
@@ -1793,7 +1816,7 @@ class screen(frameworkElement):
     def __init__(self, name=None, type='screen', **kwargs):
         super(screen, self).__init__(name, type, **kwargs)
         if 'output_filename' not in kwargs:
-            self.output_filename = self.objectname+'.sdds'
+            self.output_filename = str(self.objectname)+'.sdds'
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
