@@ -498,7 +498,6 @@ optimization_setup :
   restart_worst_term_factor: double
   restart_worst_terms: long
   verbose: long
-  balance_terms: long
   simplex_divisor: double
   simplex_pass_range_factor: double
   include_simplex_1d_scans: long
