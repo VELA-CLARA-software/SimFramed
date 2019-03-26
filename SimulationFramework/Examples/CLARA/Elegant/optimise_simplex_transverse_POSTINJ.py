@@ -73,8 +73,8 @@ class fitnessFunc():
         self.summary = summary
         self.parameters = list(args)
         self.dirname = os.path.relpath(self.tmpdir)
-        self.framework = fw.Framework(self.dirname, clean=False, verbose=False)
-        self.framework.loadSettings('Lattices/clara400_v12_v3.def')
+        self.framework = fw.Framework(self.dirname, clean=True, verbose=False)
+        self.framework.loadSettings('Lattices/clara400_v12_v3_elegant_jkj.def')
         self.framework.change_Lattice_Code('All','elegant')
         if not os.name == 'nt':
             self.framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
@@ -96,9 +96,9 @@ class fitnessFunc():
     def calculateBeamParameters(self):
         # try:
             twiss = self.twiss
-            self.framework['S02'].prefix = '../../../basefiles_4/'
+            self.framework['POSTINJ'].prefix = '../../../basefiles_4/'
             # print 'before tracking '
-            self.framework.track(startfile='S02', endfile='S07')
+            self.framework.track(startfile='POSTINJ')
             # print 'after tracking '
             constraintsList = {}
             quadkls = self.framework.getElementType('quadrupole','k1l')
@@ -110,7 +110,7 @@ class fitnessFunc():
             }
             constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
 
-            twiss.read_elegant_twiss_files( [ self.dirname+'/'+n+'.twi' for n in ['S02', 'L02', 'S03', 'L03', 'S04', 'L4H', 'S05', 'S06', 'L04', 'S07']])
+            twiss.read_elegant_twiss_files( [ self.dirname+'/'+n+'.twi' for n in ['POSTINJ']])
             constraintsListSigmas = {
                 'max_xrms': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
                 'max_yrms': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
@@ -121,7 +121,7 @@ class fitnessFunc():
             }
             constraintsList = merge_two_dicts(constraintsList, constraintsListSigmas)
 
-            twiss.read_elegant_twiss_files(self.dirname+'/S07.twi')
+            twiss.read_elegant_twiss_files(self.dirname+'/POSTINJ.twi')
             tdc_position = self.framework['CLA-S07-TDC-01-R']['position_start'][2]
             tdc_screen_position = self.framework['CLA-S07-DIA-SCR-03-W']['position_start'][2]
             dechirper_position = self.framework['CLA-S07-DCP-01']['position_start'][2]
