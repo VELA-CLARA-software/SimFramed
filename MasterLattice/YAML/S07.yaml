@@ -227,8 +227,10 @@ elements:
     bunched_beam: 0
     n_bins: 0
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 44.5278]
-    position_start: [0, 0, 43.9318]
+    position_end_original: [0, 0, 44.5278]
+    position_start: [0, 0, 44.2298]
+    position_end: [0, 0, 44.2298]
+    position_start_original: [0, 0, 43.9318]
   CLA-S07-APER-03:
     type: aperture
     shape: rectangular

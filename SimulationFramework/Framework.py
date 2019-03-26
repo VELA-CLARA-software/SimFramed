@@ -10,7 +10,7 @@ import SimulationFramework.Modules.read_beam_file as rbf
 beam = rbf.beam()
 from operator import add
 import progressbar
-from munch import Munch
+from munch import Munch, unmunchify
 # from dotmap import DotMap
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
@@ -61,16 +61,16 @@ elegant_generator_keywords = {
 }
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/commands_Elegant.yaml', 'r') as infile:
-    commandkeywords = yaml.load(infile, Loader=yaml.SafeLoader)
+    commandkeywords = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/csrtrack_defaults.yaml', 'r') as infile:
-    csrtrack_defaults = yaml.load(infile, Loader=yaml.SafeLoader)
+    csrtrack_defaults = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', 'r') as infile:
-    elementkeywords = yaml.load(infile, Loader=yaml.SafeLoader)
+    elementkeywords = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 'r') as infile:
-    elements_Elegant = yaml.load(infile, Loader=yaml.SafeLoader)
+    elements_Elegant = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
 type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'cavity': 'rfcw',
@@ -155,25 +155,25 @@ def clean_directory(folder):
 def list_add(list1, list2):
     return map(add, list1, list2)
 
-def detect_changes(framework):
-    start = time.time()
-    origfw = Framework(None)
-    origfw.loadSettings(framework.settingsFilename)
-    changedict = {}
-    for e in framework.elementObjects:
-        if not origfw.elementObjects[e] == framework.elementObjects[e]:
-            orig = origfw.elementObjects[e]
-            new = framework.elementObjects[e]
-            changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
-    return changedict
-
-def save_change_file(framework, filename=None):
-    if filename is None:
-        pre, ext = os.path.splitext(os.path.basename(framework.settingsFilename))
-        filename =  pre     + '_changes.yaml'
-    changedict = detect_changes(framework)
-    with open(filename,"w") as yaml_file:
-        yaml.dump(changedict, yaml_file, default_flow_style=False)
+# def detect_changes(framework):
+#     start = time.time()
+#     origfw = Framework(None)
+#     origfw.loadSettings(framework.settingsFilename)
+#     changedict = {}
+#     for e in framework.elementObjects:
+#         if not origfw.elementObjects[e] == framework.elementObjects[e]:
+#             orig = origfw.elementObjects[e]
+#             new = framework.elementObjects[e]
+#             changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
+#     return changedict
+#
+# def save_change_file(framework, filename=None):
+#     if filename is None:
+#         pre, ext = os.path.splitext(os.path.basename(framework.settingsFilename))
+#         filename =  pre     + '_changes.yaml'
+#     changedict = detect_changes(framework)
+#     with open(filename,"w") as yaml_file:
+#         yaml.dump(changedict, yaml_file, default_flow_style=False)
 
 class Framework(Munch):
 
@@ -214,7 +214,7 @@ class Framework(Munch):
                 clean_directory(self.subdirectory)
         if self.overwrite == None:
             self.overwrite = True
-        # master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
+        master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
 
     def defineASTRACommand(self, command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -238,10 +238,10 @@ class Framework(Munch):
         for f in filename:
             if os.path.isfile(f):
                 with file(f, 'r') as stream:
-                    elements = yaml.load(stream, Loader=yaml.SafeLoader)['elements']
+                    elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
             else:
                 with file(master_lattice_location + f, 'r') as stream:
-                    elements = yaml.load(stream, Loader=yaml.SafeLoader)['elements']
+                    elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
             for name, elem in elements.iteritems():
                 self.read_Element(name, elem)
 
@@ -253,7 +253,7 @@ class Framework(Munch):
             stream = file(filename, 'r')
         else:
             stream = file(master_lattice_location+filename, 'r')
-        self.settings = yaml.load(stream, Loader=yaml.SafeLoader)
+        self.settings = yaml.load(stream, Loader=yaml.UnsafeLoader)
         self.globalSettings = self.settings['global']
         master_run_no = self.globalSettings['run_no'] if 'run_no' in self.globalSettings else 1
         if 'generator' in self.settings:
@@ -274,9 +274,53 @@ class Framework(Munch):
         for name, lattice in self.fileSettings.iteritems():
             self.read_Lattice(name, lattice)
 
+        self.original_elementObjects = {}
+        for e in self.elementObjects:
+            self.original_elementObjects[e] = unmunchify(self.elementObjects[e])
+
+
     def read_Lattice(self, name, lattice):
         code = lattice['code'] if 'code' in lattice else 'astra'
         self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
+
+    def detect_changes(self, type=None, elements=None):
+        start = time.time()
+        changedict = {}
+        if type is not None:
+            changeelements = self.getElementType(type, 'objectname')
+        elif elements is not None:
+            changeelements = elements
+        else:
+            changeelements = self.elementObjects
+        for e in changeelements:
+            if not self.original_elementObjects[e] == unmunchify(self.elementObjects[e]):
+                orig = self.original_elementObjects[e]
+                new = unmunchify(self.elementObjects[e])
+                changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
+        return changedict
+
+    def save_changes_file(self, filename=None, type=None, elements=None):
+        if filename is None:
+            pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
+            filename =  pre     + '_changes.yaml'
+        changedict = self.detect_changes(type=type, elements=elements)
+        with open(filename,"w") as yaml_file:
+            yaml.dump(changedict, yaml_file, default_flow_style=False)
+
+    def load_changes_file(self, filename=None):
+        if filename is None:
+            pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
+            filename =  pre     + '_changes.yaml'
+        with open(filename,"r") as infile:
+            changes = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
+        # print 'changes = ', changes
+        for e, d in changes.iteritems():
+            print 'found change element = ', e
+            if e in self.elementObjects:
+                print 'change element exists!'
+                for k, v in d.iteritems():
+                    self.modifyElement(e, k, v)
+                    print 'modifying change element ', k, ' = ', v
 
     def change_Lattice_Code(self, name, code):
         if name == 'All':
@@ -605,9 +649,10 @@ class frameworkLattice(Munch):
         elementno = 0
         newelements = OrderedDict()
         for name in self.elements.keys():
-            pos = np.array(self.allElementObjects[name].position_start)
-            positions.append(pos)
-            positions.append(self.allElementObjects[name].position_end)
+            if not self.elements[name].subelement:
+                pos = np.array(self.allElementObjects[name].position_start)
+                positions.append(pos)
+                positions.append(self.allElementObjects[name].position_end)
         positions = positions[1:]
         positions.append(positions[-1])
         driftdata = zip(self.elements.iteritems(), list(chunks(positions, 2)))
@@ -1994,7 +2039,7 @@ class longitudinal_wakefield(cavity):
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         if self.length > 0:
-            d = drift(self.objectname+'_drift', type='drift', **{'length': self.length})
+            d = drift(self.objectname+'-drift', type='drift', **{'length': self.length})
             wholestring+=d._write_Elegant()
         for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
