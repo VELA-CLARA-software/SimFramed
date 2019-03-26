@@ -646,16 +646,18 @@ class frameworkLattice(Munch):
     def createDrifts(self):
         """Insert drifts into a sequence of 'elements'"""
         positions = []
+        originalelements = OrderedDict()
         elementno = 0
         newelements = OrderedDict()
         for name in self.elements.keys():
             if not self.elements[name].subelement:
+                originalelements[name] = self.elements[name]
                 pos = np.array(self.allElementObjects[name].position_start)
                 positions.append(pos)
                 positions.append(self.allElementObjects[name].position_end)
         positions = positions[1:]
         positions.append(positions[-1])
-        driftdata = zip(self.elements.iteritems(), list(chunks(positions, 2)))
+        driftdata = zip(originalelements.iteritems(), list(chunks(positions, 2)))
         for e, d in driftdata:
             newelements[e[0]] = e[1]
             if len(d) > 1:
