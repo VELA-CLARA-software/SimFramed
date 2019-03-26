@@ -29,7 +29,6 @@ else:
     lattice.generator.number_of_particles = 2**(3*5)
 lattice.defineElegantCommand(['elegant'])
 
-
 lattice['S02'].prefix = '../CLARA/basefiles_4/'
 oldl02grad = lattice.getElement('CLA-L02-CAV', 'field_amplitude')
 oldl02phase = lattice.getElement('CLA-L02-CAV', 'phase')
@@ -44,18 +43,19 @@ lattice.modifyElement('CLA-L03-CAV', 'field_amplitude', np.sqrt(2)*11.25e6 )
 lattice.modifyElement('CLA-L04-CAV', 'field_amplitude', np.sqrt(2)*12e6 )
 lattice.modifyElement('CLA-L4H-CAV', 'field_amplitude', np.sqrt(2)*15.75e6 )
 lattice.modifyElement('CLA-L02-CAV', 'phase', oldl02phase + 5.0)
-fw.save_change_file(lattice)
-print lattice['S02'].prefix
-print lattice.S02['CLA-S02-MAG-QUAD-01']['k1l']
-lattice.modifyElement('CLA-S02-MAG-QUAD-01','k1', 10)
-print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
-lattice['CLA-S02-MAG-QUAD-01'].k1 = 13.15
-print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
-# lattice.track(files=['generator', 'injector400'], track=True, postprocess=True)
+# lattice.save_changes_file()
+
+# print lattice['S02'].prefix
+# print lattice.S02['CLA-S02-MAG-QUAD-01']['k1l']
+# lattice.modifyElement('CLA-S02-MAG-QUAD-01','k1', 10)
+# print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
+# lattice['CLA-S02-MAG-QUAD-01'].k1 = 13.15
+# print lattice['S02'].getElement('CLA-S02-MAG-QUAD-01','k1')
+# # lattice.track(files=['generator', 'injector400'], track=True, postprocess=True)
 lattice.change_Lattice_Code('All','elegant')
-# lattice.track(startfile='S02')#,preprocess=True, track=False, postprocess=False)
+# # lattice.track(startfile='S02')#,preprocess=True, track=False, postprocess=False)
 # lattice['bunch_compressor'].set_angle(-0.0)
-# lattice.track(startfile='S02', endfile='S07')#,preprocess=True, track=False, postprocess=False)
+lattice.track(startfile='S02', endfile='S07')#,preprocess=True, track=False, postprocess=False)
 
 # exit()
 # def f(ph):

@@ -277,7 +277,7 @@ def evalBeamWithGenesis(dir, run=True, startcharge=250):
           'HDF5_file': dir+'/'+'CLA-FMS-APER-01.hdf5',
           'i_match': 0}
     if run:
-        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 6 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
+        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 12 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
     else:
         data['gen_launch'] = ''
     f = FEL_sim(data)
@@ -332,13 +332,15 @@ def optfunc(inputargs, verbose=True, dir=None, subdir='', savestate=True, runGen
     runno = process.pid
 
     with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir) as tmpdir:
-        if dir is not None:
-            tmpdir = dir
-            if not os.path.exists(tmpdir):
-                os.makedirs(tmpdir)
-        tmpdir = os.path.relpath(tmpdir)
+
         # print 'tmpdir = ', tmpdir
-        try:
+        # try:
+            if dir is not None:
+                tmpdir = dir
+                if not os.path.exists(tmpdir):
+                    os.makedirs(tmpdir)
+            tmpdir = os.path.relpath(tmpdir)
+
             if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
                 idNumber = os.path.basename(tmpdir)
             else:
@@ -379,9 +381,9 @@ def optfunc(inputargs, verbose=True, dir=None, subdir='', savestate=True, runGen
                 except:
                     pass
             return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
-        except Exception as e:
-            print 'Error! ', e
-            return 0, 10, 0, 10, 500, {}
+        # except Exception as e:
+        #     print 'Error! ', e
+        #     return 0, 10, 0, 10, 500, {}
 
 if __name__ == "__main__":
     args = parser.parse_args()
