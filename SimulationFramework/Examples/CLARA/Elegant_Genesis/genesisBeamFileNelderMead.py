@@ -3,16 +3,17 @@ import numpy as np
 import random
 sys.path.append(os.path.abspath(__file__+'/../../../../../'))
 from SimulationFramework.Modules.constraints import constraintsClass
+from SimulationFramework.Modules.nelder_mead import nelder_mead
 import time
 import csv
 import copy
 import genesisBeamFile
 from functools import partial
-from scipy.optimize import minimize
+# from scipy.optimize import minimize
 from shutil import copyfile
 
 def saveState(args, n, fitness):
-    with open('simplex/best_solutions_running.csv','a') as out:
+    with open('nelder_mead/best_solutions_running.csv','a') as out:
         csv_out=csv.writer(out)
         args=list(args)
         args.append(n)
@@ -20,7 +21,10 @@ def saveState(args, n, fitness):
         csv_out.writerow(args)
 
 def saveParameterFile(best, file='clara_elegantgenesis_best.yaml'):
-    allparams = zip(*(injparameternames+parameternames))
+    if POST_INJECTOR:
+        allparams = zip(*(parameternames))
+    else:
+        allparams = zip(*(injparameternames+parameternames))
     output = {}
     for p, k, v in zip(allparams[0], allparams[1], best):
         if p not in output:
@@ -30,15 +34,15 @@ def saveParameterFile(best, file='clara_elegantgenesis_best.yaml'):
             yaml.dump(output, yaml_file, default_flow_style=False)
 
 def optfunc(inputargs, *args, **kwargs):
-    global simplex_iteration, bestfit
+    global nelder_mead_iteration, bestfit
     cons = constraintsClass()
     if 'dir' in kwargs.keys():
         dir = kwargs['dir']
         del kwargs['dir']
     else:
-        dir = 'simplex/simplex_iteration_'+str(simplex_iteration)
+        dir = 'nelder_mead/nelder_mead_iteration_'+str(nelder_mead_iteration)
     e, b, ee, be, l, g = genesisBeamFile.optfunc(inputargs, dir=dir, *args, **kwargs)
-    simplex_iteration += 1
+    nelder_mead_iteration += 1
     brightness = (1e-4*e)/(1e-2*b)
     e = 1e2*e
     ee = 1e2*ee
@@ -61,11 +65,11 @@ def optfunc(inputargs, *args, **kwargs):
     }
     fitvalue = cons.constraints(constraintsList)
     print cons.constraintsList(constraintsList)
-    print 'fitvalue[', simplex_iteration-1, '] = ', fitvalue
-    saveState(inputargs, simplex_iteration-1, fitvalue)
+    print 'fitvalue[', nelder_mead_iteration-1, '] = ', fitvalue
+    saveState(inputargs, nelder_mead_iteration-1, fitvalue)
     if fitvalue < bestfit:
         print '!!!!!!  New best = ', fitvalue
-        copyfile(dir+'/changes.yaml','./best_changes.yaml')
+        copyfile(dir+'/changes.yaml','./nelder_mead_best_changes.yaml')
         bestfit = fitvalue
     return fitvalue
 
@@ -86,29 +90,29 @@ startingvalues = best = [1.91163015e+07, -2.65517825e+01,  2.78708167e+07, -1.12
  -1.48395605e-01]
 
 injector_startingvalues = [-9.,0.345,2.1e7,-16.,0.052500000000000005,-0.05]
-startingvalues = best = [3.003162576456073e7,-22.688094300982396,2.7858659446474683e7,-8.171745448661719,
-                        2.442011657057434e7,181.8366939201224,3.2198182091182925e7,45.36727642193955,-0.12145534694213986, 1.0015993470346622]
+startingvalues = best = np.array([3.003162576456073e7,-22.688094300982396,2.7858659446474683e7,-8.171745448661719,
+                        2.442011657057434e7,181.8366939201224,3.2198182091182925e7,45.36727642193955,-0.12145534694213986, 1.0015993470346622])
 
 if not POST_INJECTOR:
     best = injector_startingvalues + best
 elif CREATE_BASE_FILES:
     for i in [scaling]:
         pass
-        # optfunc(injector_startingvalues + best, scaling=scaling, post_injector=False, verbose=False, runGenesis=False, dir='simplex/basefiles_'+str(i))
+        # optfunc(injector_startingvalues + best, scaling=scaling, post_injector=False, verbose=False, runGenesis=False, dir='nelder_mead/basefiles_'+str(i))
 
 print 'best = ', best
-# print 'start fitness = ', optfunc(best, dir=os.getcwd()+'/CLARA_best_simplex_elegantgenesis', scaling=5, overwrite=True, verbose=True, summary=False, post_injector=True)
+# print 'start fitness = ', optfunc(best, dir=os.getcwd()+'/CLARA_best_nelder_mead_elegantgenesis', scaling=5, overwrite=True, verbose=True, summary=False, post_injector=True)
 # exit()
 bestfit = 1e26
 
-with open('simplex/best_solutions_running.csv','w') as out:
-    simplex_iteration = 0
-res = minimize(optfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
-print res.x
+with open('nelder_mead/best_solutions_running.csv','w') as out:
+    nelder_mead_iteration = 0
+res = nelder_mead(optfunc, best, step=[1e6, 5, 1e6, 5, 1e6, 5, 1e6, 5, 0.01, 0.25], max_iter=300)
+print res
 #
 # try:
-#     print 'best fitness = ', optfunc(res.x, dir=os.getcwd()+'/simplex/final', scaling=6, overwrite=True, verbose=True, summary=True, post_injector=POST_INJECTOR)
+#     print 'best fitness = ', optfunc(res.x, dir=os.getcwd()+'/nelder_mead/final', scaling=6, overwrite=True, verbose=True, summary=True, post_injector=POST_INJECTOR)
 # except:
 #     pass
 
-# saveParameterFile(res.x)
+# saveParameterFile(res)

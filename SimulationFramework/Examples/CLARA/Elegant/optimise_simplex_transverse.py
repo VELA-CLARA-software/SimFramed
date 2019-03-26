@@ -8,7 +8,7 @@ import SimulationFramework.Modules.read_beam_file as rbf
 from functools import partial
 from scipy.optimize import minimize
 import csv
-
+from ruamel import yaml
 import shutil
 import uuid
 
@@ -40,19 +40,26 @@ class TemporaryDirectory(object):
     def __exit__(self, exc_type, exc_value, traceback):
         shutil.rmtree(self.name)
 
-framework = fw.Framework('twiss_temp', overwrite=False)
+framework = fw.Framework(None)
 framework.loadSettings('Lattices/clara400_v12_v3.def')
 parameters = framework.getElementType('quadrupole','k1l')
+names = framework.getElementType('quadrupole','objectname')
 # print 'parameters = ', parameters
 best = parameters
 scaling=4
 
-best = [-0.21113423,  0.05611187,  0.05074488,  0.11979579,  0.11860292, -0.10318465,
-  0.09367604,  0.0335248,  -0.05858826, -0.04612466,  0.02737724,  0.02058785,
-  0.02728732, -0.04147235, -0.1120256,   0.29220971,  0.21947431, -0.10276519,
-  0.36242126, -0.13196165, -0.24730869, -0.10426861,  0.39564025,  0.01674958,
-  0.24730631,  0.6414611,  -0.16225248, -0.78205778, -0.12803389]
+best = [-0.22789817,  0.04384427,  0.07237042,  0.11319594,  0.11633546, -0.10393746,
+  0.09247306,  0.03135896, -0.06080841, -0.04500804,  0.02695322,  0.0206167,
+  0.03058594, -0.04103264, -0.12178037,  0.30441347,  0.22639786, -0.08582796,
+  0.37171019, -0.13076231, -0.33075536, -0.10981188,  0.43603262,  0.01990002,
+  0.27849027,  0.37018414, -0.1794828,   0.03491095, -0.17280846]
 
+with open('best_changes.yaml', 'r') as infile:
+    data = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
+    best = [data[n]['k1l'] for n in names[:-2]]
+
+# print best
+# exit()
 
 class fitnessFunc():
 
@@ -135,7 +142,7 @@ class fitnessFunc():
         #     return 1e6
 
 def optfunc(args, dir=None, **kwargs):
-    global simplex_iteration
+    global simplex_iteration, bestfit
     dir='simplex_transverse/simplex_iteration_'+str(simplex_iteration)
     if dir == None:
         with TemporaryDirectory(dir=os.getcwd()) as tmpdir:
@@ -144,10 +151,14 @@ def optfunc(args, dir=None, **kwargs):
     else:
             fit = fitnessFunc(args, dir, **kwargs)
             fitvalue = fit.calculateBeamParameters()
-    fw.save_change_file(fit.framework, filename=fit.framework.subdirectory+'/changes.yaml')
+    fit.framework.save_changes_file(filename=fit.framework.subdirectory+'/changes.yaml', type='quadrupole')
     print 'fitvalue[', simplex_iteration, '] = ', fitvalue
     saveState(args, simplex_iteration, fitvalue)
     simplex_iteration += 1
+    if fitvalue < bestfit:
+        print '!!!!!!  New best = ', fitvalue
+        fit.framework.save_changes_file(filename='best_changes.yaml', type='quadrupole')
+        bestfit = fitvalue
     return fitvalue
 
 savefile = open('simplex_transverse/best_solutions_running.csv','a')
@@ -160,9 +171,9 @@ def saveState(args, n, fitness):
     args.append(fitness)
     csv_out.writerow(args)
 
-simplexfunc = partial(optfunc, verbose=True)
-
+simplexfunc = partial(optfunc, verbose=False)
+bestfit = 1e26
 with open('simplex_transverse/best_solutions_running.csv','w') as out:
     simplex_iteration = 0
-res = minimize(simplexfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': False})
-print res.x
+res = minimize(simplexfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
+print list(res.x)

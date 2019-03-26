@@ -2,7 +2,7 @@ import numpy as np
 import os
 import sys
 sys.path.append(os.path.abspath(__file__+'/../../../../../'))
-from SimulationFramework.Framework import *
+import SimulationFramework.Framework as fw
 from SimulationFramework.Modules.constraints import *
 import SimulationFramework.Modules.read_beam_file as rbf
 import shutil
@@ -69,7 +69,7 @@ class fitnessFunc():
                 dcp_factor = args[15]
             else:
                 dcp_factor = 1
-            gunphase, gunsol, linac1field, linac1phase, linac1sol1, linac1sol2, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args
+            gunphase, gunsol, linac1field, linac1phase, linac1sol1, linac1sol2, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args[:15]
             self.parameters = dict(zip(['gunphase','gunsol','linac1field','linac1phase', 'linac1sol1', 'linac1sol2', 'linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
         self.parameters['dcp_factor'] = dcp_factor
         self.npart=2**(3*scaling)
@@ -79,13 +79,14 @@ class fitnessFunc():
         else:
             self.sbandlinacfields = np.array([linac1field, linac2field, linac3field, linac4field])
         self.dirname = self.tmpdir
-        self.framework = Framework(self.dirname, overwrite=overwrite, verbose=verbose)
+        self.framework = fw.Framework(self.dirname, overwrite=overwrite, verbose=verbose)
         if not os.name == 'nt':
             self.framework.defineGeneratorCommand(['/opt/ASTRA/generator'])
             self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         self.framework.defineElegantCommand(['elegant'])
         self.framework.loadSettings('Lattices/clara400_v12_v3_elegant_jkj.def')
+        self.framework.load_changes_file('../Elegant/best_changes.yaml')
         if not self.post_injector:
             self.framework.generator.particles = self.npart
             self.framework.modifyElement('CLA-HRG1-GUN-CAV', 'phase', gunphase)
@@ -104,6 +105,7 @@ class fitnessFunc():
         self.framework.modifyElement('CLA-L04-CAV', 'phase', linac4phase)
         self.framework['bunch_compressor'].set_angle(bcangle)
         self.framework.modifyElement('CLA-S07-DCP-01', 'factor', dcp_factor)
+        self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml')
 
     def calculateBeamParameters(self):
         # try:
@@ -125,6 +127,7 @@ class fitnessFunc():
         #     return 1e6
 
 def optfunc(inputargs, dir=None, *args, **kwargs):
+    global bestfit
     if dir == None:
         with TemporaryDirectory(dir=os.getcwd()) as tmpdir:
             fit = fitnessFunc(inputargs, tmpdir, *args, **kwargs)
