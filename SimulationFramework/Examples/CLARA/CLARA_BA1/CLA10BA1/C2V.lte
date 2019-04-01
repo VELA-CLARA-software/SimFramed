@@ -1,0 +1,23 @@
+START: charge, total = 2.500000000000001e-10;
+CLA-C2V-MARK-01: watch, filename = CLA-C2V-MARK-01.sdds;
+drift1: csrdrift, l = 0.10000000000000053, use_stupakov = 1, dz = 0;
+CLA-C2V-MAG-DIP-01: csrcsbend, l = 0.400003, bins = 100, csr = 1, isr = 1,&
+n_kicks = 10, synch_rad = 1, integration_order = 4, nonlinear = 1,&
+sg_halfwidth = 2, fint = 0.4, angle = 0.785398, bins = 100, k1 = 0;
+drift2: csrdrift, l = 0.10005490243361352, use_stupakov = 1, dz = 0;
+CLA-C2V-MAG-HVCOR-01: kicker, l = 0.21, isr = 1, synch_rad = 1;
+CLA-C2V-DIA-BPM-01: moni, l = 0;
+drift3: csrdrift, l = 0.022524179807486885, use_stupakov = 1, dz = 0;
+CLA-C2V-MAG-QUAD-01: kquad, l = 0.1007, n_kicks = 20, k1 = 55.5961271102;
+drift4: csrdrift, l = 0.18930309195837258, use_stupakov = 1, dz = 0;
+CLA-C2V-MAG-QUAD-02: kquad, l = 0.1007, n_kicks = 20, k1 = -49.9296921549;
+drift5: csrdrift, l = 0.18930309195837258, use_stupakov = 1, dz = 0;
+CLA-C2V-MAG-QUAD-03: kquad, l = 0.1007, n_kicks = 20, k1 = 55.5961271102;
+drift6: csrdrift, l = 0.11088424286615355, use_stupakov = 1, dz = 0;
+CLA-C2V-DIA-SCR-01-W: watch, filename = "C2V-DIA-SCR-01.SDDS";
+end: watch, filename = CLA-C2V-DIA-SCR-01-W.SDDS;
+C2V: Line=(START, CLA-C2V-MARK-01, drift1, &
+CLA-C2V-MAG-DIP-01, drift2, CLA-C2V-MAG-HVCOR-01, &
+CLA-C2V-DIA-BPM-01, drift3, CLA-C2V-MAG-QUAD-01, drift4, &
+CLA-C2V-MAG-QUAD-02, drift5, CLA-C2V-MAG-QUAD-03, drift6, &
+CLA-C2V-DIA-SCR-01-W, END )

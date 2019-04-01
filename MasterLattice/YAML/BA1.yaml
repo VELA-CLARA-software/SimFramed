@@ -12,6 +12,7 @@ elements:
   EBT-BA1-MAG-QUAD-01:
     type: quadrupole
     length: 0.16
+    k1l: 0
     sr_enable: true
     isr_enable: true
     position_end: [-1.25, 0, 22.5498]
@@ -19,6 +20,7 @@ elements:
   EBT-BA1-MAG-QUAD-02:
     type: quadrupole
     length: 0.16
+    k1l: 0
     sr_enable: true
     isr_enable: true
     position_end: [-1.25, 0, 22.9498]
@@ -31,6 +33,7 @@ elements:
   EBT-BA1-MAG-QUAD-03:
     type: quadrupole
     length: 0.16
+    k1l: 0
     sr_enable: true
     isr_enable: true
     position_end: [-1.25, 0, 23.3448]
@@ -68,6 +71,7 @@ elements:
   EBT-BA1-MAG-QUAD-04:
     type: quadrupole
     length: 0.16
+    k1l: 0
     sr_enable: true
     isr_enable: true
     position_end: [-1.25, 0, 27.1898]
@@ -75,6 +79,7 @@ elements:
   EBT-BA1-MAG-QUAD-05:
     type: quadrupole
     length: 0.16
+    k1l: 0
     sr_enable: true
     isr_enable: true
     position_end: [-1.25, 0, 27.6228]
@@ -82,6 +87,7 @@ elements:
   EBT-BA1-MAG-QUAD-06:
     type: quadrupole
     length: 0.16
+    k1l: 0
     sr_enable: true
     isr_enable: true
     position_end: [-1.25, 0, 28.0558]
@@ -109,6 +115,7 @@ elements:
   EBT-BA1-MAG-QUAD-07:
     type: quadrupole
     length: 0.3
+    k1l: 0
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 1.0472]
