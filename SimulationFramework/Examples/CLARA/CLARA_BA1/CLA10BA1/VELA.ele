@@ -1,0 +1,34 @@
+&run_setup
+	lattice = VELA.lte
+	use_beamline = VELA
+	centroid = %s.cen
+	sigma = %s.sig
+	p_central = 68.90051196037646
+	always_change_p0 = 1
+&end
+&run_control
+	n_steps = 1
+	n_passes = 1
+&end
+&twiss_output
+	filename = %s.twi
+	matched = 0
+	output_at_each_step = 0
+	statistics = 1
+	radiation_integrals = 1
+	beta_x = 1.5812367417663438
+	alpha_x = 3.860612497525894
+	beta_y = 0.391392465909068
+	alpha_y = 4.284357294441857
+&end
+&floor_coordinates
+	filename = %s.flr
+	X0 = -0.944068
+	Z0 = 6.9819
+	theta0 = 0
+&end
+&sdds_beam
+	input = CLA-C2V-DIA-SCR-01-W.sdds
+&end
+&track
+&end

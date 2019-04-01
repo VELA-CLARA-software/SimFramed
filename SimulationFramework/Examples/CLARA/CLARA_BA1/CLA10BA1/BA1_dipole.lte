@@ -1,0 +1,18 @@
+START: charge, total = 2.500000000000001e-10;
+EBT-BA1-DIA-YAG-02: watch, filename = EBT-BA1-DIA-YAG-02.SDDS;
+drift1: csrdrift, l = 0.3979999999999997, use_stupakov = 1, dz = 0;
+EBT-BA1-MAG-DIP-01: csrcsbend, l = 0.500037, bins = 100, csr = 1, isr = 1,&
+n_kicks = 10, synch_rad = 1, integration_order = 4, nonlinear = 1,&
+sg_halfwidth = 2, angle = 1.0472, bins = 100, fint = 0.4, k1 = 0;
+drift2: csrdrift, l = 0.3730021861866221, use_stupakov = 1, dz = 0;
+EBT-BA1-MAG-QUAD-07: kquad, l = 0.3, n_kicks = 20, k1 = 0.0;
+drift3: csrdrift, l = 0.2729957259738701, use_stupakov = 1, dz = 0;
+EBT-BA1-DIA-BPM-04: moni, l = 0.235;
+drift4: csrdrift, l = 0.7850000502547746, use_stupakov = 1, dz = 0;
+EBT-BA1-DIA-YAG-03: watch, filename = EBT-BA1-DIA-YAG-03.SDDS;
+EBT-BA1-DIA-FCUP-01: watch, filename = EBT-BA1-DIA-FCUP-01.SDDS;
+end: watch, filename = EBT-BA1-DIA-FCUP-01.SDDS;
+BA1_dipole: Line=(START, EBT-BA1-DIA-YAG-02, drift1, &
+EBT-BA1-MAG-DIP-01, drift2, EBT-BA1-MAG-QUAD-07, drift3, &
+EBT-BA1-DIA-BPM-04, drift4, EBT-BA1-DIA-YAG-03, &
+EBT-BA1-DIA-FCUP-01, END )

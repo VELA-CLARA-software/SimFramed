@@ -1,0 +1,34 @@
+&run_setup
+	lattice = BA1.lte
+	use_beamline = BA1
+	centroid = %s.cen
+	sigma = %s.sig
+	p_central = 68.87794262262368
+	always_change_p0 = 1
+&end
+&run_control
+	n_steps = 1
+	n_passes = 1
+&end
+&twiss_output
+	filename = %s.twi
+	matched = 0
+	output_at_each_step = 0
+	statistics = 1
+	radiation_integrals = 1
+	beta_x = 7.013537720666432
+	alpha_x = 15.671138591617844
+	beta_y = 49.82877008174524
+	alpha_y = -25.41697475263778
+&end
+&floor_coordinates
+	filename = %s.flr
+	X0 = -1.25
+	Z0 = 18.2448
+	theta0 = 0
+&end
+&sdds_beam
+	input = EBT-INJ-PSS-SHUT-02.sdds
+&end
+&track
+&end
