@@ -218,8 +218,7 @@ class mainApp(qt.QMainWindow):
                 for row in spamreader:
                     solutions.append([float(a) for a in row])
             solutions = np.array(sorted(solutions, key=lambda a: a[-1]))
-            iterdirs = [self.currentDirectory + '/simplex_iteration_' +str(int(a)) for a in solutions[:,-2] if os.path.isdir(self.currentDirectory + '/simplex_iteration_' +str(int(a))) ]
-            iterdirs = [self.currentDirectory + '/nelder_mead_iteration_' +str(int(a)) for a in solutions[:,-2] if os.path.isdir(self.currentDirectory + '/nelder_mead_iteration_' +str(int(a))) ]
+            iterdirs = [self.currentDirectory + '/iteration_' +str(int(a)) for a in solutions[:,-2] if os.path.isdir(self.currentDirectory + '/iteration_' +str(int(a))) ]
             basedirs = [a for a in dirs if 'basefiles_' in a]
             vbcdirs = [a for a in dirs if 'vbc_' in a]
             setdirs = [a for a in dirs if 'set' in a]

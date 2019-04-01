@@ -18,17 +18,18 @@ def merge_two_dicts(x, y):
 class TemporaryDirectory(object):
     """Context manager for tempfile.mkdtemp() so it's usable with "with" statement."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dir=os.getcwd(), *args, **kwargs):
+        self.dir = dir
         self.args = args
         self.kwargs = kwargs
 
     def tempname(self):
         return 'tmp'+str(uuid.uuid4())
 
-    def __enter__(self, dir=os.getcwd()):
+    def __enter__(self):
         exists = True
         while exists:
-            self.name = dir + '/' + self.tempname()
+            self.name = self.dir + '/' + self.tempname()
             if not os.path.exists(self.name):
                 exists=False
                 os.makedirs(self.name)
@@ -42,70 +43,53 @@ class TemporaryDirectory(object):
 
 class fitnessFunc():
 
-    def __init__(self, args, tempdir, id=None, scaling=5, overwrite=True, verbose=False, summary=False, post_injector=True, startcharge=None, basefiles=None):
+    def __init__(self):
+        self.CLARA_dir = os.path.relpath(os.path.dirname(os.path.dirname( os.path.abspath(__file__))))# if CLARA_dir is None else CLARA_dir
         self.cons = constraintsClass()
         self.beam = rbf.beam()
+
+    def set_CLARA_directory(self, clara_dir):
+        self.CLARA_dir = clara_dir
+
+    def setup_lattice(self, inputargs, tempdir, scaling=5, overwrite=True, verbose=False, post_injector=True, startcharge=None, basefiles=None, changes=None, *args, **kwargs):
         self.scaling = scaling
-        self.tmpdir = tempdir
+        self.dirname = tempdir
         self.verbose = verbose
-        self.summary = summary
         self.overwrite = overwrite
         self.post_injector = post_injector
-        self.id = id
         self.startcharge = startcharge
         self.basefiles = basefiles
-        print 'basefiles defined as ', self.basefiles
-        ''' if only post-injector optimisation'''
-        if self.post_injector:
-            if len(args) == 10:
-                dcp_factor = args[9]
-            else:
-                dcp_factor = 1
-            linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args[:9]
-            self.parameters = dict(zip(['linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
-        else:
-            ''' including injector parameters '''
-            if len(args) == 16:
-                dcp_factor = args[15]
-            else:
-                dcp_factor = 1
-            gunphase, gunsol, linac1field, linac1phase, linac1sol1, linac1sol2, linac2field, linac2phase, linac3field, linac3phase, fhcfield, fhcphase, linac4field, linac4phase, bcangle = args[:15]
-            self.parameters = dict(zip(['gunphase','gunsol','linac1field','linac1phase', 'linac1sol1', 'linac1sol2', 'linac2field', 'linac2phase', 'linac3field', 'linac3phase', 'fhcfield', 'fhcphase', 'linac4field', 'linac4phase', 'bcangle'], args))
-        self.parameters['dcp_factor'] = dcp_factor
+        self.parameters = inputargs
+
         self.npart=2**(3*scaling)
         ncpu = scaling*3
-        if self.post_injector:
-            self.sbandlinacfields = np.array([linac2field, linac3field, linac4field])
-        else:
-            self.sbandlinacfields = np.array([linac1field, linac2field, linac3field, linac4field])
-        self.dirname = self.tmpdir
+
+        # if self.post_injector:
+        #     self.sbandlinacfields = np.array([self.parameters[''], linac3field, linac4field])
+        # else:
+        #     self.sbandlinacfields = np.array([linac1field, linac2field, linac3field, linac4field])
+
         self.framework = fw.Framework(self.dirname, overwrite=overwrite, verbose=verbose)
+
         if not os.name == 'nt':
             self.framework.defineGeneratorCommand(['/opt/ASTRA/generator'])
             self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         self.framework.defineElegantCommand(['elegant'])
+
         self.framework.loadSettings('Lattices/clara400_v12_v3_elegant_jkj.def')
-        self.framework.load_changes_file('../Elegant/best_changes.yaml')
-        if not self.post_injector:
-            self.framework.generator.particles = self.npart
-            self.framework.modifyElement('CLA-HRG1-GUN-CAV', 'phase', gunphase)
-            self.framework.modifyElement('CLA-HRG1-GUN-SOL', 'field_amplitude', gunsol)
-            self.framework.modifyElement('CLA-L01-CAV', 'field_amplitude', abs(linac1field))
-            self.framework.modifyElement('CLA-L01-CAV', 'phase', linac1phase)
-            self.framework.modifyElement('CLA-L01-CAV-SOL-01', 'field_amplitude', linac1sol1)
-            self.framework.modifyElement('CLA-L01-CAV-SOL-02', 'field_amplitude', linac1sol2)
-        self.framework.modifyElement('CLA-L02-CAV', 'field_amplitude', abs(linac2field))
-        self.framework.modifyElement('CLA-L02-CAV', 'phase', linac2phase)
-        self.framework.modifyElement('CLA-L03-CAV', 'field_amplitude', abs(linac3field))
-        self.framework.modifyElement('CLA-L03-CAV', 'phase', linac3phase)
-        self.framework.modifyElement('CLA-L4H-CAV', 'field_amplitude', abs(fhcfield))
-        self.framework.modifyElement('CLA-L4H-CAV', 'phase', fhcphase)
-        self.framework.modifyElement('CLA-L04-CAV', 'field_amplitude', abs(linac4field))
-        self.framework.modifyElement('CLA-L04-CAV', 'phase', linac4phase)
-        self.framework['bunch_compressor'].set_angle(bcangle)
-        self.framework.modifyElement('CLA-S07-DCP-01', 'factor', dcp_factor)
-        self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml')
+        if changes is not None:
+            self.framework.load_changes_file(changes)#self.CLARA_dir+'/Elegant/best_changes.yaml')
+
+        ''' Apply arguments: [[element, parameter, value], [...]] '''
+        for e, p, v in self.parameters:
+            print e,p,v
+            if e == 'bunch_compressor' and p == 'set_angle':
+                self.framework['bunch_compressor'].set_angle(float(v))
+            else:
+                self.framework.modifyElement(e, p, v)
+
+        self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml', function=float)
 
     def calculateBeamParameters(self):
         # try:
@@ -115,7 +99,8 @@ class fitnessFunc():
                     self.framework['POSTINJ'].prefix = self.basefiles
                 else:
                     print 'basefiles not defined! Using default location'
-                    self.framework['POSTINJ'].prefix = '../../../basefiles_'+str(self.scaling)+'/'
+
+                    self.framework['POSTINJ'].prefix = self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/'
                 if self.startcharge is not None:
                     self.framework['POSTINJ'].bunch_charge = 1e-12*self.startcharge
                 self.framework.track(startfile='POSTINJ')

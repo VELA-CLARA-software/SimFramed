@@ -1,0 +1,34 @@
+&run_setup
+	lattice = C2V.lte
+	use_beamline = C2V
+	centroid = %s.cen
+	sigma = %s.sig
+	p_central = 68.92574172058917
+	always_change_p0 = 1
+&end
+&run_control
+	n_steps = 1
+	n_passes = 1
+&end
+&twiss_output
+	filename = %s.twi
+	matched = 0
+	output_at_each_step = 0
+	statistics = 1
+	radiation_integrals = 1
+	beta_x = 14.41867399174028
+	alpha_x = -5.7264745911966894
+	beta_y = 38.32143915587251
+	alpha_y = 21.97663938102888
+&end
+&floor_coordinates
+	filename = %s.flr
+	X0 = 0
+	Z0 = 5.72687
+	theta0 = 0
+&end
+&sdds_beam
+	input = CLA-C2V-MARK-01.sdds
+&end
+&track
+&end

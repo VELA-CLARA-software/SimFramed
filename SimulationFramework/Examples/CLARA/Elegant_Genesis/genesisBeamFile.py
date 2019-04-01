@@ -325,65 +325,53 @@ def saveState(args, id, *values):
     csv_out.writerow(args)
     # csv_out.flush()
 
-
-def optfunc(inputargs, verbose=True, dir=None, subdir='', savestate=True, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
+def optfunc(inputargs, verbose=True, dir=None, subdir='', savestate=False, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
     global global_best
     process = multiprocessing.current_process()
     runno = process.pid
+    with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir+'/') as tmpdir:
 
-    with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir) as tmpdir:
+        if dir is not None:
+            tmpdir = dir
+            if not os.path.exists(tmpdir):
+                os.makedirs(tmpdir)
+        tmpdir = os.path.relpath(tmpdir)
 
-        # print 'tmpdir = ', tmpdir
-        # try:
-            if dir is not None:
-                tmpdir = dir
-                if not os.path.exists(tmpdir):
-                    os.makedirs(tmpdir)
-            tmpdir = os.path.relpath(tmpdir)
+        if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
+            idNumber = os.path.basename(tmpdir)
+        else:
+            idNumber = inputargs.id
 
-            if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
-                idNumber = os.path.basename(tmpdir)
-            else:
-                idNumber = inputargs.id
-
-            # print 'post_injector = ', post_injector
-
-            sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=0)
-            sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=0)
-            if runElegant:
-                if post_injector:
-                    fit = runEle.fitnessFunc(inputargs[:10], tmpdir, id=idNumber, startcharge=250, post_injector=True, *args, **kwargs)
-                else:
-                    print 'inputargs = ', inputargs
-                    fit = runEle.fitnessFunc(inputargs[:16], tmpdir, id=idNumber, startcharge=250, post_injector=False, *args, **kwargs)
-                fitvalue = fit.calculateBeamParameters()
-            if post_injector:
-                e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
-            else:
-                e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
-            sys.stdout = sys.__stdout__
-            sys.stderr = sys.__stderr__
-            if verbose:
-                print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
-                print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
-            #### Save Output files to dir named after runno #####
-            if not os.path.exists('./outData/'):
-                os.makedirs('./outData/')
-            dir = './outData/' + str(idNumber)
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
-            copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
-            copyfile(tmpdir+'/std.out',dir+'/std.out')
-            if savestate:
-                try:
-                    saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
-                except:
-                    pass
-            return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
-        # except Exception as e:
-        #     print 'Error! ', e
-        #     return 0, 10, 0, 10, 500, {}
+        sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=0)
+        sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=0)
+        if runElegant:
+            fit = runEle.fitnessFunc()
+            fit.setup_lattice(inputargs, tmpdir, id=idNumber, startcharge=250, post_injector=True, *args, **kwargs)
+            fitvalue = fit.calculateBeamParameters()
+        if post_injector:
+            e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
+        else:
+            e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+        if verbose:
+            print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
+            print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
+        #### Save Output files to dir named after runno #####
+        if not os.path.exists('./outData/'):
+            os.makedirs('./outData/')
+        dir = './outData/' + str(idNumber)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
+        copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
+        copyfile(tmpdir+'/std.out',dir+'/std.out')
+        if savestate:
+            try:
+                saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
+            except:
+                pass
+        return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
 
 if __name__ == "__main__":
     args = parser.parse_args()

@@ -108,8 +108,8 @@ elements:
     field_amplitude: 21000000.0
     frequency: 2998500000.0
     phase: -16
-    longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
-    transverse_wakefield_input: '"Sx5um10mm.sdds"'
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
     lsc_enable: true
     lsc_bins: 20.0

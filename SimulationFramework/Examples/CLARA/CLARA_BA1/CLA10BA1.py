@@ -35,7 +35,7 @@ ncpu = 10
 
 ################################  ELEGANT ######################################
 
-framework = Framework('CLA10BA1')
+framework = Framework('CLA10BA1', clean=True)
 if not os.name == 'nt':
     framework.defineGeneratorCommand(['/opt/ASTRA/generator'])
     framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
@@ -43,5 +43,6 @@ if not os.name == 'nt':
 framework.defineElegantCommand(['elegant'])
 
 framework.loadSettings('Lattices/CLA10-BA1.def')
-framework['S02BA1'].file_block['input']['prefix'] = '../../basefiles_3/'
-framework.track(startfile='S02BA1')
+framework.change_Lattice_Code('All','elegant')
+framework['S02'].prefix = '../../basefiles_4/'
+framework.track(startfile='S02', endfile='BA1_dipole')

@@ -1,0 +1,39 @@
+START: charge, total = 2.500000000000001e-10;
+EBT-INJ-PSS-SHUT-02: watch, filename = EBT-INJ-PSS-SHUT-02.sdds;
+drift1: csrdrift, l = 2.908999999999999, use_stupakov = 1, dz = 0;
+EBT-BA1-DIA-BPM-01: moni, l = 0.235;
+EBT-BA1-DIA-YAG-01: watch, filename = EBT-BA1-DIA-YAG-01.SDDS;
+drift2: csrdrift, l = 1.0010000000000012, use_stupakov = 1, dz = 0;
+EBT-BA1-MAG-QUAD-01: kquad, l = 0.16, n_kicks = 20, k1 = 0.0;
+drift3: csrdrift, l = 0.23999999999999844, use_stupakov = 1, dz = 0;
+EBT-BA1-MAG-QUAD-02: kquad, l = 0.16, n_kicks = 20, k1 = 0.0;
+EBT-BA1-DIA-BPM-02: moni, l = 0.235;
+EBT-BA1-MAG-QUAD-03: kquad, l = 0.16, n_kicks = 20, k1 = 0.0;
+drift4: csrdrift, l = 0.33999999999999986, use_stupakov = 1, dz = 0;
+EBT-BA1-LASERBOX-BEG: watch, filename = EBT-BA1-LASERBOX-BEG.sdds;
+drift5: csrdrift, l = 0.6500000000000021, use_stupakov = 1, dz = 0;
+EBT-BA1-LASERBOX-END: watch, filename = EBT-BA1-LASERBOX-END.sdds;
+drift6: csrdrift, l = 0.09999999999999787, use_stupakov = 1, dz = 0;
+EBT-BA1-COFFIN-BEG: watch, filename = EBT-BA1-COFFIN-BEG.sdds;
+drift7: csrdrift, l = 1.0500000000000007, use_stupakov = 1, dz = 0;
+EBT-BA1-COFFIN-FOC: watch, filename = EBT-BA1-COFFIN-FOC.sdds;
+drift8: csrdrift, l = 1.3099999999999987, use_stupakov = 1, dz = 0;
+EBT-BA1-COFFIN-END: watch, filename = EBT-BA1-COFFIN-END.sdds;
+EBT-BA1-DIA-BPM-03: moni, l = 0.235;
+EBT-BA1-MAG-QUAD-04: kquad, l = 0.16, n_kicks = 20, k1 = 0.0;
+drift9: csrdrift, l = 0.2729999999999997, use_stupakov = 1, dz = 0;
+EBT-BA1-MAG-QUAD-05: kquad, l = 0.16, n_kicks = 20, k1 = 0.0;
+drift10: csrdrift, l = 0.2729999999999997, use_stupakov = 1, dz = 0;
+EBT-BA1-MAG-QUAD-06: kquad, l = 0.16, n_kicks = 20, k1 = 0.0;
+drift11: csrdrift, l = 0.09999999999999787, use_stupakov = 1, dz = 0;
+EBT-BA1-DIA-YAG-02: watch, filename = EBT-BA1-DIA-YAG-02.SDDS;
+end: watch, filename = EBT-BA1-DIA-YAG-02.SDDS;
+BA1: Line=(START, EBT-INJ-PSS-SHUT-02, drift1, &
+EBT-BA1-DIA-BPM-01, EBT-BA1-DIA-YAG-01, drift2, &
+EBT-BA1-MAG-QUAD-01, drift3, EBT-BA1-MAG-QUAD-02, &
+EBT-BA1-DIA-BPM-02, EBT-BA1-MAG-QUAD-03, drift4, &
+EBT-BA1-LASERBOX-BEG, drift5, EBT-BA1-LASERBOX-END, drift6, &
+EBT-BA1-COFFIN-BEG, drift7, EBT-BA1-COFFIN-FOC, drift8, &
+EBT-BA1-COFFIN-END, EBT-BA1-DIA-BPM-03, EBT-BA1-MAG-QUAD-04, &
+drift9, EBT-BA1-MAG-QUAD-05, drift10, EBT-BA1-MAG-QUAD-06, &
+drift11, EBT-BA1-DIA-YAG-02, END )
