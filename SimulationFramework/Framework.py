@@ -5,6 +5,7 @@ import itertools
 import copy
 from collections import OrderedDict
 from .ASTRARules import *
+from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from SimulationFramework.FrameworkHelperFunctions import *
 import SimulationFramework.Modules.read_beam_file as rbf
 beam = rbf.beam()
@@ -128,19 +129,6 @@ def checkValue(self, d, default=None):
             return d['value'] if d['value'] is not None else d['default'] if 'default' in d else default
     elif isinstance(d, str):
         return getattr(self, d) if hasattr(self, d) and getattr(self, d) is not None else default
-
-def merge_two_dicts(y, x):
-    '''Combine to dictionaries: first dictionary overwrites keys in the second dictionary'''
-    if not isinstance(x, (dict, OrderedDict)) and not isinstance(y, (dict, OrderedDict)):
-        return OrderedDict()
-    elif not isinstance(x, (dict, OrderedDict)):
-        return y
-    elif not isinstance(y, (dict, OrderedDict)):
-        return x
-    else:
-        z = x.copy()   # start with x's keys and values
-        z.update(y)    # modifies z with y's keys and values & returns None
-        return OrderedDict(z)
 
 def clean_directory(folder):
     for the_file in os.listdir(folder):
@@ -283,7 +271,7 @@ class Framework(Munch):
         code = lattice['code'] if 'code' in lattice else 'astra'
         self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
-    def detect_changes(self, type=None, elements=None):
+    def detect_changes(self, type=None, elements=None, function=None):
         start = time.time()
         changedict = {}
         if type is not None:
@@ -296,14 +284,21 @@ class Framework(Munch):
             if not self.original_elementObjects[e] == unmunchify(self.elementObjects[e]):
                 orig = self.original_elementObjects[e]
                 new = unmunchify(self.elementObjects[e])
-                changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
+                if function is not None:
+                    try:
+                        changedict[e] = {k: function(new[k]) for k in new if not new[k] == orig[k]}
+                    except Exception as e:
+                        # print 'Error = ', e, ' value is ', {k: new[k] for k in new if not new[k] == orig[k]}
+                        changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
+                else:
+                    changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
         return changedict
 
-    def save_changes_file(self, filename=None, type=None, elements=None):
+    def save_changes_file(self, filename=None, type=None, elements=None, function=None):
         if filename is None:
             pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
             filename =  pre     + '_changes.yaml'
-        changedict = self.detect_changes(type=type, elements=elements)
+        changedict = self.detect_changes(type=type, elements=elements, function=function)
         with open(filename,"w") as yaml_file:
             yaml.dump(changedict, yaml_file, default_flow_style=False)
 
@@ -315,12 +310,12 @@ class Framework(Munch):
             changes = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
         # print 'changes = ', changes
         for e, d in changes.iteritems():
-            print 'found change element = ', e
+            # print 'found change element = ', e
             if e in self.elementObjects:
-                print 'change element exists!'
+                # print 'change element exists!'
                 for k, v in d.iteritems():
                     self.modifyElement(e, k, v)
-                    print 'modifying change element ', k, ' = ', v
+                    # print 'modifying change element ', k, ' = ', v
 
     def change_Lattice_Code(self, name, code):
         if name == 'All':

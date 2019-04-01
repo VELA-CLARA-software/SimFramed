@@ -19,7 +19,7 @@ elements:
     type: quadrupole
     length: 0.1
     #Controller_Name: QUAD-07
-    k1: 17.0945
+    k1l: 1.70945
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
@@ -28,7 +28,7 @@ elements:
   EBT-INJ-MAG-QUAD-08:
     type: quadrupole
     length: 0.1
-    k1: -17.8686
+    k1l: -1.78686
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
@@ -57,7 +57,7 @@ elements:
   EBT-INJ-MAG-QUAD-09:
     type: quadrupole
     length: 0.075
-    k1: 4.14677
+    k1l: 0.311008
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
@@ -86,7 +86,7 @@ elements:
   EBT-INJ-MAG-QUAD-10:
     type: quadrupole
     length: 0.075
-    k1: -4.2847
+    k1l: -0.321353
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
@@ -101,7 +101,7 @@ elements:
   EBT-INJ-MAG-QUAD-11:
     type: quadrupole
     length: 0.075
-    k1: 5.66182
+    k1l: 0.424637
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
@@ -136,7 +136,7 @@ elements:
   EBT-INJ-MAG-QUAD-15:
     type: quadrupole
     length: 0.075
-    k1: 4.0731
+    k1l: 0.305483
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
