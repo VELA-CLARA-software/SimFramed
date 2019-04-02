@@ -13,6 +13,7 @@ cavity:
     frequency,
     phase,
     field_definition,
+    field_definition_sdds,
     lsc_cutoff_high,
     field_amplitude,
     cell_length,
@@ -23,6 +24,7 @@ cavity:
     wxcolumn,
     wycolumn,
     coupling_cell_length,
+    method,
   }
 longitudinal_wakefield:
   keywords: {
