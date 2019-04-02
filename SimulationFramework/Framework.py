@@ -202,7 +202,7 @@ class Framework(Munch):
                 clean_directory(self.subdirectory)
         if self.overwrite == None:
             self.overwrite = True
-        master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
+        # master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
 
     def defineASTRACommand(self, command=['astra']):
         """Modify the defined ASTRA command variable"""
@@ -1328,9 +1328,9 @@ class frameworkGenerator(object):
 
 class frameworkElement(frameworkObject):
 
-    # as_keyword_conversion_rules_elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
-    #                             'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
-    #                             'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'CHANGE_P0', 'bunched_beam': 'bunched_beam_mode', 'nbins': 'N_BINS'}
+    keyword_conversion_rules_elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
+                                 'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
+                                 'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'change_p0', 'bunched_beam': 'bunched_beam_mode', 'nbins': 'n_bins'}
 
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(frameworkElement, self).__init__(elementName, elementType, **kwargs)
@@ -1338,11 +1338,6 @@ class frameworkElement(frameworkObject):
         self.add_property('position_errors', [0,0,0])
         self.add_property('rotation_errors', [0,0,0])
         self.add_property('global_rotation', [0,0,0])
-        setattr(self, 'keyword_conversion_rules_elegant', {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
-                                     'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
-                                     'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'CHANGE_P0', 'bunched_beam': 'bunched_beam_mode', 'nbins': 'N_BINS'})
-        # self['keyword_conversion_rules_elegant'] = {}
-        # print self['keyword_conversion_rules_elegant']
 
 
     def __mul__(self, other):
@@ -1738,6 +1733,8 @@ class cavity(frameworkElement):
 
     def __init__(self, name=None, type='cavity', **kwargs):
         super(cavity, self).__init__(name, type, **kwargs)
+        self.keyword_conversion_rules_elegant['field_amplitude'] = 'volt'
+        # self.keyword_conversion_rules_elegant['frequency'] = 'frequency'
         self.keyword_conversion_rules_elegant['longitudinal_wakefield_sdds'] = 'zwakefile'
         self.keyword_conversion_rules_elegant['transverse_wakefield_sdds'] = 'trwakefile'
         self.add_default('tcolumn', '"t"')
@@ -1745,6 +1742,9 @@ class cavity(frameworkElement):
         self.add_default('wxcolumn', '"W"')
         self.add_default('wycolumn', '"W"')
         self.add_default('wcolumn', '"Ez"')
+        self.add_default('change_p0', 1)
+        # self.add_default('method', '"non-adaptive runge-kutta"')
+        self.add_default('focussing', 1)
 
     def update_field_definition(self):
         if hasattr(self, 'field_definition') and self.field_definition is not None:
@@ -1798,8 +1798,12 @@ class cavity(frameworkElement):
                 if self.objecttype == 'cavity':
                     # In ELEGANT all phases are +90degrees!!
                     value = value + 90 if key.lower() == 'phase' else value
+                    # If using rftmez0 or similar
+                    # value = ((90+value)/360.0)*(2*3.14159) if key.lower() == 'phase' else value
                     # In ELEGANT the voltages  need to be compensated
                     value = (self.cells+4.8) * self.cell_length * (1 / np.sqrt(2)) * value if key.lower() == 'volt' else value
+                    # If using rftmez0 or similar
+                    value = 1/(2**0.5) * value if key.lower() == 'ez' else value
                     # In CAVITY NKICK = n_cells
                     value = self.cells if key.lower() == 'n_kicks' else value
                 tmpstring = ', '+key+' = '+str(value)
