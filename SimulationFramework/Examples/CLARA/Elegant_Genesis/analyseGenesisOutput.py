@@ -48,7 +48,7 @@ def analysis(g):
 
 def beam_analysis(d):
     beam = rbf.beam()
-    beam.read_HDF5_beam_file(d+'/CLA-FMS-APER-01.hdf5')
+    beam.read_HDF5_beam_file(d+'/CLA-FMS-APER-02.hdf5')
     return beam
 
 def analyse_image(mw, dir=None):

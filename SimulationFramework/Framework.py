@@ -75,7 +75,7 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 
 
 type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'cavity': 'rfcw',
-                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake'}
+                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake', 'modulator': 'lsrmdltr'}
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'wakefields': {'header': 'WAKE', 'bool': 'LWAKE'},
@@ -250,6 +250,7 @@ class Framework(Munch):
         self.fileSettings = self.settings['files']
         elements = self.settings['elements']
         self.groups = self.settings['groups'] if 'groups' in self.settings and self.settings['groups'] is not None else {}
+        changes = self.settings['changes'] if 'changes' in self.settings and self.settings['changes'] is not None else {}
         stream.close()
 
         for name, elem in self.groups.iteritems():
@@ -262,6 +263,8 @@ class Framework(Munch):
         for name, lattice in self.fileSettings.iteritems():
             self.read_Lattice(name, lattice)
 
+        self.apply_changes(changes)
+
         self.original_elementObjects = {}
         for e in self.elementObjects:
             self.original_elementObjects[e] = unmunchify(self.elementObjects[e])
@@ -271,11 +274,21 @@ class Framework(Munch):
         code = lattice['code'] if 'code' in lattice else 'astra'
         self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
 
-    def detect_changes(self, type=None, elements=None, function=None):
+    def convert_numpy_types(self, v):
+        if isinstance(v, (np.ndarray, list, tuple)):
+            return [self.convert_numpy_types(l) for l in v]
+        elif isinstance(v, (np.float64, np.float32, np.float16, np.float_, )):
+            return float(v)
+        elif isinstance(v, (np.int_, np.intc, np.intp, np.int8, np.int16, np.int32, np.int64, np.uint8, np.uint16, np.uint32, np.uint64)):
+            return int(v)
+        else:
+            return v
+
+    def detect_changes(self, elementtype=None, elements=None, function=None):
         start = time.time()
         changedict = {}
-        if type is not None:
-            changeelements = self.getElementType(type, 'objectname')
+        if elementtype is not None:
+            changeelements = self.getElementType(elementtype, 'objectname')
         elif elements is not None:
             changeelements = elements
         else:
@@ -284,31 +297,29 @@ class Framework(Munch):
             if not self.original_elementObjects[e] == unmunchify(self.elementObjects[e]):
                 orig = self.original_elementObjects[e]
                 new = unmunchify(self.elementObjects[e])
-                if function is not None:
-                    try:
-                        changedict[e] = {k: function(new[k]) for k in new if not new[k] == orig[k]}
-                    except Exception as e:
-                        # print 'Error = ', e, ' value is ', {k: new[k] for k in new if not new[k] == orig[k]}
-                        changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
-                else:
-                    changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
+                changedict[e] = {k: self.convert_numpy_types(new[k]) for k in new if not new[k] == orig[k]}
         return changedict
 
     def save_changes_file(self, filename=None, type=None, elements=None, function=None):
         if filename is None:
             pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
             filename =  pre     + '_changes.yaml'
-        changedict = self.detect_changes(type=type, elements=elements, function=function)
+        changedict = self.detect_changes(elementtype=type, elements=elements, function=function)
         with open(filename,"w") as yaml_file:
             yaml.dump(changedict, yaml_file, default_flow_style=False)
 
-    def load_changes_file(self, filename=None):
+    def load_changes_file(self, filename=None, apply=True):
         if filename is None:
             pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
             filename =  pre     + '_changes.yaml'
         with open(filename,"r") as infile:
             changes = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
-        # print 'changes = ', changes
+        if apply:
+            self.apply_changes(changes)
+        else:
+            return changes
+
+    def apply_changes(self, changes):
         for e, d in changes.iteritems():
             # print 'found change element = ', e
             if e in self.elementObjects:
@@ -377,7 +388,10 @@ class Framework(Munch):
             raise ValueError
 
     def modifyElement(self, elementName, parameter, value):
-        setattr(self.elementObjects[elementName], parameter, value)
+        if elementName in self.groupObjects:
+            self.groupObjects[elementName].change_Parameter(parameter,value)
+        else:
+            setattr(self.elementObjects[elementName], parameter, value)
         # set(getattr(self.elementObjects[elementName], parameter), value)
 
     def add_Generator(self, default=None, **kwargs):
@@ -717,6 +731,17 @@ class frameworkLattice(Munch):
     def preProcess(self):
         pass
 
+    def __repr__(self):
+        return self.elements
+
+    def __str__(self):
+        str = self.objectname + ' = ('
+        for e in self.elements:
+            if len((str + e).splitlines()[-1]) > 60:
+                str += '&\n'
+            str += e+', '
+        return str + ')'
+
 class frameworkObject(Munch):
 
     def __init__(self, objectname=None, objecttype=None, **kwargs):
@@ -778,12 +803,10 @@ class elegantLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
         super(elegantLattice, self).__init__(*args, **kwargs)
         self.code = 'elegant'
-        # if 'input' in self.file_block and 'particle_definition' in self.file_block['input'] and self.file_block['input'].particle_definition == 'initial_distribution':
-        #         self.particle_definition = 'laser'
-        # else:
         self.particle_definition = self.allElementObjects[self.start].objectname
         self.bunch_charge = None
         self.q = charge(name='START', type='charge',**{'total': 250e-12})
+        self.sample_interval = self.file_block['input']['sample_interval'] if 'input' in self.file_block and 'sample_interval' in self.file_block['input'] else 1
 
     def writeElements(self):
         self.w = self.endScreen(output_filename=self.end+'.SDDS')
@@ -805,14 +828,14 @@ class elegantLattice(frameworkLattice):
     def write(self):
         self.lattice_file = master_subdir+'/'+self.objectname+'.lte'
         saveFile(self.lattice_file, self.writeElements())
-        commandFile = elegantCommandFile(lattice=self, elegantbeamfilename=self.particle_definition+'.sdds')
         self.command_file = master_subdir+'/'+self.objectname+'.ele'
-        saveFile(self.command_file, commandFile.write())
+        saveFile(self.command_file, self.commandFile.write())
 
     def preProcess(self):
         prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
         # print 'prefix = ', prefix
         self.hdf5_to_sdds(prefix)
+        self.commandFile = elegantCommandFile(lattice=self, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval)
 
     def postProcess(self):
         for s in self.screens:
@@ -841,10 +864,11 @@ class elegantLattice(frameworkLattice):
 
 class elegantCommandFile(object):
     def __init__(self, lattice='', elegantbeamfilename='', *args, **kwargs):
-        super(elegantCommandFile, self).__init__(*args, **kwargs)
+        super(elegantCommandFile, self).__init__()
         self.commandObjects = OrderedDict()
         self.lattice_filename = lattice.objectname+'.lte'
         self.elegantbeamfilename = elegantbeamfilename
+        self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
             use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
@@ -859,7 +883,7 @@ class elegantCommandFile(object):
         X0  = lattice.startObject['position_start'][0],
         Z0 = lattice.startObject['position_start'][2],
         theta0 = 0)
-        self.addCommand(type='sdds_beam', input=self.elegantbeamfilename)
+        self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
         self.addCommand(type='track')
 
     def addCommand(self, name=None, **kwargs):
@@ -1116,13 +1140,17 @@ class frameworkGroup(object):
             setattr(self.allElementObjects[e], p, v)
 
     def __repr__(self):
-        return [self.allElementObjects[e].theta for e in self.elements]
+        return [self.allElementObjects[e].objectname for e in self.elements]
 
     def __str__(self):
         return str([self.allElementObjects[e].objectname for e in self.elements])
 
     def __getitem__(self, key):
         return getattr(self, key)
+
+class element_group(frameworkGroup):
+    def __init__(self, name, elementObjects, type, elements, **kwargs):
+        super(element_group, self).__init__(name, elementObjects, type, elements, **kwargs)
 
 class chicane(frameworkGroup):
     def __init__(self, name, elementObjects, type, elements, **kwargs):
@@ -1173,6 +1201,47 @@ class chicane(frameworkGroup):
             angle = obj[i].angle
             obj[i].global_rotation[2] = starting_angle
             obj[i].angle = np.sign(angle)*a
+            localXYZ = self.xform(starting_angle, 0, 0, x1, np.identity(3))[1]
+            x1, localXYZ = self.xform(obj[i].angle, 0, obj[i].length, x1, localXYZ)
+            xstart, ystart, zstart = x1
+            obj[i].position_end[0] = chop(float(xstart))
+            if i < 3:
+                xend, yend, zend = obj[i+1].position_start
+                angle = starting_angle + obj[i].angle
+                length = float((-zstart + zend) * (1.0/np.cos(angle)))
+                endx = chop(float(xstart + np.tan(-1*angle)*length))
+                obj[i+1].position_start[0] =  endx
+                starting_angle += obj[i].angle
+
+    def __str__(self):
+        return str([[self.allElementObjects[e].objectname, self.allElementObjects[e].angle, self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
+
+class s_chicane(chicane):
+    def __init__(self, name, elementObjects, type, elements, **kwargs):
+        super(s_chicane, self).__init__(name, elementObjects, type, elements, **kwargs)
+
+    def update(self, **kwargs):
+        if 'dipoleangle' in kwargs:
+            self.set_angle(kwargs['dipoleangle'])
+        if 'width' in kwargs:
+            self.change_Parameter('width', kwargs['width'])
+        if 'gap' in kwargs:
+            self.change_Parameter('gap', kwargs['gap'])
+
+    @property
+    def angle(self):
+        obj = [self.allElementObjects[e] for e in self.elements]
+        return float(obj[0].angle)
+
+    def set_angle(self, a):
+        obj = [self.allElementObjects[e] for e in self.elements]
+        starting_angle = obj[0].theta
+        ratios = (-1,2,-2,1)
+        for i in [0,1,2,3]:
+            x1 = np.transpose([self.allElementObjects[self.elements[i]].position_start])
+            angle = obj[i].angle
+            obj[i].global_rotation[2] = starting_angle
+            obj[i].angle = np.sign(angle)*a*ratios[i]
             localXYZ = self.xform(starting_angle, 0, 0, x1, np.identity(3))[1]
             x1, localXYZ = self.xform(obj[i].angle, 0, obj[i].length, x1, localXYZ)
             xstart, ystart, zstart = x1
@@ -1965,6 +2034,72 @@ class csrdrift(frameworkElement):
     def _write_Elegant(self):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
+        string = self.objectname+': '+ etype
+        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+            key = self._convertKeword_Elegant(key)
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
+
+class modulator(frameworkElement):
+
+    def __init__(self, name=None, type='modulator', **kwargs):
+        super(modulator, self).__init__(name, type, **kwargs)
+        self.add_default('k1l', 0)
+        self.add_default('n_steps', 1*self.periods)
+        self.keyword_conversion_rules_elegant.update({'peak_field': 'bu', 'gradient': 'TGU_GRADIENT', 'wavelength': 'LASER_WAVELENGTH', 'peak_power': 'LASER_PEAK_POWER',
+        'phase': 'LASER_PHASE', 'horizontal_mode_number': 'LASER_M', 'vertical_mode_number': 'LASER_N'})
+
+    def write_ASTRA(self, n):
+        return self._write_ASTRA(OrderedDict([
+            ['Q_pos', {'value': self.middle[2] + self.dz, 'default': 0}],
+        ]), n)
+
+    def _write_Elegant(self):
+        wholestring=''
+        etype = self._convertType_Elegant(self.objecttype)
+        string = self.objectname+': '+ etype
+        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+            key = self._convertKeword_Elegant(key)
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
+
+class wiggler(frameworkElement):
+
+    def __init__(self, name=None, type='wiggler', **kwargs):
+        super(wiggler, self).__init__(name, type, **kwargs)
+        # self.add_default('k1l', 0)
+        # self.add_default('n_steps', 1*self.periods)
+        self.keyword_conversion_rules_elegant.update({'peak_field': 'B'})
+
+    def write_ASTRA(self, n):
+        return self._write_ASTRA(OrderedDict([
+            ['Q_pos', {'value': self.middle[2] + self.dz, 'default': 0}],
+        ]), n)
+
+    def _write_Elegant(self):
+        wholestring=''
+        if ('k' in self and abs(self.k) > 0) or ('peak_field' in self and abs(self.peak_field) > 0) or ('radius' in self and abs(self.radius) > 0):
+            etype = self._convertType_Elegant(self.objecttype)
+        else:
+            etype = 'drift'
         string = self.objectname+': '+ etype
         for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
             key = self._convertKeword_Elegant(key)
