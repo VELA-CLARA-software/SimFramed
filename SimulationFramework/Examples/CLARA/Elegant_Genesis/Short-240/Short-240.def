@@ -168,11 +168,11 @@ files:
       end_element: CLA-FMS-APER-02
     groups:
       modulator1_chicane:
-        dipoleangle: 0.1
+        dipoleangle: 0
         width: 0.2
         gap: 0.02
       modulator2_chicane:
-        dipoleangle: 0.124
+        dipoleangle: 0
         width: 0.2
         gap: 0.02
 groups:
@@ -190,3 +190,12 @@ groups:
     elements: [CLA-FMS-DIP-05, CLA-FMS-DIP-06, CLA-FMS-DIP-07, CLA-FMS-DIP-08]
 elements:
   filename: YAML/CLA_Gun400.yaml
+changes:
+  CLA-FMS-MU1-WIGG-01:
+    k: 0
+  CLA-FMS-MU1-WIGG-02:
+    k: 0
+  CLA-FMS-MU2-WIGG-01:
+    k: 0
+  CLA-FMS-MU2-WIGG-02:
+    k: 0

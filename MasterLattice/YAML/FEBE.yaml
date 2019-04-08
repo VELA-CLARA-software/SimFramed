@@ -23,7 +23,7 @@ elements:
   CLA-FEB-MAG-QUAD-01:
     type: quadrupole
     length: 0.15
-    k1: 10.3898
+    k1l: 1.55847
     global_rotation: [0, 0, -0.2443460953]
     position_end: [0.21422196689057954, 0, 49.25749006412823]
     position_start: [0.17793368254760294, 0, 49.11194570518758]
@@ -36,7 +36,7 @@ elements:
   CLA-FEB-MAG-QUAD-02:
     type: quadrupole
     length: 0.15
-    k1: -7.27666
+    k1l: -1.0915
     global_rotation: [0, 0, -0.2443460953]
     position_end: [0.3472787675595981, 0, 49.79115174328153]
     position_start: [0.3109904832166215, 0, 49.645607384340884]
@@ -55,7 +55,7 @@ elements:
   CLA-FEB-MAG-QUAD-03:
     type: quadrupole
     length: 0.15
-    k1: 10.3898
+    k1l: 1.55847
     global_rotation: [0, 0, -0.2443460953]
     position_end: [0.6811309835149827, 0, 51.130159845535466]
     position_start: [0.6448426991720061, 0, 50.98461548659482]
@@ -68,7 +68,7 @@ elements:
   CLA-FEB-MAG-QUAD-04:
     type: quadrupole
     length: 0.15
-    k1: -7.27666
+    k1l: -1.0915
     global_rotation: [0, 0, -0.2443460953]
     position_end: [0.8141880261058969, 0, 51.663822494984494]
     position_start: [0.7778997417629203, 0, 51.51827813604385]
@@ -90,7 +90,7 @@ elements:
   CLA-FEB-MAG-QUAD-05:
     type: quadrupole
     length: 0.15
-    k1: 10.3898
+    k1l: 1.55847
     global_rotation: [0, 0, -0.4886921906]
     position_end: [1.3497778558849052, 0, 52.9264554418517]
     position_start: [1.2793571214615136, 0, 52.79401330292579]
@@ -103,7 +103,7 @@ elements:
   CLA-FEB-MAG-QUAD-06:
     type: quadrupole
     length: 0.15
-    k1: -7.27666
+    k1l: -1.0915
     global_rotation: [0, 0, -0.4886921906]
     position_end: [1.607987215437341, 0, 53.41207661791337]
     position_start: [1.5375664810139493, 0, 53.27963447898746]
@@ -122,7 +122,7 @@ elements:
   CLA-FEB-MAG-QUAD-07:
     type: quadrupole
     length: 0.15
-    k1: 10.3898
+    k1l: 1.55847
     global_rotation: [0, 0, -0.4886921906]
     position_end: [2.255857972132543, 0, 54.630544296031744]
     position_start: [2.1854372377091518, 0, 54.49810215710583]
@@ -135,7 +135,7 @@ elements:
   CLA-FEB-MAG-QUAD-08:
     type: quadrupole
     length: 0.15
-    k1: -7.27666
+    k1l: -1.0915
     global_rotation: [0, 0, -0.4886921906]
     position_end: [2.514067331684979, 0, 55.116165472093414]
     position_start: [2.4436465972615875, 0, 54.983723333167504]
@@ -157,7 +157,7 @@ elements:
   CLA-FEB-MAG-QUAD-09:
     type: quadrupole
     length: 0.15
-    k1: 10.3898
+    k1l: 1.55847
     global_rotation: [0, 0, -0.2443460953]
     position_end: [2.960912678190713, 0, 56.412863798823224]
     position_start: [2.9246243938477363, 0, 56.26731943988258]
@@ -170,7 +170,7 @@ elements:
   CLA-FEB-MAG-QUAD-10:
     type: quadrupole
     length: 0.15
-    k1: -7.27666
+    k1l: -1.0915
     global_rotation: [0, 0, -0.2443460953]
     position_end: [3.0939697207816272, 0, 56.94652644827225]
     position_start: [3.0576814364386506, 0, 56.800982089331605]
@@ -189,7 +189,7 @@ elements:
   CLA-FEB-MAG-QUAD-11:
     type: quadrupole
     length: 0.15
-    k1: 10.3898
+    k1l: 1.55847
     global_rotation: [0, 0, -0.2443460953]
     position_end: [3.4278219367370113, 0, 58.28553455052619]
     position_start: [3.3915336523940347, 0, 58.13999019158554]
@@ -202,7 +202,7 @@ elements:
   CLA-FEB-MAG-QUAD-12:
     type: quadrupole
     length: 0.15
-    k1: -7.27666
+    k1l: -1.0915
     global_rotation: [0, 0, -0.2443460953]
     position_end: [3.5608789793279256, 0, 58.819197199975214]
     position_start: [3.524590694984949, 0, 58.67365284103457]
@@ -224,7 +224,7 @@ elements:
   CLA-FEB-MAG-QUAD-13:
     type: quadrupole
     length: 0.15
-    k1: 7.212299348
+    k1l: 1.08184
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 60.18547936814782]
     position_start: [3.6807513048841103, 0, 60.03547936814782]
@@ -237,7 +237,7 @@ elements:
   CLA-FEB-MAG-QUAD-14:
     type: quadrupole
     length: 0.15
-    k1: -15.92505539
+    k1l: -2.38876
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 60.73547936814782]
     position_start: [3.6807513048841103, 0, 60.58547936814782]
@@ -256,7 +256,7 @@ elements:
   CLA-FEB-MAG-QUAD-15:
     type: quadrupole
     length: 0.15
-    k1: 11.09015141
+    k1l: 1.66352
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 62.115479368147824]
     position_start: [3.6807513048841103, 0, 61.965479368147825]
@@ -269,7 +269,7 @@ elements:
   CLA-FEB-MAG-QUAD-16:
     type: quadrupole
     length: 0.15
-    k1: -8.659773694
+    k1l: -1.29897
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 62.66547936814783]
     position_start: [3.6807513048841103, 0, 62.51547936814783]
@@ -294,14 +294,14 @@ elements:
   CLA-FEB-MAG-QUAD-17:
     type: quadrupole
     length: 0.15
-    k1: 13.83995892
+    k1l: 2.07599
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 65.69619136814784]
     position_start: [3.6807513048841103, 0, 65.54619136814783]
   CLA-FEB-MAG-QUAD-18:
     type: quadrupole
     length: 0.15
-    k1: -13.06009303
+    k1l: -1.95901
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 65.99619136814785]
     position_start: [3.6807513048841103, 0, 65.84619136814784]
@@ -309,7 +309,7 @@ elements:
     type: screen
     output_filename: '"CLA-FEB-DIA-SCR-05-W.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 66.20854636814785]
+    position_end: [3.6807513048841103, 0, 66.20854636814785] 
     position_start: [3.6807513048841103, 0, 66.20854636814785]
   CLA-FEB-W-FOCUS-01:
     type: marker
@@ -326,14 +326,14 @@ elements:
   CLA-FEB-MAG-QUAD-19:
     type: quadrupole
     length: 0.15
-    k1: -11.57253472
+    k1l: -1.73588
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 69.15047936814786]
     position_start: [3.6807513048841103, 0, 69.00047936814785]
   CLA-FEB-MAG-QUAD-20:
     type: quadrupole
     length: 0.15
-    k1: 10.8675527
+    k1l: 1.63013
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 69.45047936814787]
     position_start: [3.6807513048841103, 0, 69.30047936814786]
@@ -358,14 +358,14 @@ elements:
   CLA-FEB-MAG-QUAD-21:
     type: quadrupole
     length: 0.15
-    k1: -1.028506607
+    k1l: -0.154276
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 70.35833436814785]
     position_start: [3.6807513048841103, 0, 70.20833436814785]
   CLA-FEB-MAG-QUAD-22:
     type: quadrupole
     length: 0.15
-    k1: -0.321486344
+    k1l: -0.048223
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 71.19119136814786]
     position_start: [3.6807513048841103, 0, 71.11619136814785]
@@ -414,7 +414,7 @@ elements:
   CLA-FEB-MAG-QUAD-23:
     type: quadrupole
     length: 0.15
-    k1: 0.3190071644
+    k1l: 0.0478511
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 73.10619136814785]
     position_start: [3.6807513048841103, 0, 73.03119136814784]
@@ -433,7 +433,7 @@ elements:
   CLA-FEB-MAG-QUAD-24:
     type: quadrupole
     length: 0.15
-    k1: -0.3193567436
+    k1l: -0.0479035
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 75.18357836814785]
     position_start: [3.6807513048841103, 0, 75.10857836814785]
@@ -458,7 +458,7 @@ elements:
   CLA-FEB-MAG-QUAD-25:
     type: quadrupole
     length: 0.15
-    k1: 0.3152314664
+    k1l: 0.0472847
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 77.09857836814784]
     position_start: [3.6807513048841103, 0, 77.02357836814784]

@@ -27,7 +27,7 @@ elements:
   CLA-S07-MAG-QUAD-01:
     type: quadrupole
     length: 0.15
-    k1: 0
+    k1l: 0
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 38.70279178915257]
@@ -45,7 +45,7 @@ elements:
   CLA-S07-MAG-QUAD-02:
     type: quadrupole
     length: 0.15
-    k1: -1.46779
+    k1l: -0.220169
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 39.127791789152575]
@@ -126,14 +126,14 @@ elements:
   CLA-S07F-MAG-QUAD-03-K:
     type: quadrupole
     length: 0.15
-    k1: 9.623678E-02
+    k1l: 0.0144355
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 41.55779178915257]
     position_start: [0, 0, 41.40779178915257]
   CLA-S07F-MAG-QUAD-04-K:
     type: quadrupole
     length: 0.15
-    k1: 1.034914E+00
+    k1l: 0.155237
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 42.30779178915257]
     position_start: [0, 0, 42.15779178915257]
@@ -155,7 +155,7 @@ elements:
   CLA-S07F-MAG-QUAD-05-K:
     type: quadrupole
     length: 0.15
-    k1: 1.113225E+00
+    k1l: 0.166984
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 42.98779178915257]
     position_start: [0, 0, 42.83779178915257]
@@ -180,19 +180,38 @@ elements:
   CLA-S07F-MAG-QUAD-06-K:
     type: quadrupole
     length: 0.15
-    k1: 6.734455E-01
+    k1l: 0.101017
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 43.73779178915257]
     position_start: [0, 0, 43.58779178915257]
-  CLA-S07-DCP-01:
-    type: collimator
-    length: 0.5
-    shape: elliptical
-    horizontal_size: 0.017
-    vertical_size: 0.017
+  CLA-S07-DCP-01-SCR:
+    type: screen
+    length: 0.0
+    output_filename: CLA-S07-DCP-01-SCR.SDDS
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 44.527791789152566]
-    position_start: [0, 0, 44.027791789152566]
+    position_end: [0, 0, 43.9318]
+    position_start: [0, 0, 43.9318]
+  CLA-S07-DCP-01:
+    type: longitudinal_wakefield
+    length: 0.596
+    cell_length: 0.596
+    n_cells: 1
+    field_definition_sdds: $master_lattice_location$Data_Files/DCP_200um_G1200um.sdds
+    field_definition: $master_lattice_location$Data_Files/DCP_200um_G1200um.txt
+    tcolumn: t
+    wcolumn: Ez
+    factor: 1
+    scale_kick: 1
+    interpolate: 1
+    change_momentum: 1
+    allow_long_beam: 1
+    bunched_beam: 0
+    n_bins: 0
+    global_rotation: [0, 0, 0]
+    position_end_original: [0, 0, 44.5278]
+    position_start: [0, 0, 44.2298]
+    position_end: [0, 0, 44.2298]
+    position_start_original: [0, 0, 43.9318]
   CLA-S07-APER-03:
     type: aperture
     shape: rectangular
@@ -210,7 +229,7 @@ elements:
   CLA-S07F-MAG-QUAD-07-K:
     type: quadrupole
     length: 0.15
-    k1: -8.028995E-01
+    k1l: -0.120435
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 44.98779178915257]
     position_start: [0, 0, 44.83779178915257]
@@ -260,14 +279,14 @@ elements:
   CLA-S07F-MAG-QUAD-08-K:
     type: quadrupole
     length: 0.15
-    k1: -2.381907E-01
+    k1l: -0.0357286
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 46.867791789152555]
     position_start: [0, 0, 46.71779178915256]
   CLA-S07F-MAG-QUAD-09-K:
     type: quadrupole
     length: 0.162
-    k1: -4.920024E-01
+    k1l: -0.0797044
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 47.41779178915256]
     position_start: [0, 0, 47.25579178915256]
@@ -300,7 +319,7 @@ elements:
   CLA-S07F-MAG-QUAD-10-K:
     type: quadrupole
     length: 0.162
-    k1: -1.140023E-01
+    k1l: -0.0184684
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 48.197791789152554]
     position_start: [0, 0, 48.035791789152555]
