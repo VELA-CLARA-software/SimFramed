@@ -87,7 +87,7 @@ class twiss(munch.Munch):
             self['z'] = np.concatenate([self['z'], z])
             cp = self.elegant['pCentral0'] * self.E0
             self['cp'] = np.concatenate([self['cp'], cp])
-            ke = (np.sqrt(self.E0**2 + cp**2) - self.E0**2) / constants.elementary_charge
+            ke = (np.sqrt(self.E0**2 + cp**2) - self.E0**2) / constants.elementary_charge 
             self['kinetic_energy'] = np.concatenate([self['kinetic_energy'], ke])
             gamma = 1 + ke / self.E0_eV
             self['gamma'] = np.concatenate([self['gamma'], gamma])

@@ -1,150 +1,155 @@
 import os, errno, sys
 import numpy as np
 import random
-from scipy.constants import c
-from ocelot.S2E_STFC import FEL_simulation_block
-from ocelot.adaptors.genesis import generate_input, get_genesis_launcher, run_genesis, rematch_edist, edist2beam
-from ocelot.gui.genesis_plot import fwhm3
-from ocelot.common.math_op import *
-from ocelot.cpbd.beam import Twiss
 sys.path.append(os.path.abspath(__file__+'/../../../../../'))
-import SimulationFramework.Modules.read_beam_file as rbf
 from SimulationFramework.Modules.optimiser import optimiser
 opt = optimiser()
-from SimulationFramework.Modules.constraints import constraintsClass
-import matplotlib.pyplot as plt
-import time
-import csv
 import multiprocessing
 from scoop import futures
-from deap import base, creator, tools, algorithms
+import deap
 import copy
+import csv
 import genesisBeamFile
+import id_number as idn
+import id_number_server as idnserver
 
-startingvalues = best = [30000000.0, -23, 27000000.0, -8, 24000000.0, 184, 32000000.0, 45, -0.1185, 1]
-# startingvalues = best = [2.018490050471744e7,-23.04340196585034,2.934266187158792e7,
-                        # -1.7771024303105327,1.7144513765057914e7,167.20031122662812,3.185636245553371e7,41.97162063476029,-0.14363986757360986, 1]
+class MOGA(object):
 
-# print 'starting values = ', best
-# optfunc(best, scaling=5, post_injector=True, verbose=True)
-# exit()
-# print best
-def rangeFunc(i):
-    if abs(i) > 0:
-        return [0.95 * i, 1.05 * i]
-    else:
-        return [-1,1]
+    injector_parameter_names = [
+        ['CLA-HRG1-GUN-CAV', 'phase'],
+        ['CLA-HRG1-GUN-SOL', 'field_amplitude'],
+        ['CLA-L01-CAV', 'field_amplitude'],
+        ['CLA-L01-CAV', 'phase'],
+        ['CLA-L01-CAV-SOL-01', 'field_amplitude'],
+        ['CLA-L01-CAV-SOL-02', 'field_amplitude'],
+    ]
+    parameter_names = [
+        ['CLA-L02-CAV', 'field_amplitude'],
+        ['CLA-L02-CAV', 'phase'],
+        ['CLA-L03-CAV', 'field_amplitude'],
+        ['CLA-L03-CAV', 'phase'],
+        ['CLA-L4H-CAV', 'field_amplitude'],
+        ['CLA-L4H-CAV', 'phase'],
+        ['CLA-L04-CAV', 'field_amplitude'],
+        ['CLA-L04-CAV', 'phase'],
+        ['bunch_compressor', 'set_angle'],
+        ['CLA-S07-DCP-01', 'factor'],
+    ]
 
-startranges = [rangeFunc(i) for i in best]
-MIN = [0, -90, 0, -90, 0, 90, 0, -90, -0.2, 0.0]
-MAX = [33e6, 90, 33e6, 90, 45e6, 270, 32e6, 90, -0.05, 3]
+    def __init__(self):
+        super(MOGA, self).__init__()
+        self.global_best = 0
+        self.POST_INJECTOR = True
 
+    def create_weights_function(self, weights=(-1.0, 1.0, -1.0, 1.0, )):
+        deap.creator.create("Fitness", deap.base.Fitness, weights=weights)
+        deap.creator.create("Individual", list, fitness=deap.creator.Fitness)
 
-def checkBounds(min, max):
-    def decorator(func):
-        def wrapper(*args, **kargs):
-            offspring = func(*args, **kargs)
-            for child in offspring:
-                for i in xrange(len(child)):
-                    if child[i] > max[i]:
-                        child[i] = max[i]
-                    elif child[i] < min[i]:
-                        child[i] = min[i]
-            return offspring
-        return wrapper
-    return decorator
+    def create_toolbox(self):
+        self.toolbox = deap.base.Toolbox()
+        # Attribute generator
+        self.toolbox.register("attr_bool", self.generate)
+        # Structure initializers
+        self.toolbox.register("Individual", self.generate)
+        self.toolbox.register("population", deap.tools.initRepeat, list, self.toolbox.Individual)
 
-generateHasBeenCalled = False
-def generate():
-    global generateHasBeenCalled
-    if not generateHasBeenCalled:
-        generateHasBeenCalled = True
-        return creator.Individual(list(best))
-    else:
-        return creator.Individual(random.uniform(a,b) for a,b in startranges)
+    def create_fitness_function(self, function, **kwargs):
+        self.toolbox.register("evaluate", function, **kwargs)#scaling=3, post_injector=True)
 
-def MOGAoptFunc(*args, **kwargs):
-    e, b, ee, be, l, g = genesisBeamFile.optfunc(subdir='MOGA', *args, **kwargs)
-    return e/b, ee/be, (l - 10)**2
+    def create_mating_function(self, method, **kwargs):
+        self.toolbox.register("mate", method, **kwargs)
 
+    def create_uniform_mating_function(self, probability=0.3):
+        self.create_mating_function(deap.tools.cxUniform, indpb=probability)
 
-creator.create("FitnessMin", base.Fitness, weights=(1.0, 1.0, -1.0, ))
-creator.create("Individual", list, fitness=creator.FitnessMin)
+    def create_mutation_function(self, method, **kwargs):
+        self.toolbox.register("mutate", method, **kwargs)
 
-toolbox = base.Toolbox()
+    def create_gaussian_mutation_function(self, probability=0.3, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003,0.1]):
+        self.create_mutation_function(deap.tools.mutGaussian, mu=mu, sigma=sigma, indpb=probability)
 
-# Attribute generator
-toolbox.register("attr_bool", generate)
+    def add_bounds(self, MIN, MAX):
+        self.toolbox.decorate("mate", self.checkBounds(MIN, MAX))
+        self.toolbox.decorate("mutate", self.checkBounds(MIN, MAX))
 
-# Structure initializers
-toolbox.register("Individual", generate)
-toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
+    def create_selection_function(self, method, **kwargs):
+        self.toolbox.register("select", method, **kwargs)
 
-if os.name == 'nt':
-    toolbox.register("evaluate", MOGAoptFunc, scaling=3, post_injector=True)
-else:
-    toolbox.register("evaluate", MOGAoptFunc, scaling=5, post_injector=True)
-toolbox.register("mate", tools.cxUniform, indpb=0.3)
-toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=[1e6,2,1e6,2,2e6,2,1e6,2,0.003,0.1], indpb=0.3)
+    def create_NSGA2_selection_function(self, **kwargs):
+        self.create_selection_function(deap.tools.selNSGA2, **kwargs)
 
-toolbox.decorate("mate", checkBounds(MIN, MAX))
-toolbox.decorate("mutate", checkBounds(MIN, MAX))
+    def saveState(self, args, n, params, fitness):
+        with open('MOGA/best_solutions_running.csv','a') as out:
+            csv_out=csv.writer(out)
+            args=list(args)
+            for p in params:
+                args.append(p)
+            args.append(n)
+            args.append(fitness)
+            csv_out.writerow(args)
 
-toolbox.register("select", tools.selNSGA2)
+    def rangeFunc(self, i):
+        if abs(i) > 0:
+            return [0.95 * i, 1.05 * i]
+        else:
+            return [-1,1]
 
-global_best = 0
+    def checkBounds(self, min, max):
+        def decorator(func):
+            def wrapper(*args, **kargs):
+                offspring = func(*args, **kargs)
+                for child in offspring:
+                    for i in xrange(len(child)):
+                        if child[i] > max[i]:
+                            child[i] = max[i]
+                        elif child[i] < min[i]:
+                            child[i] = min[i]
+                return offspring
+            return wrapper
+        return decorator
 
-if __name__ == "__main__":
-    random.seed(43065)
+    def generate(self):
+        if not self.generateHasBeenCalled:
+            self.generateHasBeenCalled = True
+            return deap.creator.Individual(list(self.best))
+        else:
+            return deap.creator.Individual(random.uniform(a,b) for a,b in self.startranges)
 
-    out = open('MOGA/best_solutions_running.csv','wb', buffering=0)
-    genesisBeamFile.csv_out = csv.writer(out)
+    def MOGAoptFunc(self, inputargs, *args, **kwargs):
+        idclient = idn.zmqClient()
+        n =  idclient.get_id()
+        if not self.POST_INJECTOR:
+            parameters = self.injector_parameter_names + self.parameter_names
+        else:
+            parameters = self.parameter_names
+        inputlist = map(lambda a: a[0]+[a[1]], zip(parameters, inputargs))
+        e, b, ee, be, l, g = genesisBeamFile.optfunc(inputlist, *args, subdir='MOGA', dir='MOGA/iteration_'+str(n), **kwargs)
+        fitness = -1.0*e/b
+        self.saveState(inputargs, n, [e, b, ee, be, l], fitness)
+        return e, b, ee, be
 
-    NGEN = 200
-    MU = 24
-    LAMBDA = 48
-    CXPB = 0.7
-    MUTPB = 0.2
+    def initialise_population(self, best, npop):
+        self.best = best
+        self.generateHasBeenCalled = False
+        self.startranges = [self.rangeFunc(i) for i in best]
+        self.pop = self.toolbox.population(n=npop)
 
-    # Process Pool of 4 workers
-    if not os.name == 'nt':
-        pool = multiprocessing.Pool(processes=8)
-    else:
-        pool = multiprocessing.Pool(processes=2)
-    toolbox.register("map", pool.map)
+    def initialise_MOGA(self, seed=6546841):
+        random.seed(seed)
+        self.hof = deap.tools.ParetoFront()
+        self.stats = deap.tools.Statistics(lambda ind: ind.fitness.values)
+        self.stats.register("avg", np.mean, axis=0)
+        self.stats.register("std", np.std, axis=0)
+        self.stats.register("min", np.min, axis=0)
+        self.stats.register("max", np.max, axis=0)
 
-    if not os.name == 'nt':
-        pop = toolbox.population(n=MU)
-    else:
-        pop = toolbox.population(n=MU)
-    hof = tools.ParetoFront()
-    stats = tools.Statistics(lambda ind: ind.fitness.values)
-    stats.register("avg", np.mean, axis=0)
-    stats.register("std", np.std, axis=0)
-    stats.register("min", np.min, axis=0)
-    stats.register("max", np.max, axis=0)
+        self.server = idnserver.zmqServer()
+        self.server.daemon = True
+        self.server.start()
 
-    opt.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats,
-                        hoffile='MOGA/CLARA_HOF_longitudinal_Genesis_DCP.csv',
-                        halloffame=hof)
-
-    pool.close()
-    # print 'pop = ', pop
-    # print logbook
-    print hof
-
-    # try:
-    #     print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/CLARA_best_longitudinal_Genesis', scaling=5, overwrite=True, verbose=True, summary=True)
-    #     with open('CLARA_best_longitudinal_Genesis/CLARA_best_longitudinal_Genesis_solutions.csv','wb') as out:
-    #         csv_out=csv.writer(out)
-    #         for row in hof:
-    #             csv_out.writerow(row)
-    #     with open('CLARA_best_longitudinal_Genesis/CLARA_best_longitudinal_Genesis_stats.csv','wb') as out:
-    #         csv_out=csv.writer(out)
-    #         for row in stats:
-    #             csv_out.writerow(row)
-    # except:
-    with open('MOGA/CLARA_best_longitudinal_Genesis_solutions_final_DCP.csv','wb') as out:
-        hof_out=csv.writer(out)
-        for row in hof:
-            hof_out.writerow(row)
+    def eaMuPlusLambda(self, nSelect, nChildren, crossoverprobability, mutationprobability, ngenerations):
+        out = open('MOGA/best_solutions_running.csv','wb', buffering=0)
+        genesisBeamFile.csv_out = csv.writer(out)
+        opt.eaMuPlusLambda(self.pop, self.toolbox, nSelect, nChildren, crossoverprobability, mutationprobability, ngenerations, self.stats,
+                            hoffile='MOGA/CLARA_HOF_longitudinal_Genesis_DCP.csv',
+                            halloffame=self.hof)
