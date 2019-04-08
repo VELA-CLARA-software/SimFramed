@@ -62,6 +62,8 @@ class Optimise_Genesis_Elegant(object):
         super(Optimise_Genesis_Elegant, self).__init__()
         self.cons = constraintsClass()
         self.changes = None
+        self.lattice = None
+        self.resultsDict = {}
         # ******************************************************************************
         CLARA_dir = os.path.relpath(__file__+'/../../')
         self.POST_INJECTOR = True
@@ -79,18 +81,24 @@ class Optimise_Genesis_Elegant(object):
                 pass
                 # optfunc(injector_startingvalues + best, scaling=scaling, post_injector=False, verbose=False, runGenesis=False, dir='nelder_mead/basefiles_'+str(i))
 
-    def calculate_constraints(self, e, b, ee, be, l, g):
+    def calculate_constraints(self):
         pass
 
     def set_changes_file(self, changes):
         self.changes = changes
 
+    def set_lattice_file(self, lattice):
+        self.lattice = lattice
+
     def OptimisingFunction(self, inputargs, *args, **kwargs):
         if not self.POST_INJECTOR:
-            parameters = self.injector_parameter_names + self.parameter_names
+            parameternames = self.injector_parameter_names + self.parameter_names
         else:
-            parameters = copy(self.parameter_names)
-        inputlist = map(lambda a: a[0]+[a[1]], zip(parameters, inputargs))
+            parameternames = copy(self.parameter_names)
+        self.inputlist = map(lambda a: a[0]+[a[1]], zip(parameternames, inputargs))
+
+        self.linac_fields = np.array([i[2] for i in self.inputlist if i[1] == 'field_amplitude'])
+        self.linac_phases = np.array([i[2] for i in self.inputlist if i[1] == 'phase'])
 
         if 'dir' in kwargs.keys():
             dir = kwargs['dir']
@@ -98,9 +106,13 @@ class Optimise_Genesis_Elegant(object):
         else:
             dir = self.optdir+str(self.opt_iteration)
 
-        e, b, ee, be, l, g = genesisBeamFile.optfunc(inputlist, *args, dir=dir, changes=self.changes, **kwargs)
+        e, b, ee, be, l, g = genesisBeamFile.optfunc(self.inputlist, *args, lattice=self.lattice, dir=dir, changes=self.changes, **kwargs)
+        if e < 0.01:
+            print 'e too low! ', e
+            l = 500
+        self.resultsDict.update({'e': e, 'b': b, 'ee': ee, 'be': be, 'l': l, 'g': g, 'brightness': (1e-4*e)/(1e-2*b), 'momentum': 1e-6*np.mean(g.momentum)})
         self.opt_iteration += 1
-        constraintsList = self.calculate_constraints(e, b, ee, be, l, g)
+        constraintsList = self.calculate_constraints()
         fitvalue = self.cons.constraints(constraintsList)
         print self.cons.constraintsList(constraintsList)
         print 'fitvalue[', self.opt_iteration-1, '] = ', fitvalue
@@ -111,7 +123,8 @@ class Optimise_Genesis_Elegant(object):
             self.bestfit = fitvalue
         return fitvalue
 
-    def Nelder_Mead(self, best):
+    def Nelder_Mead(self, best=None, step=0.1):
+        best = np.array(self.best) if best is None else np.array(best)
         self.optdir = 'nelder_mead/iteration_'
         self.best_changes = './nelder_mead_best_changes.yaml'
         print 'best = ', best
@@ -119,10 +132,11 @@ class Optimise_Genesis_Elegant(object):
 
         with open('nelder_mead/best_solutions_running.csv','w') as out:
             self.opt_iteration = 0
-        res = nelder_mead(self.optfunc, best, step=[1e6, 5, 1e6, 5, 1e6, 5, 1e6, 5, 0.01, 0.25], max_iter=300, no_improv_break=100)
+        res = nelder_mead(self.optfunc, best, step=step, max_iter=300, no_improv_break=100)
         print res
 
-    def Simplex(self, best):
+    def Simplex(self, best=None):
+        best = self.best if best is None else best
         self.optdir = 'simplex/iteration_'
         self.best_changes = './simplex_best_changes.yaml'
         print 'best = ', best
@@ -130,5 +144,5 @@ class Optimise_Genesis_Elegant(object):
 
         with open('simplex/best_solutions_running.csv','w') as out:
             self.opt_iteration = 0
-        res = minimize(optfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
+        res = minimize(self.optfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
         print res.x
