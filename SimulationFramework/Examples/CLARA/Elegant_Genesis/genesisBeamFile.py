@@ -41,7 +41,7 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
        self.alphay = alphay
        self.betay = betay
 
-    def convert_HDF5_edist(self, inp, filename='CLA-FMS-APER-01.hdf5', center=True):
+    def convert_HDF5_edist(self, inp, filename='CLA-FMS-APER-02.hdf5', center=True):
         from ocelot.adaptors.genesis import GenesisElectronDist
         inp_out = inp
         beam = rbf.beam()
@@ -274,7 +274,7 @@ def evalBeamWithGenesis(dir, run=True, startcharge=250):
           'i_dpa':0,
           'i_dfl':0,
           'i_HDF5':1,
-          'HDF5_file': dir+'/'+'CLA-FMS-APER-01.hdf5',
+          'HDF5_file': dir+'/'+'CLA-FMS-APER-02.hdf5',
           'i_match': 0}
     if run:
         data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 12 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
@@ -325,27 +325,42 @@ def saveState(args, id, *values):
     csv_out.writerow(args)
     # csv_out.flush()
 
-def optfunc(inputargs, verbose=True, dir=None, subdir='', savestate=False, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
-    global global_best
+def optfunc(*args, **kwargs):
+    global tmpdir
+
+    if not 'lattice' in kwargs or kwargs['lattice'] is None:
+        kwargs['lattice'] = 'Lattices/clara400_v12_v3_elegant_jkj.def'
+
+    if kwargs['dir'] is not None:
+        tmpdir = kwargs['dir']
+        if not os.path.exists(tmpdir):
+            os.makedirs(tmpdir)
+        tmpdir = os.path.relpath(tmpdir)
+        return run_simulation(*args, **kwargs)
+    else:
+        if 'subdir' in kwargs:
+            subdir = kwargs['subdir']
+            # del kwargs['subdir']
+        else:
+            subdir = ''
+        print 'subdir = ', subdir
+        with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir+'/') as tmpdir:
+            tmpdir = os.path.relpath(tmpdir)
+            return run_simulation(*args, **kwargs)
+
+def run_simulation(inputargs, lattice=None, verbose=True, dir=None, savestate=False, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
+    global global_best, tmpdir
     process = multiprocessing.current_process()
     runno = process.pid
-    with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir+'/') as tmpdir:
-
-        if dir is not None:
-            tmpdir = dir
-            if not os.path.exists(tmpdir):
-                os.makedirs(tmpdir)
-        tmpdir = os.path.relpath(tmpdir)
-
-        if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
-            idNumber = os.path.basename(tmpdir)
-        else:
-            idNumber = inputargs.id
-
+    if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
+        idNumber = os.path.basename(tmpdir)
+    else:
+        idNumber = inputargs.id
+    try:
         sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=0)
         sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=0)
         if runElegant:
-            fit = runEle.fitnessFunc()
+            fit = runEle.fitnessFunc(lattice)
             fit.setup_lattice(inputargs, tmpdir, id=idNumber, startcharge=250, post_injector=True, *args, **kwargs)
             fitvalue = fit.calculateBeamParameters()
         if post_injector:
@@ -358,20 +373,23 @@ def optfunc(inputargs, verbose=True, dir=None, subdir='', savestate=False, runGe
             print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
             print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
         #### Save Output files to dir named after runno #####
-        if not os.path.exists('./outData/'):
-            os.makedirs('./outData/')
-        dir = './outData/' + str(idNumber)
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        copyfile(tmpdir+'/CLA-FMS-APER-01.hdf5',dir+'/CLA-FMS-APER-01.hdf5')
-        copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
-        copyfile(tmpdir+'/std.out',dir+'/std.out')
+        # if not os.path.exists('./outData/'):
+        #     os.makedirs('./outData/')
+        # dir = './outData/' + str(idNumber)
+        # if not os.path.exists(dir):
+        #     os.makedirs(dir)
+        # copyfile(tmpdir+'/CLA-FMS-APER-02.hdf5',dir+'/CLA-FMS-APER-02.hdf5')
+        # copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
+        # copyfile(tmpdir+'/std.out',dir+'/std.out')
         if savestate:
             try:
                 saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
             except:
                 pass
-        return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
+    except Exception as error:
+        print 'Error! ', error
+        e, b, ee, be, l, g = [0, 1, 0, 1, 0, {}]
+    return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -407,7 +425,7 @@ if __name__ == "__main__":
         ## This is for the Gaussian Beam Test!
         master_subdir = 'gaussianBeam'
         beam = rbf.beam()
-        elegantbeamfilename = 'CLA-FMS-APER-01.sdds'
+        elegantbeamfilename = 'CLA-FMS-APER-02.sdds'
         beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename, charge=250e-12)
         beam.beam['total_charge'] = 250e-12
         HDF5filename = elegantbeamfilename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')

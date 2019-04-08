@@ -1,0 +1,647 @@
+elements:
+  CLA-FMS-APER-01:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 49.4778]
+    position_start: [0, 0, 49.4778]
+  CLA-FMS-MARK-01:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 49.4778]
+    position_start: [0, 0, 49.4778]
+  CLA-FMS-DIP-01:
+    type: dipole
+    length: 0.100167
+    angle: -0.1
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.1
+    k1: 0.0
+    buffer_start: [0, 0, 49.4778]
+    buffer_start_length: 0.05
+    buffer_end_length: 0.05
+    global_rotation: [0, 0, 0]
+    position_end: [-0.00500418, 0, 49.6278]
+    position_start: [0, 0, 49.5278]
+  CLA-FMS-DIP-02:
+    type: dipole
+    length: 0.100167
+    angle: 0.1
+    gap: 0.005
+    entrance_edge_angle: 0.1
+    exit_edge_angle: 0.0
+    k1: 0.0
+    buffer_start: [0.0200293, 0, 49.7775]
+    buffer_start_length: 0.05
+    buffer_end_length: 0.05
+    global_rotation: [0, 0, 0.1]
+    position_end: [-0.0300252, 0, 49.9273]
+    position_start: [-0.025021, 0, 49.8273]
+  CLA-FMS-MARK-02:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [-0.0300252, 0, 49.9873]
+    position_start: [-0.0300252, 0, 49.9873]
+  CLA-FMS-DIP-03:
+    type: dipole
+    length: 0.100167
+    angle: 0.1
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: 0.1
+    k1: 0.0
+    buffer_start: [0.0300252, 0, 49.9973]
+    buffer_start_length: 0.05
+    buffer_end_length: 0.05
+    global_rotation: [0, 0, 0]
+    position_end: [-0.025021, 0, 50.1473]
+    position_start: [-0.0300252, 0, 50.0473]
+  CLA-FMS-DIP-04:
+    type: dipole
+    length: 0.100167
+    angle: -0.1
+    gap: 0.005
+    entrance_edge_angle: -0.1
+    exit_edge_angle: 0.0
+    k1: 0.0
+    buffer_start: [0.00999585, 0, 50.297]
+    buffer_start_length: 0.05
+    buffer_end_length: 0.05
+    global_rotation: [0, 0, -0.1]
+    position_end: [0, 0, 50.4468]
+    position_start: [-0.00500418, 0, 50.3468]
+  CLA-FMS-MARK-03:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 50.4968]
+    position_start: [0, 0, 50.4968]
+  CLA-FMS-DIA-SCR-01-W:
+    type: marker
+    fit_point: 1.0
+    buffer_start: [0, 0, 50.4968]
+    buffer_start_length: 0.021667
+    buffer_end_length: 0.038334
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 50.5184]
+    position_start: [0, 0, 50.5184]
+  CLA-FMS-MU-1APER-01:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 50.5568]
+    position_start: [0, 0, 50.5568]
+  CLA-FMS-MU1-WH1-HS:
+    type: dipole
+    length: 0.01875
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0]
+    position_end: [-4.00124e-05, 0, 50.6255]
+    position_start: [0, 0, 50.6068]
+  CLA-FMS-MU1-WH1-1:
+    type: dipole
+    length: 0.0375
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004268]
+    position_end: [-0.000200043, 0, 50.7005]
+    position_start: [-0.000200062, 0, 50.663]
+  CLA-FMS-MU1-WH1-2:
+    type: dipole
+    length: 0.0375
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004269]
+    position_end: [-3.99374e-05, 0, 50.7755]
+    position_start: [-3.99562e-05, 0, 50.738]
+  CLA-FMS-MU1-WH1-3:
+    type: dipole
+    length: 0.0375
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004268]
+    position_end: [-0.000199968, 0, 50.8505]
+    position_start: [-0.000199987, 0, 50.813]
+  CLA-FMS-MU1-WH1-4:
+    type: dipole
+    length: 0.0375
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004269]
+    position_end: [-3.98624e-05, 0, 50.9255]
+    position_start: [-3.98812e-05, 0, 50.888]
+  CLA-FMS-MU1-WH1-5:
+    type: dipole
+    length: 0.0375
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004268]
+    position_end: [-0.000199893, 0, 51.0005]
+    position_start: [-0.000199912, 0, 50.963]
+  CLA-FMS-MU1-WH1-HM:
+    type: dipole
+    length: 0.01875
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, -0.004269]
+    position_end: [2.24999e-07, 0, 51.0568]
+    position_start: [-3.98062e-05, 0, 51.038]
+  CLA-FMS-MU1-MARK01:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, -1.0e-06]
+    position_end: [2.24999e-07, 0, 51.0568]
+    position_start: [2.24999e-07, 0, 51.0568]
+  CLA-FMS-MU1-WH2-HM:
+    type: dipole
+    length: 0.01875
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -1.0e-06]
+    position_end: [-3.97687e-05, 0, 51.0755]
+    position_start: [2.24999e-07, 0, 51.0568]
+  CLA-FMS-MU1-WH2-1:
+    type: dipole
+    length: 0.0375
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004267]
+    position_end: [-0.000199724, 0, 51.1505]
+    position_start: [-0.000199781, 0, 51.113]
+  CLA-FMS-MU1-WH2-2:
+    type: dipole
+    length: 0.0375
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.00427]
+    position_end: [-3.95437e-05, 0, 51.2255]
+    position_start: [-3.95999e-05, 0, 51.188]
+  CLA-FMS-MU1-WH2-3:
+    type: dipole
+    length: 0.0375
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004267]
+    position_end: [-0.000199499, 0, 51.3005]
+    position_start: [-0.000199556, 0, 51.263]
+  CLA-FMS-MU1-WH2-4:
+    type: dipole
+    length: 0.0375
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.00427]
+    position_end: [-3.93187e-05, 0, 51.3755]
+    position_start: [-3.93749e-05, 0, 51.338]
+  CLA-FMS-MU1-WH2-5:
+    type: dipole
+    length: 0.0375
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004267]
+    position_end: [-0.000199274, 0, 51.4505]
+    position_start: [-0.000199331, 0, 51.413]
+  CLA-FMS-MU1-WH2-HE:
+    type: dipole
+    length: 0.01875
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, -0.00427]
+    position_end: [8.99995e-07, 0, 51.5068]
+    position_start: [-3.91499e-05, 0, 51.488]
+  CLA-FMS-DIA-SCR-02W:
+    type: marker
+    fit_point: 1.0
+    buffer_start: [-9.99995e-07, 0, 51.5568]
+    buffer_start_length: 0.021667
+    buffer_end_length: 0.038334
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [1.04333e-06, 0, 51.5784]
+    position_start: [1.04333e-06, 0, 51.5784]
+  CLA-FMS-DIA-BPM-01:
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [1.54e-06, 0, 51.8268]
+    position_start: [1.12e-06, 0, 51.6168]
+  CLA-FMS-MAG-QUAD-01:
+    type: quadrupole
+    length: 0.028
+    k1l: 0.508275
+    buffer_start: [-1.6e-06, 0, 51.8568]
+    buffer_start_length: 0.05
+    buffer_end_length: 0.05
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [1.756e-06, 0, 51.9348]
+    position_start: [1.7e-06, 0, 51.9068]
+  CLA-FMS-DIP-05:
+    type: dipole
+    length: 0.100257
+    angle: -0.124
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.124
+    k1: 0.0
+    buffer_start: [-1.856e-06, 0, 51.9848]
+    buffer_start_length: 0.05
+    buffer_end_length: 0.050387
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-0.00620582, 0, 52.1348]
+    position_start: [1.956e-06, 0, 52.0348]
+  CLA-FMS-DIP-06:
+    type: dipole
+    length: 0.200513
+    angle: 0.248
+    gap: 0.005
+    entrance_edge_angle: 0.124
+    exit_edge_angle: 0.124
+    k1: 0.0
+    buffer_start: [0.0149305, 0, 52.2048]
+    buffer_start_length: 0.050387
+    buffer_end_length: 0.050387
+    global_rotation: [0, 0, 0.123998]
+    position_end: [-0.021162, 0, 52.4548]
+    position_start: [-0.0211624, 0, 52.2548]
+  CLA-FMS-DIP-07:
+    type: dipole
+    length: 0.200513
+    angle: -0.248
+    gap: 0.005
+    entrance_edge_angle: -0.124
+    exit_edge_angle: -0.124
+    k1: 0.0
+    buffer_start: [-0.0149043, 0, 52.7441]
+    buffer_start_length: 0.050387
+    buffer_end_length: 0.050387
+    global_rotation: [0, 0, -0.124002]
+    position_end: [0.0211368, 0, 52.9941]
+    position_start: [0.0211364, 0, 52.7941]
+  CLA-FMS-DIP-08:
+    type: dipole
+    length: 0.100257
+    angle: 0.124
+    gap: 0.005
+    entrance_edge_angle: 0.124
+    exit_edge_angle: 0.0
+    k1: 0.0
+    buffer_start: [-0.0124121, 0, 53.0641]
+    buffer_start_length: 0.050387
+    buffer_end_length: 0.05
+    global_rotation: [0, 0, 0.123998]
+    position_end: [-2.75534e-05, 0, 53.2141]
+    position_start: [0.00618022, 0, 53.1141]
+  CLA-FMS-DIA-BPM-02:
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-2.70334e-05, 0, 53.4741]
+    position_start: [-2.74534e-05, 0, 53.2641]
+  CLA-FMS-CBPM-APER-01:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-2.70334e-05, 0, 53.4741]
+    position_start: [-2.70334e-05, 0, 53.4741]
+  CLA-FMS-MU-1APER-02:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-2.68734e-05, 0, 53.5541]
+    position_start: [-2.68734e-05, 0, 53.5541]
+  CLA-FMS-MAG-QUAD-02:
+    type: quadrupole
+    length: 0.028
+    k1l: 0.558401
+    buffer_start: [2.68734e-05, 0, 53.5541]
+    buffer_start_length: 0.05
+    buffer_end_length: 0.05
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-2.67174e-05, 0, 53.6321]
+    position_start: [-2.67734e-05, 0, 53.6041]
+  CLA-FMS-DIA-SCR-03-W:
+    type: marker
+    fit_point: 1.0
+    buffer_start: [2.66174e-05, 0, 53.6821]
+    buffer_start_length: 0.021667
+    buffer_end_length: 0.038334
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-2.6574e-05, 0, 53.7038]
+    position_start: [-2.6574e-05, 0, 53.7038]
+  CLA-FMS-MU2-APER:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-2.64974e-05, 0, 53.7421]
+    position_start: [-2.64974e-05, 0, 53.7421]
+  CLA-FMS-MU2-WH1-HS:
+    type: dipole
+    length: 0.016719
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -2.0e-06]
+    position_end: [-6.21122e-05, 0, 53.7738]
+    position_start: [-2.64674e-05, 0, 53.7571]
+  CLA-FMS-MU2-WH1-1:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004266]
+    position_end: [-0.000204675, 0, 53.8407]
+    position_start: [-0.000204758, 0, 53.8073]
+  CLA-FMS-MU2-WH1-2:
+    type: dipole
+    length: 0.033438
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004271]
+    position_end: [-6.17778e-05, 0, 53.9076]
+    position_start: [-6.18614e-05, 0, 53.8742]
+  CLA-FMS-MU2-WH1-3:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004266]
+    position_end: [-0.00020434, 0, 53.9745]
+    position_start: [-0.000204424, 0, 53.941]
+  CLA-FMS-MU2-WH1-4:
+    type: dipole
+    length: 0.033438
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004271]
+    position_end: [-6.14435e-05, 0, 54.0413]
+    position_start: [-6.15271e-05, 0, 54.0079]
+  CLA-FMS-MU2-WH1-5:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004266]
+    position_end: [-0.000204006, 0, 54.1082]
+    position_start: [-0.00020409, 0, 54.0748]
+  CLA-FMS-MU2-WH1-6:
+    type: dipole
+    length: 0.033438
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004271]
+    position_end: [-6.11091e-05, 0, 54.1751]
+    position_start: [-6.11927e-05, 0, 54.1417]
+  CLA-FMS-MU2-WH1-7:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004266]
+    position_end: [-0.000203672, 0, 54.242]
+    position_start: [-0.000203755, 0, 54.2085]
+  CLA-FMS-MU2-WH1-HM:
+    type: dipole
+    length: 0.016719
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, -0.004271]
+    position_end: [-2.51299e-05, 0, 54.2921]
+    position_start: [-6.08583e-05, 0, 54.2754]
+  CLA-FMS-MU2-MARK-01:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, -3.0e-06]
+    position_end: [-2.51299e-05, 0, 54.2921]
+    position_start: [-2.51299e-05, 0, 54.2921]
+  CLA-FMS-MU2-WH2-HM:
+    type: dipole
+    length: 0.016719
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -3.0e-06]
+    position_end: [-6.0758e-05, 0, 54.3089]
+    position_start: [-2.51299e-05, 0, 54.2921]
+  CLA-FMS-MU2-WH2-1:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004265]
+    position_end: [-0.000203254, 0, 54.3757]
+    position_start: [-0.000203371, 0, 54.3423]
+  CLA-FMS-MU2-WH2-2:
+    type: dipole
+    length: 0.033438
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004272]
+    position_end: [-6.02899e-05, 0, 54.4426]
+    position_start: [-6.04069e-05, 0, 54.4092]
+  CLA-FMS-MU2-WH2-3:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004265]
+    position_end: [-0.000202785, 0, 54.5095]
+    position_start: [-0.000202902, 0, 54.476]
+  CLA-FMS-MU2-WH2-4:
+    type: dipole
+    length: 0.033438
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004272]
+    position_end: [-5.98217e-05, 0, 54.5764]
+    position_start: [-5.99388e-05, 0, 54.5429]
+  CLA-FMS-MU2-WH2-5:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004265]
+    position_end: [-0.000202317, 0, 54.6432]
+    position_start: [-0.000202434, 0, 54.6098]
+  CLA-FMS-MU2-WH2-6:
+    type: dipole
+    length: 0.033438
+    angle: -0.008537
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: -0.004268
+    k1: 0.0
+    global_rotation: [0, 0, -0.004272]
+    position_end: [-5.93536e-05, 0, 54.7101]
+    position_start: [-5.94706e-05, 0, 54.6767]
+  CLA-FMS-MU2-WH2-7:
+    type: dipole
+    length: 0.033438
+    angle: 0.008537
+    gap: 0.005
+    entrance_edge_angle: 0.004268
+    exit_edge_angle: 0.004268
+    k1: 0.0
+    global_rotation: [0, 0, 0.004265]
+    position_end: [-0.000201849, 0, 54.777]
+    position_start: [-0.000201966, 0, 54.7435]
+  CLA-FMS-MU2-WH2-HE:
+    type: dipole
+    length: 0.016719
+    angle: -0.004268
+    gap: 0.005
+    entrance_edge_angle: -0.004268
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 54.8271]
+    position_start: [0, 0, 54.8104]
+  CLA-FMS-DIA-SCR-04-W:
+    type: marker
+    fit_point: 1.0
+    buffer_start: [0, 0, 54.8421]
+    buffer_start_length: 0.021667
+    buffer_end_length: 0.038334
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 54.8638]
+    position_start: [0, 0, 54.8638]
+  CLA-FMS-DIA-BPM-03:
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 55.1121]
+    position_start: [0, 0, 54.9021]
+  CLA-FMS-PMD-01:
+    type: dipole
+    length: 0.07500
+    angle: -0.01
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.01
+    k1: 0.0
+    global_rotation: [0, 0, -4.0e-06]
+    position_end: [-0.000396699, 0, 55.2171]
+    position_start: [0, 0, 55.1421]
+  CLA-FMS-PMD-02:
+    type: dipole
+    length: 0.15000
+    angle: 0.02
+    gap: 0.005
+    entrance_edge_angle: 0.01
+    exit_edge_angle: 0.01
+    k1: 0.0
+    global_rotation: [0, 0, 0.009996]
+    position_end: [-0.000396099, 0, 55.3671]
+    position_start: [-0.000396699, 0, 55.2171]
+  CLA-FMS-PMD-03:
+    type: dipole
+    length: 0.07500
+    angle: -0.01
+    gap: 0.005
+    entrance_edge_angle: -0.01
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, -0.010004]
+    position_end: [0, 0, 55.4421]
+    position_start: [-0.000396099, 0, 55.3671]
+  CLA-FMS-DIA-SCR-05-W:
+    type: marker
+    fit_point: 1.0
+    buffer_start: [0, 0, 55.4421]
+    buffer_start_length: 0.021667
+    buffer_end_length: 0.038334
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 55.4638]
+    position_start: [0, 0, 55.4638]
+  CLA-FMS-APER-02:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 55.5021]
+    position_start: [0, 0, 55.5021]

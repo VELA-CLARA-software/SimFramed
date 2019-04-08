@@ -52,7 +52,7 @@ files:
       space_charge_mode: 3D
     output:
       start_element: CLA-S02-APER-01
-      end_element: CLA-FMS-APER-01
+      end_element: CLA-FMS-MU1-MARK-01 #CLA-FMS-APER-02
     input: {}
     groups:
       laser-heater:
@@ -63,6 +63,10 @@ files:
         dipoleangle: 0.1185
         width: 0.2
         gap: 0.02
+      modulator1_chicane:
+        dipoleangle: 0.1
+        width: 0.2
+        gap: 0.02
 groups:
   laser-heater:
     type: chicane
@@ -70,5 +74,11 @@ groups:
   bunch_compressor:
     type: chicane
     elements: [CLA-VBC-MAG-DIP-01, CLA-VBC-MAG-DIP-02, CLA-VBC-MAG-DIP-03, CLA-VBC-MAG-DIP-04]
+  modulator1_chicane:
+    type: chicane
+    elements: [CLA-FMS-DIP-01, CLA-FMS-DIP-02, CLA-FMS-DIP-03, CLA-FMS-DIP-04]
+  modulator2_chicane:
+    type: chicane
+    elements: [CLA-FMS-DIP-05, CLA-FMS-DIP-06, CLA-FMS-DIP-07, CLA-FMS-DIP-08]
 elements:
   filename: YAML/CLA_Gun400.yaml
