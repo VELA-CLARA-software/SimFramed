@@ -1,0 +1,89 @@
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - &id001 !!python/object/apply:numpy.dtype
+    args:
+    - f8
+    - 0
+    - 1
+    state: !!python/tuple
+    - 3
+    - <
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    NqWRtTI8v78=
+  global_rotation:
+  - 0
+  - 0
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      NqWRtTI8vz8=
+  position_start:
+  - 0.012245873271169605
+  - 0
+  - 30.9671
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    NqWRtTI8vz8=
+  global_rotation:
+  - 0
+  - 0
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      NqWRtTI8v78=
+  position_end:
+  - 0.20982832399725268
+  - 0
+  - 27.9664
+  position_start:
+  - 0.1975824503220923
+  - 0
+  - 27.7658
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    NqWRtTI8vz8=
+  position_end:
+  - 0.19758245012160955
+  - 0
+  - 29.4671
+  position_start:
+  - 0.20982832399725268
+  - 0
+  - 29.2664
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    NqWRtTI8v78=
+  position_end:
+  - 0.012245873474677715
+  - 0
+  - 26.2658
+CLA-L02-CAV:
+  field_amplitude: 31309465.021855842
+  phase: -21.77073082858115
+CLA-L03-CAV:
+  field_amplitude: 28482999.97362756
+  phase: -4.310084632134197
+CLA-L04-CAV:
+  field_amplitude: 31686962.771162465
+  phase: 48.909833252105784
+CLA-L4H-CAV:
+  field_amplitude: 25116710.77161075
+  phase: 185.9654337842286
+CLA-S07-DCP-01:
+  factor: 0.9092704018040729

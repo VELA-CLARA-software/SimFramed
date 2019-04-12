@@ -1,0 +1,54 @@
+CLA-L02-CAV:
+  field_amplitude: 28800531.9974055
+  phase: -25.591216505266186
+CLA-L03-CAV:
+  field_amplitude: 32000000
+  phase: -4.427634359943633
+CLA-L04-CAV:
+  field_amplitude: 32000000
+  phase: 44.979182019744954
+CLA-L4H-CAV:
+  field_amplitude: 32277367.38834201
+  phase: 177.42434572735246
+CLA-S07-DCP-01:
+  factor: 0.6155401912767174
+CLA-VBC-MAG-DIP-01:
+  angle: -0.1579428052865936
+  position_end:
+  - 0.015838784065250508
+  - 0
+  - 26.2658
+CLA-VBC-MAG-DIP-02:
+  angle: 0.1579428052865936
+  global_rotation:
+  - 0
+  - 0
+  - -0.1579428052865936
+  position_end:
+  - 0.2736820595787281
+  - 0
+  - 27.9664
+  position_start:
+  - 0.2578432753133313
+  - 0
+  - 27.7658
+CLA-VBC-MAG-DIP-03:
+  angle: 0.1579428052865936
+  position_end:
+  - 0.2578432751131847
+  - 0
+  - 29.4671
+  position_start:
+  - 0.2736820595787281
+  - 0
+  - 29.2664
+CLA-VBC-MAG-DIP-04:
+  angle: -0.1579428052865936
+  global_rotation:
+  - 0
+  - 0
+  - 0.1579428052865936
+  position_start:
+  - 0.015838783859994765
+  - 0
+  - 30.9671
