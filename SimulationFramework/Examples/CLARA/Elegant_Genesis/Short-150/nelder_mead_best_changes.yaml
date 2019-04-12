@@ -1,0 +1,89 @@
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - &id001 !!python/object/apply:numpy.dtype
+    args:
+    - f8
+    - 0
+    - 1
+    state: !!python/tuple
+    - 3
+    - <
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    lGXSr7VTvz8=
+  position_end:
+  - 0.19817734585670618
+  - 0
+  - 29.4671
+  position_start:
+  - 0.21045913714612782
+  - 0
+  - 29.2664
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    lGXSr7VTv78=
+  global_rotation:
+  - 0
+  - 0
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      lGXSr7VTvz8=
+  position_start:
+  - 0.012281790684937954
+  - 0
+  - 30.9671
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    lGXSr7VTv78=
+  position_end:
+  - 0.012281790888462086
+  - 0
+  - 26.2658
+? !!python/object/apply:exceptions.TypeError
+- float() argument must be a string or a number
+: angle: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    lGXSr7VTvz8=
+  global_rotation:
+  - 0
+  - 0
+  - !!python/object/apply:numpy.core.multiarray.scalar
+    - *id001
+    - !!binary |
+      lGXSr7VTv78=
+  position_end:
+  - 0.21045913714612782
+  - 0
+  - 27.9664
+  position_start:
+  - 0.19817734605718615
+  - 0
+  - 27.7658
+CLA-L02-CAV:
+  field_amplitude: 17636140.15392356
+  phase: -23.557587421136322
+CLA-L03-CAV:
+  field_amplitude: 15253989.202935232
+  phase: -1.2285519694233689
+CLA-L04-CAV:
+  field_amplitude: 18562156.541233096
+  phase: 53.569718013921815
+CLA-L4H-CAV:
+  field_amplitude: 13025110.127922393
+  phase: 185.76481739507705
+CLA-S07-DCP-01:
+  factor: 0.34567395228637776
