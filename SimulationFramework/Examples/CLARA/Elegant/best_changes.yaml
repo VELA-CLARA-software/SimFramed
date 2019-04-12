@@ -1,0 +1,162 @@
+CLA-FMS-MAG-QUAD-01:
+  k1l: 0
+CLA-FMS-MAG-QUAD-02:
+  k1l: 0
+CLA-S02-MAG-QUAD-01:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - &id001 !!python/object/apply:numpy.dtype
+    args:
+    - f8
+    - 0
+    - 1
+    state: !!python/tuple
+    - 3
+    - <
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    jfu1WoxWzb8=
+CLA-S02-MAG-QUAD-02:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    lMqM+E9rqD8=
+CLA-S02-MAG-QUAD-03:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    htoapSXetD8=
+CLA-S02-MAG-QUAD-04:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    lO5RwKWxwD8=
+CLA-S02-MAG-QUAD-05:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    VvI1TweVwT8=
+CLA-S03-MAG-QUAD-01:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    u9jcvZF0u78=
+CLA-S04-MAG-QUAD-01:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    03ko9veAtz8=
+CLA-S04-MAG-QUAD-02:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    2vPK231Snz8=
+CLA-S04-MAG-QUAD-03:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    etUAgRWssb8=
+CLA-S04-MAG-QUAD-04:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    Fqz1C3yzqr8=
+CLA-S04-MAG-QUAD-05:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    ACgtiA/vlz8=
+CLA-S04-MAG-QUAD-06:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    +AY9/21mkj8=
+CLA-S04-MAG-QUAD-07:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    MOGcLcL1nz8=
+CLA-S04-MAG-QUAD-08:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    5Lwm0wh8pL8=
+CLA-S05-MAG-QUAD-01:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    UlV2v9vgvr8=
+CLA-S05-MAG-QUAD-02:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    4J84ePAz0j8=
+CLA-S06-MAG-QUAD-01:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    9mzlJ65CzT8=
+CLA-S06-MAG-QUAD-02:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    tm3TUY44tb8=
+CLA-S07-MAG-QUAD-01:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    /fZB6rTs2D8=
+CLA-S07-MAG-QUAD-02:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    CVqdTcLWwb8=
+CLA-S07-MAG-QUAD-03:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    pLfhUVYQ1b8=
+CLA-S07-MAG-QUAD-04:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    kUAvduc8ub8=
+CLA-S07-MAG-QUAD-05:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    zhJjBZ022T8=
+CLA-S07-MAG-QUAD-06:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    esJeRNQmpj8=
+CLA-S07-MAG-QUAD-07:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    2CFgbO1R2j8=
+CLA-S07-MAG-QUAD-08:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    aB+FghKH1z8=
+CLA-S07-MAG-QUAD-09:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    Nvbu95PqxL8=
+CLA-S07-MAG-QUAD-10:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    cTJlfakZqT8=
+CLA-S07-MAG-QUAD-11:
+  k1l: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    9bmqLNGAw78=

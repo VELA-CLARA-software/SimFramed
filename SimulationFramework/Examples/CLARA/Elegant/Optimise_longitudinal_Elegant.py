@@ -12,9 +12,10 @@ from collections import OrderedDict
 from shutil import copyfile
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 import SimulationFramework.Examples.CLARA.Elegant.runElegant as runEle
+from scipy.optimize import minimize
 
-def saveState(args, n, fitness):
-    with open('nelder_mead/best_solutions_running.csv','a') as out:
+def saveState(dir, args, n, fitness):
+    with open(dir+'/best_solutions_running.csv','a') as out:
         csv_out=csv.writer(out)
         args=list(args)
         args.append(n)
@@ -53,7 +54,7 @@ class Optimise_Elegant(object):
         ['CLA-L4H-CAV', 'phase'],
         ['CLA-L04-CAV', 'field_amplitude'],
         ['CLA-L04-CAV', 'phase'],
-        ['bunch_compressor', 'set_angle'],
+        ['bunch_compressor', 'angle'],
         ['CLA-S07-DCP-01', 'factor'],
     ]
 
@@ -112,7 +113,7 @@ class Optimise_Elegant(object):
         constraintsList = self.calculate_constraints()
         fitvalue = self.cons.constraints(constraintsList)
         print 'fitvalue[', self.opt_iteration-1, '] = ', fitvalue
-        saveState(inputargs, self.opt_iteration-1, fitvalue)
+        saveState(self.subdir, inputargs, self.opt_iteration-1, fitvalue)
         if fitvalue < self.bestfit:
             print '!!!!!!  New best = ', fitvalue
             copyfile(dir+'/changes.yaml', self.best_changes)
@@ -121,7 +122,8 @@ class Optimise_Elegant(object):
 
     def Nelder_Mead(self, best=None, step=0.1):
         best = np.array(self.best) if best is None else np.array(best)
-        self.optdir = 'nelder_mead/iteration_'
+        self.subdir = 'nelder_mead'
+        self.optdir = self.subdir + '/iteration_'
         self.best_changes = './nelder_mead_best_changes.yaml'
         print 'best = ', best
         self.bestfit = 1e26
@@ -133,7 +135,8 @@ class Optimise_Elegant(object):
 
     def Simplex(self, best=None):
         best = self.best if best is None else best
-        self.optdir = 'simplex/iteration_'
+        self.subdir = 'simplex'
+        self.optdir = self.subdir + '/iteration_'
         self.best_changes = './simplex_best_changes.yaml'
         print 'best = ', best
         self.bestfit = 1e26

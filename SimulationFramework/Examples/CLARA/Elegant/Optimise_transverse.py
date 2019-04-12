@@ -20,7 +20,8 @@ class Optimise_transverse(runEle.fitnessFunc):
         self.lattice_file = lattice
         framework = fw.Framework(None)
         framework.loadSettings(self.lattice_file)
-        self.parameter_names = [[q, 'k1l'] for q in framework.getElementType('quadrupole','objectname')]
+        self.parameter_names = [q for q in framework.getElementType('quadrupole','objectname')]
+        self.parameters = [[q, 'k1l'] for q in framework.getElementType('quadrupole','objectname')]
         self.cons = constraintsClass()
         self.changes = None
         self.resultsDict = {}
@@ -96,7 +97,7 @@ class Optimise_transverse(runEle.fitnessFunc):
         #     return 1e6
 
     def OptimisingFunction(self, inputargs, *args, **kwargs):
-        self.inputlist = map(lambda a: a[0]+[a[1]], zip(self.parameter_names, inputargs))
+        self.inputlist = map(lambda a: a[0]+[a[1]], zip(self.parameters, inputargs))
         dir = self.optdir+str(self.opt_iteration)
         # print self.inputlist
         fit = self.setup_lattice(self.inputlist, dir, *args, changes=self.changes, **kwargs)
@@ -106,7 +107,7 @@ class Optimise_transverse(runEle.fitnessFunc):
         self.opt_iteration += 1
         if fitvalue < self.bestfit:
             print '!!!!!!  New best = ', fitvalue
-            self.framework.save_changes_file(filename=self.best_changes, type='quadrupole')
+            self.framework.save_changes_file(filename=self.best_changes, elements=self.parameters)
             self.bestfit = fitvalue
         return fitvalue
 

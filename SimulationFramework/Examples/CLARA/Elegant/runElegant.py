@@ -89,7 +89,7 @@ class fitnessFunc(object):
         self.sample_interval = sample_interval
         if basefiles is not None:
             self.base_files = basefiles
-        self.parameters = inputargs
+        self.input_parameters = inputargs
 
         self.npart=2**(3*scaling)
         ncpu = scaling*3
@@ -111,19 +111,35 @@ class fitnessFunc(object):
         if changes is not None:
             if isinstance(changes, (tuple, list)):
                 for c in changes:
+                    # print 'loading changes file: ', c
                     self.framework.load_changes_file(c)
             else:
                 self.framework.load_changes_file(changes)
 
         ''' Apply arguments: [[element, parameter, value], [...]] '''
-        for e, p, v in self.parameters:
-            # print e,p,v
-            if e == 'bunch_compressor' and p == 'set_angle':
-                self.framework['bunch_compressor'].set_angle(float(v))
-            else:
-                self.framework.modifyElement(e, p, v)
+        # self.input_parameter_names = []
+        for e, p, v in self.input_parameters:
+            # self.input_parameter_names.append(e)
+            # if e == 'bunch_compressor' and p == 'set_angle':
+            #     print 'modifying VBC = ', v
+            #     self.framework['bunch_compressor'].set_angle(float(v))
+            # else:
+            # print 'modifying ',e,'[',p,'] = ', v
+            self.framework.modifyElement(e, p, v)
 
-        self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml', function=float)
+        # pnames = []
+        # if not hasattr(self, 'parameter_names'):
+        #     for e in self.input_parameter_names:
+        #         if e == 'bunch_compressor':
+        #             pnames.append('CLA-VBC-MAG-DIP-01')
+        #             pnames.append('CLA-VBC-MAG-DIP-02')
+        #             pnames.append('CLA-VBC-MAG-DIP-03')
+        #             pnames.append('CLA-VBC-MAG-DIP-04')
+        #         else:
+        #             pnames.append(e)
+        # else:
+        #     pnames= self.parameter_names
+        self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml', elements=self.input_parameters)
 
     def calculateBeamParameters(self):
         if self.post_injector:

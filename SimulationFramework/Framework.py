@@ -237,6 +237,7 @@ class Framework(Munch):
         """Load Lattice Settings from file"""
         global master_run_no
         self.settingsFilename = filename
+        # print 'self.settingsFilename = ', self.settingsFilename
         if os.path.exists(filename):
             stream = file(filename, 'r')
         else:
@@ -293,11 +294,26 @@ class Framework(Munch):
             changeelements = elements
         else:
             changeelements = self.elementObjects
-        for e in changeelements:
-            if not self.original_elementObjects[e] == unmunchify(self.elementObjects[e]):
-                orig = self.original_elementObjects[e]
-                new = unmunchify(self.elementObjects[e])
-                changedict[e] = {k: self.convert_numpy_types(new[k]) for k in new if not new[k] == orig[k]}
+        if len(changeelements[0]) > 1:
+            for ek in changeelements:
+                new = None
+                e, k = ek[:2]
+                if e in self.elementObjects:
+                    new = unmunchify(self.elementObjects[e])
+                elif e in self.groupObjects:
+                    new = self.groupObjects[e]
+                    # print 'detecting group = ', e, new, new[k]
+                if new is not None:
+                    if e not in changedict:
+                        changedict[e] = {}
+                    changedict[e][k] = self.convert_numpy_types(new[k])
+        else:
+            for e in changeelements:
+                # print 'saving element: ', e
+                if not self.original_elementObjects[e] == unmunchify(self.elementObjects[e]):
+                    orig = self.original_elementObjects[e]
+                    new = unmunchify(self.elementObjects[e])
+                    changedict[e] = {k: self.convert_numpy_types(new[k]) for k in new if not new[k] == orig[k]}
         return changedict
 
     def save_changes_file(self, filename=None, type=None, elements=None, function=None):
@@ -326,7 +342,12 @@ class Framework(Munch):
                 # print 'change element exists!'
                 for k, v in d.iteritems():
                     self.modifyElement(e, k, v)
-                    # print 'modifying change element ', k, ' = ', v
+                    # print 'modifying ',e,'[',k,']', ' = ', v
+            if e in self.groupObjects:
+                # print 'change element exists!'
+                for k, v in d.iteritems():
+                    self.groupObjects[e].change_Parameter(k, v)
+                    # print 'modifying ',e,'[',k,']', ' = ', v
 
     def change_Lattice_Code(self, name, code):
         if name == 'All':
@@ -835,7 +856,7 @@ class elegantLattice(frameworkLattice):
         prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
         # print 'prefix = ', prefix
         self.hdf5_to_sdds(prefix)
-        self.commandFile = elegantCommandFile(lattice=self, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval)
+        self.commandFile = elegantTrackFile(lattice=self, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval)
 
     def postProcess(self):
         for s in self.screens:
@@ -863,28 +884,10 @@ class elegantLattice(frameworkLattice):
             subprocess.call(command, stdout=f, cwd=master_subdir)
 
 class elegantCommandFile(object):
-    def __init__(self, lattice='', elegantbeamfilename='', *args, **kwargs):
+    def __init__(self, lattice='', *args, **kwargs):
         super(elegantCommandFile, self).__init__()
         self.commandObjects = OrderedDict()
         self.lattice_filename = lattice.objectname+'.lte'
-        self.elegantbeamfilename = elegantbeamfilename
-        self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
-        self.addCommand(type='run_setup',lattice=self.lattice_filename, \
-            use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
-            centroid='%s.cen',always_change_p0 = 1, \
-            sigma='%s.sig')
-        self.addCommand(type='run_control',n_steps=1, n_passes=1)
-        self.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi",
-        beta_x  = beam.beta_x,
-        alpha_x = beam.alpha_x,
-        beta_y  = beam.beta_y,
-        alpha_y = beam.alpha_y)
-        flr = self.addCommand(type='floor_coordinates', filename="%s.flr",
-        X0  = lattice.startObject['position_start'][0],
-        Z0 = lattice.startObject['position_start'][2],
-        theta0 = 0)
-        self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
-        self.addCommand(type='track')
 
     def addCommand(self, name=None, **kwargs):
         if name == None:
@@ -905,6 +908,45 @@ class elegantCommandFile(object):
             output += c.write()
         return output
 
+class elegantTrackFile(elegantCommandFile):
+    def __init__(self, lattice='', elegantbeamfilename='', *args, **kwargs):
+        super(elegantTrackFile, self).__init__(lattice, *args, **kwargs)
+        self.elegantbeamfilename = elegantbeamfilename
+        self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
+        self.addCommand(type='run_setup',lattice=self.lattice_filename, \
+            use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
+            centroid='%s.cen',always_change_p0 = 1, \
+            sigma='%s.sig')
+        self.addCommand(type='run_control',n_steps=1, n_passes=1)
+        self.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi",
+        beta_x  = beam.beta_x,
+        alpha_x = beam.alpha_x,
+        beta_y  = beam.beta_y,
+        alpha_y = beam.alpha_y)
+        flr = self.addCommand(type='floor_coordinates', filename="%s.flr",
+        X0  = lattice.startObject['position_start'][0],
+        Z0 = lattice.startObject['position_start'][2],
+        theta0 = 0)
+        self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
+        self.addCommand(type='track')
+
+class elegantOptimisation(elegantCommandFile):
+
+    def __init__(self, lattice='', variables={}, constraints={}, terms={}, settings={}, *args, **kwargs):
+        super(elegantOptimisation, self).__init__(lattice, *args, **kwargs)
+        for k, v in variables.iteritems():
+            self.add_optimisation_variable(k, **v)
+
+    def add_optimisation_variable(self, name, item=None, lower=None, upper=None, step=None, restrict_range=None):
+        self.addCommand(name=name, type='optimization_variable', item=item, lower_limit=lower, upper_limit=upper, step_size=step, force_inside=restrict_range)
+
+    def add_optimisation_constraint(self, name, item=None, lower=None, upper=None):
+        self.addCommand(name=name, type='optimization_constraint', quantity=item, lower=lower, upper=upper)
+
+    def add_optimisation_term(self, name, item=None, **kwargs):
+        self.addCommand(name=name, type='optimization_term', term=item, **kwargs)
+
+
 class frameworkCommand(frameworkObject):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -916,7 +958,7 @@ class frameworkCommand(frameworkObject):
         wholestring=''
         string = '&'+self.objecttype+'\n'
         for key in commandkeywords[self.objecttype]:
-            if key.lower() in self.objectproperties and not key =='name' and not key == 'type':
+            if key.lower() in self.objectproperties and not key =='name' and not key == 'type' and not self.objectproperties[key.lower()] is None:
                 string+='\t'+key+' = '+str(self.objectproperties[key.lower()])+'\n'
         string+='&end\n'
         return string
@@ -1135,9 +1177,24 @@ class frameworkGroup(object):
         self.elements = elements
         self.allElementObjects = elementObjects
 
-    def change_Parameter(self, p ,v):
-        for e in self.elements:
-            setattr(self.allElementObjects[e], p, v)
+    def get_Parameter(self, p):
+        # try:
+        #     return self.p
+        # except:
+        return self.allElementObjects[self.elements[0]][p]
+
+    def change_Parameter(self, p, v):
+        try:
+            setattr(self, p, v)
+            # print 'Changing group ', self.objectname, ' ', p, ' = ', v, '  result = ', self.get_Parameter(p)
+        except:
+            for e in self.elements:
+                setattr(self.allElementObjects[e], p, v)
+                # print 'Changing group elements ', self.objectname, ' ', p, ' = ', v, '  result = ', self.get_Parameter(p)
+
+
+    def __getattr__(self, p):
+        return self.get_Parameter(p)
 
     def __repr__(self):
         return [self.allElementObjects[e].objectname for e in self.elements]
@@ -1192,8 +1249,13 @@ class chicane(frameworkGroup):
     def angle(self):
         obj = [self.allElementObjects[e] for e in self.elements]
         return float(obj[0].angle)
+    @angle.setter
+    def angle(self, theta):
+        'using setter! angle = ', theta
+        self.set_angle(theta)
 
     def set_angle(self, a):
+        # print self.objectname, ' setting angle = ', a
         obj = [self.allElementObjects[e] for e in self.elements]
         starting_angle = obj[0].theta
         for i in [0,1,2,3]:
@@ -1227,11 +1289,6 @@ class s_chicane(chicane):
             self.change_Parameter('width', kwargs['width'])
         if 'gap' in kwargs:
             self.change_Parameter('gap', kwargs['gap'])
-
-    @property
-    def angle(self):
-        obj = [self.allElementObjects[e] for e in self.elements]
-        return float(obj[0].angle)
 
     def set_angle(self, a):
         obj = [self.allElementObjects[e] for e in self.elements]

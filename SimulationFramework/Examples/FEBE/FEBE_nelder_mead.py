@@ -4,6 +4,8 @@ sys.path.append('./../../../')
 from SimulationFramework.Examples.CLARA.Elegant.Optimise_longitudinal_Elegant import Optimise_Elegant
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from functools import partial
+from ruamel import yaml
+import SimulationFramework.Framework as fw
 
 class FEBE(Optimise_Elegant):
 
@@ -20,6 +22,24 @@ class FEBE(Optimise_Elegant):
             basefiles='../../../CLARA/basefiles_'+str(self.scaling)+'/', CLARA_dir=CLARA_dir, sample_interval=2**(3*1))
         self.verbose = True
 
+    def load_best(self, filename):
+        with open(filename, 'r') as infile:
+            data = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
+            # best = [data[n]['k1l'] for n in parameter_names]
+            best = []
+            for n, p in self.parameter_names:
+                if n in data:
+                    best.append(data[n][p])
+                elif n == 'bunch_compressor' and p == 'set_angle':
+                    best.append(data['CLA-VBC-MAG-DIP-01']['angle'])
+                else:
+                    print n, p
+                    if not hasattr(self, 'framework'):
+                        self.framework = fw.Framework(None)
+                        self.framework.loadSettings(self.lattice)
+                    best.append(self.framework[n][p])
+            self.best = best
+
     def calculate_constraints(self):
         twiss = self.fit.twiss
         self.beam = self.fit.beam
@@ -29,7 +49,7 @@ class FEBE(Optimise_Elegant):
         quadnames = self.fit.framework.getElementType('quadrupole','objectname')
 
         self.beam.read_HDF5_beam_file(self.fit.dirname+'/CLA-FEB-W-FOCUS-01.hdf5')
-        self.beam.slices = 50
+        self.beam.slice_length = 0.025e-12
         self.beam.bin_time()
         sigmat = 1e12*np.std(self.beam.t)
         sigmap = np.std(self.beam.p)
@@ -40,18 +60,20 @@ class FEBE(Optimise_Elegant):
         fitp = 100*sigmap/meanp
         peakI, peakIstd, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
 
+        linac_fields = np.array([1e-6*self.linac_fields[i] for i in [0,1,3]])
+
         twiss.read_elegant_twiss_files( self.fit.dirname+'/FEBE.twi' )
         ipindex = list(twiss.elegant['ElementName']).index('CLA-FEB-W-FOCUS-01')
         constraintsListFEBE = {
             # 'ip_enx': {'type': 'lessthan', 'value': 1e6*twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 0},
             # 'ip_eny': {'type': 'lessthan', 'value': 1e6*twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 2.5},
-            # 'ip_St': {'type': 'lessthan', 'value': 1e12*twiss.elegant['St'][ipindex], 'limit': 0.2, 'weight': 15},
+            'field_max': {'type': 'lessthan', 'value': linac_fields, 'limit': 32, 'weight': 30},
             'momentum': {'type': 'equalto', 'value': 0.511*twiss.elegant['pCentral0'][ipindex], 'limit': 250, 'weight': 1.5},
-            'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 950, 'weight': 100},
-            'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 1050, 'weight': 10},
+            'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 1950, 'weight': 10},
+            'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 2050, 'weight': 10},
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
-            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 1, 'weight': 1.5},
-            'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 1, 'weight': 1.5},
+            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 2, 'weight': 1.5},
+            'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 1.5},
             # 'peakIMomentum': {'type': 'equalto','value': 1e-6*peakIMomentum, 'limit': 250, 'weight': 20},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
@@ -62,6 +84,8 @@ class FEBE(Optimise_Elegant):
         return constraintsList
 
 opt = FEBE()
-opt.set_changes_file('./transverse_best_changes.yaml')
+opt.set_changes_file(['./simplex_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
 opt.set_lattice_file('./FEBE.def')
-opt.Nelder_Mead(step=[5e6, 10, 5e6, 10, 5e6, 10, 5e6, 10, 0.025, 0.5])
+opt.load_best('best_changes_1kA.yaml')
+# opt.Nelder_Mead(step=[5e6, 10, 5e6, 10, 5e6, 10, 5e6, 10, 0.025, 0.5])
+opt.Simplex()

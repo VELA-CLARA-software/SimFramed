@@ -1,0 +1,16 @@
+CLA-L02-CAV:
+  field_amplitude: 34032285.76572116
+  phase: -25.248059075297544
+CLA-L03-CAV:
+  field_amplitude: 29736767.283346847
+  phase: -4.389651944526046
+CLA-L04-CAV:
+  field_amplitude: 31797410.03187485
+  phase: 51.200639444861956
+CLA-L4H-CAV:
+  field_amplitude: 28888759.64199216
+  phase: 189.8736679620569
+CLA-S07-DCP-01:
+  factor: 0.744139772474518
+bunch_compressor:
+  angle: 0.1353554835508774

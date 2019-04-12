@@ -1,0 +1,34 @@
+CLA-L02-CAV:
+  field_amplitude: !!python/object/apply:numpy.core.multiarray.scalar
+  - &id001 !!python/object/apply:numpy.dtype
+    args:
+    - f8
+    - 0
+    - 1
+    state: !!python/tuple
+    - 3
+    - <
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    8E100oFYbkE=
+  phase: -18.0
+CLA-L03-CAV:
+  field_amplitude: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    8E100oFYbkE=
+CLA-L04-CAV:
+  field_amplitude: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    K8P5KzQvcEE=
+CLA-L4H-CAV:
+  field_amplitude: !!python/object/apply:numpy.core.multiarray.scalar
+  - *id001
+  - !!binary |
+    KNC3efQ9dUE=
