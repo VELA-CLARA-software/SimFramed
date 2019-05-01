@@ -108,9 +108,10 @@ class FEBE_Transverse(Optimise_transverse):
             # 'etax': {'type': 'equalto', 'value': twiss.elegant['etax'][-1], 'limit': 0., 'weight': 500},
             # 'etaxp': {'type': 'equalto', 'value': twiss.elegant['etaxp'][-1], 'limit': 0., 'weight': 500},
         }
-        print self.cons.constraintsList(constraintsListFEBEStart)
+        # print self.cons.constraintsList(constraintsListFEBEStart)
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBEStart)
 
+        self.constraintsList = constraintsList
         fitness = self.cons.constraints(constraintsList)
         if self.verbose:
             print self.cons.constraintsList(constraintsList)
@@ -119,7 +120,7 @@ class FEBE_Transverse(Optimise_transverse):
 
 if __name__ == "__main__":
         fit = FEBE_Transverse('./FEBE_Single.def', scaling=6)
-        fit.setChangesFile(['./simplex_best_changes.yaml','./transverse_best_changes_upto_S07.yaml'])
+        fit.setChangesFile(['./nelder_mead_best_changes.yaml','./transverse_best_changes_upto_S07.yaml'])
         fit.verbose = False
         fit.Nelder_Mead(best, step=0.01)
         # fit.Simplex(best)
