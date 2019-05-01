@@ -52,6 +52,7 @@ class fitnessFunc(object):
         self._lattice_file = lattice
         self._base_files = None
         self._verbose = False
+        self.start_lattice = None
 
     def set_CLARA_directory(self, clara_dir):
         self.CLARA_dir = clara_dir
@@ -77,6 +78,9 @@ class fitnessFunc(object):
     def verbose(self, file):
         self._verbose = file
 
+    def set_start_file(self, file):
+        self.start_lattice = file
+
     def setup_lattice(self, inputargs, tempdir, scaling=5, overwrite=True, post_injector=True, startcharge=None, basefiles=None, changes=None, verbose=False, sample_interval=1, *args, **kwargs):
         if 'lattice' in kwargs:
             # print 'loading lattice ', kwargs['lattice']
@@ -101,10 +105,13 @@ class fitnessFunc(object):
             self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
         self.framework.defineElegantCommand(['elegant'])
-
+        # if os.name == 'nt':
+        #     self.framework.defineElegantCommand(['mpiexec','-np','10','pelegant'])
         self.framework.loadSettings(self.lattice_file)
         self.framework.change_Lattice_Code('All','elegant')
-        if 'POSTINJ' in self.framework.latticeObjects:
+        if self.start_lattice is not None:
+            pass
+        elif 'POSTINJ' in self.framework.latticeObjects:
             self.start_lattice = 'POSTINJ'
         else:
             self.start_lattice = 'S02'
@@ -144,8 +151,10 @@ class fitnessFunc(object):
     def calculateBeamParameters(self):
         if self.post_injector:
             if self.base_files is not None:
+                print 'Using base_files = ', self.base_files
                 self.framework[self.start_lattice].prefix = self.base_files
             else:
+                print 'Using CLARA_dir base_files = ', self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/'
                 self.framework[self.start_lattice].prefix = self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/'
             if self.startcharge is not None:
                 self.framework[self.start_lattice].bunch_charge = 1e-12*self.startcharge

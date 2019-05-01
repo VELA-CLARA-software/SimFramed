@@ -53,6 +53,7 @@ class twiss(munch.Munch):
         self['muy'] = []
         self['eta_x'] = []
         self['eta_xp'] = []
+        self['element_name'] = []
         self.elegant = {}
 
     def read_sdds_file(self, fileName, charge=None, ascii=False):
@@ -87,7 +88,7 @@ class twiss(munch.Munch):
             self['z'] = np.concatenate([self['z'], z])
             cp = self.elegant['pCentral0'] * self.E0
             self['cp'] = np.concatenate([self['cp'], cp])
-            ke = (np.sqrt(self.E0**2 + cp**2) - self.E0**2) / constants.elementary_charge 
+            ke = (np.sqrt(self.E0**2 + cp**2) - self.E0**2) / constants.elementary_charge
             self['kinetic_energy'] = np.concatenate([self['kinetic_energy'], ke])
             gamma = 1 + ke / self.E0_eV
             self['gamma'] = np.concatenate([self['gamma'], gamma])
@@ -120,6 +121,7 @@ class twiss(munch.Munch):
             self['muy'] = np.concatenate([self['muy'], self.elegant['psiy'] / (2*constants.pi)])
             self['eta_x'] = np.concatenate([self['eta_x'], self.elegant['etax']])
             self['eta_xp'] = np.concatenate([self['eta_xp'], self.elegant['etaxp']])
+            self['element_name'] = np.concatenate([self['element_name'], self.elegant['ElementName']])
 
     def read_astra_emit_files(self, filename, reset=True):
         if reset:

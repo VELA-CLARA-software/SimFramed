@@ -385,8 +385,8 @@ matrix_output :
   printout: string
   printout_order: long
   full_matrix_only: long
-  sdds_output: string
-  sdds_output_order: long
+  SDDS_output: string
+  SDDS_output_order: long
   individual_matrices: long
   sdds_output_match: string
   output_at_each_step: long

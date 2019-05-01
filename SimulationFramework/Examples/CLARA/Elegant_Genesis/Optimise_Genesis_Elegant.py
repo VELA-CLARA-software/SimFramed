@@ -64,6 +64,8 @@ class Optimise_Genesis_Elegant(object):
         self.changes = None
         self.lattice = None
         self.resultsDict = {}
+        self.opt_iteration = 0
+        self.bestfit = 1e26  
         # ******************************************************************************
         CLARA_dir = os.path.relpath(__file__+'/../../')
         self.POST_INJECTOR = True
@@ -111,16 +113,17 @@ class Optimise_Genesis_Elegant(object):
             print 'e too low! ', e
             l = 500
         self.resultsDict.update({'e': e, 'b': b, 'ee': ee, 'be': be, 'l': l, 'g': g, 'brightness': (1e-4*e)/(1e-2*b), 'momentum': 1e-6*np.mean(g.momentum)})
-        self.opt_iteration += 1
         constraintsList = self.calculate_constraints()
         fitvalue = self.cons.constraints(constraintsList)
         print self.cons.constraintsList(constraintsList)
-        print 'fitvalue[', self.opt_iteration-1, '] = ', fitvalue
-        saveState(inputargs, self.opt_iteration-1, fitvalue)
+        print 'fitvalue[', self.opt_iteration, '] = ', fitvalue
+        saveState(inputargs, self.opt_iteration, fitvalue)
         if fitvalue < self.bestfit:
             print '!!!!!!  New best = ', fitvalue
             copyfile(dir+'/changes.yaml', self.best_changes)
             self.bestfit = fitvalue
+        if isinstance(self.opt_iteration, (int, float)):
+            self.opt_iteration += 1
         return fitvalue
 
     def Nelder_Mead(self, best=None, step=0.1):

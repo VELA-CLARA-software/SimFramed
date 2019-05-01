@@ -294,7 +294,7 @@ class Framework(Munch):
             changeelements = elements
         else:
             changeelements = self.elementObjects
-        if len(changeelements[0]) > 1:
+        if len(changeelements) > 0 and len(changeelements[0]) > 1:
             for ek in changeelements:
                 new = None
                 e, k = ek[:2]
@@ -325,15 +325,19 @@ class Framework(Munch):
             yaml.dump(changedict, yaml_file, default_flow_style=False)
 
     def load_changes_file(self, filename=None, apply=True):
-        if filename is None:
-            pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
-            filename =  pre     + '_changes.yaml'
-        with open(filename,"r") as infile:
-            changes = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
-        if apply:
-            self.apply_changes(changes)
+        if isinstance(filename, (tuple, list)):
+            for c in filename:
+                self.load_changes_file(c)
         else:
-            return changes
+            if filename is None:
+                pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
+                filename =  pre     + '_changes.yaml'
+            with open(filename,"r") as infile:
+                changes = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
+            if apply:
+                self.apply_changes(changes)
+            else:
+                return changes
 
     def apply_changes(self, changes):
         for e, d in changes.iteritems():
@@ -927,6 +931,8 @@ class elegantTrackFile(elegantCommandFile):
         X0  = lattice.startObject['position_start'][0],
         Z0 = lattice.startObject['position_start'][2],
         theta0 = 0)
+        mat = self.addCommand(type='matrix_output', SDDS_output="%s.mat",
+        full_matrix_only=1)
         self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
         self.addCommand(type='track')
 
@@ -1178,23 +1184,26 @@ class frameworkGroup(object):
         self.allElementObjects = elementObjects
 
     def get_Parameter(self, p):
-        # try:
-        #     return self.p
-        # except:
-        return self.allElementObjects[self.elements[0]][p]
+        try:
+            isinstance(type(self).p, p)
+            return getattr(self, p)
+        except:
+            return self.allElementObjects[self.elements[0]][p]
 
     def change_Parameter(self, p, v):
+        # print 'p = ', getattr(self, p)
         try:
+            getattr(self, p)
             setattr(self, p, v)
             # print 'Changing group ', self.objectname, ' ', p, ' = ', v, '  result = ', self.get_Parameter(p)
         except:
             for e in self.elements:
                 setattr(self.allElementObjects[e], p, v)
-                # print 'Changing group elements ', self.objectname, ' ', p, ' = ', v, '  result = ', self.get_Parameter(p)
+                # print 'Changing group elements ', self.objectname, ' ', p, ' = ', v, '  result = ', self.allElementObjects[self.elements[0]].objectname, self.get_Parameter(p)
 
 
-    def __getattr__(self, p):
-        return self.get_Parameter(p)
+    # def __getattr__(self, p):
+    #     return self.get_Parameter(p)
 
     def __repr__(self):
         return [self.allElementObjects[e].objectname for e in self.elements]
@@ -1203,7 +1212,7 @@ class frameworkGroup(object):
         return str([self.allElementObjects[e].objectname for e in self.elements])
 
     def __getitem__(self, key):
-        return getattr(self, key)
+        return self.get_Parameter(key)
 
 class element_group(frameworkGroup):
     def __init__(self, name, elementObjects, type, elements, **kwargs):

@@ -5,7 +5,7 @@ import SimulationFramework.Modules.read_twiss_file as rtf
 import numpy as np
 
 lattice = fw.Framework('example', clean=False, verbose=True)
-lattice.loadSettings('FEBE.def')
+lattice.loadSettings('FEBE_Single.def')
 if not os.name == 'nt':
     scaling = 5
     lattice.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
@@ -16,7 +16,8 @@ if not os.name == 'nt':
 else:
     lattice.generator.number_of_particles = 2**(3*5)
 lattice.defineElegantCommand(['elegant'])
-lattice['S02'].prefix = '../../CLARA/basefiles_5/'
+lattice['PreFEBE'].prefix = '../../CLARA/basefiles_6/'
+# lattice['PreFEBE'].sample_interval = 2**(3*2)
 lattice.change_Lattice_Code('All','elegant')
-# lattice.load_changes_file('./CLARA/Elegant_Genesis/Short-240/transverse_best_changes.yaml')
-lattice.track(startfile='S02', endfile='FEBE')
+lattice.load_changes_file(['./nelder_mead_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
+lattice.track(startfile='PreFEBE')

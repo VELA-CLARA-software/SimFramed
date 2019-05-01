@@ -179,10 +179,18 @@ files:
     charge:
       cathode: False
       space_charge_mode: 3D
-    input:
-      particle_definition: $output['start_element']$.astra
+    input: {}
     output:
       start_element: CLA-FEB-W-START-01
+      end_element: CLA-FEB-DIA-SCR-06-W
+  FEBE600:
+    code: elegant
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input: {}
+    output:
+      start_element: CLA-FEB-DIA-SCR-06-W
       end_element: CLA-FEB-W-DUMPSTART-01
 groups:
   laser-heater:
