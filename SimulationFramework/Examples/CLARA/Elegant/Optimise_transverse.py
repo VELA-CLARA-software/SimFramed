@@ -106,6 +106,8 @@ class Optimise_transverse(runEle.fitnessFunc):
         self.saveState(args, fitvalue)
         self.opt_iteration += 1
         if fitvalue < self.bestfit:
+            if hasattr(self, 'constraintsList'):
+                print self.cons.constraintsList(self.constraintsList)
             print '!!!!!!  New best = ', fitvalue
             self.framework.save_changes_file(filename=self.best_changes, elements=self.parameters)
             self.bestfit = fitvalue

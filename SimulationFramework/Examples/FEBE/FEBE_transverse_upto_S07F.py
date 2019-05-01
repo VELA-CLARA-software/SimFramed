@@ -5,6 +5,7 @@ from SimulationFramework.Modules.nelder_mead import nelder_mead
 from SimulationFramework.Examples.CLARA.Elegant.Optimise_transverse import Optimise_transverse
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from ruamel import yaml
+import numpy as np
 
 framework = fw.Framework(None)
 framework.loadSettings('FEBE.def')
@@ -85,8 +86,11 @@ class FEBE_Transverse(Optimise_transverse):
 
         # twiss.read_elegant_twiss_files( [ self.dirname+'/'+n+'.twi' for n in ['S02', 'L02', 'S03', 'L03', 'S04', 'L4H', 'S05', 'S06', 'L04', 'S07', 'S07F']])
         twiss.read_elegant_twiss_files( self.dirname+'/'+self.start_file+'.twi' )
+        indexVBC1 = list(twiss.elegant['ElementName']).index('CLA-S05-MARK-01')
+        indexVBC2 = list(twiss.elegant['ElementName']).index('CLA-VBC-MARK-01')
+        sigx = np.array(list(twiss['sigma_x'][:indexVBC1]) + list(twiss['sigma_x'][indexVBC2:]))
         constraintsListSigmas = {
-            'max_xrms': {'type': 'lessthan', 'value': max(1e3*twiss['sigma_x']), 'limit': 1, 'weight': 5},
+            'max_xrms': {'type': 'lessthan', 'value': max(1e3*sigx), 'limit': 1, 'weight': 5},
             'max_yrms': {'type': 'lessthan', 'value': max(1e3*twiss['sigma_y']), 'limit': 1, 'weight': 5},
             'min_xrms': {'type': 'greaterthan', 'value': min(1e3*twiss['sigma_x']), 'limit': 0.025, 'weight': 5},
             'min_yrms': {'type': 'greaterthan', 'value': min(1e3*twiss['sigma_y']), 'limit': 0.025, 'weight': 5},
@@ -122,6 +126,7 @@ class FEBE_Transverse(Optimise_transverse):
         # print self.cons.constraintsList(constraintsListFEBEStart)
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBEStart)
 
+        self.constraintsList = constraintsList
         fitness = self.cons.constraints(constraintsList)
         if self.verbose:
             print self.cons.constraintsList(constraintsList)
@@ -129,7 +134,7 @@ class FEBE_Transverse(Optimise_transverse):
 
 if __name__ == "__main__":
         fit = FEBE_Transverse('./FEBE_Single.def', scaling=6)
-        fit.setChangesFile(['./simplex_best_changes.yaml'])
+        fit.setChangesFile(['./nelder_mead_best_changes.yaml'])
         fit.verbose = False
         fit.Nelder_Mead(best, step=0.05)
         # fit.Simplex(best)

@@ -15,8 +15,8 @@ index2 = names.index('CLA-S07-MAG-QUAD-10')+1
 index3 = names.index('CLA-FEB-MAG-QUAD-13')
 parameter_names = []
 # parameter_names = [q for q in names[index1:index2]]
-parameter_names.append('CLA-FEB-MAG-QUAD-01')
-parameter_names.append('CLA-FEB-MAG-QUAD-02')
+# parameter_names.append('FODO_F')
+# parameter_names.append('FODO_D')
 parameter_names += [q for q in names[index3:]]
 best = parameters
 # for n, p in zip(names, parameters)[index3:]:
@@ -35,6 +35,7 @@ with open('FEBE_transverse_best_changes.yaml', 'r') as infile:
         if n in data:
             best.append(data[n]['k1l'])
         else:
+            print n
             best.append(framework[n]['k1l'])
 
 class FEBE_Transverse(Optimise_transverse):
@@ -50,38 +51,60 @@ class FEBE_Transverse(Optimise_transverse):
         # self.parameter_names = [q for q in names[index1:index2]]
         # self.parameters = [[q, 'k1l'] for q in names[index1:index2]]
         self.parameter_names += [q for q in names[index2:]]
-        self.parameters.append(['FODO_F', 'k1l'])
-        self.parameters.append(['FODO_D', 'k1l'])
+        # self.parameters.append(['FODO_F', 'k1l'])
+        # self.parameters.append(['FODO_D', 'k1l'])
         self.parameters += [[q, 'k1l'] for q in names[index3:]]
         self.base_files = '../../../CLARA/basefiles_' + str(int(scaling)) + '/'
+        # self.base_files = '../../example/'
         self.best_changes = './FEBE_transverse_best_changes.yaml'
+        # self.start_file = 'S02'
         self.start_file = 'PreFEBE'
 
     def calculateBeamParameters(self):
         twiss = self.twiss
         self.framework.change_Lattice_Code('All','elegant')
         self.framework[self.start_file].prefix = self.base_files
-        self.framework[self.start_file].sample_interval = 2**(3*3)
+        self.framework[self.start_file].sample_interval = 2**(3*2)
         self.framework.track(startfile=self.start_file)
 
         constraintsList = {}
 
-        twiss.read_elegant_twiss_files( self.dirname+'/FEBE.twi' )
-        ipindex = list(twiss.elegant['ElementName']).index('CLA-FEB-W-FOCUS-01')
+        twiss.reset_dicts()
+        twiss.read_sdds_file( self.dirname+'/FEBE.mat' )
+        print 1e3*twiss.elegant['R56'][-1]
+        constraintsListR56 = {
+            'isochronous': {'type': 'lessthan', 'value': abs(1e3*twiss.elegant['R56'][-1]), 'limit': 0.1, 'weight': 00},
+        }
+        constraintsList = merge_two_dicts(constraintsList, constraintsListR56)
+
+        for lat in ['FEBE', 'FEBE600']:
+            quadkls = self.framework[lat].getElementType('quadrupole','k1l')
+            quadlengths = self.framework[lat].getElementType('quadrupole','length')
+            constraintsListQuads = {
+                'max_k_'+lat: {'type': 'lessthan', 'value': [abs(k) for k, l in zip(quadkls, quadlengths)], 'limit': 2.25, 'weight': 25},
+
+            }
+            constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
+
+        twiss.read_elegant_twiss_files( [ self.dirname+'/FEBE.twi' ,  self.dirname+'/FEBE600.twi' ])
+        ipindex = list(twiss['element_name']).index('CLA-FEB-W-FOCUS-01')
         constraintsListFEBE = {
-            'max_betax': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 30, 'weight': 5},
-            'max_betay': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 30, 'weight': 5},
-            'ip_sigmax': {'type': 'lessthan', 'value': 1e3*twiss.elegant['Sx'][ipindex], 'limit': 0.05, 'weight': 5},
-            'ip_sigmay': {'type': 'lessthan', 'value': 1e3*twiss.elegant['Sy'][ipindex], 'limit': 0.05, 'weight': 5},
-            'ip_alphax': {'type': 'equalto', 'value': twiss.elegant['alphax'][ipindex], 'limit': 0., 'weight': 5},
-            'ip_alphay': {'type': 'equalto', 'value': twiss.elegant['alphay'][ipindex], 'limit': 0., 'weight': 5},
-            'ip_etax': {'type': 'equalto', 'value': twiss.elegant['etax'][ipindex], 'limit': 0., 'weight': 5000},
-            'ip_etaxp': {'type': 'equalto', 'value': twiss.elegant['etaxp'][ipindex], 'limit': 0., 'weight': 5000},
-            'ip_enx': {'type': 'lessthan', 'value': 1e6*twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 15},
-            'ip_eny': {'type': 'lessthan', 'value': 1e6*twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 25},
+            'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 50, 'weight': 15},
+            'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 50, 'weight': 15},
+            'ip_sigmax': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'][ipindex], 'limit': 0.025, 'weight': 15},
+            'ip_sigmay': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 0.025, 'weight': 15},
+            # 'ip_sigmaxy': {'type': 'equalto', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 1e3*twiss['sigma_x'][ipindex], 'weight': 25},
+            'ip_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex], 'limit': 0., 'weight': 5},
+            'ip_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex], 'limit': 0., 'weight': 5},
+            'ip_etax': {'type': 'equalto', 'value': twiss['eta_x'][ipindex], 'limit': 0., 'weight': 5000},
+            'ip_etaxp': {'type': 'equalto', 'value': twiss['eta_xp'][ipindex], 'limit': 0., 'weight': 5000},
+            # 'ip_enx': {'type': 'lessthan', 'value': 1e6*twiss['enx'][ipindex], 'limit': 2, 'weight': 15},
+            # 'ip_eny': {'type': 'lessthan', 'value': 1e6*twiss['eny'][ipindex], 'limit': 1, 'weight': 25},
+            'dump_etax': {'type': 'equalto', 'value': twiss['eta_x'][-1], 'limit': 0., 'weight': 5000},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
 
+        self.constraintsList = constraintsList
         fitness = self.cons.constraints(constraintsList)
         if self.verbose:
             print self.cons.constraintsList(constraintsList)
@@ -90,7 +113,7 @@ class FEBE_Transverse(Optimise_transverse):
 
 if __name__ == "__main__":
         fit = FEBE_Transverse('./FEBE_Single.def', scaling=6)
-        fit.setChangesFile(['./simplex_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml'])
+        fit.setChangesFile(['./nelder_mead_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml'])
         fit.verbose = False
         fit.Nelder_Mead(best, step=0.1)
         # fit.Simplex(best)
