@@ -309,13 +309,30 @@ elements:
     type: screen
     output_filename: '"CLA-FEB-DIA-SCR-05-W.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 66.20854636814785] 
+    position_end: [3.6807513048841103, 0, 66.20854636814785]
     position_start: [3.6807513048841103, 0, 66.20854636814785]
   CLA-FEB-W-FOCUS-01:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 67.49833936814785]
+    position_start: [3.6807513048841103, 0, 67.49833936814785]
+  CLA-FEB-CAV-FOCUS:
+    type: cavity
+    length: 1
+    cell_length: 3.3333E-02
+    coupling_cell_length: 0.0495
+    field_amplitude: 500000000.0
+    frequency: 2998500000.0
+    phase: 0
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
+    field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
+    lsc_enable: true
+    lsc_bins: 20.0
+    lsc_cutoff_high: [0.2, 0.25]
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 68.49833936814785]
     position_start: [3.6807513048841103, 0, 67.49833936814785]
   CLA-FEB-DIA-SCR-06-W:
     type: screen
@@ -367,7 +384,7 @@ elements:
     length: 0.15
     k1l: -0.048223
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 71.19119136814786]
+    position_end: [3.6807513048841103, 0, 71.26619136814786]
     position_start: [3.6807513048841103, 0, 71.11619136814785]
   CLA-FEB-MAG-HVCOR-07:
     type: kicker
@@ -416,7 +433,7 @@ elements:
     length: 0.15
     k1l: 0.0478511
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 73.10619136814785]
+    position_end: [3.6807513048841103, 0, 73.18119136814785]
     position_start: [3.6807513048841103, 0, 73.03119136814784]
   CLA-FEB-W-WALLSTART-02:
     type: marker
@@ -435,55 +452,89 @@ elements:
     length: 0.15
     k1l: -0.0479035
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 75.18357836814785]
-    position_start: [3.6807513048841103, 0, 75.10857836814785]
+    position_end: [3.6807513048841103, 0, 75.096195]
+    position_start: [3.6807513048841103, 0, 74.946195]
   CLA-FEB-MAG-HVCOR-08:
     type: kicker
     length: 0.1
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 76.48964736814784]
-    position_start: [3.6807513048841103, 0, 76.38964736814785]
+    position_end: [3.6807513048841103, 0, 76.327264]
+    position_start: [3.6807513048841103, 0, 76.227264]
   CLA-FEB-DIA-BPM-12:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 76.76264836814784]
-    position_start: [3.6807513048841103, 0, 76.55264836814784]
+    position_end: [3.6807513048841103, 0, 76.600265]
+    position_start: [3.6807513048841103, 0, 76.390265]
   CLA-FEB-DIA-SCR-09-W:
     type: screen
     output_filename: '"CLA-FEB-DIA-SCR-09-W.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 76.81952536814784]
-    position_start: [3.6807513048841103, 0, 76.81952536814784]
+    position_end: [3.6807513048841103, 0, 76.657142]
+    position_start: [3.6807513048841103, 0, 76.657142]
   CLA-FEB-MAG-QUAD-25:
     type: quadrupole
     length: 0.15
     k1l: 0.0472847
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 77.09857836814784]
-    position_start: [3.6807513048841103, 0, 77.02357836814784]
+    position_end: [3.6807513048841103, 0, 77.011195]
+    position_start: [3.6807513048841103, 0, 76.861195]
+  CLA-FEB-MAG-QUAD-26:
+    type: quadrupole
+    length: 0.15
+    k1l: 0.0472847
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 78.9262]
+    position_start: [3.6807513048841103, 0, 78.7762]
+  CLA-FEB-MAG-HVCOR-09:
+    type: kicker
+    length: 0.1
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 79.3]
+    position_start: [3.6807513048841103, 0, 79.2]
+  CLA-FEB-DIA-BPM-13:
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 79.573]
+    position_start: [3.6807513048841103, 0, 79.363]
+  CLA-FEB-DIA-SCR-10-W:
+    type: screen
+    output_filename: '"CLA-FEB-DIA-SCR-09-W.SDDS"'
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 79.6299]
+    position_start: [3.6807513048841103, 0, 79.6299]
   CLA-FEB-MAG-DIP-05:
     type: dipole
     length: 0.5
     angle: -0.3490658504
+    entrance_edge_angle: 0.174533
+    exit_edge_angle: 0.174533
     global_rotation: [0, 0, 0]
-    position_end: [3.5943673473222746, 0, 78.56239398097328]
-    position_start: [3.6807513048841103, 0, 78.07248621294784]
+    position_end: [3.5943673473222746, 0, 80.4774]
+    position_start: [3.6807513048841103, 0, 79.9875]
   CLA-FEB-DIA-BPM-14:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [3.4346398361469697, 0, 79.00124171119157]
-    position_start: [3.506464066245584, 0, 78.80390626082661]
-  CLA-FEB-DIA-SCR-10-W:
+    position_end: [3.4346398361469697, 0, 80.9162]
+    position_start: [3.506464066245584, 0, 80.7189]
+  CLA-FEB-MAG-QUAD-27:
+    type: quadrupole
+    length: 0.15
+    k1l: 0.0472847
+    global_rotation: [0, 0, 0]
+    position_end: [3.33546, 0, 81.1887]
+    position_start: [3.38676, 0, 81.0478]
+  CLA-FEB-DIA-SCR-11-W:
     type: screen
     output_filename: '"CLA-FEB-DIA-SCR-10-W.SDDS"'
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [3.1536401906314446, 0, 79.7732818921175]
-    position_start: [3.1536401906314446, 0, 79.7732818921175]
+    position_end: [2.99344, 0, 82.1284]
+    position_start: [2.99344, 0, 82.1284]
   CLA-FEB-W-DUMPSTART-01:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [2.9677399300082046, 0, 80.28403866044877]
-    position_start: [2.9677399300082046, 0, 80.28403866044877]
+    position_end: [2.9677399300082046, 0, 82.199]
+    position_start: [2.9677399300082046, 0, 82.199]

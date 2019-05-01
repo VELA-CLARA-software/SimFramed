@@ -5,14 +5,16 @@ import numpy as np
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
 from scipy.spatial import ConvexHull
+from scipy.stats import gaussian_kde
 try:
     import sdds
 except:
     pass
+print os.path.dirname(__file__)
+sys.path.append(os.path.dirname(__file__))
 from . import read_gdf_file as rgf
 
-sys.path.append(os.path.abspath(__file__+'/../../../../'))
-import Software.Procedures.minimumVolumeEllipse as mve
+import minimumVolumeEllipse as mve
 MVE = mve.EllipsoidTool()
 
 class beam(object):
@@ -468,6 +470,33 @@ class beam(object):
 
     ''' ********************  Statistical Parameters  ************************* '''
 
+    def kde_function(self, x, bandwidth=0.2, **kwargs):
+        """Kernel Density Estimation with Scipy"""
+        # Note that scipy weights its bandwidth by the covariance of the
+        # input data.  To make the results comparable to the other methods,
+        # we divide the bandwidth by the sample standard deviation here.
+        # Taken from https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
+        if not hasattr(self, '_kde_x') or not np.allclose(x, self._kde_x) or not bandwidth == self._kde_bandwidth:
+            self._kde_x = x
+            self._kde_bandwidth = bandwidth
+            self._kde_function = gaussian_kde(x, bw_method=bandwidth / x.std(ddof=1), **kwargs)
+        return self._kde_function
+
+    def PDF(self, x, x_grid, bandwidth=0.2, **kwargs):
+        kde = self.kde_function(x, bandwidth, **kwargs)
+        return kde.evaluate(x_grid)
+
+    def CDF(self, x, x_grid, bandwidth=0.2, **kwargs):
+        kde = self.kde_function(x, bandwidth, **kwargs)
+        cdf = np.vectorize(lambda e: kde.integrate_box_1d(x_grid[0], e))
+        return cdf(x_grid)
+
+    def FWHM(self, X, Y, frac=0.5):
+        frac = 1/frac if frac > 1 else frac
+        d = Y - (max(Y) * frac)
+        indexes = np.where(d > 0)[0]
+        return abs(X[indexes+1][-1] - X[indexes-1][0]), indexes
+
     def covariance(self, u, up):
         u2 = u - np.mean(u)
         up2 = up - np.mean(up)
@@ -668,18 +697,42 @@ class beam(object):
             t = self.t
         if not self.slice_length > 0.0:
             self.slice_length = twidth / 20.0
-        nbins = max([1,int(np.ceil(twidth / self.slice_length))])
-        self._hist, binst =  np.histogram(t, bins=nbins)
+        nbins = max([1,int(np.ceil(twidth / self.slice_length))])+2
+        self._hist, binst =  np.histogram(t, bins=nbins, range=(min(t)-self.slice_length, max(t)+self.slice_length))
         self.slice['t_Bins'] = binst
         self._t_binned = np.digitize(t, self.slice['t_Bins'])
-        self._tbins = [[self._t_binned == i] for i in range(1, len(binst))]
-        self._cpbins = [self.cp[tuple(tbin)] for tbin in self._tbins]
+        self._tfbins = [[self._t_binned == i] for i in range(1, len(binst))]
+        self._tbins = [self.t[tuple(tbin)] for tbin in self._tfbins]
+        self._cpbins = [self.cp[tuple(tbin)] for tbin in self._tfbins]
+
+    def bin_momentum(self, width=10**6):
+        if not hasattr(self,'slice'):
+            self.slice = {}
+        pwidth = (max(self.cp) - min(self.cp))
+        if width is None:
+            self.slice_length_cp = pwidth / self.slices
+        else:
+            self.slice_length_cp = width
+        nbins = max([1,int(np.ceil(pwidth / self.slice_length_cp))])+2
+        self._hist, binst =  np.histogram(self.cp, bins=nbins, range=(min(self.cp)-self.slice_length_cp, max(self.cp)+self.slice_length_cp))
+        self.slice['cp_Bins'] = binst
+        self._cp_binned = np.digitize(self.cp, self.slice['cp_Bins'])
+        self._tfbins = [np.array([self._cp_binned == i]) for i in range(1, len(binst))]
+        self._cpbins = [self.cp[tuple(cpbin)] for cpbin in self._tfbins]
+        self._tbins = [self.t[tuple(cpbin)] for cpbin in self._tfbins]
 
     @property
     def slice_bins(self):
         if not hasattr(self,'slice'):
             self.bin_time()
         bins = self.slice['t_Bins']
+        return (bins[:-1] + bins[1:]) / 2
+        # return [t.mean() for t in ]
+    @property
+    def slice_cpbins(self):
+        if not hasattr(self,'slice'):
+            self.bin_momentum()
+        bins = self.slice['cp_Bins']
         return (bins[:-1] + bins[1:]) / 2
         # return [t.mean() for t in ]
     @property
@@ -702,7 +755,7 @@ class beam(object):
         return self.slice['Relative_Momentum_Spread']
 
     def slice_data(self, data):
-        return [data[tuple(tbin)] for tbin in self._tbins]
+        return [data[tuple(tbin)] for tbin in self._tfbins]
 
     def emitbins(self, x, y):
         xbins = self.slice_data(x)
@@ -776,7 +829,8 @@ class beam(object):
     def slice_peak_current(self):
         if not hasattr(self,'_hist'):
             self.bin_time()
-        self.slice['Peak_Current'] = self.charge/(self.slice_length * len(self.t)) * self._hist
+        f = lambda x: self.charge / len(self.t) * (len(bin) / (max(bin) - min(bin))) if len(bin) > 1 else 0
+        self.slice['Peak_Current'] = np.array([f(bin) for bin in self._tbins])
         return abs(self.slice['Peak_Current'])
     @property
     def slice_max_peak_current_slice(self):
@@ -823,10 +877,11 @@ class beam(object):
         self.twiss['gamma_y'] = self.covariance(self.yp,self.yp) / self.vertical_emittance
         return self.twiss['gamma_y']
 
-    def sliceAnalysis(self):
+    def sliceAnalysis(self, density=False):
         self.slice = {}
         self.bin_time()
         peakIPosition = self.slice_max_peak_current_slice
+        slice_density = self.slice_density[peakIPosition] if density else 0
         return self.slice_peak_current[peakIPosition], \
             np.std(self.slice_peak_current), \
             self.slice_relative_momentum_spread[peakIPosition], \

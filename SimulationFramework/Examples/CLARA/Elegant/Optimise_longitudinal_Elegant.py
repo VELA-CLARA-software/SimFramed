@@ -64,6 +64,7 @@ class Optimise_Elegant(object):
         self.changes = None
         self.lattice = None
         self.resultsDict = {}
+        self.fit = runEle.fitnessFunc()
         # ******************************************************************************
         CLARA_dir = os.path.relpath(__file__+'/../../')
         self.POST_INJECTOR = True
@@ -89,6 +90,11 @@ class Optimise_Elegant(object):
 
     def set_lattice_file(self, lattice):
         self.lattice = lattice
+        self.fit.lattice_file = lattice
+
+    def set_start_file(self, file):
+        self.start_file = file
+        self.fit.set_start_file(file)
 
     def OptimisingFunction(self, inputargs, *args, **kwargs):
         if not self.POST_INJECTOR:
@@ -106,8 +112,7 @@ class Optimise_Elegant(object):
         else:
             dir = self.optdir+str(self.opt_iteration)
 
-        self.fit = runEle.fitnessFunc(self.lattice)
-        self.fit.setup_lattice(self.inputlist, dir, lattice=self.lattice, changes=self.changes, *args, **kwargs)
+        self.fit.setup_lattice(self.inputlist, dir, changes=self.changes, *args, **kwargs)
         fitvalue = self.fit.calculateBeamParameters()
         self.opt_iteration += 1
         constraintsList = self.calculate_constraints()
@@ -115,6 +120,7 @@ class Optimise_Elegant(object):
         print 'fitvalue[', self.opt_iteration-1, '] = ', fitvalue
         saveState(self.subdir, inputargs, self.opt_iteration-1, fitvalue)
         if fitvalue < self.bestfit:
+            print self.cons.constraintsList(constraintsList)
             print '!!!!!!  New best = ', fitvalue
             copyfile(dir+'/changes.yaml', self.best_changes)
             self.bestfit = fitvalue

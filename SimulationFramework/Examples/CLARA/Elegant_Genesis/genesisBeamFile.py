@@ -356,39 +356,39 @@ def run_simulation(inputargs, lattice=None, verbose=True, dir=None, savestate=Fa
         idNumber = os.path.basename(tmpdir)
     else:
         idNumber = inputargs.id
-    try:
-        sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=0)
-        sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=0)
-        if runElegant:
-            fit = runEle.fitnessFunc(lattice)
-            fit.setup_lattice(inputargs, tmpdir, id=idNumber, startcharge=250, post_injector=True, *args, **kwargs)
-            fitvalue = fit.calculateBeamParameters()
-        if post_injector:
-            e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
-        else:
-            e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
-        if verbose:
-            print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
-            print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
-        #### Save Output files to dir named after runno #####
-        # if not os.path.exists('./outData/'):
-        #     os.makedirs('./outData/')
-        # dir = './outData/' + str(idNumber)
-        # if not os.path.exists(dir):
-        #     os.makedirs(dir)
-        # copyfile(tmpdir+'/CLA-FMS-APER-02.hdf5',dir+'/CLA-FMS-APER-02.hdf5')
-        # copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
-        # copyfile(tmpdir+'/std.out',dir+'/std.out')
-        if savestate:
-            try:
-                saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
-            except:
-                pass
-    except Exception as error:
-        print 'Error! ', error
-        e, b, ee, be, l, g = [0, 1, 0, 1, 0, {}]
+    # try:
+    sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=0)
+    sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=0)
+    if runElegant:
+        fit = runEle.fitnessFunc(lattice)
+        fit.setup_lattice(inputargs, tmpdir, id=idNumber, startcharge=250, post_injector=True, *args, **kwargs)
+        fitvalue = fit.calculateBeamParameters()
+    if post_injector:
+        e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
+    else:
+        e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+    if verbose:
+        print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
+        print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
+    #### Save Output files to dir named after runno #####
+    # if not os.path.exists('./outData/'):
+    #     os.makedirs('./outData/')
+    # dir = './outData/' + str(idNumber)
+    # if not os.path.exists(dir):
+    #     os.makedirs(dir)
+    # copyfile(tmpdir+'/CLA-FMS-APER-02.hdf5',dir+'/CLA-FMS-APER-02.hdf5')
+    # copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
+    # copyfile(tmpdir+'/std.out',dir+'/std.out')
+    if savestate:
+        try:
+            saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
+        except:
+            pass
+    # except Exception as error:
+    #     print 'genesisBeamFile.run_simulation Error! ', error
+    #     e, b, ee, be, l, g = [0, 1, 0, 1, 0, {}]
     return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
 
 if __name__ == "__main__":
