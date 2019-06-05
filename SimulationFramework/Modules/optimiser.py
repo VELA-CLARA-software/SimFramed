@@ -1,4 +1,4 @@
-import sys
+import sys, copy
 from deap import algorithms
 from deap import tools
 import csv
@@ -22,14 +22,14 @@ class optimiser():
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in population if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        ids = range(evaluationID, evaluationID + len(invalid_ind))
+        ids = list(range(evaluationID, evaluationID + len(invalid_ind)))
         evaluationID += len(invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
 
         if halloffame is not None:
             halloffame.update(population)
-            with open(hoffile,'wb') as out:
+            with open(hoffile,'w') as out:
                 csv_out=csv.writer(out)
                 for row in halloffame:
                     row.append(0)
@@ -38,7 +38,7 @@ class optimiser():
         record = stats.compile(population) if stats else {}
         logbook.record(gen=0, nevals=len(invalid_ind), **record)
         if verbose:
-            print logbook.stream
+            print(logbook.stream)
 
         # Begin the generational process
         for gen in range(1, ngen + 1):
@@ -53,10 +53,10 @@ class optimiser():
 
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            ids = range(evaluationID, evaluationID + len(invalid_ind))
+            ids = list(range(evaluationID, evaluationID + len(invalid_ind)))
             evaluationID += len(invalid_ind)
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-            for ind, fit in zip(invalid_ind, fitnesses, ids):
+            for ind, fit in zip(invalid_ind, fitnesses):
                 ind.fitness.values = fit
 
             # Update the hall of fame with the generated individuals
@@ -75,7 +75,7 @@ class optimiser():
             record = stats.compile(population) if stats else {}
             logbook.record(gen=gen, nevals=len(invalid_ind), **record)
             if verbose:
-                print logbook.stream
+                print(logbook.stream)
 
         return population, logbook
 
@@ -88,7 +88,7 @@ class optimiser():
 
         # Evaluate the individuals with an invalid fitness
         invalid_ind = [ind for ind in population if not ind.fitness.valid]
-        ids = range(evaluationID, evaluationID + len(invalid_ind))
+        ids = list(range(evaluationID, evaluationID + len(invalid_ind)))
         for ind, id in zip(invalid_ind, ids):
             ind.id = id
         evaluationID += len(invalid_ind)
@@ -98,7 +98,7 @@ class optimiser():
 
         if halloffame is not None:
             halloffame.update(population)
-            with open(hoffile,'wb') as out:
+            with open(hoffile,'w') as out:
                 csv_out=csv.writer(out)
                 for row in halloffame:
                     row.append(0)
@@ -108,7 +108,7 @@ class optimiser():
         record = stats.compile(population) if stats is not None else {}
         logbook.record(gen=0, nevals=len(invalid_ind), **record)
         if verbose:
-            print logbook.stream
+            print(logbook.stream)
 
         # Begin the generational process
         for gen in range(1, ngen + 1):
@@ -117,7 +117,7 @@ class optimiser():
 
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            ids = range(evaluationID, evaluationID + len(invalid_ind))
+            ids = list(range(evaluationID, evaluationID + len(invalid_ind)))
             for ind, id in zip(invalid_ind, ids):
                 ind.id = id
             evaluationID += len(invalid_ind)
@@ -142,6 +142,6 @@ class optimiser():
             record = stats.compile(population) if stats is not None else {}
             logbook.record(gen=gen, nevals=len(invalid_ind), **record)
             if verbose:
-                print logbook.stream
+                print(logbook.stream)
 
         return population, logbook

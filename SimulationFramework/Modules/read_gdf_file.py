@@ -1,6 +1,6 @@
 """Reads in files from General Particle Tracer .gdf files
 """
-from __future__ import division
+
 # from pylab import *
 import time
 import struct
@@ -64,32 +64,32 @@ class read_gdf_file(object):
     @property
     def positions(self):
         positions = []
-        for datagrab in self.grab_groups.values():
+        for datagrab in list(self.grab_groups.values()):
             if hasattr(datagrab.groups['param'],'position'):
                 positions.append(datagrab.groups['param'].position)
         return positions
 
     def get_position(self, position):
-        for datagrab in self.grab_groups.values():
+        for datagrab in list(self.grab_groups.values()):
             if hasattr(datagrab.groups['param'],'position'):
                 if str(datagrab.groups['param'].position) == str(position):
                     return datagrab.groups['data']
     @property
     def times(self):
         times = []
-        for datagrab in self.grab_groups.values():
+        for datagrab in list(self.grab_groups.values()):
             if hasattr(datagrab.groups['param'],'time'):
                 times.append(datagrab.groups['param'].time)
         return times
 
     def get_time(self, time):
-        for datagrab in self.grab_groups.values():
+        for datagrab in list(self.grab_groups.values()):
             if hasattr(datagrab.groups['param'],'time'):
                 if str(datagrab.groups['param'].time) == str(time):
                     return datagrab.groups['data']
 
     def get_grab(self, grab_group_number=0):
-        for name, datagrab in self.grab_groups.items():
+        for name, datagrab in list(self.grab_groups.items()):
             if name == 'datagrab_' + str(grab_group_number):
                 return datagrab.groups['data']
 
@@ -224,9 +224,9 @@ class read_gdf_file(object):
                         param_group.create_dataset(name, data=value)
                     else:
                         print( 'unknown datatype of value!!!')
-                        print( 'name=', name)
-                        print( 'type=', typee)
-                        print( 'size=', size)
+                        print(( 'name=', name))
+                        print(( 'type=', typee))
+                        print(( 'size=', size))
                         value = f.read(size)
 
                 #Read data array
@@ -239,9 +239,9 @@ class read_gdf_file(object):
                         # print 'new dataset = ', name
                     else:
                         print( 'unknown datatype of value!!!')
-                        print( 'name=', name)
-                        print( 'type=', typee)
-                        print( 'size=', size)
+                        print(( 'name=', name))
+                        print(( 'type=', typee))
+                        print(( 'size=', size))
                         value = f.read(size)
 
                 lastarr = arr;

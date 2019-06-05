@@ -104,7 +104,6 @@ elements:
     Structure_Type: 'TravellingWave'
     cell_length: 0.0333333
     coupling_cell_length: 0.0495
-    n_cells: 61
     field_amplitude: 21000000.0
     frequency: 2998500000.0
     phase: -16

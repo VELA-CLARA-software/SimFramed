@@ -4,7 +4,7 @@ from scipy import interpolate
 import scipy.integrate as integrate
 import scipy.constants as constants
 import sdds
-import read_gdf_file as rgf
+from . import read_gdf_file as rgf
 import munch
 
 class twiss(munch.Munch):

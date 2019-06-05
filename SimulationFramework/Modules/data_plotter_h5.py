@@ -9,9 +9,14 @@ from pyqtgraph.graphicsItems.LegendItem import ItemSample
 import argparse
 import imageio
 import numpy as np
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname( os.path.abspath(__file__)))))
+sys.path.append('../../')
+sys.path.append('../../../')
 import SimulationFramework.Modules.read_beam_file as raf
 import SimulationFramework.Modules.read_twiss_file as rtf
+sys.path.append('../../../')
+import Software.Widgets.loggerWidget.loggerWidget as lw
+import logging
+logger = logging.getLogger(__name__)
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -192,11 +197,11 @@ class astraPlotWidget(QWidget):
         self.horizontalLayout = QHBoxLayout(Form)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.beamPlotXAxisCombo = QComboBox(Form)
-        self.beamPlotXAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotXAxisCombo.addItems(list(self.beamPlotXAxisDict.keys()))
         self.beamPlotXAxisCombo.setCurrentIndex(2)
         self.horizontalLayout.addWidget(self.beamPlotXAxisCombo)
         self.beamPlotYAxisCombo = QComboBox(Form)
-        self.beamPlotYAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotYAxisCombo.addItems(list(self.beamPlotXAxisDict.keys()))
         self.beamPlotYAxisCombo.setCurrentIndex(6)
         self.horizontalLayout.addWidget(self.beamPlotYAxisCombo)
         self.groupBox = QGroupBox(Form)
@@ -360,6 +365,10 @@ class astraPlotWidget(QWidget):
         self.tabWidget.addTab(self.twissPlotView,'Twiss Plots')
         self.tabWidget.addTab(self.beamPlotWidget,'Beam Plots')
         self.tabWidget.addTab(self.slicePlotWidget,'Slice Beam Plots')
+        self.log = lw.loggerWidget()
+        self.log.addLogger(logger)
+        sys.stdout = lw.redirectLogger(self.log, 'stdout')
+        self.tabWidget.addTab(self.log,'Log')
         self.tabWidget.currentChanged.connect(self.changeTab)
         self.layout.addWidget(self.folderBeamWidget)
         self.layout.addWidget(self.tabWidget)
@@ -368,7 +377,7 @@ class astraPlotWidget(QWidget):
         self.changeDirectory(self.directory)
 
     def findFirstEmptyColumnInGraphicsLayout(self):
-            rowsfilled =  self.slicePlotWidgetGraphicsLayout.ci.rows.get(0, {}).keys()
+            rowsfilled =  list(self.slicePlotWidgetGraphicsLayout.ci.rows.get(0, {}).keys())
             for i in range(49):
                 if not i in rowsfilled:
                     return i
@@ -407,7 +416,7 @@ class astraPlotWidget(QWidget):
         file = h5py.File(self.directory+'/'+file+'.hdf5', "r")
         zpos = file.get('/Parameters/Starting_Position')[2]
         if abs(zpos) < 0.01:
-            print zpos, file
+            print(zpos, file)
         return zpos
 
     def getScreenFiles(self):
@@ -434,7 +443,7 @@ class astraPlotWidget(QWidget):
         screenfirstpos = np.array(screenfirstpos)
         # print 'screenfirstpos = ', screenfirstpos
         sortedscreennames = sorted(screenfirstpos, key=lambda x: float(x[1]))
-        print 'sortedscreennames = ', sortedscreennames
+        print('sortedscreennames = ', sortedscreennames)
         for f in sortedscreennames:
             self.fileSelector.addItem(f[0])
             i += 1
@@ -444,7 +453,7 @@ class astraPlotWidget(QWidget):
     def changeScreen(self, i):
         run = self.screenpositions[str(self.fileSelector.currentText())]['run']
         self.beamFileName = str(self.screenpositions[str(self.fileSelector.currentText())]['screennames'][self.screenSelector.currentIndex()])+'.hdf5'
-        print 'beamFileName = ', self.beamFileName
+        print('beamFileName = ', self.beamFileName)
         self.loadDataFile()
 
     def updateScreenCombo(self):

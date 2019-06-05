@@ -7,6 +7,33 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 34.118]
     position_start: [0, 0, 34.118]
+  CLA-S07-DCP-01:
+    type: collimator
+    length: 0.596
+    shape: elliptical
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 34.914]
+    position_start: [0, 0, 34.318]
+  CLA-S07-DCP-01-SCR:
+    type: screen
+    length: 0.0
+    output_filename: CLA-S07-DCP-01-SCR.SDDS
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 35]
+    position_start: [0, 0, 35]
+  CLA-L04X-MAG-QUAD-01:
+    type: quadrupole
+    length: 0.15
+    k1l: 0.157575
+    sr_enable: true
+    isr_enable: true
+    buffer_start_length: 0.1
+    buffer_end_length: 0.1
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 35.264]
+    position_start: [0, 0, 35.114]
   CLA-L04-CAV-01:
     type: cavity
     length: 4.06667
@@ -14,18 +41,26 @@ elements:
     field_amplitude: 80000000.0
     frequency: 11994000000.0
     phase: 0
-    longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
-    transverse_wakefield_input: '"Sx5um10mm.sdds"'
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
-    buffer_start: [0, 0, 34.118]
-    buffer_start_length: 0.0416666
-    buffer_end_length: 0.0414916
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 38.2263]
-    position_start: [0, 0, 34.1596]
+    position_end: [0, 0, 39.5307]
+    position_start: [0, 0, 35.464]
+  CLA-L04X-MAG-QUAD-02:
+    type: quadrupole
+    length: 0.15
+    k1l: 0.157575
+    sr_enable: true
+    isr_enable: true
+    buffer_start_length: 0.1
+    buffer_end_length: 0.1
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 39.8807]
+    position_start: [0, 0, 39.7307]
   CLA-L04-CAV-02:
     type: cavity
     length: 4.06667
@@ -33,15 +68,26 @@ elements:
     field_amplitude: 80000000.0
     frequency: 11994000000.0
     phase: 0
-    longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
-    transverse_wakefield_input: '"Sx5um10mm.sdds"'
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 43.06667]
-    position_start: [0, 0, 39]
+    position_end: [0, 0, 44.1473]
+    position_start: [0, 0, 40.0807]
+  CLA-L04X-MAG-QUAD-03:
+    type: quadrupole
+    length: 0.15
+    k1l: 0.157575
+    sr_enable: true
+    isr_enable: true
+    buffer_start_length: 0.1
+    buffer_end_length: 0.1
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 44.4973]
+    position_start: [0, 0, 44.3473]
   CLA-L04-CAV-03:
     type: cavity
     length: 4.06667
@@ -49,20 +95,58 @@ elements:
     field_amplitude: 80000000.0
     frequency: 11994000000.0
     phase: 0
-    longitudinal_wakefield_input: '"Sz5um10mm.sdds"'
-    transverse_wakefield_input: '"Sx5um10mm.sdds"'
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]
     global_rotation: [0, 0, 0]
-    position_start: [0, 0, 43.8]
-    position_end: [0, 0, 47.86667]
+    position_start: [0, 0, 44.6973]
+    position_end: [0, 0, 48.764]
+  CLA-L04X-MAG-QUAD-04:
+    type: quadrupole
+    length: 0.15
+    k1l: 0.157575
+    sr_enable: true
+    isr_enable: true
+    buffer_start_length: 0.1
+    buffer_end_length: 0.1
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 49.114]
+    position_start: [0, 0, 48.964]
+  CLA-L04-CAV-04:
+    type: cavity
+    length: 4.06667
+    cell_length: 0.00833333
+    field_amplitude: 80000000.0
+    frequency: 11994000000.0
+    phase: 0
+    longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
+    transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
+    field_definition: $master_lattice_location$Data_Files/TWS_X-DL.dat
+    lsc_enable: true
+    lsc_bins: 20.0
+    lsc_cutoff_high: [0.2, 0.25]
+    global_rotation: [0, 0, 0]
+    position_start: [0, 0, 49.314]
+    position_end: [0, 0, 53.3807]
+  CLA-L04X-MAG-QUAD-05:
+    type: quadrupole
+    length: 0.15
+    k1l: 0.157575
+    sr_enable: true
+    isr_enable: true
+    buffer_start_length: 0.1
+    buffer_end_length: 0.1
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 53.7307]
+    position_start: [0, 0, 53.5807]
   CLA-S07-APER-01:
     type: aperture
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 48]
-    position_start: [0, 0, 48]
+    position_end: [0, 0, 54.3]
+    position_start: [0, 0, 54.3]
