@@ -35,7 +35,7 @@ with open('FEBE_transverse_best_changes.yaml', 'r') as infile:
         if n in data:
             best.append(data[n]['k1l'])
         else:
-            print n
+            print(n)
             best.append(framework[n]['k1l'])
 
 class FEBE_Transverse(Optimise_transverse):
@@ -54,6 +54,7 @@ class FEBE_Transverse(Optimise_transverse):
         # self.parameters.append(['FODO_F', 'k1l'])
         # self.parameters.append(['FODO_D', 'k1l'])
         self.parameters += [[q, 'k1l'] for q in names[index3:]]
+        self.save_parameters = [['FODO_F', 'k1l'], ['FODO_D', 'k1l']]
         self.base_files = '../../../CLARA/basefiles_' + str(int(scaling)) + '/'
         # self.base_files = '../../example/'
         self.best_changes = './FEBE_transverse_best_changes.yaml'
@@ -71,7 +72,7 @@ class FEBE_Transverse(Optimise_transverse):
 
         twiss.reset_dicts()
         twiss.read_sdds_file( self.dirname+'/FEBE.mat' )
-        print 1e3*twiss.elegant['R56'][-1]
+        print((1e3*twiss.elegant['R56'][-1]))
         constraintsListR56 = {
             'isochronous': {'type': 'lessthan', 'value': abs(1e3*twiss.elegant['R56'][-1]), 'limit': 0.1, 'weight': 00},
         }
@@ -81,7 +82,7 @@ class FEBE_Transverse(Optimise_transverse):
             quadkls = self.framework[lat].getElementType('quadrupole','k1l')
             quadlengths = self.framework[lat].getElementType('quadrupole','length')
             constraintsListQuads = {
-                'max_k_'+lat: {'type': 'lessthan', 'value': [abs(k) for k, l in zip(quadkls, quadlengths)], 'limit': 2.25, 'weight': 25},
+                'max_k_'+lat: {'type': 'lessthan', 'value': [abs(k) for k, l in zip(quadkls, quadlengths)], 'limit': 2.0, 'weight': 75},
 
             }
             constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
@@ -107,7 +108,7 @@ class FEBE_Transverse(Optimise_transverse):
         self.constraintsList = constraintsList
         fitness = self.cons.constraints(constraintsList)
         if self.verbose:
-            print self.cons.constraintsList(constraintsList)
+            print(self.cons.constraintsList(constraintsList))
         return fitness
 
 

@@ -49,56 +49,31 @@ class fitnessFunc(object):
         self.cons = constraintsClass()
         self.beam = rbf.beam()
         self.twiss = rtf.twiss()
-        self._lattice_file = lattice
-        self._base_files = None
-        self._verbose = False
+        self.lattice_file = lattice
+        self.base_files = None
+        self.verbose = False
         self.start_lattice = None
+        self.scaling = 6
+        self.overwrite = True
+        self.post_injector = True
+        self.startcharge = None
+        self.changes = None
+        self.sample_interval = 1
 
     def set_CLARA_directory(self, clara_dir):
         self.CLARA_dir = clara_dir
 
-    @property
-    def base_files(self):
-        return self._base_files
-    @base_files.setter
-    def base_files(self, location):
-        self._base_files = location
-
-    @property
-    def lattice_file(self):
-        return self._lattice_file
-    @lattice_file.setter
-    def lattice_file(self, file):
-        self._lattice_file = file
-
-    @property
-    def verbose(self):
-        return self._verbose
-    @verbose.setter
-    def verbose(self, file):
-        self._verbose = file
-
     def set_start_file(self, file):
         self.start_lattice = file
 
-    def setup_lattice(self, inputargs, tempdir, scaling=5, overwrite=True, post_injector=True, startcharge=None, basefiles=None, changes=None, verbose=False, sample_interval=1, *args, **kwargs):
-        if 'lattice' in kwargs:
-            # print 'loading lattice ', kwargs['lattice']
-            self.lattice_file = kwargs['lattice']
-        self.scaling = scaling
+    def setup_lattice(self, inputargs, tempdir, *args, **kwargs):
         self.dirname = tempdir
-        self.overwrite = overwrite
-        self.post_injector = post_injector
-        self.startcharge = startcharge
-        self.sample_interval = sample_interval
-        if basefiles is not None:
-            self.base_files = basefiles
-        self.input_parameters = inputargs
+        self.input_parameters = list(inputargs)
 
-        self.npart=2**(3*scaling)
-        ncpu = scaling*3
+        self.npart=2**(3*self.scaling)
+        ncpu = self.scaling*3
 
-        self.framework = fw.Framework(self.dirname, overwrite=overwrite, verbose=verbose)
+        self.framework = fw.Framework(self.dirname, overwrite=self.overwrite, verbose=self.verbose)
 
         if not os.name == 'nt':
             self.framework.defineGeneratorCommand(['/opt/ASTRA/generator'])
@@ -109,58 +84,52 @@ class fitnessFunc(object):
         #     self.framework.defineElegantCommand(['mpiexec','-np','10','pelegant'])
         self.framework.loadSettings(self.lattice_file)
         self.framework.change_Lattice_Code('All','elegant')
-        if self.start_lattice is not None:
-            pass
-        elif 'POSTINJ' in self.framework.latticeObjects:
-            self.start_lattice = 'POSTINJ'
-        else:
-            self.start_lattice = 'S02'
-        if changes is not None:
-            if isinstance(changes, (tuple, list)):
-                for c in changes:
-                    # print 'loading changes file: ', c
+
+        ### Define starting lattice
+        if self.start_lattice is None:
+            if 'POSTINJ' in self.framework.latticeObjects:
+                self.start_lattice = 'POSTINJ'
+            else:
+                self.start_lattice = self.framework.latticeObjects[0].objectname
+
+        ### Apply any pre-tracking changes to elements
+        if self.changes is not None:
+            if isinstance(self.changes, (tuple, list)):
+                for c in self.changes:
                     self.framework.load_changes_file(c)
             else:
-                self.framework.load_changes_file(changes)
+                self.framework.load_changes_file(self.changes)
 
+        ### Apply input arguments to element definitions
         ''' Apply arguments: [[element, parameter, value], [...]] '''
-        # self.input_parameter_names = []
         for e, p, v in self.input_parameters:
-            # self.input_parameter_names.append(e)
-            # if e == 'bunch_compressor' and p == 'set_angle':
-            #     print 'modifying VBC = ', v
-            #     self.framework['bunch_compressor'].set_angle(float(v))
-            # else:
-            # print 'modifying ',e,'[',p,'] = ', v
             self.framework.modifyElement(e, p, v)
 
-        # pnames = []
-        # if not hasattr(self, 'parameter_names'):
-        #     for e in self.input_parameter_names:
-        #         if e == 'bunch_compressor':
-        #             pnames.append('CLA-VBC-MAG-DIP-01')
-        #             pnames.append('CLA-VBC-MAG-DIP-02')
-        #             pnames.append('CLA-VBC-MAG-DIP-03')
-        #             pnames.append('CLA-VBC-MAG-DIP-04')
-        #         else:
-        #             pnames.append(e)
-        # else:
-        #     pnames= self.parameter_names
+        ### Save the changes to the run directory
         self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml', elements=self.input_parameters)
 
     def calculateBeamParameters(self):
+        ### Are we running post-injector?
         if self.post_injector:
+            ### Have we defined where the base files are?
             if self.base_files is not None:
-                print 'Using base_files = ', self.base_files
+                # print('Using base_files = ', self.base_files)
                 self.framework[self.start_lattice].prefix = self.base_files
+            ### If not, use the defaults based on the location of the CLARA example directory
             else:
-                print 'Using CLARA_dir base_files = ', self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/'
-                self.framework[self.start_lattice].prefix = self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/'
+                # print('Using CLARA_dir base_files = ', self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/')
+                self.framework[self.start_lattice].prefix = self.CLARA_dir+'/basefiles_'+str(self.scaling)+'/'
+
+            ### Are we are setting the charge?
             if self.startcharge is not None:
                 self.framework[self.start_lattice].bunch_charge = 1e-12*self.startcharge
+
+            ### Are we are sub-sampling the distribution?
             if self.sample_interval is not None:
+                # print('Sampling at ', self.sample_interval)
                 self.framework[self.start_lattice].sample_interval = self.sample_interval#2**(3*4)
 
+            ### TRACKING
             self.framework.track(startfile=self.start_lattice)
         else:
             self.framework.track()#startfile='FMS')
