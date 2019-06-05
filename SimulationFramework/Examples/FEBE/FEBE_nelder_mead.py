@@ -36,7 +36,7 @@ class FEBE(Optimise_Elegant):
                 elif n == 'bunch_compressor' and p == 'set_angle':
                     best.append(data['CLA-VBC-MAG-DIP-01']['angle'])
                 else:
-                    print n, p
+                    print(n, p)
                     if not hasattr(self, 'framework'):
                         self.framework = fw.Framework(None)
                         self.framework.loadSettings(self.lattice)
@@ -59,7 +59,9 @@ class FEBE(Optimise_Elegant):
         peakIPDF = self.beam.PDF(t, t_grid, bandwidth=self.beam.rms(t)/(2**4))
         peakICDF = self.beam.CDF(t, t_grid, bandwidth=self.beam.rms(t)/(2**4))
         peakIFWHM, indexes = self.beam.FWHM(t_grid, peakIPDF, frac=0.1)
-
+        peakIFWHM2, indexes2 = self.beam.FWHM(t_grid, peakIPDF, frac=3)
+        stdpeakIPDF = (max(peakIPDF[indexes2]) - min(peakIPDF[indexes2]))/np.mean(peakIPDF[indexes2])
+        print('stdpeakIPDF = ', stdpeakIPDF)
         # print 'Peak Fraction = ', 100*peakICDF[indexes][-1]-peakICDF[indexes][0], peakICDF[indexes][-1], peakICDF[indexes][0]
         #
         # import matplotlib.pyplot as plt
@@ -90,28 +92,29 @@ class FEBE(Optimise_Elegant):
         constraintsListFEBE = {
             # 'ip_enx': {'type': 'lessthan', 'value': 1e6*twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 0},
             # 'ip_eny': {'type': 'lessthan', 'value': 1e6*twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 2.5},
-            'field_max': {'type': 'lessthan', 'value': linac_fields, 'limit': 32, 'weight': 30},
+            'field_max': {'type': 'lessthan', 'value': linac_fields, 'limit': 32, 'weight': 300},
             'momentum_max': {'type': 'lessthan', 'value': 0.511*twiss.elegant['pCentral0'][ipindex], 'limit': 250, 'weight': 250},
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*twiss.elegant['pCentral0'][ipindex], 'limit': 240, 'weight': 150},
             # 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 950, 'weight': 20},
             # 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 1050, 'weight': 20},
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
-            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 3, 'weight': 1.5},
+            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 3, 'weight': 15},
             'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 1.5},
-            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.1, 'weight': 100},
-            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 90, 'weight': 20},
+            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.15, 'weight': 100},
+            'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 1, 'weight': 500},
+            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 75, 'weight': 20},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
 
         # fitness = self.cons.constraints(constraintsList)
         if self.verbose:
-            print self.cons.constraintsList(constraintsList)
+            print(self.cons.constraintsList(constraintsList))
         return constraintsList
 
 opt = FEBE()
-opt.set_changes_file(['./simplex_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
+opt.set_changes_file(['./nelder_mead_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
 opt.set_lattice_file('./FEBE_Single.def')
 opt.set_start_file('PreFEBE')
-opt.load_best('simplex_best_changes.yaml')
+opt.load_best('nelder_mead_best_changes.yaml')
 opt.Nelder_Mead(step=[1e6, 1, 1e6, 1, 1e6, 1, 1e6, 1, 0.025, 0.05, 0.1, 0.1])
 # opt.Simplex()

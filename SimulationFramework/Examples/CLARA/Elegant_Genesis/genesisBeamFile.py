@@ -19,12 +19,12 @@ import csv
 import multiprocessing
 from scoop import futures
 from deap import base, creator, tools, algorithms
-import copy
+from copy import copy
 import SimulationFramework.Examples.CLARA.Elegant.runElegant as runEle
 from shutil import copyfile
 import argparse
-from genesis_launcher_client import genesis_client
-gclient = genesis_client()
+# from genesis_launcher_client import genesis_client
+# gclient = genesis_client()
 
 parser = argparse.ArgumentParser(description='Run Elegant + Genesis')
 parser.add_argument('-g', '--gaussian', default=False)
@@ -34,7 +34,7 @@ parser.add_argument('-p', '--postinjector', default=True)
 
 class FEL_sim(FEL_simulation_block.FEL_simulation_block):
     def __init__(self, initial_data, alphax=-0.189, betax=3.76, alphay=0, betay=1.44, **kwargs):
-       print 'initial_data = ', (initial_data)
+       print ('initial_data = ', (initial_data))
        super(FEL_sim,self).__init__((initial_data),**kwargs)
        self.alphax = alphax
        self.betax = betax
@@ -46,12 +46,12 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
         inp_out = inp
         beam = rbf.beam()
         beam.read_HDF5_beam_file(filename)
-        # print 'beta_x = ', beam.beta_x, ' alpha_x = ', beam.alpha_x
-        # print 'beta_y = ', beam.beta_y, ' alpha_y = ', beam.alpha_y
-        beam.rematchXPlanePeakISlice(beta=self.betax, alpha=self.alphax)
-        beam.rematchYPlanePeakISlice(beta=self.betay, alpha=self.alphay)
-        # print 'beta_x = ', beam.beta_x, ' alpha_x = ', beam.alpha_x
-        # print 'beta_y = ', beam.beta_y, ' alpha_y = ', beam.alpha_y
+        print 'beta_x = ', beam.beta_x, ' alpha_x = ', beam.alpha_x
+        print 'beta_y = ', beam.beta_y, ' alpha_y = ', beam.alpha_y
+        beam.rematchXPlane(beta=self.betax, alpha=self.alphax)
+        beam.rematchYPlane(beta=self.betay, alpha=self.alphay)
+        print 'beta_x = ', beam.beta_x, ' alpha_x = ', beam.alpha_x
+        print 'beta_y = ', beam.beta_y, ' alpha_y = ', beam.alpha_y
         edist = GenesisElectronDist()
         edist.x = beam.x
         edist.y = beam.y
@@ -61,9 +61,9 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
         edist.xp = beam.xp
         edist.yp = beam.yp
         edist.cp = beam.cp
-        edist.g = beam.gamma
+        edist.g = beam.gamma - np.mean(beam.gamma) + 1000/0.511
         edist.part_charge = abs(self.startcharge)*1e-12 / len(beam.x)
-        print 'self.startcharge = ', self.startcharge
+        print ('self.startcharge = ', self.startcharge)
         self.bunch_length = np.std(beam.t)
 
         if center:
@@ -97,7 +97,7 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
         if (self.i_scan ==0):
             s_scan = range(1)
             num = self.stat_run
-            run_ids = xrange(0,num)
+            run_ids = range(0,num)
             # print('++++++++ No scan ++++++++++')
         elif (self.i_scan !=0):
             if (self.parameter in A_und):
@@ -114,7 +114,7 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
             else:
                 s_scan = np.linspace(self.init,self.end,self.n_scan)
                 num = self.stat_run
-                run_ids = xrange(0,num)
+                run_ids = range(0,num)
                 # print('++++ Number of noise realisations {0} ++++++'.format(num))
 
             # setting the undulator design( Magnetic Lattice)
@@ -175,10 +175,11 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
             setattr(inp,'beam',None)
             gamma = np.median(inp.edist.g)
             # setattr(inp,'xlamds',float(inp.xlamd*(1.0+np.square(inp.aw0))/(2.0*np.square(gamma))))
-            setattr(inp,'xlamds', float(0.022058051560136/(gamma**2))) ## DJD 15/02/2019
-            print 'aw0 = ', inp.aw0
-            print 'awd = ', inp.awd
-            print 'xlamds = ', inp.xlamds
+            # setattr(inp,'xlamds', float(0.022058051560136/(gamma**2))) ## DJD 15/02/2019
+            setattr(inp,'xlamds', float(0.01685042566473/(gamma**2))) ## JKJ 04/06/2019
+            print( 'aw0 = ', inp.aw0)
+            print( 'awd = ', inp.awd)
+            print( 'xlamds = ', inp.xlamds)
 
         elif  (hasattr(self,'i_HDF5') and getattr(self,'i_HDF5')==1) and not (hasattr(self,'HDF5_file')):
             # print('Path of  the HDF5 file not provided')
@@ -231,7 +232,7 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
                 g.bunch_length = self.bunch_length
                 g.Lsat = g.z[np.argmax(g.bunching[np.argmax(g.I)])]
         g.momentum = inp.edist.cp
-        print 'g.momentum = ', g.momentum
+        # print( 'g.momentum = ', g.momentum)
         return g
 
 ########################################################
@@ -247,7 +248,7 @@ def find_saturation(power, z, n_smooth=20):
     for i in range(len(u)):
         if u[i] < 0.1 * um and z[i] > 5:
             ii = i
-            print 'break! i = ', ii
+            print( 'break! i = ', ii)
             break
 
     #plt.plot(g.z[1:], u, lw=3)
@@ -258,10 +259,10 @@ def find_saturation(power, z, n_smooth=20):
 
     return z[ii+1], ii+1
 
-def evalBeamWithGenesis(dir, run=True, startcharge=250):
+def evalBeamWithGenesis(dir, run=True, startcharge=250, genesis_file='NEW_SHORT_NOM_TD_v7.in', beam_file='CLA-FMS-APER-02.hdf5'):
 
     # Genesis run:
-    data={'gen_file':'NEW_SHORT_NOM_TD_v7.in',
+    data={'gen_file': genesis_file,
           'file_pout': dir,
           'file_beam':'beamfile.txt',
           'i_scan':0,
@@ -274,10 +275,10 @@ def evalBeamWithGenesis(dir, run=True, startcharge=250):
           'i_dpa':0,
           'i_dfl':0,
           'i_HDF5':1,
-          'HDF5_file': dir+'/'+'CLA-FMS-APER-02.hdf5',
+          'HDF5_file': dir+'/'+beam_file,
           'i_match': 0}
     if run:
-        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 300 -np 12 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
+        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 600 -np 12 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
     else:
         data['gen_launch'] = ''
     f = FEL_sim(data)
@@ -325,71 +326,84 @@ def saveState(args, id, *values):
     csv_out.writerow(args)
     # csv_out.flush()
 
-def optfunc(*args, **kwargs):
-    global tmpdir
+class genesisSimulation(runEle.fitnessFunc):
 
-    if not 'lattice' in kwargs or kwargs['lattice'] is None:
-        kwargs['lattice'] = 'Lattices/clara400_v12_v3_elegant_jkj.def'
+    parameter_names = []
 
-    if kwargs['dir'] is not None:
-        tmpdir = kwargs['dir']
-        if not os.path.exists(tmpdir):
-            os.makedirs(tmpdir)
-        tmpdir = os.path.relpath(tmpdir)
-        return run_simulation(*args, **kwargs)
-    else:
-        if 'subdir' in kwargs:
-            subdir = kwargs['subdir']
-            # del kwargs['subdir']
+    def __init__(self):
+        super(genesisSimulation, self).__init__()
+        self.lattice = 'Lattices/clara400_v12_v3_elegant_jkj.def'
+        self.optdir = None
+        self.runElegant = True
+        self.runGenesis = True
+        self.savestate = False
+        self.startcharge = 250
+        self.genesis_file = 'NEW_SHORT_NOM_TD_v7.in'
+        self.beam_file = 'CLA-FMS-APER-02.hdf5'
+
+    def optfunc(self, inputargs, **kwargs):
+
+        if not self.post_injector:
+            parameternames = self.injector_parameter_names + self.parameter_names
         else:
-            subdir = ''
-        print 'subdir = ', subdir
-        with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir+'/') as tmpdir:
-            tmpdir = os.path.relpath(tmpdir)
-            return run_simulation(*args, **kwargs)
+            parameternames = copy(self.parameter_names)
 
-def run_simulation(inputargs, lattice=None, verbose=True, dir=None, savestate=False, runGenesis=True, runElegant=True, post_injector=True, *args, **kwargs):
-    global global_best, tmpdir
-    process = multiprocessing.current_process()
-    runno = process.pid
-    if (not hasattr(inputargs, 'id')) or (hasattr(inputargs, 'id') and inputargs.id is None):
-        idNumber = os.path.basename(tmpdir)
-    else:
-        idNumber = inputargs.id
-    # try:
-    sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=0)
-    sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=0)
-    if runElegant:
-        fit = runEle.fitnessFunc(lattice)
-        fit.setup_lattice(inputargs, tmpdir, id=idNumber, startcharge=250, post_injector=True, *args, **kwargs)
-        fitvalue = fit.calculateBeamParameters()
-    if post_injector:
-        e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
-    else:
-        e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(tmpdir, run=runGenesis, startcharge=250)
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
-    if verbose:
-        print 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l
-        print 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le
-    #### Save Output files to dir named after runno #####
-    # if not os.path.exists('./outData/'):
-    #     os.makedirs('./outData/')
-    # dir = './outData/' + str(idNumber)
-    # if not os.path.exists(dir):
-    #     os.makedirs(dir)
-    # copyfile(tmpdir+'/CLA-FMS-APER-02.hdf5',dir+'/CLA-FMS-APER-02.hdf5')
-    # copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
-    # copyfile(tmpdir+'/std.out',dir+'/std.out')
-    if savestate:
-        try:
-            saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
-        except:
-            pass
-    # except Exception as error:
-    #     print 'genesisBeamFile.run_simulation Error! ', error
-    #     e, b, ee, be, l, g = [0, 1, 0, 1, 0, {}]
-    return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
+        self.inputlist = map(lambda a: a[0]+[a[1]], zip(parameternames, inputargs))
+
+        if dir in kwargs.keys() and kwargs['dir'] is not None:
+            tmpdir = kwargs['dir']
+            if not os.path.exists(tmpdir):
+                os.makedirs(tmpdir)
+            self.tmpdir = os.path.relpath(tmpdir)
+            return self.run_simulation(self.inputlist, self.tmpdir)
+        elif self.optdir is not None:
+            tmpdir = self.optdir
+            if not os.path.exists(tmpdir):
+                os.makedirs(tmpdir)
+            self.tmpdir = os.path.relpath(tmpdir)
+            return self.run_simulation(self.inputlist, self.tmpdir)
+        else:
+            if 'subdir' in kwargs:
+                self.subdir = kwargs['subdir']
+                # del kwargs['subdir']
+            else:
+                self.subdir = ''
+            print( 'subdir = ', subdir)
+            with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir+'/') as tmpdir:
+                self.tmpdir = os.path.relpath(tmpdir)
+                return self.run_simulation(self.inputlist, self.tmpdir)
+
+    def run_simulation(self, inputargs, dir):
+        # sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=1)
+        # sys.stderr = open(tmpdir+'/'+'std.err', 'w', buffering=1)
+        # print('self.start_lattice = ', self.start_lattice)
+        if self.runElegant:
+            self.setup_lattice(inputargs, dir)
+            fitvalue = self.calculateBeamParameters()
+        e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(dir, run=self.runGenesis, startcharge=self.startcharge, genesis_file=self.genesis_file, beam_file=self.beam_file)
+        # sys.stdout = sys.__stdout__
+        # sys.stderr = sys.__stderr__
+        if True:#self.verbose:
+            print( 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l)
+            print( 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le)
+        #### Save Output files to dir named after runno #####
+        # if not os.path.exists('./outData/'):
+        #     os.makedirs('./outData/')
+        # dir = './outData/' + str(idNumber)
+        # if not os.path.exists(dir):
+        #     os.makedirs(dir)
+        # copyfile(tmpdir+'/CLA-FMS-APER-02.hdf5',dir+'/CLA-FMS-APER-02.hdf5')
+        # copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
+        # copyfile(tmpdir+'/std.out',dir+'/std.out')
+        if self.savestate:
+            try:
+                saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
+            except:
+                pass
+        # except Exception as error:
+        #     print 'genesisBeamFile.run_simulation Error! ', error
+        #     e, b, ee, be, l, g = [0, 1, 0, 1, 0, {}]
+        return 1e4*e, 1e2*b, 1e4*ee, 1e2*be, l, g
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -404,7 +418,7 @@ if __name__ == "__main__":
     else:
         best = startingvalues
         POST_INJECTOR = True
-    print 'Post Injector = ', POST_INJECTOR, ' [', args.postinjector,']'
+    print( 'Post Injector = ', POST_INJECTOR, ' [', args.postinjector,']')
 
     global_best = 0
     from SimulationFramework.Framework import Framework
@@ -438,7 +452,7 @@ if __name__ == "__main__":
         ## This is for the set Beam Test!
         for n in [253]:
             best = eval('set'+str(n))
-            print n,' = ', best
+            print( n,' = ', best)
             optfunc(best, dir='test/set'+str(n)+'_32k', scaling=5, post_injector=True, verbose=True, savestate=False)
             # optfunc(best, dir=os.path.abspath('set'+str(n)+'_262k'), scaling=6, post_injector=True, verbose=True, savestate=False)
 
@@ -446,16 +460,16 @@ if __name__ == "__main__":
         for vbc in np.arange(startingvalues[-1]-0.003, startingvalues[-1]+0.003,0.001):
             newbest = best
             newbest[-1] = vbc
-            print 'VBC angle = ', vbc
+            print( 'VBC angle = ', vbc)
             optfunc(newbest, dir='de/vbc_angle_'+str(vbc)+'_32k', scaling=5, post_injector=True, verbose=True, savestate=False)
 
     if args.gaussian or args.gaussian == 'True' or args.gaussian > 0:
-        print 'Gaussian Beam'
+        print( 'Gaussian Beam')
         gaussian_beam_test()
     elif args.set or args.set == 'True' or args.set > 0:
-        print 'Set Test'
+        print( 'Set Test')
         npart_test()
     elif args.vbc or args.vbc == 'True' or args.vbc > 0:
-        print 'VBC Scan'
+        print( 'VBC Scan')
         scan_vbc_angle()
     exit()

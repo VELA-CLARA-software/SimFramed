@@ -16,8 +16,8 @@ if not os.name == 'nt':
 else:
     lattice.generator.number_of_particles = 2**(3*5)
 lattice.defineElegantCommand(['elegant'])
-lattice['PreFEBE'].prefix = '../../CLARA/basefiles_6/'
-# lattice['PreFEBE'].sample_interval = 2**(3*2)
 lattice.change_Lattice_Code('All','elegant')
+lattice['PreFEBE'].prefix = '../../CLARA/basefiles_6/'
+lattice['PreFEBE'].sample_interval = 2**(3*4)
 lattice.load_changes_file(['./nelder_mead_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
 lattice.track(startfile='PreFEBE')

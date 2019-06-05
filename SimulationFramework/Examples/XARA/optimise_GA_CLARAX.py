@@ -1,5 +1,5 @@
 import os, sys
-sys.path.append('../../../')
+sys.path.append(os.path.abspath(__file__+'/../../../../'))
 from SimulationFramework.Framework import *
 import numpy as np
 from SimulationFramework.Modules.constraints import *
@@ -53,33 +53,27 @@ class TemporaryDirectory(object):
 
 def create_base_files(scaling):
     framework = Framework('basefiles_FEBE_'+str(scaling), overwrite=False)
-    framework.loadSettings('Lattices/clara400_v12_FEBE.def')
+    framework.loadSettings('Lattices/claraX400_v12_80MVm.def')
     if not os.name == 'nt':
         framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
         framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
         framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
-    framework.defineElegantCommand(['elegant'])
-    framework['S07'].file_block['input']['prefix'] = '../../basefiles_'+str(scaling)+'/'
-    framework.track(track=True, startfile='S07')
+    framework.generator.number_of_particles = 2**(3*scaling)
+    framework.track(run=True)
 
-# for i in [6]:
+# for i in [3,4,5,6]:
 #     create_base_files(i)
 # exit()
 
 framework = Framework('basefiles_6', overwrite=False)
-framework.loadSettings('Lattices/clara400_v12_FEBE.def')
-# posstart = 60
-# parameters = [a['k1'] for a in framework.getElementType('quadrupole') if a['position_start'][2] > posstart]
-variables = [a for a in framework.getElementType('quadrupole') if 'S07F' in a.objectName]
-preparameters = parameters = [a['k1'] for a in variables]
-print('parameters = ', parameters)
-# exit()
+framework.loadSettings('Lattices/claraX400_v12_80MVm.def')
+parameters = framework.getElementType('quadrupole','k1')
+print 'parameters = ', parameters
 best = parameters
 
 class fitnessFunc():
 
     def __init__(self, args, tempdir, scaling=4, overwrite=True, verbose=False, summary=False, clean=False):
-        global preparameters, variables
         self.cons = constraintsClass()
         self.beam = rbf.beam()
         self.twiss = rtf.twiss()
@@ -87,10 +81,10 @@ class fitnessFunc():
         self.scaling = scaling
         self.verbose = verbose
         self.summary = summary
-        self.parameters = preparameters + list(args)
+        self.parameters = list(args)
         self.dirname = os.path.basename(self.tmpdir)
         self.framework = Framework(self.dirname, clean=clean, verbose=False)
-        self.framework.loadSettings('Lattices/clara400_v12_FEBE.def')
+        self.framework.loadSettings('Lattices/claraX400_v12_80MVm.def')
         if not os.name == 'nt':
             self.framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
             self.framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
@@ -98,9 +92,7 @@ class fitnessFunc():
             # self.framework.defineElegantCommand(['mpiexec','-np',str(3*scaling),'Pelegant'])
         # else:
         self.framework.defineElegantCommand(['elegant'])
-        # self.framework.setElementType('quadrupole','k1', self.parameters)
-        [setattr(a, 'k1', 2*a['k1']) for a in variables]
-
+        self.framework.setElementType('quadrupole','k1', self.parameters)
 
     def between(self, value, minvalue, maxvalue, absolute=True):
         if absolute:
@@ -112,10 +104,9 @@ class fitnessFunc():
     def calculateBeamParameters(self):
             twiss = self.twiss
         # try:
-            startS = self.framework['S07'].startObject['position_start'][2]
-            self.framework['S07'].file_block['input']['prefix'] = '../../basefiles_'+str(self.scaling)+'/'
-            self.framework.track(track=True, startfile='S07')
-
+            startS = self.framework['L02'].startObject['position_start'][2]
+            self.framework['L02'].file_block['input']['prefix'] = '../../basefiles_'+str(self.scaling)+'/'
+            self.framework.track()
             constraintsList = {}
             constraintsListQuads = {
                 'max_k': {'type': 'lessthan', 'value': [abs(p) for p in self.parameters], 'limit': 2.5, 'weight': 10},
@@ -123,17 +114,31 @@ class fitnessFunc():
             }
             # constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
             twiss.reset_dicts()
-            twiss.read_sdds_file( self.dirname+'/'+'FEBE.twi' )
-            twiss.read_sdds_file( self.dirname+'/'+'FEBE.sig' )
-            ip_position = self.framework['FEBE'].findS('CLA-FEB-W-FOCUS-01')[0][1]
-            constraintsListS07 = {
-                'dechirper_sigma_x': {'type': 'lessthan', 'value': 1e3*twiss.interpolate(ip_position, 'betax', index='s'), 'limit': 0.1, 'weight': 10},
-                'dechirper_sigma_y': {'type': 'lessthan', 'value': 1e3*twiss.interpolate(ip_position, 'betay', index='s'), 'limit': 0.1, 'weight': 10},
+            twiss.read_astra_emit_files( self.dirname+'/'+'L04.Xemit.001' )
+            constraintsListSigmas = {
+                'max_xrms': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'], 'limit': 1, 'weight': 10},
+                'max_yrms': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'], 'limit': 1, 'weight': 10},
+                'min_xrms': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_x'], 'limit': 0.1, 'weight': 0},
+                'min_yrms': {'type': 'greaterthan', 'value': 1e3*twiss['sigma_y'], 'limit': 0.1, 'weight': 0},
+                'last_exn': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 0.6, 'weight': 1},
+                'last_eyn': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.6, 'weight': 1},
             }
-            constraintsList = merge_two_dicts(constraintsList, constraintsListS07)
+            # constraintsList = merge_two_dicts(constraintsList, constraintsListSigmas)
+            # tdc_position = self.framework['CLA-S07-TDC-01-R']['position_start'][2]
+            # tdc_screen_position = self.framework['CLA-S07-DIA-SCR-03-W']['position_start'][2]
+            # dechirper_position = self.framework['CLA-S07-DCP-01']['position_start'][2]
+            # constraintsListS07 = {
+            #     'tdc_phase_advance': {'type': 'equalto', 'value': (twiss.interpolate(tdc_screen_position,'muy', index='s') - twiss.interpolate(tdc_position,'muy', index='s')) % 0.25, 'limit': 0, 'weight': 1},
+            #     'tdc_screen_beta_y': {'type': 'greaterthan', 'value': twiss.extract_values('betay', tdc_position, tdc_screen_position), 'limit': 5, 'weight': 1},
+            #     'dechirper_sigma_x': {'type': 'lessthan', 'value': 1e3*twiss.interpolate(dechirper_position, 'Sx', index='s'), 'limit': 0.1, 'weight': 10},
+            #     'dechirper_sigma_y': {'type': 'lessthan', 'value': 1e3*twiss.interpolate(dechirper_position, 'Sy', index='s'), 'limit': 0.1, 'weight': 10},
+            #     'dechirper_sigma_xy': {'type': 'equalto', 'value': 1e3*twiss.interpolate(dechirper_position, 'Sy', index='s'), 'limit': 1e3*twiss.interpolate(dechirper_position, 'Sx', index='s'), 'weight': 35},
+            # }
+            # constraintsList = merge_two_dicts(constraintsList, constraintsListS07)
+
             fitness = self.cons.constraints(constraintsList)
             if self.verbose:
-                print(self.cons.constraintsList(constraintsList))
+                print self.cons.constraintsList(constraintsList)
             if self.summary:
                 self.framework.createHDF5Summary(reference='Transverse_GA')
             return fitness
@@ -150,10 +155,16 @@ def optfunc(args, dir=None, **kwargs):
             fitvalue = fit.calculateBeamParameters()
     return (fitvalue,)
 
-print('starting values = ', best)
-print(optfunc(best, dir=os.getcwd()+'/transverse_FEBE_best_Short_240', scaling=6, overwrite=True, verbose=True, summary=False))
-# fit = fitnessFunc(best, os.getcwd()+'/test', scaling=4, overwrite=True, verbose=True, summary=False)
-# fitvalue = fit.calculateBeamParameters()
+# allbest=[]
+# with open(os.getcwd()+'/CLARAX_best_transverse/CLARAX_best_transverse_solutions.csv','r') as infile:
+#     reader = csv.reader(infile, quoting=csv.QUOTE_NONE, skipinitialspace=True)
+#     for row in reader:
+#         allbest.append(row)
+# best = map(lambda x: float(x), allbest[0])
+# print 'starting values = ', best
+# print optfunc(best, dir=os.getcwd()+'/transverse_FEBE_best_Short_240', scaling=6, overwrite=True, verbose=True, summary=False)
+fit = fitnessFunc(best, os.getcwd()+'/transverse_test', scaling=3, overwrite=True, verbose=True, summary=False)
+fitvalue = fit.calculateBeamParameters()
 exit()
 
 
@@ -216,17 +227,17 @@ if __name__ == "__main__":
                             stats=stats, halloffame=hof)
 
     # print 'pop = ', pop
-    print(logbook)
-    print(hof)
+    print logbook
+    print hof
 
     try:
-        print('best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/transverse_DCP_best_Short_240', scaling=6, overwrite=True, verbose=True, summary=False, clean=True))
-        with open('transverse_DCP_best_Short_240/transverse_DCP_best_solutions.csv','wb') as out:
+        print 'best fitness = ', optfunc(hof[0], dir=os.getcwd()+'/CLARAX_best_transverse', scaling=6, overwrite=True, verbose=True, summary=False, clean=True)
+        with open('CLARAX_best_transverse/CLARAX_best_transverse_solutions.csv','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)
     except:
-        with open('transverse_DCP_best_Short_240_solutions.csv.tmp','wb') as out:
+        with open('CLARAX_best_transverse_solutions.csv.tmp','wb') as out:
             csv_out=csv.writer(out)
             for row in hof:
                 csv_out.writerow(row)
