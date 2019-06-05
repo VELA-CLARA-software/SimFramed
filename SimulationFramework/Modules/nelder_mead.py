@@ -53,7 +53,7 @@ def nelder_mead(f, x_start,
         iters += 1
 
         # break after no_improv_break iterations with no improvement
-        print '...best so far:', best
+        print('...best so far:', best)
 
         if best < prev_best - no_improve_thr:
             no_improv = 0
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     def f(x):
         return math.sin(x[0]) * math.cos(x[1]) * (1. / (abs(x[2]) + 1))
 
-    print nelder_mead(f, np.array([0., 0., 0.]))
+    print(nelder_mead(f, np.array([0., 0., 0.])))

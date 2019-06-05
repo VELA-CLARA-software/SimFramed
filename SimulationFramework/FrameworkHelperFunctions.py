@@ -7,7 +7,7 @@ def readFile(fname):
     return content
 
 def saveFile(filename, lines=[]):
-    stream = file(filename, 'w')
+    stream = open(filename, 'w')
     for line in lines:
         stream.write(line)
     stream.close()

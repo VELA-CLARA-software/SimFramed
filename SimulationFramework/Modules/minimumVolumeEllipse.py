@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from __future__ import division
+
 import sys
 import numpy as np
 import scipy.spatial
@@ -151,11 +151,11 @@ if __name__ == "__main__":
     ET = EllipsoidTool()
 
     beam = generateGaussianBeamDistribution(n=1e3, twiss=[-5.,1.,0,1])
-    print( '6D Volume = ', scipy.spatial.ConvexHull(beam).volume)
+    print(( '6D Volume = ', scipy.spatial.ConvexHull(beam).volume))
     P = np.transpose([beam[:,0], beam[:,1]])
 
     part = partial(scipy.spatial.ConvexHull, P)
-    print (timeit.timeit(part, number=10))
+    print((timeit.timeit(part, number=10)))
 
     Q = P#np.array(remove_Hull(P, gaussian_fraction(1, len(P))))
     (center, radii, rotation, hullP) = ET.getMinVolEllipse(Q, .001)
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     ax.scatter(P[::int(np.ceil(len(P)/10000)),0], P[::int(np.ceil(len(P)/10000)),1], color='g', s=1)
     ax.scatter(hullP[:,0], hullP[:,1], color='r', s=10)
     hull = scipy.spatial.ConvexHull(P)
-    print( 'hull = ', hull)
+    print(( 'hull = ', hull))
     for simplex in hull.simplices:
         print( simplex)
         ax.plot(P[simplex, 0], P[simplex, 1], 'k-')

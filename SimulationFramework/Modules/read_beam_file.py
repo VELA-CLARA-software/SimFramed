@@ -9,12 +9,10 @@ from scipy.stats import gaussian_kde
 try:
     import sdds
 except:
+    print('sdds failed to load')
     pass
-print os.path.dirname(__file__)
-sys.path.append(os.path.dirname(__file__))
 from . import read_gdf_file as rgf
-
-import minimumVolumeEllipse as mve
+from . import minimumVolumeEllipse as mve
 MVE = mve.EllipsoidTool()
 
 class beam(object):
@@ -299,15 +297,15 @@ class beam(object):
         self.reset_dicts()
         gdfbeamdata = None
         gdfbeam = self.read_gdf_beam_file_object(file)
-        print( 'Positions = ', gdfbeam.positions)
-        print( 'Times = ', gdfbeam.times)
+        print(( 'Positions = ', gdfbeam.positions))
+        print(( 'Times = ', gdfbeam.times))
 
     def read_gdf_beam_file(self, file, position=None, time=None, block=None, charge=None, longitudinal_reference='t'):
         self.reset_dicts()
         gdfbeamdata = None
         gdfbeam = self.read_gdf_beam_file_object(file)
 
-        if position is not None and (time is not None or block is not None):
+        if position is not None:# and (time is not None or block is not None):
             # print 'Assuming position over time!'
             self.beam['longitudinal_reference'] = 't'
             gdfbeamdata = gdfbeam.get_position(position)
@@ -335,7 +333,7 @@ class beam(object):
         self.beam['y'] = gdfbeamdata.y
         if hasattr(gdfbeamdata,'z') and longitudinal_reference == 'z':
             print( 'z!')
-            print( gdfbeamdata.z)
+            print(( gdfbeamdata.z))
             self.beam['z'] = gdfbeamdata.z
             self.beam['t'] = np.full(len(self.z), 0)# self.z / (-1 * self.Bz * constants.speed_of_light)
         elif hasattr(gdfbeamdata,'t') and longitudinal_reference == 't':
@@ -351,7 +349,7 @@ class beam(object):
                 self.beam['total_charge'] = 0
             else:
                 self.beam['total_charge'] = charge
-        print( self.beam['charge'])
+        print(( self.beam['charge']))
         vx = gdfbeamdata.Bx * constants.speed_of_light
         vy = gdfbeamdata.By * constants.speed_of_light
         vz = gdfbeamdata.Bz * constants.speed_of_light
@@ -417,8 +415,8 @@ class beam(object):
             else:
                 chargevector = np.full(len(self.x), self.charge/len(self.x))
             array = np.array([self.x, self.y, self.z + zoffset, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
-            beamgrp['columns'] = ("x","y","z","cpx","cpy","cpz","t","q")
-            beamgrp['units'] = ("m","m","m","eV","eV","eV","s","e")
+            beamgrp['columns'] = np.array(['x','y','z', 'cpx', 'cpy', 'cpz', 't', 'q'], dtype='S')
+            beamgrp['units'] = np.array(['m','m','m','eV','eV','eV','s','e'], dtype='S')
             beamgrp.create_dataset("beam", data=array)
 
     def read_HDF5_beam_file(self, filename, local=False):
@@ -486,6 +484,12 @@ class beam(object):
         kde = self.kde_function(x, bandwidth, **kwargs)
         return kde.evaluate(x_grid)
 
+    def PDFI(self, x, x_grid, bandwidth=0.2, **kwargs):
+        kde = self.kde_function(x, bandwidth, **kwargs)
+        vals = kde.evaluate(x_grid)
+        f = lambda bin, val: self.charge / len(self.t) * (val / bin)
+        return vals#self.charge * vals / (2*abs(x_grid[1] - x_grid[0])) / len(self.t) #[f(x_grid[1] - x_grid[0], v) for v in vals]
+
     def CDF(self, x, x_grid, bandwidth=0.2, **kwargs):
         kde = self.kde_function(x, bandwidth, **kwargs)
         cdf = np.vectorize(lambda e: kde.integrate_box_1d(x_grid[0], e))
@@ -495,7 +499,7 @@ class beam(object):
         frac = 1/frac if frac > 1 else frac
         d = Y - (max(Y) * frac)
         indexes = np.where(d > 0)[0]
-        return abs(X[indexes+1][-1] - X[indexes-1][0]), indexes
+        return abs(X[indexes][-1] - X[indexes][0]), indexes
 
     def covariance(self, u, up):
         u2 = u - np.mean(u)
@@ -522,11 +526,11 @@ class beam(object):
         if len(x) < 10:
             return 1e6
         else:
-            beam = zip(x, y, t, xp, yp, cp)
+            beam = list(zip(x, y, t, xp, yp, cp))
             return ConvexHull(beam, qhull_options='QJ').volume
 
     def mve_emittance(self, x, xp, p=None):
-        (center, radii, rotation, hullP) = MVE.getMinVolEllipse(zip(x,xp), .01)
+        (center, radii, rotation, hullP) = MVE.getMinVolEllipse(list(zip(x,xp)), .01)
         emittance = radii[0] * radii[1]
         if p is None:
             return emittance
@@ -760,7 +764,7 @@ class beam(object):
     def emitbins(self, x, y):
         xbins = self.slice_data(x)
         ybins = self.slice_data(y)
-        return zip(*[xbins, ybins, self._cpbins])
+        return list(zip(*[xbins, ybins, self._cpbins]))
 
     @property
     def slice_6D_Volume(self):
@@ -772,7 +776,7 @@ class beam(object):
         pxbins = self.slice_data(self.cpx/self.cpz)
         pybins = self.slice_data(self.cpy/self.cpz)
         pzbins = self.slice_data(((self.cpz/np.mean(self.cp)) - 1))
-        emitbins = zip(xbins, ybins, zbins, pxbins, pybins, pzbins)
+        emitbins = list(zip(xbins, ybins, zbins, pxbins, pybins, pzbins))
         self.slice['6D_Volume'] = np.array([self.volume6D(*a) for a in emitbins])
         return self.slice['6D_Volume']
     @property
@@ -829,7 +833,8 @@ class beam(object):
     def slice_peak_current(self):
         if not hasattr(self,'_hist'):
             self.bin_time()
-        f = lambda x: self.charge / len(self.t) * (len(bin) / (max(bin) - min(bin))) if len(bin) > 1 else 0
+        f = lambda bin: self.charge / len(self.t) * (len(bin) / (max(bin) - min(bin))) if len(bin) > 1 else 0
+        # f = lambda bin: len(bin) if len(bin) > 1 else 0
         self.slice['Peak_Current'] = np.array([f(bin) for bin in self._tbins])
         return abs(self.slice['Peak_Current'])
     @property
@@ -842,7 +847,7 @@ class beam(object):
     def slice_beta_x(self):
         xbins = self.slice_data(self.beam['x'])
         exbins =  self.slice_horizontal_emittance
-        emitbins = zip(xbins, exbins)
+        emitbins = list(zip(xbins, exbins))
         self.slice['slice_beta_x'] = np.array([self.covariance(x, x)/ex for x, ex in emitbins])
         return self.slice['slice_beta_x']
     @property
@@ -850,7 +855,7 @@ class beam(object):
         xbins = self.slice_data(self.x)
         xpbins = self.slice_data(self.xp)
         exbins =  self.slice_horizontal_emittance
-        emitbins = zip(xbins, xpbins, exbins)
+        emitbins = list(zip(xbins, xpbins, exbins))
         self.slice['slice_alpha_x'] = np.array([-1*self.covariance(x, xp)/ex for x, xp, ex in emitbins])
         return self.slice['slice_alpha_x']
     @property
@@ -861,7 +866,7 @@ class beam(object):
     def slice_beta_y(self):
         ybins = self.slice_data(self.beam['y'])
         eybins =  self.slice_vertical_emittance
-        emitbins = zip(ybins, eybins)
+        emitbins = list(zip(ybins, eybins))
         self.slice['slice_beta_y'] = np.array([self.covariance(y, y)/ey for y, ey in emitbins])
         return self.slice['slice_beta_y']
     @property
@@ -869,7 +874,7 @@ class beam(object):
         ybins = self.slice_data(self.y)
         ypbins = self.slice_data(self.yp)
         eybins =  self.slice_vertical_emittance
-        emitbins = zip(ybins, ypbins, eybins)
+        emitbins = list(zip(ybins, ypbins, eybins))
         self.slice['slice_alpha_y'] = np.array([-1*self.covariance(y,yp)/ey for y, yp, ey in emitbins])
         return self.twiss['slice_alpha_y']
     @property
