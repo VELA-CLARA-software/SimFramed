@@ -18,10 +18,10 @@ class Optimise_transverse(runEle.fitnessFunc):
     def __init__(self, lattice='Lattices/clara400_v12_v3.def', scaling=5):
         super(Optimise_transverse, self).__init__()
         self.lattice_file = lattice
-        framework = fw.Framework(None)
-        framework.loadSettings(self.lattice_file)
-        self.parameter_names = [q for q in framework.getElementType('quadrupole','objectname')]
-        self.parameters = [[q, 'k1l'] for q in framework.getElementType('quadrupole','objectname')]
+        self.framework = fw.Framework(None)
+        self.framework.loadSettings(self.lattice_file)
+        self.parameter_names = [q for q in self.framework.getElementType('quadrupole','objectname')]
+        self.parameters = [[q, 'k1l'] for q in self.framework.getElementType('quadrupole','objectname')]
         self.cons = constraintsClass()
         self.changes = None
         self.resultsDict = {}
@@ -30,7 +30,7 @@ class Optimise_transverse(runEle.fitnessFunc):
         self.POST_INJECTOR = True
         CREATE_BASE_FILES = False
         if self.POST_INJECTOR and CREATE_BASE_FILES:
-            self.optfunc = partial(self.OptimisingFunction, scaling=scaling, post_injector=self.POST_INJECTOR, basefiles='../basefiles_'+str(scaling)+'/', CLARA_dir=CLARA_dir, lattice=self.lattice_file)
+            self.optfunc = partial(self.OptimisingFunction, scaling=scaling, post_injector=self.POST_INJECTOR, basefiles='../CLARA/basefiles_'+str(scaling)+'/', CLARA_dir=CLARA_dir, lattice=self.lattice_file)
         else:
             self.optfunc = partial(self.OptimisingFunction, scaling=scaling, post_injector=self.POST_INJECTOR, CLARA_dir=CLARA_dir, lattice=self.lattice_file)
         # ******************************************************************************
@@ -41,8 +41,9 @@ class Optimise_transverse(runEle.fitnessFunc):
                 pass
                 # optfunc(injector_startingvalues + best, scaling=scaling, post_injector=False, verbose=False, runGenesis=False, dir='nelder_mead/basefiles_'+str(i))
         self.set_CLARA_directory(CLARA_dir)
+        self.save_parameters = []
         self.changes = None
-        self.base_files = '../../../../basefiles_' + str(int(scaling)) + '/'
+        # self.base_files = '../../../../basefiles_' + str(int(scaling)) + '/'
         self.verbose = False
         self.best_changes = './transverse_best_changes.yaml'
 
@@ -91,25 +92,26 @@ class Optimise_transverse(runEle.fitnessFunc):
             constraintsList = merge_two_dicts(constraintsList, constraintsListS07)
             fitness = self.cons.constraints(constraintsList)
             if self.verbose:
-                print self.cons.constraintsList(constraintsList)
+                print(self.cons.constraintsList(constraintsList))
             return fitness
         # except:
         #     return 1e6
 
     def OptimisingFunction(self, inputargs, *args, **kwargs):
-        self.inputlist = map(lambda a: a[0]+[a[1]], zip(self.parameters, inputargs))
+        self.inputlist = [a[0]+[a[1]] for a in zip(self.parameters, inputargs)]
         dir = self.optdir+str(self.opt_iteration)
         # print self.inputlist
         fit = self.setup_lattice(self.inputlist, dir, *args, changes=self.changes, **kwargs)
         fitvalue = self.calculateBeamParameters()
-        print 'fitvalue[', self.opt_iteration, '] = ', fitvalue
+        print('fitvalue[', self.opt_iteration, '] = ', fitvalue)
         self.saveState(args, fitvalue)
         self.opt_iteration += 1
         if fitvalue < self.bestfit:
             if hasattr(self, 'constraintsList'):
-                print self.cons.constraintsList(self.constraintsList)
-            print '!!!!!!  New best = ', fitvalue
-            self.framework.save_changes_file(filename=self.best_changes, elements=self.parameters)
+                print(self.cons.constraintsList(self.constraintsList))
+            print('!!!!!!  New best = ', fitvalue)
+            pars = (self.parameters+self.save_parameters)
+            self.framework.save_changes_file(filename=self.best_changes, elements=pars)
             self.bestfit = fitvalue
         return fitvalue
 
@@ -117,25 +119,25 @@ class Optimise_transverse(runEle.fitnessFunc):
         best = np.array(self.best) if best is None else np.array(best)
         self.statefile = 'nelder_mead_transverse/best_solutions_running.csv'
         self.optdir = 'nelder_mead_transverse/iteration_'
-        print 'best = ', best
+        print('best = ', best)
         self.bestfit = 1e26
 
         with open(self.statefile,'w') as out:
             self.opt_iteration = 0
         res = nelder_mead(self.optfunc, best, step=step, max_iter=300, no_improv_break=100)
-        print res
+        print(res)
 
     def Simplex(self, best=None):
         best = self.best if best is None else best
         self.statefile = 'simplex_transverse/best_solutions_running.csv'
         self.optdir = 'simplex_transverse/iteration_'
-        print 'best = ', best
+        print('best = ', best)
         self.bestfit = 1e26
 
         with open(self.statefile,'w') as out:
             self.opt_iteration = 0
         res = minimize(self.optfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
-        print res.x
+        print(res.x)
 
     def saveState(self, args, fitness):
         with open(self.statefile,'a') as out:

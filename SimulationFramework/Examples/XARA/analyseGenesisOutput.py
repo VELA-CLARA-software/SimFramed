@@ -2,16 +2,16 @@ import sys
 import time
 import os
 import csv
-sys.path.append(os.path.abspath(__file__+'/../../../../../../S2E_FEL_dev_gen/'))
+sys.path.append('../../../../S2E_FEL_dev_gen/')
 from ocelot.adaptors.genesis import read_out_file
 from ocelot.gui.genesis_plot import fwhm3
 from ocelot.common.math_op import *
 from scipy.stats import kde
 import numpy as np
 import argparse
-sys.path.append(os.path.abspath(__file__+'/../../../../../'))
+sys.path.append(os.path.abspath(__file__+'/../../../../'))
 import SimulationFramework.Modules.read_beam_file as rbf
-sys.path.append(os.path.abspath(__file__+'/../../../../../../'))
+sys.path.append(os.path.abspath(__file__+'/../../../../../'))
 import Software.Procedures.qt as qt
 import pyqtgraph as pg
 from pyqtgraph.widgets.MatplotlibWidget import MatplotlibWidget
@@ -49,7 +49,7 @@ def analysis(g):
 
 def beam_analysis(d):
     beam = rbf.beam()
-    beam.read_HDF5_beam_file(d+'/CLA-FMS-APER-02.hdf5')
+    beam.read_HDF5_beam_file(d+'/CLA-S07-APER-01.hdf5')
     return beam
 
 def analyse_image(mw, dir=None):
@@ -60,11 +60,11 @@ def analyse_image(mw, dir=None):
             out = read_out_file(dir + '/' + args.file, read_level=2)
             e, b, l, bright, rx, ry, current = analysis(out)
             mb = np.argmax(bright)
-            print 'bandwidth[br] = ', 1e2*b[mb], '%  pulse energy[br] =', 1e6*e[mb], 'uJ  Sat. Length[br] =', l[mb], 'm  Brightness[max] = ', bright[mb]
+            print('bandwidth[br] = ', 1e2*b[mb], '%  pulse energy[br] =', 1e6*e[mb], 'uJ  Sat. Length[br] =', l[mb], 'm  Brightness[max] = ', bright[mb])
             en = np.argmax(e)
-            print 'bandwidth[en] = ', 1e2*b[en], '%  pulse energy[max] =', 1e6*e[en], 'uJ  Sat. Length[en] =', l[en], 'm  Brightness[en] = ', bright[en]
+            print('bandwidth[en] = ', 1e2*b[en], '%  pulse energy[max] =', 1e6*e[en], 'uJ  Sat. Length[en] =', l[en], 'm  Brightness[en] = ', bright[en])
             beam = beam_analysis(dir)
-            print 'bunchlength = ', 1e6*beam.sigma_z, 'um  chirp = ', -1*beam.chirp, 'MeV/ps'
+            print('bunchlength = ', 1e6*beam.sigma_z, 'um  chirp = ', -1*beam.chirp, 'MeV/ps')
             plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.25, hspace=0.15)
             ax1 = mw.getFigure().add_subplot(421)
             ax1.plot(l, bright)
@@ -106,7 +106,7 @@ def analyse_image(mw, dir=None):
             beam.slices = 100
             beam.bin_time()
             # beam.beam['total_charge'] = 2.5e-10
-            print 'charge = ', 1e12*beam.beam['total_charge']
+            print('charge = ', 1e12*beam.beam['total_charge'])
             exponent = np.floor(np.log10(np.abs(beam.slice_length)))
             x = 10**(12) * np.array((beam.slice_bins - np.mean(beam.t)))
             ax5.plot(x, beam.slice_peak_current)
@@ -245,7 +245,7 @@ class mainApp(qt.QMainWindow):
 
     def change_directory(self, item):
         dir = str(item.text())
-        print 'changing directory! = ', os.path.abspath(self.currentDirectory + '/' + dir + '/')
+        print('changing directory! = ', os.path.abspath(self.currentDirectory + '/' + dir + '/'))
         self.currentDirectory = os.path.abspath(self.currentDirectory + '/' + dir + '/')
         self.update_directory_list()
 
