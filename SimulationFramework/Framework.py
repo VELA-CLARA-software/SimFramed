@@ -17,7 +17,7 @@ from munch import Munch, unmunchify
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
 def dict_representer(dumper, data):
-    return dumper.represent_dict(data.iteritems())
+    return dumper.represent_dict(iter(list(data.items())))
 
 def dict_constructor(loader, node):
     return OrderedDict(loader.construct_pairs(node))
@@ -39,7 +39,12 @@ astra_generator_keywords = {
         'clara_400_1ps':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
             'ref_ekin': 0, 'lt': 1e-3, 'rt': 0.2e-3, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
-        }
+        },
+        'clara_400_2ps_Gaussian':{
+            'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'g',
+            'sig_clock': 0.85e-3,
+            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
+        },
     },
     'framework_keywords': [
         'number_of_particles', 'charge', 'filename',
@@ -141,7 +146,7 @@ def clean_directory(folder):
             print(e)
 
 def list_add(list1, list2):
-    return map(add, list1, list2)
+    return list(map(add, list1, list2))
 
 # def detect_changes(framework):
 #     start = time.time()
@@ -225,12 +230,12 @@ class Framework(Munch):
             filename = [input]
         for f in filename:
             if os.path.isfile(f):
-                with file(f, 'r') as stream:
+                with open(f, 'r') as stream:
                     elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
             else:
-                with file(master_lattice_location + f, 'r') as stream:
+                with open(master_lattice_location + f, 'r') as stream:
                     elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
-            for name, elem in elements.iteritems():
+            for name, elem in list(elements.items()):
                 self.read_Element(name, elem)
 
     def loadSettings(self, filename='short_240.settings'):
@@ -239,9 +244,9 @@ class Framework(Munch):
         self.settingsFilename = filename
         # print 'self.settingsFilename = ', self.settingsFilename
         if os.path.exists(filename):
-            stream = file(filename, 'r')
+            stream = open(filename, 'r')
         else:
-            stream = file(master_lattice_location+filename, 'r')
+            stream = open(master_lattice_location+filename, 'r')
         self.settings = yaml.load(stream, Loader=yaml.UnsafeLoader)
         self.globalSettings = self.settings['global']
         master_run_no = self.globalSettings['run_no'] if 'run_no' in self.globalSettings else 1
@@ -254,14 +259,14 @@ class Framework(Munch):
         changes = self.settings['changes'] if 'changes' in self.settings and self.settings['changes'] is not None else {}
         stream.close()
 
-        for name, elem in self.groups.iteritems():
+        for name, elem in list(self.groups.items()):
             group = globals()[elem['type']](name, self.elementObjects, **elem)
             self.groupObjects[name] = group
 
-        for name, elem in elements.iteritems():
+        for name, elem in list(elements.items()):
             self.read_Element(name, elem)
 
-        for name, lattice in self.fileSettings.iteritems():
+        for name, lattice in list(self.fileSettings.items()):
             self.read_Lattice(name, lattice)
 
         self.apply_changes(changes)
@@ -278,7 +283,7 @@ class Framework(Munch):
     def convert_numpy_types(self, v):
         if isinstance(v, (np.ndarray, list, tuple)):
             return [self.convert_numpy_types(l) for l in v]
-        elif isinstance(v, (np.float64, np.float32, np.float16, np.float_, )):
+        elif isinstance(v, (np.float64, np.float32, np.float16, np.float_ )):
             return float(v)
         elif isinstance(v, (np.int_, np.intc, np.intp, np.int8, np.int16, np.int32, np.int64, np.uint8, np.uint16, np.uint32, np.uint64)):
             return int(v)
@@ -294,6 +299,7 @@ class Framework(Munch):
             changeelements = elements
         else:
             changeelements = self.elementObjects
+        # print('changeelements = ', changeelements)
         if len(changeelements) > 0 and len(changeelements[0]) > 1:
             for ek in changeelements:
                 new = None
@@ -340,18 +346,18 @@ class Framework(Munch):
                 return changes
 
     def apply_changes(self, changes):
-        for e, d in changes.iteritems():
+        for e, d in list(changes.items()):
             # print 'found change element = ', e
             if e in self.elementObjects:
                 # print 'change element exists!'
-                for k, v in d.iteritems():
+                for k, v in list(d.items()):
                     self.modifyElement(e, k, v)
-                    # print 'modifying ',e,'[',k,']', ' = ', v
+                    # print ('modifying ',e,'[',k,']', ' = ', v)
             if e in self.groupObjects:
-                # print 'change element exists!'
-                for k, v in d.iteritems():
+                # print ('change group exists!')
+                for k, v in list(d.items()):
                     self.groupObjects[e].change_Parameter(k, v)
-                    # print 'modifying ',e,'[',k,']', ' = ', v
+                    # print ('modifying ',e,'[',k,']', ' = ', v)
 
     def change_Lattice_Code(self, name, code):
         if name == 'All':
@@ -372,7 +378,7 @@ class Framework(Munch):
             else:
                 self.add_Element(name, **element)
             if 'sub_elements' in element:
-                for name, elem in element['sub_elements'].iteritems():
+                for name, elem in list(element['sub_elements'].items()):
                     self.read_Element(name, elem, subelement=True)
 
     def add_Element(self, name=None, type=None, **kwargs):
@@ -397,11 +403,11 @@ class Framework(Munch):
             else:
                 return self.__getitem__(element)
         else:
-            print( 'WARNING: Element ', element,' does not exist')
+            print(( 'WARNING: Element ', element,' does not exist'))
             return {}
 
     def getElementType(self, type, setting=None):
-        return [self.elementObjects[element] if setting is None else self.elementObjects[element][setting] for element in self.elementObjects.keys() if self.elementObjects[element].objecttype.lower() == type.lower()]
+        return [self.elementObjects[element] if setting is None else self.elementObjects[element][setting] for element in list(self.elementObjects.keys()) if self.elementObjects[element].objecttype.lower() == type.lower()]
 
     def setElementType(self, type, setting, values):
         elems = self.getElementType(type)
@@ -409,7 +415,7 @@ class Framework(Munch):
             for e, v  in zip(elems, values):
                 e[setting] = v
         else:
-            print( len(elems), len(values))
+            # print(( len(elems), len(values)))
             raise ValueError
 
     def modifyElement(self, elementName, parameter, value):
@@ -432,7 +438,7 @@ class Framework(Munch):
     def saveParametersFile(self, file, parameters):
         output = {}
         if isinstance(parameters, dict):
-            for k,v in parameters.iteritems():
+            for k,v in list(parameters.items()):
                 output[k] = {}
                 if isinstance(v, (list, tuple)):
                     for p in v:
@@ -465,15 +471,15 @@ class Framework(Munch):
 
     @property
     def elements(self):
-        return self.elementObjects.keys()
+        return list(self.elementObjects.keys())
 
     @property
     def lines(self):
-        return self.latticeObjects.keys()
+        return list(self.latticeObjects.keys())
 
     @property
     def commands(self):
-        return self.commandObjects.keys()
+        return list(self.commandObjects.keys())
 
     def track(self, files=None, startfile=None, endfile=None, preprocess=True, write=True, track=True, postprocess=True):
         if files is None:
@@ -490,7 +496,7 @@ class Framework(Munch):
             )
             bar = progressbar.ProgressBar(widgets=[format_custom_text, progressbar.Percentage(), progressbar.Bar(), progressbar.Percentage(),], max_value=len(files))
             format_custom_text.update_mapping(running=files[0]+'  ')
-            for i in bar(range(len(files))):
+            for i in bar(list(range(len(files)))):
                 l = files[i]
                 if l == 'generator' and hasattr(self, 'generator'):
                     format_custom_text.update_mapping(running='Generator  ')
@@ -537,11 +543,11 @@ class frameworkLattice(Munch):
     def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables):
         super(frameworkLattice, self).__init__()
         self.objectname = name
-        for key, value in elementObjects.iteritems():
+        for key, value in list(elementObjects.items()):
             setattr(self, key, value)
         self.allElementObjects = elementObjects
         self.groupObjects = groupObjects
-        self.allElements = self.allElementObjects.keys()
+        self.allElements = list(self.allElementObjects.keys())
         self.file_block = file_block
         self.settings = settings
         self.globalSettings = settings['global']
@@ -562,7 +568,7 @@ class frameworkLattice(Munch):
         self.file_block['input']['prefix'] = prefix
 
     def update_groups(self):
-        for g in self.groupSettings.keys():
+        for g in list(self.groupSettings.keys()):
             if g in self.groupObjects:
                 self.groupObjects[g].update(**self.groupSettings[g])
 
@@ -572,17 +578,17 @@ class frameworkLattice(Munch):
                 return getattr(self.allElementObjects[element], param.lower())
             else:
                 return self.allElements[element]
-        elif element in self.groupObjects.keys():
+        elif element in list(self.groupObjects.keys()):
             if param is not None:
                 return getattr(self.groupObjects[element], param.lower())
             else:
                 return self.groupObjects[element]
         else:
-            print( 'WARNING: Element ', element,' does not exist')
+            print(( 'WARNING: Element ', element,' does not exist'))
             return {}
 
     def getElementType(self, type, setting=None):
-        return [self.elements[element] if setting is None else self.elements[element][setting] for element in self.elements.keys() if self.elements[element].objecttype.lower() == type.lower()]
+        return [self.elements[element] if setting is None else self.elements[element][setting] for element in list(self.elements.keys()) if self.elements[element].objecttype.lower() == type.lower()]
 
     def setElementType(self, type, setting, values):
         elems = self.getElementType(type)
@@ -630,14 +636,14 @@ class frameworkLattice(Munch):
 
     @property
     def lines(self):
-        return self.lineObjects.keys()
+        return list(self.lineObjects.keys())
 
     @property
     def start(self):
         if 'start_element' in self.file_block['output']:
             return self.file_block['output']['start_element']
         elif 'zstart' in self.file_block['output']:
-            for e in self.allElementObjects.keys():
+            for e in list(self.allElementObjects.keys()):
                 if self.allElementObjects[e].position_start[2] == self.file_block['output']['zstart']:
                     return e
         else:
@@ -653,7 +659,7 @@ class frameworkLattice(Munch):
             return self.file_block['output']['end_element']
         elif 'zstop' in self.file_block['output']:
             endelems = []
-            for e in self.allElementObjects.keys():
+            for e in list(self.allElementObjects.keys()):
                 if self.allElementObjects[e]['position_end'] == self.file_block['output']['zstop']:
                     endelems.append(e)
                 elif self.allElementObjects[e]['position_end'] > self.file_block['output']['zstop'] and len(endelems) == 0:
@@ -683,7 +689,7 @@ class frameworkLattice(Munch):
         originalelements = OrderedDict()
         elementno = 0
         newelements = OrderedDict()
-        for name in self.elements.keys():
+        for name in list(self.elements.keys()):
             if not self.elements[name].subelement:
                 originalelements[name] = self.elements[name]
                 pos = np.array(self.allElementObjects[name].position_start)
@@ -691,7 +697,7 @@ class frameworkLattice(Munch):
                 positions.append(self.allElementObjects[name].position_end)
         positions = positions[1:]
         positions.append(positions[-1])
-        driftdata = zip(originalelements.iteritems(), list(chunks(positions, 2)))
+        driftdata = list(zip(iter(list(originalelements.items())), list(chunks(positions, 2))))
         for e, d in driftdata:
             newelements[e[0]] = e[1]
             if len(d) > 1:
@@ -723,18 +729,18 @@ class frameworkLattice(Munch):
     def getSValues(self):
         elems = self.createDrifts()
         s = [0]
-        for e in elems.itervalues():
+        for e in list(elems.values()):
             s.append(s[-1]+e.length)
         return s[1:]
 
     def getNames(self):
         elems = self.createDrifts()
-        return [e.objectname for e in elems.itervalues()]
+        return [e.objectname for e in list(elems.values())]
 
     def getSNames(self):
         s = self.getSValues()
         names = self.getNames()
-        return zip(names, s)
+        return list(zip(names, s))
 
     def findS(self, elem):
         if elem in self.allElements:
@@ -785,10 +791,10 @@ class frameworkObject(Munch):
             if 'framework_keywords' in  elementkeywords[self.objecttype]:
                  self.allowedkeywords = merge_two_dicts(self.allowedkeywords, elementkeywords[self.objecttype]['framework_keywords'])
         else:
-            print( 'Unknown type = ', objecttype)
+            print(( 'Unknown type = ', objecttype))
             raise NameError
-        self.allowedkeywords = map(lambda x: x.lower(), self.allowedkeywords)
-        for key, value in kwargs.iteritems():
+        self.allowedkeywords = [x.lower() for x in self.allowedkeywords]
+        for key, value in list(kwargs.items()):
             self.add_property(key, value)
 
     def add_property(self, key, value):
@@ -797,14 +803,14 @@ class frameworkObject(Munch):
             try:
                 setattr(self, key, value)
             except Exception as e:
-                print self.objecttype,'[', key, ']: ', e
+                print((self.objecttype,'[', key, ']: ', e))
 
     def add_default(self, key, value):
         self.objectdefaults[key] = value
 
     @property
     def parameters(self):
-        return self.keys()
+        return list(self.keys())
 
     @property
     def objectproperties(self):
@@ -820,7 +826,7 @@ class frameworkObject(Munch):
 
     def __repr__(self):
         string = ''
-        for k,v in self.iteritems():
+        for k,v in list(self.items()):
             string+="{} ({})".format(k, v)+'\n'
         return string
 
@@ -838,12 +844,12 @@ class elegantLattice(frameworkLattice):
         elements = self.createDrifts()
         fulltext = ''
         fulltext += self.q.write_Elegant()
-        for element in elements.values():
+        for element in list(elements.values()):
             if not element.subelement:
                 fulltext += element.write_Elegant()
         fulltext += self.w.write_Elegant()
         fulltext += self.objectname+': Line=(START, '
-        for e, element in elements.iteritems():
+        for e, element in list(elements.items()):
             if not element.subelement:
                 if len((fulltext + e).splitlines()[-1]) > 60:
                     fulltext += '&\n'
@@ -883,7 +889,7 @@ class elegantLattice(frameworkLattice):
             command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(master_lattice_location,master_subdir)+'/Codes/defns.rpn'] + [self.objectname+'.ele']
         else:
             command = self.executables[self.code] + [self.objectname+'.ele']
-        # print command
+        # print ('run command = ', command)
         with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=master_subdir)
 
@@ -908,7 +914,7 @@ class elegantCommandFile(object):
 
     def write(self):
         output = ''
-        for c in self.commandObjects.values():
+        for c in list(self.commandObjects.values()):
             output += c.write()
         return output
 
@@ -920,7 +926,7 @@ class elegantTrackFile(elegantCommandFile):
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
             use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
-            sigma='%s.sig')
+            sigma='%s.sig', default_order=3)
         self.addCommand(type='run_control',n_steps=1, n_passes=1)
         self.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi",
         beta_x  = beam.beta_x,
@@ -932,7 +938,7 @@ class elegantTrackFile(elegantCommandFile):
         Z0 = lattice.startObject['position_start'][2],
         theta0 = 0)
         mat = self.addCommand(type='matrix_output', SDDS_output="%s.mat",
-        full_matrix_only=1)
+        full_matrix_only=1, SDDS_output_order=2)
         self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
         self.addCommand(type='track')
 
@@ -940,7 +946,7 @@ class elegantOptimisation(elegantCommandFile):
 
     def __init__(self, lattice='', variables={}, constraints={}, terms={}, settings={}, *args, **kwargs):
         super(elegantOptimisation, self).__init__(lattice, *args, **kwargs)
-        for k, v in variables.iteritems():
+        for k, v in list(variables.items()):
             self.add_optimisation_variable(k, **v)
 
     def add_optimisation_variable(self, name, item=None, lower=None, upper=None, step=None, restrict_range=None):
@@ -963,6 +969,7 @@ class frameworkCommand(frameworkObject):
     def write(self):
         wholestring=''
         string = '&'+self.objecttype+'\n'
+        # print(self.objecttype, self.objectproperties)
         for key in commandkeywords[self.objecttype]:
             if key.lower() in self.objectproperties and not key =='name' and not key == 'type' and not self.objectproperties[key.lower()] is None:
                 string+='\t'+key+' = '+str(self.objectproperties[key.lower()])+'\n'
@@ -1090,7 +1097,7 @@ class gptLattice(frameworkLattice):
         #     self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectname+'.astra'
     def writeElements(self):
         fulltext = ''
-        for element in self.elements.values():
+        for element in list(self.elements.values()):
             fulltext += element.write_GPT(1)
         fulltext += self.endScreen().write_GPT(1)
         return fulltext
@@ -1195,11 +1202,13 @@ class frameworkGroup(object):
         try:
             getattr(self, p)
             setattr(self, p, v)
-            # print 'Changing group ', self.objectname, ' ', p, ' = ', v, '  result = ', self.get_Parameter(p)
+            if p == 'angle':
+                self.set_angle(v)
+            # print ('Changing group ', self.objectname, ' ', p, ' = ', v, '  result = ', self.get_Parameter(p))
         except:
             for e in self.elements:
                 setattr(self.allElementObjects[e], p, v)
-                # print 'Changing group elements ', self.objectname, ' ', p, ' = ', v, '  result = ', self.allElementObjects[self.elements[0]].objectname, self.get_Parameter(p)
+                # print ('Changing group elements ', self.objectname, ' ', p, ' = ', v, '  result = ', self.allElementObjects[self.elements[0]].objectname, self.get_Parameter(p))
 
 
     # def __getattr__(self, p):
@@ -1264,7 +1273,7 @@ class chicane(frameworkGroup):
         self.set_angle(theta)
 
     def set_angle(self, a):
-        # print self.objectname, ' setting angle = ', a
+        # print (self.objectname, ' setting angle = ', a)
         obj = [self.allElementObjects[e] for e in self.elements]
         starting_angle = obj[0].theta
         for i in [0,1,2,3]:
@@ -1361,8 +1370,8 @@ class frameworkGenerator(object):
         self.objectdefaults = {}
         self.objectproperties = {}
         self.allowedKeyWords = astra_generator_keywords['keywords'] + astra_generator_keywords['framework_keywords']
-        self.allowedKeyWords = map(lambda x: x.lower(), self.allowedKeyWords)
-        for key, value in kwargs.iteritems():
+        self.allowedKeyWords = [x.lower() for x in self.allowedKeyWords]
+        for key, value in list(kwargs.items()):
             key = key.lower()
             if key in self.allowedKeyWords:
                 try:
@@ -1395,7 +1404,7 @@ class frameworkGenerator(object):
 
     def _write_ASTRA(self, d):
         output = ''
-        for k, v in d.iteritems():
+        for k, v in list(d.items()):
             val = v['value'] if v['value'] is not None else v['default'] if 'default' in v else None
             if isinstance(val,str):
                 param_string = k+' = \''+str(val)+'\',\n'
@@ -1608,7 +1617,7 @@ class frameworkElement(frameworkObject):
 
     def _write_ASTRA(self, d, n=1):
         output = ''
-        for k, v in d.iteritems():
+        for k, v in list(d.items()):
             if checkValue(self, v) is not None:
                 if 'type' in v and v['type'] == 'list':
                     for i, l in enumerate(checkValue(self, v)):
@@ -1647,7 +1656,7 @@ class frameworkElement(frameworkObject):
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         k1 = self.k1 if self.k1 is not None else 0
-        for key, value in merge_two_dicts({'k1': k1}, merge_two_dicts(self.objectproperties, self.objectdefaults)).iteritems():
+        for key, value in list(merge_two_dicts({'k1': k1}, merge_two_dicts(self.objectproperties, self.objectdefaults)).items()):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -1754,12 +1763,12 @@ class dipole(frameworkElement):
         else:
             rotation = 0
         theta = self.e1+rotation
-        corners[0] = np.array(map(add, np.transpose(self.position_start), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta))))
-        corners[3] = np.array(map(add, np.transpose(self.position_start), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta))))
+        corners[0] = np.array(list(map(add, np.transpose(self.position_start), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta)))))
+        corners[3] = np.array(list(map(add, np.transpose(self.position_start), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta)))))
         theta = self.angle-self.e2+rotation
-        corners[1] = np.array(map(add, np.transpose(self.position_end), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta))))
-        corners[2] = np.array(map(add, np.transpose(self.position_end), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta))))
-        corners = map(lambda x: self.rotated_position(x, offset=self.starting_offset, theta=self.starting_rotation), corners)
+        corners[1] = np.array(list(map(add, np.transpose(self.position_end), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta)))))
+        corners[2] = np.array(list(map(add, np.transpose(self.position_end), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta)))))
+        corners = [self.rotated_position(x, offset=self.starting_offset, theta=self.starting_rotation) for x in corners]
         return corners
 
     def write_CSRTrack(self, n):
@@ -1885,18 +1894,18 @@ class cavity(frameworkElement):
         if hasattr(self, 'field_definition') and self.field_definition is not None:
             self.field_definition = expand_substitution(self, '\''+self.field_definition+'\'')
         if hasattr(self, 'field_definition_sdds') and self.field_definition_sdds is not None:
-            self.field_definition_sdds = '"' + expand_substitution(self, '\''+self.field_definition_sdds+'\'')+'"'
+            self.field_definition_sdds = '"' + expand_substitution(self, '\''+self.field_definition_sdds+'\'').strip('\'"')+'"'
         if hasattr(self, 'longitudinal_wakefield_sdds') and self.longitudinal_wakefield_sdds is not None:
-            self.longitudinal_wakefield_sdds = '"' + expand_substitution(self, '\''+self.longitudinal_wakefield_sdds+'\'')+'"'
+            self.longitudinal_wakefield_sdds = '"' + expand_substitution(self, '\''+self.longitudinal_wakefield_sdds+'\'').strip('\'"')+'"'
         if hasattr(self, 'transverse_wakefield_sdds') and self.transverse_wakefield_sdds is not None:
-            self.transverse_wakefield_sdds = '"' + expand_substitution(self, '\''+self.transverse_wakefield_sdds+'\'')+'"'
+            self.transverse_wakefield_sdds = '"' + expand_substitution(self, '\''+self.transverse_wakefield_sdds+'\'').strip('\'"')+'"'
 
     @property
     def cells(self):
         if (self.n_cells is 0 or self.n_cells is None) and self.cell_length > 0:
                 cells = round((self.length-self.cell_length)/self.cell_length)
                 cells = int(cells - (cells % 3))
-        elif self.n_cells > 0 and self.cell_length > 0:
+        elif self.n_cells > 0 and (self.cell_length is not None and self.cell_length) > 0:
             if self.cell_length == self.length:
                 cells = 1
             else:
@@ -1926,7 +1935,7 @@ class cavity(frameworkElement):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -2021,7 +2030,7 @@ class screen(frameworkElement):
             if os.path.isfile(master_subdir + '/' + tempfilename):
                 astrabeamfilename = tempfilename
         if astrabeamfilename is None:
-            print( 'Screen Error: ', lattice, self.middle[2], self.zstart[2])
+            print(( 'Screen Error: ', lattice, self.middle[2], self.zstart[2]))
         else:
             beam.read_astra_beam_file((master_subdir + '/' + astrabeamfilename).strip('\"'), normaliseZ=False)
             beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
@@ -2078,7 +2087,7 @@ class drift(frameworkElement):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -2101,7 +2110,7 @@ class csrdrift(frameworkElement):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -2133,7 +2142,7 @@ class modulator(frameworkElement):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -2167,7 +2176,7 @@ class wiggler(frameworkElement):
         else:
             etype = 'drift'
         string = self.objectname+': '+ etype
-        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -2243,7 +2252,7 @@ class longitudinal_wakefield(cavity):
         if self.length > 0:
             d = drift(self.objectname+'-drift', type='drift', **{'length': self.length})
             wholestring+=d._write_Elegant()
-        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).iteritems():
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
             key = self._convertKeword_Elegant(key)
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
@@ -2419,7 +2428,7 @@ class csrtrack_element(frameworkElement):
         super(csrtrack_element, self).__init__(elementName, elementType, **kwargs)
         self.header = ''
         if elementName in csrtrack_defaults:
-            for k, v in csrtrack_defaults[elementName].iteritems():
+            for k, v in list(csrtrack_defaults[elementName].items()):
                 self.add_default(k, v)
 
     def CSRTrack_str(self, s):
@@ -2506,7 +2515,7 @@ class gpt_element(frameworkElement):
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(gpt_element, self).__init__(elementName, elementType, **kwargs)
         if elementName in csrtrack_defaults:
-            for k, v in csrtrack_defaults[elementName].iteritems():
+            for k, v in list(csrtrack_defaults[elementName].items()):
                 self.add_default(k, v)
 
     def write_GPT(self):

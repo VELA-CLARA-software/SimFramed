@@ -3,10 +3,10 @@ import argparse
 from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox
 from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout
 
-import astra_plotter_test as astraplotter
+from . import astra_plotter_test as astraplotter
 import numpy as np
-import read_beam_file as raf
-import read_twiss_file as rtf
+from . import read_beam_file as raf
+from . import read_twiss_file as rtf
 
 parser = argparse.ArgumentParser(description='Plot ASTRA Data Files')
 parser.add_argument('filename')
@@ -46,10 +46,10 @@ class astraHDFPlotWidget(astraplotter.astraPlotWidget):
 
     def __init__(self, filename=None, **kwargs):
         super(astraHDFPlotWidget, self).__init__(**kwargs)
-        print 'filename = ', filename
+        print('filename = ', filename)
         self.folderButton.setText('Select File')
         self.filename = filename
-        print 'self.filename = ', self.filename
+        print('self.filename = ', self.filename)
         self.h5file = h5py.File(self.filename, "r")
         self.changeDirectory(filename)
 
@@ -71,7 +71,7 @@ class astraHDFPlotWidget(astraplotter.astraPlotWidget):
         try:
             self.screenpositions = {}
             h5screens = self.h5file.get('screens')
-            screenpositions = h5screens.keys()
+            screenpositions = list(h5screens.keys())
             self.screenpositions[self.filename] = {'screenpositions': screenpositions}
         except:
             pass

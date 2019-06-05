@@ -169,10 +169,10 @@ class astraPlotWidget(QWidget):
         self.beamPlotXAxisDict['cpx'] = {'scale':1e3, 'axis': 'cpx [keV]'}
         self.beamPlotXAxisDict['cpy'] = {'scale':1e3, 'axis': 'cpy [keV]'}
         self.beamPlotXAxisDict['BetaGamma']= {'scale':0.511 , 'axis': 'cp [MeV]'}
-        self.beamPlotXAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotXAxisCombo.addItems(list(self.beamPlotXAxisDict.keys()))
         self.beamPlotXAxisCombo.setCurrentIndex(2)
         self.beamPlotYAxisCombo = QComboBox()
-        self.beamPlotYAxisCombo.addItems(self.beamPlotXAxisDict.keys())
+        self.beamPlotYAxisCombo.addItems(list(self.beamPlotXAxisDict.keys()))
         self.beamPlotXAxisCombo.setCurrentIndex(6)
         self.beamPlotNumberBins = QSpinBox()
         self.beamPlotNumberBins.setRange(10,500)
@@ -310,7 +310,7 @@ class astraPlotWidget(QWidget):
         self.changeDirectory(self.directory)
 
     def findFirstEmptyColumnInGraphicsLayout(self):
-            rowsfilled =  self.slicePlotWidgetGraphicsLayout.ci.rows.get(0, {}).keys()
+            rowsfilled =  list(self.slicePlotWidgetGraphicsLayout.ci.rows.get(0, {}).keys())
             for i in range(49):
                 if not i in rowsfilled:
                     return i
@@ -344,13 +344,13 @@ class astraPlotWidget(QWidget):
         self.screenpositions = {}
         files = glob.glob(self.directory+'/*[.][0-9][0-9][0-9][0-9][.][0-9][0-9][0-9]')
         filenames = ['.'.join(os.path.basename(f).split('.')[:-2]) for f in files if not 'ren_' in f]
-        print 'filenames = ', filenames
+        print('filenames = ', filenames)
         runnumber = [os.path.basename(f).split('.')[-1] for f in files]
-        print 'runnumber = ', runnumber
+        print('runnumber = ', runnumber)
         for f, r in list(set(zip(filenames, runnumber))):
             files = glob.glob(self.directory+'/'+f+'.[0-9][0-9][0-9][0-9].[0-9][0-9][0-9]')
             screenpositions = [re.search(f+'\.(\d\d\d\d)\.\d\d\d', s).group(1) for s in files]
-            print 'screenpositions = ', screenpositions
+            print('screenpositions = ', screenpositions)
             self.screenpositions[f] = {'screenpositions': sorted(screenpositions), 'run': r}
 
     def updateFileCombo(self):
@@ -361,7 +361,7 @@ class astraPlotWidget(QWidget):
             screenfirstpos.append([f, min(self.screenpositions[f]['screenpositions'])])
         screenfirstpos = np.array(screenfirstpos)
         sortedscreennames = screenfirstpos[np.argsort(np.array(screenfirstpos)[:,1])]
-        print 'sortedscreennames = ', sortedscreennames
+        print('sortedscreennames = ', sortedscreennames)
         for f in sortedscreennames:
             self.fileSelector.addItem(f[0])
             i += 1
