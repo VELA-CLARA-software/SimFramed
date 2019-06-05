@@ -24,9 +24,9 @@ def saveState(dir, args, n, fitness):
 
 def saveParameterFile(best, file='clara_elegant_best.yaml'):
     if POST_INJECTOR:
-        allparams = zip(*(parameternames))
+        allparams = list(zip(*(parameternames)))
     else:
-        allparams = zip(*(injparameternames+parameternames))
+        allparams = list(zip(*(injparameternames+parameternames)))
     output = {}
     for p, k, v in zip(allparams[0], allparams[1], best):
         if p not in output:
@@ -35,7 +35,7 @@ def saveParameterFile(best, file='clara_elegant_best.yaml'):
         with open(file,"w") as yaml_file:
             yaml.dump(output, yaml_file, default_flow_style=False)
 
-class Optimise_Elegant(object):
+class Optimise_Elegant(runEle.fitnessFunc):
 
     injector_parameter_names = [
         ['CLA-HRG1-GUN-CAV', 'phase'],
@@ -64,16 +64,13 @@ class Optimise_Elegant(object):
         self.changes = None
         self.lattice = None
         self.resultsDict = {}
-        self.fit = runEle.fitnessFunc()
         # ******************************************************************************
-        CLARA_dir = os.path.relpath(__file__+'/../../')
+        self.CLARA_dir = os.path.relpath(__file__+'/../../CLARA')
         self.POST_INJECTOR = True
         CREATE_BASE_FILES = False
         self.scaling = 5
-        if self.POST_INJECTOR and CREATE_BASE_FILES:
-            self.optfunc = partial(self.OptimisingFunction, scaling=self.scaling, post_injector=self.POST_INJECTOR, verbose=False, basefiles='../basefiles_'+str(self.scaling)+'/', CLARA_dir=CLARA_dir)
-        else:
-            self.optfunc = partial(self.OptimisingFunction, scaling=self.scaling, post_injector=self.POST_INJECTOR, verbose=False, CLARA_dir=CLARA_dir)
+        self.verbose = False
+        self.basefiles = '../../CLARA/basefiles_'+str(self.scaling)+'/'
         # ******************************************************************************
         if not self.POST_INJECTOR:
             best = injector_startingvalues + best
@@ -89,39 +86,52 @@ class Optimise_Elegant(object):
         self.changes = changes
 
     def set_lattice_file(self, lattice):
-        self.lattice = lattice
-        self.fit.lattice_file = lattice
+        self.lattice_file = lattice
 
     def set_start_file(self, file):
-        self.start_file = file
-        self.fit.set_start_file(file)
+        self.start_lattice = file
 
     def OptimisingFunction(self, inputargs, *args, **kwargs):
         if not self.POST_INJECTOR:
             parameternames = self.injector_parameter_names + self.parameter_names
         else:
             parameternames = copy(self.parameter_names)
-        self.inputlist = map(lambda a: a[0]+[a[1]], zip(parameternames, inputargs))
+        self.inputlist = [a[0]+[a[1]] for a in zip(parameternames, inputargs)]
 
         self.linac_fields = np.array([i[2] for i in self.inputlist if i[1] == 'field_amplitude'])
         self.linac_phases = np.array([i[2] for i in self.inputlist if i[1] == 'phase'])
 
-        if 'dir' in kwargs.keys():
+        if 'iteration' in list(kwargs.keys()):
+            self.opt_iteration = kwargs['iteration']
+            del kwargs['iteration']
+
+        if 'bestfit' in list(kwargs.keys()):
+            self.bestfit = kwargs['bestfit']
+            del kwargs['bestfit']
+
+        if 'dir' in list(kwargs.keys()):
             dir = kwargs['dir']
             del kwargs['dir']
+            save_state = False
         else:
+            save_state = True
             dir = self.optdir+str(self.opt_iteration)
 
-        self.fit.setup_lattice(self.inputlist, dir, changes=self.changes, *args, **kwargs)
-        fitvalue = self.fit.calculateBeamParameters()
+        self.setup_lattice(self.inputlist, dir)
+        fitvalue = self.calculateBeamParameters()
+
         self.opt_iteration += 1
+
         constraintsList = self.calculate_constraints()
         fitvalue = self.cons.constraints(constraintsList)
-        print 'fitvalue[', self.opt_iteration-1, '] = ', fitvalue
-        saveState(self.subdir, inputargs, self.opt_iteration-1, fitvalue)
-        if fitvalue < self.bestfit:
-            print self.cons.constraintsList(constraintsList)
-            print '!!!!!!  New best = ', fitvalue
+
+        print('fitvalue[', self.opt_iteration-1, '] = ', fitvalue)
+
+        if save_state:
+            saveState(self.subdir, inputargs, self.opt_iteration-1, fitvalue)
+        if save_state and fitvalue < self.bestfit:
+            print(self.cons.constraintsList(constraintsList))
+            print('!!!!!!  New best = ', fitvalue, inputargs)
             copyfile(dir+'/changes.yaml', self.best_changes)
             self.bestfit = fitvalue
         return fitvalue
@@ -131,23 +141,23 @@ class Optimise_Elegant(object):
         self.subdir = 'nelder_mead'
         self.optdir = self.subdir + '/iteration_'
         self.best_changes = './nelder_mead_best_changes.yaml'
-        print 'best = ', best
+        print('best = ', best)
         self.bestfit = 1e26
 
         with open('nelder_mead/best_solutions_running.csv','w') as out:
             self.opt_iteration = 0
-        res = nelder_mead(self.optfunc, best, step=step, max_iter=300, no_improv_break=100)
-        print res
+        res = nelder_mead(self.OptimisingFunction, best, step=step, max_iter=300, no_improv_break=100)
+        print(res)
 
     def Simplex(self, best=None):
         best = self.best if best is None else best
         self.subdir = 'simplex'
         self.optdir = self.subdir + '/iteration_'
         self.best_changes = './simplex_best_changes.yaml'
-        print 'best = ', best
+        print('best = ', best)
         self.bestfit = 1e26
 
         with open('simplex/best_solutions_running.csv','w') as out:
             self.opt_iteration = 0
-        res = minimize(self.optfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
-        print res.x
+        res = minimize(self.OptimisingFunction, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
+        print(res.x)

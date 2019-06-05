@@ -18,7 +18,7 @@ parameter_names = [q for q in names[index1:index2]]
 # parameter_names.append('CLA-FEB-MAG-QUAD-02')
 # parameter_names += [q for q in names[index3:]]
 best = parameters
-print parameter_names
+print(parameter_names)
 # for n, p in zip(names, parameters)[index3:]:
 #     print n, p
 # exit()
@@ -114,7 +114,7 @@ class FEBE_Transverse(Optimise_transverse):
         self.constraintsList = constraintsList
         fitness = self.cons.constraints(constraintsList)
         if self.verbose:
-            print self.cons.constraintsList(constraintsList)
+            print(self.cons.constraintsList(constraintsList))
         return fitness
 
 
