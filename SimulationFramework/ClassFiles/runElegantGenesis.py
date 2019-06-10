@@ -341,37 +341,37 @@ class genesisSimulation(runEle.fitnessFunc):
         self.genesis_file = 'NEW_SHORT_NOM_TD_v7.in'
         self.beam_file = 'CLA-FMS-APER-02.hdf5'
 
-    def optfunc(self, inputargs, **kwargs):
-
-        if not self.post_injector:
-            parameternames = self.injector_parameter_names + self.parameter_names
-        else:
-            parameternames = copy(self.parameter_names)
-
-        self.inputlist = map(lambda a: a[0]+[a[1]], zip(parameternames, inputargs))
-
-        if dir in kwargs.keys() and kwargs['dir'] is not None:
-            tmpdir = kwargs['dir']
-            if not os.path.exists(tmpdir):
-                os.makedirs(tmpdir)
-            self.tmpdir = os.path.relpath(tmpdir)
-            return self.run_simulation(self.inputlist, self.tmpdir)
-        elif self.optdir is not None:
-            tmpdir = self.optdir
-            if not os.path.exists(tmpdir):
-                os.makedirs(tmpdir)
-            self.tmpdir = os.path.relpath(tmpdir)
-            return self.run_simulation(self.inputlist, self.tmpdir)
-        else:
-            if 'subdir' in kwargs:
-                self.subdir = kwargs['subdir']
-                # del kwargs['subdir']
-            else:
-                self.subdir = ''
-            print( 'subdir = ', subdir)
-            with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir+'/') as tmpdir:
-                self.tmpdir = os.path.relpath(tmpdir)
-                return self.run_simulation(self.inputlist, self.tmpdir)
+    # def optfunc(self, inputargs, **kwargs):
+    #
+    #     if not self.post_injector:
+    #         parameternames = self.injector_parameter_names + self.parameter_names
+    #     else:
+    #         parameternames = copy(self.parameter_names)
+    #
+    #     self.inputlist = map(lambda a: a[0]+[a[1]], zip(parameternames, inputargs))
+    #
+    #     if dir in kwargs.keys() and kwargs['dir'] is not None:
+    #         tmpdir = kwargs['dir']
+    #         if not os.path.exists(tmpdir):
+    #             os.makedirs(tmpdir)
+    #         self.tmpdir = os.path.relpath(tmpdir)
+    #         return self.run_simulation(self.inputlist, self.tmpdir)
+    #     elif self.optdir is not None:
+    #         tmpdir = self.optdir
+    #         if not os.path.exists(tmpdir):
+    #             os.makedirs(tmpdir)
+    #         self.tmpdir = os.path.relpath(tmpdir)
+    #         return self.run_simulation(self.inputlist, self.tmpdir)
+    #     else:
+    #         if 'subdir' in kwargs:
+    #             self.subdir = kwargs['subdir']
+    #             # del kwargs['subdir']
+    #         else:
+    #             self.subdir = ''
+    #         print( 'subdir = ', subdir)
+    #         with runEle.TemporaryDirectory(dir=os.getcwd()+'/'+subdir+'/') as tmpdir:
+    #             self.tmpdir = os.path.relpath(tmpdir)
+    #             return self.run_simulation(self.inputlist, self.tmpdir)
 
     def run_simulation(self, inputargs, dir):
         # sys.stdout = open(tmpdir+'/'+'std.out', 'w', buffering=1)

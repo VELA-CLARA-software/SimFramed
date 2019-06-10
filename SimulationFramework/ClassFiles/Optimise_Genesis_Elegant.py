@@ -1,14 +1,14 @@
 import os, errno, sys
 import numpy as np
 import random
-sys.path.append(os.path.abspath(__file__+'/../../../../'))
+sys.path.append('./../../')
 from SimulationFramework.Modules.constraints import constraintsClass
 from SimulationFramework.Modules.nelder_mead import nelder_mead
 import time
 import csv
 from copy import copy
 # sys.path.append(os.path.abspath(__file__+'/../../'))
-import SimulationFramework.Examples.CLARA.Elegant_Genesis.genesisBeamFile as genesisBeamFile
+import SimulationFramework.ClassFiles.genesisBeamFile as genesisBeamFile
 from functools import partial
 from collections import OrderedDict
 from shutil import copyfile
