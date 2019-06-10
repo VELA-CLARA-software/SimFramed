@@ -1,7 +1,8 @@
 import sys, os
 import numpy as np
-sys.path.append('./../')
-from Optimise_Genesis_Elegant import Optimise_Genesis_Elegant
+sys.path.append('../../../../')
+sys.path.append('../../../../../OCELOT')
+from SimulationFramework.ClassFiles.Optimise_Genesis_Elegant import Optimise_Genesis_Elegant
 import ruamel.yaml as yaml
 
 class Short1GeV(Optimise_Genesis_Elegant):
@@ -40,25 +41,6 @@ class Short1GeV(Optimise_Genesis_Elegant):
         self.alphay = -0.05371444
         self.betay = 2.52698
 
-    def load_best(self, filename):
-        with open(filename, 'r') as infile:
-            data = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
-            # best = [data[n]['k1l'] for n in parameter_names]
-            best = []
-            for n, p in self.parameter_names:
-                if n in data:
-                    best.append(data[n][p])
-                elif n == 'bunch_compressor' and p == 'set_angle':
-                    best.append(data['CLA-VBC-MAG-DIP-01']['angle'])
-                else:
-                    print(n, p)
-                    if not hasattr(self, 'framework'):
-                        self.framework = fw.Framework(None)
-                        self.framework.loadSettings(self.lattice)
-                    best.append(self.framework[n][p])
-            self.best = best
-        return best
-
     def calculate_constraints(self):
 
         if len(self.linac_fields) > 0:
@@ -73,7 +55,7 @@ class Short1GeV(Optimise_Genesis_Elegant):
         r = self.resultsDict
         pos12m = list(r['g'].z).index(10.08)
         pos20m = list(r['g'].z).index(16.08)
-        print 'Momentum = ', r['momentum']
+        print ('Momentum = ', r['momentum'])
         constraintsList = {
             'brightness': {'type': 'greaterthan', 'value': r['brightness'], 'limit': 0.15, 'weight': 0},
             'bandwidth': {'type': 'lessthan', 'value': r['b'], 'limit': 0.1, 'weight': 3},

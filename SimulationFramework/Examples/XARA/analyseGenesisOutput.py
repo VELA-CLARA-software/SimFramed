@@ -214,7 +214,7 @@ class mainApp(qt.QMainWindow):
         # print 'read dirs in ', time.time() - start
         if os.path.isfile(self.currentDirectory + '/best_solutions_running.csv'):
             solutions = []
-            with open(self.currentDirectory + '/best_solutions_running.csv', 'rb') as csvfile:
+            with open(self.currentDirectory + '/best_solutions_running.csv', 'rt') as csvfile:
                 spamreader = csv.reader(csvfile, csv.QUOTE_NONE, delimiter=',')
                 for row in spamreader:
                     solutions.append([float(a) for a in row])

@@ -1,9 +1,6 @@
 import sys, os
 import numpy as np
-sys.path.append('./../')
-from Optimise_Genesis_Elegant import Optimise_Genesis_Elegant
 from Short_1GeV_nelder_mead import Short1GeV
-from functools import partial
 
 if __name__ == "__main__":
 
