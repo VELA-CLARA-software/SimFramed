@@ -9,6 +9,7 @@ import SimulationFramework.Modules.read_twiss_file as rtf
 import shutil
 import uuid
 from functools import partial
+import ruamel.yaml as yaml
 
 def merge_two_dicts(x, y):
     """Given two dicts, merge them into a new dict as a shallow copy."""
@@ -66,6 +67,24 @@ class fitnessFunc(object):
     def set_start_file(self, file):
         self.start_lattice = file
 
+    def load_best(self, filename):
+        with open(filename, 'r') as infile:
+            data = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
+            best = []
+            for n, p in self.parameter_names:
+                if n in data:
+                    best.append(data[n][p])
+                elif n == 'bunch_compressor' and p == 'set_angle':
+                    best.append(data['CLA-VBC-MAG-DIP-01']['angle'])
+                else:
+                    print(n, p)
+                    if not hasattr(self, 'framework'):
+                        self.framework = fw.Framework(None)
+                        self.framework.loadSettings(self.lattice)
+                    best.append(self.framework[n][p])
+            self.best = best
+        return best
+
     def setup_lattice(self, inputargs, tempdir, *args, **kwargs):
         self.dirname = tempdir
         self.input_parameters = list(inputargs)
@@ -87,10 +106,7 @@ class fitnessFunc(object):
 
         ### Define starting lattice
         if self.start_lattice is None:
-            if 'POSTINJ' in self.framework.latticeObjects:
-                self.start_lattice = 'POSTINJ'
-            else:
-                self.start_lattice = self.framework.latticeObjects[0].objectname
+            self.start_lattice = self.framework.latticeObjects[0].objectname
 
         ### Apply any pre-tracking changes to elements
         if self.changes is not None:
@@ -108,32 +124,27 @@ class fitnessFunc(object):
         ### Save the changes to the run directory
         self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml', elements=self.input_parameters)
 
-    def calculateBeamParameters(self):
-        ### Are we running post-injector?
-        if self.post_injector:
-            ### Have we defined where the base files are?
-            if self.base_files is not None:
-                # print('Using base_files = ', self.base_files)
-                self.framework[self.start_lattice].prefix = self.base_files
-            ### If not, use the defaults based on the location of the CLARA example directory
-            else:
-                # print('Using CLARA_dir base_files = ', self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/')
-                self.framework[self.start_lattice].prefix = self.CLARA_dir+'/basefiles_'+str(self.scaling)+'/'
+    def track(self):
+        ### Have we defined where the base files are?
+        if self.base_files is not None:
+            # print('Using base_files = ', self.base_files)
+            self.framework[self.start_lattice].prefix = self.base_files
+        ### If not, use the defaults based on the location of the CLARA example directory
+        elif self.CLARA_dir is not None:
+            # print('Using CLARA_dir base_files = ', self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/')
+            self.framework[self.start_lattice].prefix = self.CLARA_dir+'/basefiles_'+str(self.scaling)+'/'
 
-            ### Are we are setting the charge?
-            if self.startcharge is not None:
-                self.framework[self.start_lattice].bunch_charge = 1e-12*self.startcharge
+        ### Are we are setting the charge?
+        if self.startcharge is not None:
+            self.framework[self.start_lattice].bunch_charge = 1e-12*self.startcharge
 
-            ### Are we are sub-sampling the distribution?
-            if self.sample_interval is not None:
-                # print('Sampling at ', self.sample_interval)
-                self.framework[self.start_lattice].sample_interval = self.sample_interval#2**(3*4)
+        ### Are we are sub-sampling the distribution?
+        if self.sample_interval is not None:
+            # print('Sampling at ', self.sample_interval)
+            self.framework[self.start_lattice].sample_interval = self.sample_interval#2**(3*4)
 
-            ### TRACKING
-            self.framework.track(startfile=self.start_lattice)
-        else:
-            self.framework.track()#startfile='FMS')
-
+        ### TRACKING
+        self.framework.track(startfile=self.start_lattice)
 
 def optfunc(inputargs, dir=None, *args, **kwargs):
     global bestfit

@@ -1,19 +1,20 @@
 import os, errno, sys
 import numpy as np
 import random
-sys.path.append(os.path.abspath(__file__+'/../../../../../'))
+sys.path.append('./../../')
 from SimulationFramework.Modules.optimiser import optimiser
+from SimulationFramework.ClassFiles.Optimise_Genesis_Elegant import Optimise_Genesis_Elegant
+import SimulationFramework.ClassFiles.genesisBeamFile
 opt = optimiser()
 import multiprocessing
 from scoop import futures
 import deap
-import copy
+from copy import copy
 import csv
-import genesisBeamFile
-import id_number as idn
-import id_number_server as idnserver
+import SimulationFramework.Modules.id_number as idn
+import SimulationFramework.Modules.id_number_server as idnserver
 
-class MOGA(object):
+class MOGA(Optimise_Genesis_Elegant):
 
     injector_parameter_names = [
         ['CLA-HRG1-GUN-CAV', 'phase'],
@@ -116,17 +117,35 @@ class MOGA(object):
             return deap.creator.Individual(random.uniform(a,b) for a,b in self.startranges)
 
     def MOGAoptFunc(self, inputargs, *args, **kwargs):
+        e, b, ee, be, l, g = self.OptimisingFunction(inputargs, **kwargs)
+        fitness = -1.0*e/b
+        self.saveState(inputargs, self.opt_iteration, [e, b, ee, be, l], fitness)
+        return e, b, ee, be
+
+    def OptimisingFunction(self, inputargs, **kwargs):
+        if not self.post_injector:
+            parameternames = self.injector_parameter_names + self.parameter_names
+        else:
+            parameternames = copy(self.parameter_names)
+
+        self.inputlist = list(map(lambda a: a[0]+[a[1]], zip(parameternames, inputargs)))
+
+        self.linac_fields = np.array([i[2] for i in self.inputlist if i[1] == 'field_amplitude'])
+        self.linac_phases = np.array([i[2] for i in self.inputlist if i[1] == 'phase'])
+
         idclient = idn.zmqClient()
         n =  idclient.get_id()
-        if not self.POST_INJECTOR:
-            parameters = self.injector_parameter_names + self.parameter_names
-        else:
-            parameters = self.parameter_names
-        inputlist = map(lambda a: a[0]+[a[1]], zip(parameters, inputargs))
-        e, b, ee, be, l, g = genesisBeamFile.optfunc(inputlist, *args, subdir='MOGA', dir='MOGA/iteration_'+str(n), **kwargs)
-        fitness = -1.0*e/b
-        self.saveState(inputargs, n, [e, b, ee, be, l], fitness)
-        return e, b, ee, be
+        self.opt_iteration = n
+
+        dir = self.optdir+str(self.opt_iteration)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        e, b, ee, be, l, g = self.run_simulation(self.inputlist, dir, **kwargs)
+        if e < 0.01:
+            print ('e too low! ', e)
+            l = 500
+        self.resultsDict.update({'e': e, 'b': b, 'ee': ee, 'be': be, 'l': l, 'g': g, 'brightness': (1e-4*e)/(1e-2*b), 'momentum': 1e-6*np.mean(g.momentum)})
+        return e, b, ee, be, l, g
 
     def initialise_population(self, best, npop):
         self.best = best
@@ -148,8 +167,11 @@ class MOGA(object):
         self.server.start()
 
     def eaMuPlusLambda(self, nSelect, nChildren, crossoverprobability, mutationprobability, ngenerations):
+        self.optdir = 'MOGA/iteration_'
+        self.best_changes = './MOGA_best_changes.yaml'
+        self.bestfit = 1e26
         out = open('MOGA/best_solutions_running.csv','wb', buffering=0)
-        genesisBeamFile.csv_out = csv.writer(out)
+        self.csv_out = csv.writer(out)
         opt.eaMuPlusLambda(self.pop, self.toolbox, nSelect, nChildren, crossoverprobability, mutationprobability, ngenerations, self.stats,
                             hoffile='MOGA/CLARA_HOF_longitudinal_Genesis_DCP.csv',
                             halloffame=self.hof)
