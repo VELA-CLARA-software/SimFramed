@@ -20,8 +20,8 @@ def create_base_files(scaling):
     framework.modifyElement('CLA-LRG1-GUN-CAV', 'phase', -5)
     framework.track(files=['generator','injector10'])
 
-## Modify as appropriate! ##
-# for i in [4,5]:
+# Modify as appropriate! ##
+# for i in [4,5,6]:
 #     create_base_files(i)
 # exit()
 
@@ -50,6 +50,7 @@ def set_Phase(phase):
     mom = setMomentum()
     optFunc(mom)
     lattice.change_Lattice_Code('L01','ASTRA')
+    # lattice['L01'].file_block['input']['prefix'] = '../basefiles_'+str(scaling)+'/'
     lattice.track(startfile='L01', endfile='L01', track=True)
     lattice['S02'].file_block['input']['prefix'] = '../TOMP_SETUP_'+str(phase)+'/'
 
@@ -231,7 +232,7 @@ elegantSCOut = open('elegant_SC_phase_data.csv','w')
 elegentNoSC_csv_out = csv.writer(elegantNoSCOut)
 elegentSC_csv_out = csv.writer(elegantSCOut)
 # ASTRA_csv_out = csv.writer(ASTRAOut)
-for i in range(-30,-25,1):
+for i in range(-20,20,1):
     set_Phase(i)
     data = track_phase_elegant(i)
     elegentNoSC_csv_out.writerow(data)

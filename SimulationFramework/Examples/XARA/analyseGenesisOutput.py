@@ -43,7 +43,7 @@ def analysis(g):
     ######### end of section copied from genesis_plot.py
     brightness = g.energy / spectrum_lamdwidth_std
     for i in range(len(g.z)):
-        if g.z[i] < 5:
+        if g.z[i] < 1:
             brightness[i] = 0
     return g.energy, spectrum_lamdwidth_std, g.z, brightness, g.xrms, g.yrms, g.I
 
@@ -66,6 +66,10 @@ def analyse_image(mw, dir=None):
             beam = beam_analysis(dir)
             print('bunchlength = ', 1e6*beam.sigma_z, 'um  chirp = ', -1*beam.chirp, 'MeV/ps')
             plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.25, hspace=0.15)
+
+            print('####  CHEAT ON MAXB @ 10.08m  ####')
+            mb = list(l).index(10.08)
+
             ax1 = mw.getFigure().add_subplot(421)
             ax1.plot(l, bright)
             ax1.set(ylabel='Brightness')
@@ -74,7 +78,7 @@ def analyse_image(mw, dir=None):
             ax1.annotate(np.round(bright[mb], decimals=3), xy=(l[mb], bright[mb]), xytext=(3, 0.5*max(bright)), arrowprops=dict(facecolor='black', shrink=0.05))
             ax2 = mw.getFigure().add_subplot(423)
             ax2.plot(l, 1e6*e)
-            ax2.set(ylabel='Pulse Energy [uJ]')
+            ax2.set(ylabel=r'Pulse Energy [$\mu$J]')
             ax2.grid()
             ax2.axvline(l[mb],color='black',ls='--')
             ax2.annotate(np.round(1e6*e[mb], decimals=3), xy=(l[mb], 1e6*e[mb]), xytext=(3, 0.5*max(1e6*e)), arrowprops=dict(facecolor='black', shrink=0.05))
@@ -89,7 +93,7 @@ def analyse_image(mw, dir=None):
             peakIpos = np.argmax(current)
             ax6.plot(l, 1e6*rx[peakIpos])
             ax6.plot(l, 1e6*ry[peakIpos])
-            ax6.set(ylabel='x/y [um]')
+            ax6.set(ylabel=r'$\sigma_x$ / $\sigma_y$ [$\mu$m]')
             ax6.grid()
 
             ax4 = mw.getFigure().add_subplot(422)
@@ -98,7 +102,7 @@ def analyse_image(mw, dir=None):
             t = 1e12*(beam.t - np.mean(beam.t))
             dt = 0.05*(max(t) - min(t))
             ax4.set_xlim(min(t) - dt, max(t) + dt)
-            ax4.hist2d(1e12*(beam.t - np.mean(beam.t)), 1e-6*beam.cp, bins=(50,50), cmap=plt.cm.jet)
+            ax4.hist2d(1e12*(beam.t - np.mean(beam.t)), 1e-6*beam.cp, bins=(500,500), cmap=plt.cm.jet)
             # ax4.set_ylim(220,260)
             ax4.set(ylabel='cp [Mev]')
 
@@ -126,13 +130,13 @@ def analyse_image(mw, dir=None):
             ax7.plot(x, beam.slice_beta_x)
             ax7.plot(x, beam.slice_beta_y)
             ax7.set_ylim(top=20, bottom=0)
-            ax7.set(ylabel='beta_x / beta_y [m]')
+            ax7.set(ylabel=r'$\beta_x$ / $\beta_y$ [m]')
             ax7.grid()
 
             ax8 = mw.getFigure().add_subplot(428, sharex=ax4)
             ax8.plot(x, 1e6*beam.slice_normalized_horizontal_emittance)
             ax8.plot(x, 1e6*beam.slice_normalized_vertical_emittance)
-            ax8.set(ylabel='enx / eny [um]')
+            ax8.set(ylabel=r'$\gamma \epsilon_x$ / $\gamma \epsilon_y$ [$\mu$ m]')
             ax8.grid()
 
 class OutLog:
@@ -218,7 +222,8 @@ class mainApp(qt.QMainWindow):
                 spamreader = csv.reader(csvfile, csv.QUOTE_NONE, delimiter=',')
                 for row in spamreader:
                     solutions.append([float(a) for a in row])
-            solutions = np.array(sorted(solutions, key=lambda a: a[-1]))
+            solutions = np.array(sorted([s for s in solutions if s[-3] < 12 and s[-4] < 2], key=lambda a: a[-1]))
+            print (solutions)
             iterdirs = [self.currentDirectory + '/iteration_' +str(int(a)) for a in solutions[:,-2] if os.path.isdir(self.currentDirectory + '/iteration_' +str(int(a))) ]
             basedirs = [a for a in dirs if 'basefiles_' in a]
             vbcdirs = [a for a in dirs if 'vbc_' in a]
