@@ -14,5 +14,6 @@ if __name__ == "__main__":
     opt.runElegant = True
     opt.runGenesis = True
     opt.best_changes = './test_best_changes.yaml'
-    best = opt.load_best('../nelder_mead_best_changes.yaml')
+    opt.sample_interval=2**(3*0)
+    best = opt.load_best('./MOGA/iteration_93/changes.yaml')
     opt.OptimisingFunction(best)
