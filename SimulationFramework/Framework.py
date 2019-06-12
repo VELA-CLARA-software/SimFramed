@@ -1892,7 +1892,7 @@ class cavity(frameworkElement):
 
     def update_field_definition(self):
         if hasattr(self, 'field_definition') and self.field_definition is not None:
-            self.field_definition = expand_substitution(self, '\''+self.field_definition+'\'')
+            self.field_definition = '"' + expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'"'
         if hasattr(self, 'field_definition_sdds') and self.field_definition_sdds is not None:
             self.field_definition_sdds = '"' + expand_substitution(self, '\''+self.field_definition_sdds+'\'').strip('\'"')+'"'
         if hasattr(self, 'longitudinal_wakefield_sdds') and self.longitudinal_wakefield_sdds is not None:
@@ -1917,7 +1917,7 @@ class cavity(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['C_pos', {'value': self.start[2] + self.dz, 'default': 0}],
-            ['FILE_EFieLD', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'')+'\'', 'default': 0}],
+            ['FILE_EFieLD', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'\'', 'default': 0}],
             ['C_numb', {'value': self.cells}],
             ['Nue', {'value': self.frequency / 1e9, 'default': 2998.5}],
             ['MaxE', {'value': self.field_amplitude / 1e6, 'default': 0}],
@@ -2224,7 +2224,7 @@ class longitudinal_wakefield(cavity):
             for n in range(startn, startn+self.cells):
                 output += self._write_ASTRA(OrderedDict([
                     ['Wk_Type', {'value': self.waketype, 'default': '\'Taylor_Method_F\''}],
-                    ['Wk_filename', {'value': '\''+self.field_definition+'\'', 'default': 0}],
+                    ['Wk_filename', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'\'', 'default': 0}],
                     ['Wk_x', {'value': self.x_offset, 'default': 0}],
                     ['Wk_y', {'value': self.y_offset, 'default': 0}],
                     ['Wk_z', {'value': self.start[2] + self.coupling_cell_length + (n-1)*self.cell_length}],
