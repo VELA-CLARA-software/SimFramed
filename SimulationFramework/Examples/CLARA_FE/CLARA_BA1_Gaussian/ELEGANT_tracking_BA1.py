@@ -13,9 +13,8 @@ def create_base_files(scaling):
     framework = Framework('basefiles_'+str(scaling), overwrite=True, clean=True)
     framework.loadSettings('CLA10-BA1_TOMP.def')
     if not os.name == 'nt':
-        framework.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
-        framework.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
-        framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
+        framework.defineASTRACommand(scaling=(3*scaling))
+        framework.defineCSRTrackCommand(scaling=(3*scaling))
     framework.generator.number_of_particles = 2**(3*scaling)
     framework.modifyElement('CLA-LRG1-GUN-CAV', 'phase', -5)
     framework.track(files=['generator','injector10'])
@@ -195,13 +194,9 @@ def optimise_Lattice():
     lattice = Framework(dir, clean=False, verbose=False)
     lattice.loadSettings('CLA10-BA1_TOMP.def')
     if not os.name == 'nt':
-        scaling = 5
-        lattice.defineASTRACommand(['mpiexec','-np',str(3*scaling),'/opt/ASTRA/astra_MPICH2.sh'])
-        # lattice.defineASTRACommand(['/opt/ASTRA/astra.sh'])
-        lattice.defineGeneratorCommand(['/opt/ASTRA/generator.sh'])
-        lattice.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*scaling),'/opt/CSRTrack/csrtrack_openmpi.sh'])
-    lattice.defineElegantCommand(['elegant'])
-    scaling = 5
+        scaling = 6
+        lattice.defineASTRACommand(scaling=(3*scaling))
+        lattice.defineCSRTrackCommand(scaling=(3*scaling))
     lattice['L01'].file_block['input']['prefix'] = '../basefiles_'+str(scaling)+'/'
     # lattice.modifyElement('CLA-L01-CAV', 'phase', 0)
     # setMomentum()
@@ -232,7 +227,7 @@ elegantSCOut = open('elegant_SC_phase_data.csv','w')
 elegentNoSC_csv_out = csv.writer(elegantNoSCOut)
 elegentSC_csv_out = csv.writer(elegantSCOut)
 # ASTRA_csv_out = csv.writer(ASTRAOut)
-for i in range(-20,20,1):
+for i in range(-30,25,1):
     set_Phase(i)
     data = track_phase_elegant(i)
     elegentNoSC_csv_out.writerow(data)

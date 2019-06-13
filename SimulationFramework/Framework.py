@@ -8,6 +8,7 @@ from .ASTRARules import *
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from SimulationFramework.FrameworkHelperFunctions import *
 import SimulationFramework.Modules.read_beam_file as rbf
+import SimulationFramework.Executables as exes
 beam = rbf.beam()
 from operator import add
 import progressbar
@@ -167,7 +168,6 @@ def list_add(list1, list2):
 #     changedict = detect_changes(framework)
 #     with open(filename,"w") as yaml_file:
 #         yaml.dump(changedict, yaml_file, default_flow_style=False)
-
 class Framework(Munch):
 
     def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True):
@@ -192,9 +192,14 @@ class Framework(Munch):
         else:
             master_lattice_location = master_lattice
 
-        self.executables = {'generator': [master_lattice_location+'Codes/generator'], 'astra': [master_lattice_location+'Codes/astra'],
-                            'elegant': [master_lattice_location+'Codes/elegant'], 'csrtrack': [master_lattice_location+'Codes/csrtrack'],
-                            'gpt': [r'C:/Program Files/General Particle Tracer/bin/gpt.exe']}
+        self.executables = exes.Executables(master_lattice_location)
+        self.defineASTRACommand = self.executables.define_astra_command
+        self.defineElegantCommand = self.executables.define_elegant_command
+        self.defineGeneratorCommand = self.executables.define_generator_command
+        self.defineCSRTrackCommand = self.executables.define_csrtrack_command
+        # self.executables = {'generator': [master_lattice_location+'Codes/generator'], 'astra': [master_lattice_location+'Codes/astra'],
+        #                     'elegant': [master_lattice_location+'Codes/elegant'], 'csrtrack': [master_lattice_location+'Codes/csrtrack'],
+        #                     'gpt': [r'C:/Program Files/General Particle Tracer/bin/gpt.exe']}
 
     def setSubDirectory(self, dir):
         global master_subdir, master_lattice_location
@@ -209,19 +214,19 @@ class Framework(Munch):
             self.overwrite = True
         # master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
 
-    def defineASTRACommand(self, command=['astra']):
-        """Modify the defined ASTRA command variable"""
-        self.executables['astra'] = command
-
-    def defineElegantCommand(self, command=['elegant']):
-        """Modify the defined Elegant command variable"""
-        self.executables['elegant'] = command
-
-    def defineGeneratorCommand(self,command=['generator']):
-        self.executables['generator'] = command
-
-    def defineCSRTrackCommand(self,command=['csrtrack']):
-        self.executables['csrtrack'] = command
+    # def defineASTRACommand(self, ncpu=1):
+    #     """Modify the defined ASTRA command variable"""
+    #     self.executables.define_astra_command(
+    #
+    # def defineElegantCommand(self, command=['elegant']):
+    #     """Modify the defined Elegant command variable"""
+    #     self.executables['elegant'] = command
+    #
+    # def defineGeneratorCommand(self,command=['generator']):
+    #     self.executables['generator'] = command
+    #
+    # def defineCSRTrackCommand(self,command=['csrtrack']):
+    #     self.executables['csrtrack'] = command
 
     def load_Elements_File(self, input):
         if isinstance(input,(list,tuple)):
@@ -1657,9 +1662,9 @@ class frameworkElement(frameworkObject):
         string = self.objectname+': '+ etype
         k1 = self.k1 if self.k1 is not None else 0
         for key, value in list(merge_two_dicts({'k1': k1}, merge_two_dicts(self.objectproperties, self.objectdefaults)).items()):
-            key = self._convertKeword_Elegant(key)
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -1936,9 +1941,10 @@ class cavity(frameworkElement):
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-            key = self._convertKeword_Elegant(key)
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
                 if self.objecttype == 'cavity':
                     # In ELEGANT all phases are +90degrees!!
                     value = value + 90 if key.lower() == 'phase' else value
@@ -2088,9 +2094,9 @@ class drift(frameworkElement):
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-            key = self._convertKeword_Elegant(key)
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -2105,15 +2111,16 @@ class csrdrift(frameworkElement):
 
     def __init__(self, name=None, type='csrdrift', **kwargs):
         super(csrdrift, self).__init__(name, type, **kwargs)
+        self.keyword_conversion_rules_elegant['csrdz'] = 'dz'
 
     def _write_Elegant(self):
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-            key = self._convertKeword_Elegant(key)
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -2143,9 +2150,9 @@ class modulator(frameworkElement):
         etype = self._convertType_Elegant(self.objecttype)
         string = self.objectname+': '+ etype
         for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-            key = self._convertKeword_Elegant(key)
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -2177,9 +2184,9 @@ class wiggler(frameworkElement):
             etype = 'drift'
         string = self.objectname+': '+ etype
         for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-            key = self._convertKeword_Elegant(key)
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -2253,9 +2260,9 @@ class longitudinal_wakefield(cavity):
             d = drift(self.objectname+'-drift', type='drift', **{'length': self.length})
             wholestring+=d._write_Elegant()
         for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-            key = self._convertKeword_Elegant(key)
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and key in elements_Elegant[etype]:
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
