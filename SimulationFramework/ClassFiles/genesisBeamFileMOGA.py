@@ -119,10 +119,12 @@ class MOGA(Optimise_Genesis_Elegant):
     def MOGAoptFunc(self, inputargs, *args, **kwargs):
         e, b, ee, be, l, g = self.OptimisingFunction(inputargs, **kwargs)
         fitness = -1.0*e/b
+        print ('fitvalue[', self.opt_iteration, '] - E=', 1e2*e, '  BW=', b, '  fitness=', fitness)
         self.saveState(inputargs, self.opt_iteration, [e, b, ee, be, l], fitness)
-        return e, b, ee, be
+        return e, b, e/b
 
     def OptimisingFunction(self, inputargs, **kwargs):
+        self.optdir = 'MOGA/iteration_'
         if not self.post_injector:
             parameternames = self.injector_parameter_names + self.parameter_names
         else:
@@ -135,6 +137,7 @@ class MOGA(Optimise_Genesis_Elegant):
 
         idclient = idn.zmqClient()
         n =  idclient.get_id()
+        # print('id n = ', n)
         self.opt_iteration = n
 
         dir = self.optdir+str(self.opt_iteration)
@@ -147,10 +150,13 @@ class MOGA(Optimise_Genesis_Elegant):
         self.resultsDict.update({'e': e, 'b': b, 'ee': ee, 'be': be, 'l': l, 'g': g, 'brightness': (1e-4*e)/(1e-2*b), 'momentum': 1e-6*np.mean(g.momentum)})
         return e, b, ee, be, l, g
 
-    def initialise_population(self, best, npop):
+    def initialise_population(self, best, npop, sigma=None):
         self.best = best
         self.generateHasBeenCalled = False
-        self.startranges = [self.rangeFunc(i) for i in best]
+        if sigma is None:
+            self.startranges = [self.rangeFunc(i) for i in best]
+        else:
+            self.startranges = [[b-s,b+s] for b, s in zip(best,sigma)]
         self.pop = self.toolbox.population(n=npop)
 
     def initialise_MOGA(self, seed=6546841):
@@ -173,5 +179,4 @@ class MOGA(Optimise_Genesis_Elegant):
         out = open('MOGA/best_solutions_running.csv','wb', buffering=0)
         self.csv_out = csv.writer(out)
         opt.eaMuPlusLambda(self.pop, self.toolbox, nSelect, nChildren, crossoverprobability, mutationprobability, ngenerations, self.stats,
-                            hoffile='MOGA/CLARA_HOF_longitudinal_Genesis_DCP.csv',
-                            halloffame=self.hof)
+                            hoffile='MOGA/CLARA_HOF_longitudinal_Genesis_DCP.csv', halloffame=self.hof)

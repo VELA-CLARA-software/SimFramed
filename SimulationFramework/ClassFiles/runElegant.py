@@ -56,10 +56,16 @@ class fitnessFunc(object):
         self.start_lattice = None
         self.scaling = 6
         self.overwrite = True
+        self.clean = False
         self.post_injector = True
         self.startcharge = None
         self.changes = None
         self.sample_interval = 1
+        self.npart=2**(3*self.scaling)
+        self.ncpu = self.scaling*3
+        self.elegant_ncpu = 1
+        self.genesis_ncpu = 2
+        self.doTracking = True
 
     def set_CLARA_directory(self, clara_dir):
         self.CLARA_dir = clara_dir
@@ -80,7 +86,7 @@ class fitnessFunc(object):
                     print(n, p)
                     if not hasattr(self, 'framework'):
                         self.framework = fw.Framework(None)
-                        self.framework.loadSettings(self.lattice)
+                        self.framework.loadSettings(self.lattice_file)
                     best.append(self.framework[n][p])
             self.best = best
         return best
@@ -89,16 +95,13 @@ class fitnessFunc(object):
         self.dirname = tempdir
         self.input_parameters = list(inputargs)
 
-        self.npart=2**(3*self.scaling)
-        ncpu = self.scaling*3
+        self.framework = fw.Framework(self.dirname, clean=self.clean, overwrite=self.overwrite, verbose=self.verbose)
 
-        self.framework = fw.Framework(self.dirname, overwrite=self.overwrite, verbose=self.verbose)
-
+        # print('self.ncpu = ', self.ncpu)
         if not os.name == 'nt':
-            self.framework.defineGeneratorCommand(['/opt/ASTRA/generator'])
-            self.framework.defineASTRACommand(['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh'])
-            self.framework.defineCSRTrackCommand(['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh'])
-        self.framework.defineElegantCommand(['elegant'])
+            self.framework.defineASTRACommand(ncpu=self.ncpu)
+            self.framework.defineCSRTrackCommand(ncpu=self.ncpu)
+        self.framework.defineElegantCommand(ncpu=self.elegant_ncpu)
         # if os.name == 'nt':
         #     self.framework.defineElegantCommand(['mpiexec','-np','10','pelegant'])
         self.framework.loadSettings(self.lattice_file)
@@ -106,7 +109,7 @@ class fitnessFunc(object):
 
         ### Define starting lattice
         if self.start_lattice is None:
-            self.start_lattice = self.framework.latticeObjects[0].objectname
+            self.start_lattice = self.framework[list(self.framework.latticeObjects)[0]].objectname
 
         ### Apply any pre-tracking changes to elements
         if self.changes is not None:
@@ -124,6 +127,9 @@ class fitnessFunc(object):
         ### Save the changes to the run directory
         self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml', elements=self.input_parameters)
 
+    def before_tracking(self):
+        pass
+
     def track(self):
         ### Have we defined where the base files are?
         if self.base_files is not None:
@@ -131,7 +137,7 @@ class fitnessFunc(object):
             self.framework[self.start_lattice].prefix = self.base_files
         ### If not, use the defaults based on the location of the CLARA example directory
         elif self.CLARA_dir is not None:
-            # print('Using CLARA_dir base_files = ', self.CLARA_dir+'/../../basefiles_'+str(self.scaling)+'/')
+            # print('Using CLARA_dir base_files = ', self.CLARA_dir+'/basefiles_'+str(self.scaling)+'/')
             self.framework[self.start_lattice].prefix = self.CLARA_dir+'/basefiles_'+str(self.scaling)+'/'
 
         ### Are we are setting the charge?
@@ -144,7 +150,8 @@ class fitnessFunc(object):
             self.framework[self.start_lattice].sample_interval = self.sample_interval#2**(3*4)
 
         ### TRACKING
-        self.framework.track(startfile=self.start_lattice)
+        if self.doTracking:
+            self.framework.track(startfile=self.start_lattice)
 
 def optfunc(inputargs, dir=None, *args, **kwargs):
     global bestfit
