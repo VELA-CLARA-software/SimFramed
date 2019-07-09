@@ -170,6 +170,17 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [4.5e-05, 0, 19.5202]
     position_start: [4.5e-05, 0, 19.4852]
+  CLA-S04-LH-SCA:
+    type: scatter
+    probability: 1.0
+    horizontal_scatter: 0
+    vertical_scatter: 0
+    horizontal_momentum_scatter: 0
+    vertical_momentum_scatter: 0
+    relative_momentum_scatter: 0.0
+    global_rotation: [0, 0, 0]
+    position_end: [4.5e-05, 0, 19.87]
+    position_start: [4.5e-05, 0, 19.87]
   CLA-S04-MAG-LASER0-M:
     type: marker
     fit_point: 1.0
