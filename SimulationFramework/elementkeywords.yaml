@@ -4,7 +4,18 @@ aperture:
     horizontal_size,
     vertical_size,
   }
+scatter:
+  keywords: {
+    probability,
+    horizontal_scatter,
+    vertical_scatter,
+    horizontal_momentum_scatter,
+    vertical_momentum_scatter,
+    relative_momentum_scatter
+  }
 beam_position_monitor:
+  keywords: {}
+beam_arrival_monitor:
   keywords: {}
 cavity:
   keywords: {
@@ -25,6 +36,10 @@ cavity:
     wycolumn,
     coupling_cell_length,
     method,
+    lsc_bins,
+    lsc_enable,
+    current_bins,
+    n_kicks
   }
 longitudinal_wakefield:
   keywords: {
@@ -112,8 +127,6 @@ quadrupole:
   keywords: {
     k1l,
     k1,
-    sr_enable,
-    isr_enable,
   }
 rf_deflecting_cavity:
   keywords: {
@@ -158,10 +171,16 @@ wiggler:
   }
 wall_current_monitor:
   keywords: {}
+integrated_current_transformer:
+  keywords: {}
 drift:
   keywords: {}
 csrdrift:
-  keywords: {'csrdz', 'use_stupakov','lsc_bins'}
+  keywords: {'csrdz', 'use_stupakov', 'lsc_bins', 'use_saldin54', 'saldin54points', 'lsc_enable', 'lsc_low_frequency_cutoff_start', 'lsc_low_frequency_cutoff_end',
+  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end','csr_enable'}
+lscdrift:
+  keywords: {'lsc_bins', 'lsc_enable', 'lsc_low_frequency_cutoff_start', 'lsc_low_frequency_cutoff_end',
+  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end'}
 charge:
   keywords: {"TOTAL"}
 astra_newrun:
@@ -250,6 +269,17 @@ gpt_setfile:
   keywords: {
     set,
     filename
+  }
+gpt_charge:
+  keywords: {
+    set,
+    charge,
+  }
+gpt_tout:
+  keywords: {
+    startpos,
+    endpos,
+    step,
   }
 global_error:
   keywords: {
