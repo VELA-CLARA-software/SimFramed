@@ -73,15 +73,17 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/commands_Elegant.yaml', 
 with open(os.path.dirname( os.path.abspath(__file__))+'/csrtrack_defaults.yaml', 'r') as infile:
     csrtrack_defaults = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
+gpt_defaults = {}
+
 with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', 'r') as infile:
     elementkeywords = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 'r') as infile:
     elements_Elegant = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
-type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
-                         'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'cavity': 'rfcw',
-                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake', 'modulator': 'lsrmdltr'}
+type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'beam_arrival_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
+                         'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'integrated_current_transformer': 'moni', 'cavity': 'rfcw',
+                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake', 'modulator': 'lsrmdltr', 'scatter': 'scatter'}
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'wakefields': {'header': 'WAKE', 'bool': 'LWAKE'},
@@ -412,6 +414,9 @@ class Framework(Munch):
             return {}
 
     def getElementType(self, type, setting=None):
+        if isinstance(type, (list, tuple)):
+            all_elements = [self.getElementType(t) for t in type]
+            return [item for sublist in all_elements for item in sublist]
         return [self.elementObjects[element] if setting is None else self.elementObjects[element][setting] for element in list(self.elementObjects.keys()) if self.elementObjects[element].objecttype.lower() == type.lower()]
 
     def setElementType(self, type, setting, values):
@@ -559,7 +564,22 @@ class frameworkLattice(Munch):
         self.groupSettings = file_block['groups'] if 'groups' in file_block else {}
         self.update_groups()
         self.executables = executables
-        self.lscDrifts = False
+        self.csrDrifts = True
+        self.lscDrifts = True
+        self.lsc_bins = 20
+        self.lsc_high_frequency_cutoff_start = -1
+        self.lsc_high_frequency_cutoff_end = -1
+        self.lsc_low_frequency_cutoff_start = -1
+        self.lsc_low_frequency_cutoff_end = -1
+        self._sample_interval = self.file_block['input']['sample_interval'] if 'input' in self.file_block and 'sample_interval' in self.file_block['input'] else 1
+
+    @property
+    def sample_interval(self):
+        return self._sample_interval
+    @sample_interval.setter
+    def sample_interval(self, interval):
+        # print('Setting new sample_interval = ', interval)
+        self._sample_interval = interval
 
     @property
     def prefix(self):
@@ -712,22 +732,23 @@ class frameworkLattice(Munch):
                 if length > 0:
                     elementno += 1
                     name = 'drift'+str(elementno)
-                    if self.lscDrifts:
-                        newdrift = csrdrift(name, type='csrdrift', **{'length': length,
-                         'position_start': list(d[0]),
-                         'position_end': list(d[1]),
-                         'use_stupakov': 1,
-                         'csrdz': 0.01,
-                         'lsc_bins': 100,
-                        })
-                    else:
-                        newdrift = csrdrift(name, type='csrdrift', **{'length': length,
-                         'position_start': list(d[0]),
-                         'position_end': list(d[1]),
-                         'use_stupakov': 1,
-                         'csrdz': 0.01,
-                        })
-
+                    lscbins = self.lsc_bins if self.lscDrifts is True else 0
+                    csr = 1 if self.csrDrifts is True else 0
+                    lsc = 1 if self.lscDrifts is True else 0
+                    drifttype = csrdrift if self.csrDrifts else lscdrift
+                    newdrift = drifttype(name, **{'length': length,
+                     'position_start': list(d[0]),
+                     'position_end': list(d[1]),
+                     'csr_enable': csr,
+                     'lsc_enable': lsc,
+                     'use_stupakov': 1,
+                     'csrdz': 0.01,
+                     'lsc_bins': lscbins,
+                     'lsc_high_frequency_cutoff_start': self.lsc_high_frequency_cutoff_start,
+                     'lsc_high_frequency_cutoff_end': self.lsc_high_frequency_cutoff_end,
+                     'lsc_low_frequency_cutoff_start': self.lsc_low_frequency_cutoff_start,
+                     'lsc_low_frequency_cutoff_end': self.lsc_low_frequency_cutoff_end,
+                    })
                     newelements[name] = newdrift
         return newelements
 
@@ -842,7 +863,6 @@ class elegantLattice(frameworkLattice):
         self.particle_definition = self.allElementObjects[self.start].objectname
         self.bunch_charge = None
         self.q = charge(name='START', type='charge',**{'total': 250e-12})
-        self.sample_interval = self.file_block['input']['sample_interval'] if 'input' in self.file_block and 'sample_interval' in self.file_block['input'] else 1
 
     def writeElements(self):
         self.w = self.endScreen(output_filename=self.end+'.SDDS')
@@ -886,7 +906,7 @@ class elegantLattice(frameworkLattice):
         else:
             self.q = charge(name='START', type='charge',**{'total': abs(beam.charge)})
         sddsbeamfilename = self.particle_definition+'.sdds'
-        beam.write_SDDS_file(master_subdir + '/' + sddsbeamfilename)
+        beam.write_SDDS_file(master_subdir + '/' + sddsbeamfilename, xyzoffset=self.startObject.position_start)
 
     def run(self):
         """Run the code with input 'filename'"""
@@ -963,7 +983,6 @@ class elegantOptimisation(elegantCommandFile):
     def add_optimisation_term(self, name, item=None, **kwargs):
         self.addCommand(name=name, type='optimization_term', term=item, **kwargs)
 
-
 class frameworkCommand(frameworkObject):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -1029,6 +1048,16 @@ class astraLattice(frameworkLattice):
             self.headers['global_errors'] = astra_errors(element=self.global_error, **merge_two_dicts(self.file_block['global_errors'], self.globalSettings['global_errors']))
         # print 'errors = ', self.file_block, self.headers['global_errors']
 
+    @property
+    def sample_interval(self):
+        return self._sample_interval
+    @sample_interval.setter
+    def sample_interval(self, interval):
+        # print('Setting new ASTRA sample_interval = ', interval)
+        self._sample_interval = interval
+        self.headers['newrun'].sample_interval = interval
+        self.headers['charge'].sample_interval = interval
+
     def writeElements(self):
         fulltext = ''
         # Create objects for the newrun, output and charge blocks
@@ -1081,8 +1110,13 @@ class astraLattice(frameworkLattice):
             zstart = self.allElementObjects[self.start].start
         else:
             zstart = [0,0,0]
+        startpos = np.array(self.allElementObjects[self.start].start)-np.array(zstart)
         endpos = np.array(self.allElementObjects[self.end].end)-np.array(zstart)
         astrabeamfilename = self.objectname + '.' + str(int(round(endpos[2]*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
+        if not os.path.isfile(master_subdir + '/' + astrabeamfilename):
+            print('Can\'t find ASTRA beam file: ', astrabeamfilename)
+            astrabeamfilename = self.objectname + '.' + str(int(round((endpos[2]-startpos[2])*1000))).zfill(4) + '.' + str(master_run_no).zfill(3)
+            print('Trying relative naming convention: ', astrabeamfilename)
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
         beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
         HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
@@ -1092,16 +1126,19 @@ class gptLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
         super(gptLattice, self).__init__(*args, **kwargs)
         self.code = 'gpt'
+        self.bunch_charge = None
+        self.particle_definition = self.allElementObjects[self.start].objectname
         self.headers = OrderedDict()
-        # self.headers['newrun'] = astra_newrun(**merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
-        # self.headers['output'] = astra_output(self.screens_and_bpms, **merge_two_dicts(self.file_block['output'],self.globalSettings['ASTRAsettings']))
-        # self.headers['charge'] = astra_charge(**merge_two_dicts(self.file_block['charge'],self.globalSettings['ASTRAsettings']))
-        # if self.headers['newrun'].particle_definition == 'initial_distribution':
-        #             self.headers['newrun'].particle_definition = 'laser.astra'
-        # else:
-        #     self.headers['newrun'].particle_definition = self.allElementObjects[self.start].objectname+'.astra'
+        self.headers['setfile'] = gpt_setfile(set="\"beam\"", filename="\"" + self.particle_definition + ".gdf\"")
+        self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=250e-12)
+        start = self.allElementObjects[self.start].start[2]
+        end = self.allElementObjects[self.end].end[2]
+        self.headers['tout'] = gpt_tout(startpos=start, endpos=self.allElementObjects[self.end].end[2], step=0.025)
+
     def writeElements(self):
         fulltext = ''
+        for header in self.headers:
+            fulltext += self.headers[header].write_GPT()+'\n'
         for element in list(self.elements.values()):
             fulltext += element.write_GPT(1)
         fulltext += self.endScreen().write_GPT(1)
@@ -1109,22 +1146,34 @@ class gptLattice(frameworkLattice):
 
     def write(self):
         self.code_file = master_subdir+'/'+self.objectname+'.in'
-        # saveFile(self.code_file, self.writeElements())
+        saveFile(self.code_file, self.writeElements())
         return self.writeElements()
 
     def preProcess(self):
-        self.headers['newrun'].hdf5_to_astra()
+        prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
+        self.hdf5_to_gdf(prefix)
+
+    def run(self):
+        """Run the code with input 'filename'"""
+        command = self.executables[self.code] + ['-o', self.objectname+'_out.gdf'] + ['GPTLICENSE=***REMOVED***'] + [self.objectname+'.in']
+        # post_command_t = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
+        post_command = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['position','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
+        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f, cwd=master_subdir)
+            subprocess.call(post_command, stdout=f, cwd=master_subdir)
 
     def postProcess(self):
         for e in self.screens_and_bpms:
             e.astra_to_hdf5(self.objectname)
         self.astra_to_hdf5()
 
-    def astra_to_hdf5(self):
-        astrabeamfilename = self.objectname + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
-        beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
-        HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
+    def hdf5_to_gdf(self, prefix=''):
+        HDF5filename = prefix+self.particle_definition+'.hdf5'
+        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=beam.charge)
+        gdfbeamfilename = self.particle_definition+'.gdf'
+        beam.write_gdf_beam_file(master_subdir + '/' + self.particle_definition+'.txt')
+        subprocess.call(['asci2gdf', '-o', gdfbeamfilename, self.particle_definition+'.txt'], cwd=master_subdir)
 
 class csrtrackLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -1479,14 +1528,16 @@ class frameworkElement(frameworkObject):
 
     keyword_conversion_rules_elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
                                  'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
-                                 'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'change_p0', 'bunched_beam': 'bunched_beam_mode', 'nbins': 'n_bins'}
+                                 'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'change_p0', 'bunched_beam': 'bunched_beam_mode', 'current_bins': 'n_bins',
+                                 'lsc_enable': 'lsc',
+                                 }
 
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(frameworkElement, self).__init__(elementName, elementType, **kwargs)
         self.add_default('length', 0)
         self.add_property('position_errors', [0,0,0])
         self.add_property('rotation_errors', [0,0,0])
-        self.add_property('global_rotation', [0,0,0])
+        self.add_default('global_rotation', [0,0,0])
 
 
     def __mul__(self, other):
@@ -1577,8 +1628,8 @@ class frameworkElement(frameworkObject):
             rotation =  self.global_rotation[2] if len(self.global_rotation) is 3 else self.global_rotation
         else:
             rotation = 0
-        if hasattr(self, 'starting_rotation') and self.starting_rotation is not None:
-            rotation +=  self.starting_rotation
+        # if hasattr(self, 'starting_rotation') and self.starting_rotation is not None:
+        #     rotation +=  self.starting_rotation
         return rotation
 
     def _rotation_matrix(self, theta):
@@ -1611,6 +1662,7 @@ class frameworkElement(frameworkObject):
         start = self.position_start
         length_vector = self.rotated_position([0,0, self.length / 2.0], offset=[0,0,0], theta=self.theta)
         starting_middle = np.array(start) + length_vector
+        # print(self.objectname, self.theta, self.starting_rotation, self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)[0])
         return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
@@ -1665,6 +1717,8 @@ class frameworkElement(frameworkObject):
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
                 key = self._convertKeword_Elegant(key)
+                value = 1 if value is True else value
+                value = 0 if value is False else value
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -1704,15 +1758,16 @@ class dipole(frameworkElement):
 
     def __init__(self, name=None, type='dipole', **kwargs):
         super(dipole, self).__init__(name, type, **kwargs)
-        self.add_default('bins',100)
-        self.add_default('csr', 1)
-        self.add_default('isr', 1)
+        self.keyword_conversion_rules_elegant['isr_enable'] = 'isr'
+        self.keyword_conversion_rules_elegant['sr_enable'] = 'synch_rad'
+        self.add_default('bins', 100)
+        self.add_default('csr_enable', 1)
+        self.add_default('isr_enable', True)
         self.add_default('n_kicks', 10)
-        self.add_default('synch_rad', 1)
+        self.add_default('sr_enable', True)
         self.add_default('integration_order', 4)
         self.add_default('nonlinear', 1)
         self.add_default('sg_halfwidth', 2)
-
 
     @property
     def width(self):
@@ -1759,6 +1814,33 @@ class dipole(frameworkElement):
     @property
     def e2(self):
         return self._edge_angles('exit_edge_angle')
+
+    def _write_Elegant(self):
+        wholestring=''
+        etype = self._convertType_Elegant(self.objecttype)
+        string = self.objectname+': '+ etype
+        k1 = self.k1 if self.k1 is not None else 0
+        for key, value in list(merge_two_dicts({'k1': k1}, merge_two_dicts(self.objectproperties, self.objectdefaults)).items()):
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
+                # if 'bins' in key or 'bins' in self._convertKeword_Elegant(key):
+                    # print('BINS KEY ', key, '  ', self._convertKeword_Elegant(key))
+                if 'edge_angle' in key:
+                    key = self._convertKeword_Elegant(key)
+                    value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                else:
+                    value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                    key = self._convertKeword_Elegant(key)
+                value = 1 if value is True else value
+                value = 0 if value is False else value
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
 
     @property
     def corners(self):
@@ -1843,6 +1925,8 @@ class quadrupole(frameworkElement):
         self.add_default('k1l', 0)
         self.add_default('n_kicks', 20)
         self.strength_errors = [0]
+        self.keyword_conversion_rules_elegant['isr_enable'] = 'isr'
+        self.keyword_conversion_rules_elegant['sr_enable'] = 'synch_rad'
 
     @property
     def k1(self):
@@ -1861,11 +1945,11 @@ class quadrupole(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['Q_pos', {'value': self.middle[2] + self.dz, 'default': 0}],
-            ['Q_xoff', {'value': self.middle[0] + self.dx, 'default': 0}],
+            ['Q_xoff', {'value': self.middle[0], 'default': 0}],
             ['Q_yoff', {'value': self.middle[1] + self.dy, 'default': 0}],
-            ['Q_xrot', {'value': self.y_rot + self.dy_rot, 'default': 0}],
-            ['Q_yrot', {'value': self.x_rot + self.dx_rot, 'default': 0}],
-            ['Q_zrot', {'value': self.z_rot + self.dz_rot, 'default': 0}],
+            ['Q_xrot', {'value': -1*self.y_rot + self.dy_rot, 'default': 0}],
+            ['Q_yrot', {'value': -1*self.x_rot + self.dx_rot, 'default': 0}],
+            ['Q_zrot', {'value': -1*self.z_rot + self.dz_rot, 'default': 0}],
             ['Q_k', {'value': self.k1 + self.dk1, 'default': 0}],
             ['Q_length', {'value': self.length, 'default': 0}],
             ['Q_smooth', {'value': self.smooth, 'default': 10}],
@@ -1883,17 +1967,21 @@ class cavity(frameworkElement):
     def __init__(self, name=None, type='cavity', **kwargs):
         super(cavity, self).__init__(name, type, **kwargs)
         self.keyword_conversion_rules_elegant['field_amplitude'] = 'volt'
-        # self.keyword_conversion_rules_elegant['frequency'] = 'frequency'
         self.keyword_conversion_rules_elegant['longitudinal_wakefield_sdds'] = 'zwakefile'
         self.keyword_conversion_rules_elegant['transverse_wakefield_sdds'] = 'trwakefile'
+        self.keyword_conversion_rules_elegant['longitudinal_wakefield_enable'] = 'zwake'
+        self.keyword_conversion_rules_elegant['transverse_wakefield_enable'] = 'trwake'
         self.add_default('tcolumn', '"t"')
         self.add_default('wzcolumn', '"W"')
         self.add_default('wxcolumn', '"W"')
         self.add_default('wycolumn', '"W"')
         self.add_default('wcolumn', '"Ez"')
         self.add_default('change_p0', 1)
+        self.add_default('n_kicks', self.n_cells)
         # self.add_default('method', '"non-adaptive runge-kutta"')
         self.add_default('focussing', 1)
+        self.add_default('lsc_bins', 100)
+        self.add_default('current_bins', 0)
 
     def update_field_definition(self):
         if hasattr(self, 'field_definition') and self.field_definition is not None:
@@ -1939,9 +2027,11 @@ class cavity(frameworkElement):
         self.update_field_definition()
         wholestring=''
         etype = self._convertType_Elegant(self.objecttype)
+        if (not hasattr(self, 'longitudinal_wakefield_sdds') or self.longitudinal_wakefield_sdds == None) and (not hasattr(self, 'transverse_wakefield_sdds') or self.transverse_wakefield_sdds == None):
+            # print('cavity ', self.objectname, ' is an RFCA!')
+            etype = 'rfca'
         string = self.objectname+': '+ etype
         for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
                 key = self._convertKeword_Elegant(key)
@@ -1956,6 +2046,8 @@ class cavity(frameworkElement):
                     value = 1/(2**0.5) * value if key.lower() == 'ez' else value
                     # In CAVITY NKICK = n_cells
                     value = self.cells if key.lower() == 'n_kicks' else value
+                    value = 1 if value is True else value
+                    value = 0 if value is False else value
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -1970,6 +2062,7 @@ class rf_deflecting_cavity(cavity):
 
     def __init__(self, name=None, type='rf_deflecting_cavity', **kwargs):
         super(rf_deflecting_cavity, self).__init__(name, type, **kwargs)
+        self.add_default('n_kicks', 10)
 
 class solenoid(frameworkElement):
 
@@ -1995,17 +2088,50 @@ class aperture(frameworkElement):
         super(aperture, self).__init__(name, type, **kwargs)
 
     def write_GPT(self, Brho):
-        if self.shape == 'elliptical':
-            output = 'rmax'
-        else:
-            output = 'xymax'
-        output += '( "wcs", '+self.gpt_coordinates()+', '+str(self.horizontal_size)+', '+str(self.length)+');\n'
-        return output
+        return ''
+        # if self.shape == 'elliptical':
+        #     output = 'rmax'
+        # else:
+        #     output = 'xymax'
+        # output += '( "wcs", '+self.gpt_coordinates()+', '+str(self.horizontal_size)+', '+str(self.length)+');\n'
+        # return output
+
+class scatter(frameworkElement):
+
+    def __init__(self, name=None, type='scatter', **kwargs):
+        super(scatter, self).__init__(name, type, **kwargs)
+        self.keyword_conversion_rules_elegant.update({'horizontal_scatter': 'x', 'vertical_scatter': 'y', 'horizontal_momentum_scatter': 'xp',
+        'vertical_momentum_scatter': 'yp', 'relative_momentum_scatter': 'dp'})
+        # print('Scatter object ', self.objectname,' - DP = ', self.objectproperties)
+
+    def _write_Elegant(self):
+        wholestring=''
+        etype = 'scatter'
+        string = self.objectname+': '+ etype
+        k1 = self.k1 if self.k1 is not None else 0
+        for key, value in list(merge_two_dicts({'k1': k1}, merge_two_dicts(self.objectproperties, self.objectdefaults)).items()):
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
 
 class wall_current_monitor(frameworkElement):
 
     def __init__(self, name=None, type='wall_current_monitor', **kwargs):
         super(wall_current_monitor, self).__init__(name, type, **kwargs)
+
+class integrated_current_transformer(frameworkElement):
+
+    def __init__(self, name=None, type='wall_current_monitor', **kwargs):
+        super(integrated_current_transformer, self).__init__(name, type, **kwargs)
 
 class screen(frameworkElement):
 
@@ -2022,11 +2148,12 @@ class screen(frameworkElement):
         ]), n)
 
     def write_CSRTrack(self, n):
-        z = self.start[2]
+        z = self.middle[2]
         return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
 
     def write_GPT(self, Brho):
-        output = 'screen( "wcs", '+self.gpt_coordinates()+');\n'
+        # +self.gpt_coordinates()+
+        output = 'screen("wcs", '+self.gpt_coordinates()+','+str(self.middle[2])+');\n'
         return output
 
     def astra_to_hdf5(self, lattice):
@@ -2047,7 +2174,14 @@ class screen(frameworkElement):
         elegantbeamfilename = self.output_filename.replace('.sdds','.SDDS').strip('\"')
         beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename)
         HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle, zoffset=self.end[2])
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle, zoffset=self.end)
+
+    def gpt_to_hdf5(self):
+        gptbeamfilename = self.objectname + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
+        beam.read_gdf_beam_file(master_subdir + '/' + gptbeamfilename)
+        HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
+        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=gptbeamfilename)
+
 
 class monitor(screen):
 
@@ -2070,6 +2204,15 @@ class beam_position_monitor(screen):
             ['Scr_xrot', {'value': self.y_rot + self.dy_rot, 'default': 0}],
             ['Scr_yrot', {'value': self.x_rot + self.dx_rot, 'default': 0}],
         ]), n)
+
+class beam_arrival_monitor(screen):
+
+    def __init__(self, name=None, type='beam_arrival_monitor', **kwargs):
+        super(beam_arrival_monitor, self).__init__(name, type, **kwargs)
+
+    def write_ASTRA(self, n):
+        return ''
+
 
 class collimator(frameworkElement):
 
@@ -2097,6 +2240,8 @@ class drift(frameworkElement):
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
                 key = self._convertKeword_Elegant(key)
+                value = 1 if value is True else value
+                value = 0 if value is False else value
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -2112,6 +2257,11 @@ class csrdrift(frameworkElement):
     def __init__(self, name=None, type='csrdrift', **kwargs):
         super(csrdrift, self).__init__(name, type, **kwargs)
         self.keyword_conversion_rules_elegant['csrdz'] = 'dz'
+        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_start'] = 'LSC_LOW_FREQUENCY_CUTOFF0'.lower()
+        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_end'] = 'LSC_LOW_FREQUENCY_CUTOFF1'.lower()
+        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_start'] = 'LSC_HIGH_FREQUENCY_CUTOFF0'.lower()
+        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_end'] = 'LSC_HIGH_FREQUENCY_CUTOFF1'.lower()
+        self.keyword_conversion_rules_elegant['csr_enable'] = 'csr'
 
     def _write_Elegant(self):
         wholestring=''
@@ -2121,6 +2271,39 @@ class csrdrift(frameworkElement):
             if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
                 value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
                 key = self._convertKeword_Elegant(key)
+                value = 1 if value is True else value
+                value = 0 if value is False else value
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
+
+class lscdrift(frameworkElement):
+
+    def __init__(self, name=None, type='lscdrift', **kwargs):
+        super(lscdrift, self).__init__(name, type, **kwargs)
+        self.keyword_conversion_rules_elegant['lsc_bins'] = 'bins'
+        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_start'] = 'LOW_FREQUENCY_CUTOFF0'.lower()
+        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_end'] = 'LOW_FREQUENCY_CUTOFF1'.lower()
+        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_start'] = 'HIGH_FREQUENCY_CUTOFF0'.lower()
+        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_end'] = 'HIGH_FREQUENCY_CUTOFF1'.lower()
+        self.keyword_conversion_rules_elegant['lsc_enable'] = 'lsc'
+
+    def _write_Elegant(self):
+        wholestring=''
+        etype = self._convertType_Elegant(self.objecttype)
+        string = self.objectname+': '+ etype
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
+                value = 1 if value is True else value
+                value = 0 if value is False else value
                 tmpstring = ', '+key+' = '+str(value)
                 if len(string+tmpstring) > 76:
                     wholestring+=string+',&\n'
@@ -2226,6 +2409,7 @@ class longitudinal_wakefield(cavity):
 
     def write_ASTRA(self, startn):
         self.update_field_definition()
+        current_bins = self.current_bins if self.current_bins > 0 else 11
         output = ''
         if self.scale_kick > 0:
             for n in range(startn, startn+self.cells):
@@ -2242,7 +2426,7 @@ class longitudinal_wakefield(cavity):
                     ['Wk_hy', {'value': self.scale_field_hy, 'default': 0}],
                     ['Wk_hz', {'value': self.scale_field_hz, 'default': 0}],
                     ['Wk_equi_grid', {'value': self.equal_grid, 'default': 0}],
-                    ['Wk_N_bin', {'value': self.nbins, 'default': 11}],
+                    ['Wk_N_bin', {'value': current_bins, 'default': 11}],
                     ['Wk_ip_method', {'value': self.interpolation_method, 'default': 2}],
                     ['Wk_smooth', {'value': self.smooth, 'default': 0.5}],
                     ['Wk_sub', {'value': self.subbins, 'default': 4}],
@@ -2295,6 +2479,7 @@ class astra_newrun(astra_header):
         super(astra_header, self).__init__('newrun', 'astra_newrun', **kwargs)
         self.starting_offset = offset
         self.starting_rotation = rotation
+        self.sample_interval = 1
         if 'run' not in kwargs:
             self.run = 1
         if 'head' not in kwargs:
@@ -2306,6 +2491,7 @@ class astra_newrun(astra_header):
         return OrderedDict([
             ['Distribution', {'value': '\''+self.particle_definition+'\''}],
             ['high_res', {'value': self.high_res, 'default': True}],
+            ['n_red', {'value': self.sample_interval, 'default': 1}],
             ['auto_phase', {'value': self.auto_phase, 'default': True}]
         ])
 
@@ -2344,7 +2530,8 @@ class astra_charge(astra_header):
     def __init__(self, **kwargs):
         super(astra_header, self).__init__('charge', 'astra_charge', **kwargs)
         self.npart = 2**(3*5)
-        self.grids = getGrids(npart=self.npart)
+        self.sample_interval = 1
+        self.grids = getGrids()
 
     @property
     def space_charge(self):
@@ -2361,7 +2548,7 @@ class astra_charge(astra_header):
     @property
     def grid_size(self):
         # print 'asking for grid sizes n = ', self.npart, ' is ', self.grids.getGridSizes(self.npart)
-        return self.grids.getGridSizes(self.npart)
+        return self.grids.getGridSizes((self.npart/self.sample_interval))
 
     def framework_dict(self):
         sc_dict = OrderedDict([
@@ -2376,9 +2563,9 @@ class astra_charge(astra_header):
             ])
         elif self.space_charge_3D:
             sc_n_dict = OrderedDict([
-                ['nxf', {'value': self.grid_size, 'default': 6}],
-                ['nyf', {'value': self.grid_size, 'default': 6}],
-                ['nzf', {'value': self.grid_size, 'default': 6}],
+                ['nxf', {'value': self.grid_size, 'default': 8}],
+                ['nyf', {'value': self.grid_size, 'default': 8}],
+                ['nzf', {'value': 2*self.grid_size, 'default': 8}],
             ])
         else:
             sc_n_dict = OrderedDict([])
@@ -2386,13 +2573,8 @@ class astra_charge(astra_header):
 
 class getGrids(object):
 
-    def __init__(self, npart=1000):
+    def __init__(self):
         self.powersof8 = np.asarray([ 2**(j) for j in range(1,20) ])
-        self.n = npart
-        self.gridSizes = self.getGridSizes(int(self.n))
-
-    def getGridSizes(self):
-        return self.gridSizes
 
     def getGridSizes(self, x):
         self.x = abs(x)
@@ -2521,22 +2703,54 @@ class gpt_element(frameworkElement):
 
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(gpt_element, self).__init__(elementName, elementType, **kwargs)
-        if elementName in csrtrack_defaults:
-            for k, v in list(csrtrack_defaults[elementName].items()):
-                self.add_default(k, v)
+        # if elementName in gpt_defaults:
+        #     for k, v in list(gpt_defaults[elementName].items()):
+        #         self.add_default(k, v)
 
     def write_GPT(self):
-        output = str(self.elementName) + '('
+        output = str(self.objectname) + '('
         for k in elementkeywords[self.objecttype]['keywords']:
             k = k.lower()
             if getattr(self,k) is not None:
-                output += getattr(self, k)+', '
+                output += str(getattr(self, k))+', '
             elif k in self.objectdefaults :
                 output += self.objectdefaults[k]+', '
-        output[:-2]+=')\n'
+        output = output[:-2]
+        output+=');\n'
         return output
 
 class gpt_setfile(gpt_element):
 
     def __init__(self, **kwargs):
-        super(gpt_setfile, self).__init__('setfile', 'gpt_setfile', **kwargs)
+        super(gpt_setfile, self).__init__(elementName='setfile', elementType='gpt_setfile', **kwargs)
+
+    def hdf5_to_gpt(self, prefix=''):
+        HDF5filename = prefix+self.particle_definition.replace('.gdf','')+'.hdf5'
+        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
+        gptbeamfilename = self.particle_definition
+        beam.write_gdf_beam_file(master_subdir + '/' + gptbeamfilename, normaliseZ=False)
+
+class gpt_charge(gpt_element):
+
+    def __init__(self, **kwargs):
+        super(gpt_charge, self).__init__(elementName='settotalcharge', elementType='gpt_charge', **kwargs)
+
+    def write_GPT(self):
+        output = str(self.objectname) + '('
+        output += str(self.set) + ','
+        output += str(-1*abs(self.charge)) + ');\n'
+        return output
+
+
+class gpt_tout(gpt_element):
+
+    def __init__(self, **kwargs):
+        super(gpt_tout, self).__init__(elementName='tout', elementType='gpt_tout', **kwargs)
+
+    def write_GPT(self):
+        output = '#' + str(self.objectname) + '('
+        output += str(self.startpos) + '/c,'
+        output += str(self.endpos) + '/c,'
+        output += str(self.step) + '/c);\n'
+        return output
