@@ -52,7 +52,7 @@ files:
       space_charge_mode: 3D
     output:
       start_element: CLA-S02-APER-01
-      end_element: CLA-FEB-W-START-01
+      end_element: CLA-FEB-START-01
     groups:
       laser-heater:
         dipoleangle: 0.0001
@@ -65,8 +65,8 @@ files:
       space_charge_mode: 3D
     input: {}
     output:
-      start_element: CLA-FEB-W-START-01
-      end_element: CLA-FEB-DIA-SCR-06-W
+      start_element: CLA-FEB-START-01
+      end_element: CLA-FEB-DIA-SCR-06
   FEBE600:
     code: elegant
     charge:
@@ -74,8 +74,8 @@ files:
       space_charge_mode: 3D
     input: {}
     output:
-      start_element: CLA-FEB-DIA-SCR-06-W
-      end_element: CLA-FEB-W-DUMPSTART-01
+      start_element: CLA-FEB-DIA-SCR-06
+      end_element: CLA-FEB-DUMP-01-START
 groups:
   laser-heater:
     type: chicane

@@ -2,7 +2,7 @@ import os, sys
 sys.path.append('../../../')
 import SimulationFramework.Framework as fw
 from SimulationFramework.Modules.nelder_mead import nelder_mead
-from SimulationFramework.Examples.CLARA.Elegant.Optimise_transverse import Optimise_transverse
+from SimulationFramework.ClassFiles.Optimise_transverse import Optimise_transverse
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from ruamel import yaml
 
@@ -64,8 +64,9 @@ class FEBE_Transverse(Optimise_transverse):
     def calculateBeamParameters(self):
         twiss = self.twiss
         self.framework.change_Lattice_Code('All','elegant')
+        self.framework.defineElegantCommand(location=['elegant'])
         self.framework[self.start_file].prefix = self.base_files
-        self.framework[self.start_file].sample_interval = 2**(3*2)
+        self.framework[self.start_file].sample_interval = 2**(3*4)
         self.framework.track(startfile=self.start_file)
 
         constraintsList = {}
@@ -88,10 +89,10 @@ class FEBE_Transverse(Optimise_transverse):
             constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
 
         twiss.read_elegant_twiss_files( [ self.dirname+'/FEBE.twi' ,  self.dirname+'/FEBE600.twi' ])
-        ipindex = list(twiss['element_name']).index('CLA-FEB-W-FOCUS-01')
+        ipindex = list(twiss['element_name']).index('CLA-FEB-FOCUS-01')
         constraintsListFEBE = {
-            'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 50, 'weight': 15},
-            'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 50, 'weight': 15},
+            'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 100, 'weight': 15},
+            'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 100, 'weight': 15},
             'ip_sigmax': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'][ipindex], 'limit': 0.025, 'weight': 15},
             'ip_sigmay': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 0.025, 'weight': 15},
             # 'ip_sigmaxy': {'type': 'equalto', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 1e3*twiss['sigma_x'][ipindex], 'weight': 25},

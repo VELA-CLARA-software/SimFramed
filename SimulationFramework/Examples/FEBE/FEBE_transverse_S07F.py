@@ -2,7 +2,7 @@ import os, sys
 sys.path.append('../../../')
 import SimulationFramework.Framework as fw
 from SimulationFramework.Modules.nelder_mead import nelder_mead
-from SimulationFramework.Examples.CLARA.Elegant.Optimise_transverse import Optimise_transverse
+from SimulationFramework.ClassFiles.Optimise_transverse import Optimise_transverse
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from ruamel import yaml
 
@@ -122,5 +122,5 @@ if __name__ == "__main__":
         fit = FEBE_Transverse('./FEBE_Single.def', scaling=6)
         fit.setChangesFile(['./nelder_mead_best_changes.yaml','./transverse_best_changes_upto_S07.yaml'])
         fit.verbose = False
-        fit.Nelder_Mead(best, step=0.01)
+        fit.Nelder_Mead(best, step=0.1)
         # fit.Simplex(best)
