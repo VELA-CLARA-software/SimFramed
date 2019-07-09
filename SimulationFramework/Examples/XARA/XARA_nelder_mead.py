@@ -1,7 +1,7 @@
 import sys, os
 import numpy as np
 sys.path.append('./../../../')
-from SimulationFramework.Examples.CLARA.Elegant.Optimise_longitudinal_Elegant import Optimise_Elegant, saveState
+from SimulationFramework.ClassFiles.Optimise_longitudinal_Elegant import Optimise_Elegant, saveState
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from functools import partial
 from ruamel import yaml
@@ -30,6 +30,7 @@ class XARA(Optimise_Elegant):
         ['CLA-L04-CAV-04', 'phase'],
         ['bunch_compressor', 'angle'],
         ['CLA-S07-DCP-01', 'factor'],
+        ['CLA-S04-LH-SCA', 'relative_momentum_scatter'],
     ]
 
     def __init__(self):
@@ -40,25 +41,6 @@ class XARA(Optimise_Elegant):
         # self.optfunc = partial(self.OptimisingFunction, scaling=self.scaling, post_injector=self.POST_INJECTOR, verbose=False, sample_interval=2**(3*2))
         self.verbose = False
         self.plotting = False
-
-    def load_best(self, filename):
-        with open(filename, 'r') as infile:
-            data = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
-            # best = [data[n]['k1l'] for n in parameter_names]
-            best = []
-            for n, p in self.parameter_names:
-                if n in data:
-                    best.append(data[n][p])
-                elif n == 'bunch_compressor' and p == 'set_angle':
-                    best.append(data['CLA-VBC-MAG-DIP-01']['angle'])
-                else:
-                    print(n, p)
-                    if not hasattr(self, 'framework'):
-                        self.framework = fw.Framework(None)
-                        self.framework.loadSettings(self.lattice)
-                    best.append(self.framework[n][p])
-            self.best = best
-        return best
 
     def calculate_constraints(self):
         beam = self.beam
@@ -102,9 +84,9 @@ class XARA(Optimise_Elegant):
         constraintsListXARA = {
             # 'ip_enx': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 0},
             # 'ip_eny': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 2.5},
-            'field_max_s': {'type': 'lessthan', 'value': slinac_fields, 'limit': 32, 'weight': 300},
-            'field_max_x': {'type': 'lessthan', 'value': xlinac_fields, 'limit': 80, 'weight': 300},
-            'field_max_x4h': {'type': 'lessthan', 'value': x4hlinac_fields, 'limit': 35, 'weight': 300},
+            'field_max_s': {'type': 'lessthan', 'value': slinac_fields, 'limit': 32, 'weight': 500},
+            'field_max_x': {'type': 'lessthan', 'value': xlinac_fields, 'limit': 90, 'weight': 500},
+            'field_max_x4h': {'type': 'lessthan', 'value': x4hlinac_fields, 'limit': 35, 'weight': 500},
             'momentum_max': {'type': 'lessthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 1050, 'weight': 250},
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 990, 'weight': 150},
             'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 1000, 'weight': 2000},
@@ -113,7 +95,7 @@ class XARA(Optimise_Elegant):
             'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 15},
             'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 1.5},
             'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 1, 'weight': 100},
-            'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 30, 'weight': 50},
+            # 'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 30, 'weight': 50},
             'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 90, 'weight': 20},
             'chirp': {'type': 'lessthan', 'value': abs(chirp), 'limit': 0.5, 'weight': 25},
         }
@@ -149,7 +131,7 @@ class XARA(Optimise_Elegant):
             if ymax - ymin < 5:
                 ymax = np.mean(p) + 2.5
                 ymin = np.mean(p) - 2.5
-            ax[0][2].hist2d(t, p, bins=(50,50), cmap=plt.cm.jet, range=[[min(t), max(t)],[ymin, ymax]])
+            ax[0][2].hist2d(t, p, bins=(250,250), cmap=plt.cm.jet, range=[[min(t), max(t)],[ymin, ymax]])
             # ax[0][2].set_ylim(top=ymax, bottom=ymin)
             ax[0][2].set(ylabel='cp [Mev]')
 
@@ -171,11 +153,25 @@ class XARA(Optimise_Elegant):
 
         # fig.canvas.draw_idle()
         # plt.draw()
-        plt.pause(0.001)
+        if self.plotting:
+            plt.pause(0.001)
 
         if self.verbose:
             print(self.cons.constraintsList(constraintsList))
         return constraintsList
+
+    def before_tracking(self):
+        elements = self.framework.elementObjects.values()
+        for e in elements:
+            e.lsc_enable = True
+            e.lsc_bins = 100
+            e.current_bins = 0
+            e.longitudinal_wakefield_enable = True
+            e.transverse_wakefield_enable = True
+        lattices = self.framework.latticeObjects.values()
+        for l in lattices:
+            l.lscDrifts = True
+            l.lsc_bins = 100
 
 if __name__ == "__main__":
     plt.ion()
@@ -189,5 +185,5 @@ if __name__ == "__main__":
     opt.set_start_file('CLARAX')
     opt.load_best('nelder_mead_best_changes.yaml')
     opt.plotting = True
-    opt.Nelder_Mead(step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5,  5e6, 5,  5e6, 5, 0.005, 0.1])
+    opt.Nelder_Mead(step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5,  5e6, 5,  5e6, 5, 0.005, 0.1, 5e-5])
     # opt.Simplex()
