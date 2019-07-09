@@ -219,6 +219,27 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 43.9318]
     position_start: [0, 0, 43.9318]
+  CLA-S07-DCP-01:
+    type: longitudinal_wakefield
+    length: 0.596
+    cell_length: 0.596
+    n_cells: 1
+    field_definition_sdds: $master_lattice_location$Data_Files/DCP_200um_G1200um.sdds
+    field_definition: $master_lattice_location$Data_Files/DCP_200um_G1200um.txt
+    tcolumn: t
+    wcolumn: Ez
+    factor: 1
+    scale_kick: 1
+    interpolate: 1
+    change_momentum: 1
+    allow_long_beam: 1
+    bunched_beam: 0
+    n_bins: 0
+    global_rotation: [0, 0, 0]
+    position_end_original: [0, 0, 44.5278]
+    position_start: [0, 0, 44.2298]
+    position_end: [0, 0, 44.2298]
+    position_start_original: [0, 0, 43.9318]
   CLA-S07-APER-03:
     type: aperture
     shape: rectangular
