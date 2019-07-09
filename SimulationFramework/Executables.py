@@ -8,9 +8,9 @@ class Executables(object):
         self.osname = os.name
         self.hostname = socket.gethostname()
         if master_lattice is None:
-            master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
+            self.master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
         else:
-            master_lattice_location = master_lattice
+            self.master_lattice_location = master_lattice
         self.define_generator_command()
         self.define_astra_command()
         self.define_elegant_command()
@@ -26,8 +26,13 @@ class Executables(object):
         else:
             return ncpu
 
-    def define_generator_command(self):
-        if not self.osname == 'nt':
+    def define_generator_command(self, location=None):
+        if location is not None:
+            if isinstance(location,str):
+                self.generator = [location]
+            elif isinstance(location,list):
+                self.generator = location
+        elif not self.osname == 'nt':
             if 'apclara1' in self.hostname:
                 self.generator =  ['/opt/ASTRA/generator.sh']
             elif 'apclara2' in self.hostname:
@@ -35,11 +40,16 @@ class Executables(object):
             elif 'apclara3' in self.hostname:
                 self.generator =  ['/opt/ASTRA/generator.sh']
         else:
-            self.generator =  [master_lattice_location+'Codes/generator']
+            self.generator =  [self.master_lattice_location+'Codes/generator']
 
-    def define_astra_command(self, ncpu=1, scaling=None):
+    def define_astra_command(self, location=None, ncpu=1, scaling=None):
         ncpu = self.getNCPU(ncpu, scaling)
-        if not self.osname == 'nt':
+        if location is not None:
+            if isinstance(location,str):
+                self.astra = [location]
+            elif isinstance(location,list):
+                self.astra = location
+        elif not self.osname == 'nt':
             if 'apclara1' in self.hostname:
                 self.astra = ['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh']
             elif 'apclara2' in self.hostname:
@@ -47,20 +57,25 @@ class Executables(object):
             elif 'apclara3' in self.hostname:
                 self.astra =  ['/usr/lib64/compat-openmpi16/bin/mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_r62_Linux_x86_64_OpenMPI_sld6']
         else:
-            self.astra =  [master_lattice_location+'Codes/astra']
+            self.astra =  [self.master_lattice_location+'Codes/astra']
 
-    def define_elegant_command(self, ncpu=1, scaling=None):
+    def define_elegant_command(self, location=None, ncpu=1, scaling=None):
         ncpu = self.getNCPU(ncpu, scaling)
-        if ncpu > 1:
+        if location is not None:
+            if isinstance(location,str):
+                self.elegant = [location]
+            elif isinstance(location,list):
+                self.elegant = location
+        elif ncpu > 1:
             if not self.osname == 'nt':
                 if 'apclara1' in self.hostname:
                     self.elegant = ['/opt/MPICH2-3.2/bin/mpiexec','-np',str(ncpu),'Pelegant']
                 elif 'apclara2' in self.hostname:
-                    self.elegant = ['/usr/lib64/openmpi/bin/mpiexec','-np',str(ncpu),'Pelegant']
+                    self.elegant = ['/usr/lib64/mpich-3.2/bin/mpiexec','-np',str(ncpu),'Pelegant']
                 elif 'apclara3' in self.hostname:
-                    self.elegant = ['/usr/lib64/openmpi/bin/mpiexec','-np',str(ncpu),'Pelegant']
+                    self.elegant = ['/usr/lib64/mpich-3.2/bin/mpiexec','-np',str(ncpu),'Pelegant']
             else:
-                self.elegant = [master_lattice_location+'Codes/elegant']
+                self.elegant = ['mpiexec','-np',str(ncpu),'Pelegant']
         else:
             if not self.osname == 'nt':
                 if 'apclara1' in self.hostname:
@@ -70,19 +85,30 @@ class Executables(object):
                 elif 'apclara3' in self.hostname:
                     self.elegant = ['elegant']
             else:
-                self.elegant = [master_lattice_location+'Codes/elegant']
+                self.elegant = ['elegant']
 
-    def define_csrtrack_command(self, ncpu=1, scaling=None):
+    def define_csrtrack_command(self, location=None, ncpu=1, scaling=None):
         ncpu = self.getNCPU(ncpu, scaling)
-        if not self.osname == 'nt':
+        if location is not None:
+            if isinstance(location,str):
+                self.csrtrack = [location]
+            elif isinstance(location,list):
+                self.csrtrack = location
+        elif not self.osname == 'nt':
             if 'apclara1' in self.hostname:
-                self.csrtrack = ['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(3*ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh']
+                self.csrtrack = ['/opt/OpenMPI-1.4.3/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_openmpi.sh']
             elif 'apclara2' in self.hostname:
-                self.csrtrack = ['/usr/lib64/compat-openmpi16/bin/mpiexec','-n',str(3*ncpu),'/opt/CSRTrack/csrtrack_1.204_Linux_x86_64_OpenMPI_1.5.4_sld62']
+                self.csrtrack = ['/opt/OpenMPI-1.4.5/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_1.204_Linux_x86_64_OpenMPI_1.4.3']
             elif 'apclara3' in self.hostname:
-                self.csrtrack = ['/usr/lib64/compat-openmpi16/bin/mpiexec','-n',str(3*ncpu),'/opt/CSRTrack/csrtrack_1.204_Linux_x86_64_OpenMPI_1.5.4_sld62']
+                self.csrtrack = ['/opt/OpenMPI-1.4.5/bin/mpiexec','-n',str(ncpu),'/opt/CSRTrack/csrtrack_1.204_Linux_x86_64_OpenMPI_1.4.3']
         else:
-            self.csrtrack = [master_lattice_location+'Codes/csrtrack']
+            self.csrtrack = [self.master_lattice_location+'Codes/csrtrack']
 
-    def define_gpt_command(self, ncpu=1, scaling=None):
-        self.gpt = [r'C:/Program Files/General Particle Tracer/bin/gpt.exe']
+    def define_gpt_command(self, location=None, ncpu=1, scaling=None):
+        if location is not None:
+            if isinstance(location,str):
+                self.gpt = [location]
+            elif isinstance(location,list):
+                self.gpt = location
+        else:
+            self.gpt = [r'C:/Program Files (x86)/General Particle Tracer/bin/gpt.exe']
