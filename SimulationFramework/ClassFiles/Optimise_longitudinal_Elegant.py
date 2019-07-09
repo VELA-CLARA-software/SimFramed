@@ -11,7 +11,7 @@ from functools import partial
 from collections import OrderedDict
 from shutil import copyfile
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
-import SimulationFramework.Examples.CLARA.Elegant.runElegant as runEle
+import SimulationFramework.ClassFiles.runElegant as runEle
 from scipy.optimize import minimize
 
 def saveState(dir, args, n, fitness):
@@ -118,17 +118,25 @@ class Optimise_Elegant(runEle.fitnessFunc):
             dir = self.optdir+str(self.opt_iteration)
 
         self.setup_lattice(self.inputlist, dir)
-        fitvalue = self.calculateBeamParameters()
+        self.before_tracking()
+        fitvalue = self.track()
 
-        self.opt_iteration += 1
+        if isinstance(self.opt_iteration, int):
+            self.opt_iteration += 1
 
         constraintsList = self.calculate_constraints()
         fitvalue = self.cons.constraints(constraintsList)
 
-        print('fitvalue[', self.opt_iteration-1, '] = ', fitvalue)
+        if isinstance(self.opt_iteration, int):
+            print('fitvalue[', self.opt_iteration-1, '] = ', fitvalue)
+        else:
+            print('fitvalue = ', fitvalue)
 
         if save_state:
-            saveState(self.subdir, inputargs, self.opt_iteration-1, fitvalue)
+            if isinstance(self.opt_iteration, int):
+                saveState(self.subdir, inputargs, self.opt_iteration-1, fitvalue)
+            else:
+                saveState(self.subdir, inputargs, self.opt_iteration, fitvalue)
         if save_state and fitvalue < self.bestfit:
             print(self.cons.constraintsList(constraintsList))
             print('!!!!!!  New best = ', fitvalue, inputargs)
@@ -161,3 +169,14 @@ class Optimise_Elegant(runEle.fitnessFunc):
             self.opt_iteration = 0
         res = minimize(self.OptimisingFunction, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
         print(res.x)
+
+    def Example(self, best=None, step=0.1):
+        best = np.array(self.best) if best is None else np.array(best)
+        self.subdir = 'example'
+        self.optdir = self.subdir
+        self.best_changes = './example_best_changes.yaml'
+        print('best = ', best)
+        self.bestfit = 1e26
+
+        self.opt_iteration = ''
+        self.OptimisingFunction(best)

@@ -1,9 +1,11 @@
-import os, errno, sys
+import os, errno, sys, socket
+import glob
 import numpy as np
 import random
 from scipy.constants import c
-sys.path.append('../../../../OCELOT/')
-sys.path.append('./../../')
+sys.path.append(os.path.abspath(__file__+'../../../../../OCELOT/'))
+sys.path.append(os.path.abspath(__file__+'../../../'))
+# print sys.path
 from ocelot.S2E_STFC import FEL_simulation_block
 from ocelot.adaptors.genesis import generate_input, get_genesis_launcher, run_genesis, rematch_edist, edist2beam
 from ocelot.gui.genesis_plot import fwhm3
@@ -175,8 +177,9 @@ class FEL_sim(FEL_simulation_block.FEL_simulation_block):
             setattr(inp,'beam',None)
             gamma = np.median(inp.edist.g)
             # setattr(inp,'xlamds',float(inp.xlamd*(1.0+np.square(inp.aw0))/(2.0*np.square(gamma))))
-            # setattr(inp,'xlamds', float(0.022058051560136/(gamma**2))) ## DJD 15/02/2019
-            setattr(inp,'xlamds', float(0.01685042566473/(gamma**2))) ## JKJ 04/06/2019
+            # setattr(inp,'xlamds', float(0.022058051560136/(gamma**2))) ## DJD 15/02/2019 - for 250MeV/c
+            # setattr(inp,'xlamds', float(0.01685042566473/(gamma**2))) ## JKJ 04/06/2019 - for 1000MeV/c
+            setattr(inp,'xlamds', 4.4E-09) ## JKJ 18/06/2019 - Fixed for 1GeV/c
             print( 'aw0 = ', inp.aw0)
             print( 'awd = ', inp.awd)
             print( 'xlamds = ', inp.xlamds)
@@ -259,7 +262,7 @@ def find_saturation(power, z, n_smooth=20):
 
     return z[ii+1], ii+1
 
-def evalBeamWithGenesis(dir, run=True, startcharge=250, genesis_file='NEW_SHORT_NOM_TD_v7.in', beam_file='CLA-FMS-APER-02.hdf5'):
+def evalBeamWithGenesis(dir, run=True, startcharge=250, genesis_file='NEW_SHORT_NOM_TD_v7.in', beam_file='CLA-FMS-APER-02.hdf5', ncpu=22):
 
     # Genesis run:
     data={'gen_file': genesis_file,
@@ -278,7 +281,12 @@ def evalBeamWithGenesis(dir, run=True, startcharge=250, genesis_file='NEW_SHORT_
           'HDF5_file': dir+'/'+beam_file,
           'i_match': 0}
     if run:
-        data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 600 -np 12 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
+        hostname = socket.gethostname()
+        if 'apclara1' in hostname:
+            data['gen_launch'] = '/opt/OpenMPI-3.1.3/bin/mpiexec --timeout 600 -np 12 /opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
+        elif 'apclara3' in hostname:
+            data['gen_launch'] = 'source /opt/MPI/mpich2.sh && MPIEXEC_TIMEOUT=1500 /usr/lib64/mpich/bin/mpiexec -np '+str(ncpu)+' /opt/Genesis/bin/genesis2mpich < tmp.cmd 2>&1 > /dev/null'
+            # data['gen_launch'] = '/opt/Genesis/bin/genesis2 < tmp.cmd 2>&1 > /dev/null'
     else:
         data['gen_launch'] = ''
     f = FEL_sim(data)
@@ -311,6 +319,7 @@ def evalBeamWithGenesis(dir, run=True, startcharge=250, genesis_file='NEW_SHORT_
         if g.z[i] < 5:
             brightness[i] = 0
     max = np.argmax(brightness)
+    max = len([l for l in g.z if l <= 12.5])
     maxe = np.argmax(g.energy)
     g.spectrum_lamdwidth_std = spectrum_lamdwidth_std
     return g.energy[max], g.spectrum_lamdwidth_std[max], g.z[max], g.energy[maxe], g.spectrum_lamdwidth_std[maxe], g.z[maxe], g.bunch_length, g
@@ -340,6 +349,7 @@ class genesisSimulation(runEle.fitnessFunc):
         self.startcharge = 250
         self.genesis_file = 'NEW_SHORT_NOM_TD_v7.in'
         self.beam_file = 'CLA-FMS-APER-02.hdf5'
+        self.delete_most_output = False
 
     def optfunc(self, inputargs, **kwargs):
 
@@ -373,29 +383,41 @@ class genesisSimulation(runEle.fitnessFunc):
                 self.tmpdir = os.path.relpath(tmpdir)
                 return self.run_simulation(self.inputlist, self.tmpdir)
 
+    def delete_files(self, glob_pattern):
+        # get a recursive list of file paths that matches pattern including sub directories
+        fileList = glob.glob(glob_pattern)
+        # Iterate over the list of filepaths & remove each file.
+        for filePath in fileList:
+            try:
+                os.remove(filePath)
+            except OSError:
+                print("Error while deleting file")
+
     def run_simulation(self, inputargs, dir):
-        print (dir)
         sys.stdout = open(dir+'/'+'std.out', 'w', buffering=1)
         sys.stderr = open(dir+'/'+'std.err', 'w', buffering=1)
         # print('self.start_lattice = ', self.start_lattice)
         if self.runElegant:
             self.setup_lattice(inputargs, dir)
+            self.before_tracking()
             fitvalue = self.track()
-        e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(dir, run=self.runGenesis, startcharge=self.startcharge, genesis_file=self.genesis_file, beam_file=self.beam_file)
+        e, b, l, ee, be, le, bunchlength, g = evalBeamWithGenesis(dir, run=self.runGenesis, startcharge=self.startcharge, genesis_file=self.genesis_file, beam_file=self.beam_file, ncpu=self.genesis_ncpu)
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
         if self.verbose:
             print( 'bandwidth = ', 1e2*b, '  pulse energy =', 1e6*e, '  Sat. Length =', l)
             print( 'bandwidth E = ', 1e2*be, '  max pulse energy =', 1e6*ee, '  Sat. Length E =', le)
-        #### Save Output files to dir named after runno #####
-        # if not os.path.exists('./outData/'):
-        #     os.makedirs('./outData/')
-        # dir = './outData/' + str(idNumber)
-        # if not os.path.exists(dir):
-        #     os.makedirs(dir)
-        # copyfile(tmpdir+'/CLA-FMS-APER-02.hdf5',dir+'/CLA-FMS-APER-02.hdf5')
-        # copyfile(tmpdir+'/run.0.gout',dir+'/run.0.gout')
-        # copyfile(tmpdir+'/std.out',dir+'/std.out')
+
+        if self.delete_most_output:
+            self.delete_files(dir+'/'+'*.sdds')
+            self.delete_files(dir+'/'+'*.SDDS')
+            self.delete_files(dir+'/'+'CLA-S02*.hdf5')
+            self.delete_files(dir+'/'+'CLA-S03*.hdf5')
+            self.delete_files(dir+'/'+'CLA-S04*.hdf5')
+            self.delete_files(dir+'/'+'CLA-S05*.hdf5')
+            self.delete_files(dir+'/'+'CLA-S06*.hdf5')
+            self.delete_files(dir+'/'+'CLA-VBC*.hdf5')
+            self.delete_files(dir+'/'+'*.edist')
         if self.savestate:
             try:
                 saveState(inputargs, idNumber, e, b, l, ee, be, le, bunchlength)
