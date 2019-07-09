@@ -1,32 +1,33 @@
 import sys, os, time, math, datetime, copy, re,  h5py
 from collections import OrderedDict
 import glob
-from PyQt4.QtCore import * #QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
-from PyQt4.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
+from PyQt5.QtCore import * #QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
+from PyQt5.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
+from PyQt5.QtWidgets import *
 from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, \
 setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout, AxisItem, ViewBox, PlotDataItem, colorStr, mkColor, ImageView, PlotItem
 from pyqtgraph.graphicsItems.LegendItem import ItemSample
 import argparse
 import imageio
 import numpy as np
-sys.path.append('../../')
-sys.path.append('../../../')
+sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
+print (sys.path)
 import SimulationFramework.Modules.read_beam_file as raf
 import SimulationFramework.Modules.read_twiss_file as rtf
-sys.path.append('../../../')
-import Software.Widgets.loggerWidget.loggerWidget as lw
-import logging
-logger = logging.getLogger(__name__)
+sys.path.append(os.path.realpath(__file__)+'/../../../../')
+# import Software.Widgets.loggerWidget.loggerWidget as lw
+# import logging
+# logger = logging.getLogger(__name__)
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.colors import LogNorm
 
-try:
-    _fromUtf8 = QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
+# try:
+#      = QString.fromUtf8
+# except AttributeError:
+#     def (s):
+#         return s
 
 try:
     _encoding = QApplication.UnicodeUTF8
@@ -187,7 +188,7 @@ class astraPlotWidget(QWidget):
         self.beamPlotXAxisDict['cpy'] = {'scale':1e3, 'axis': 'cpy [keV]'}
         self.beamPlotXAxisDict['BetaGamma']= {'scale':0.511 , 'axis': 'cp [MeV]'}
 
-        # Form.setObjectName(_fromUtf8("Form"))
+        # Form.setObjectName(("Form"))
         # Form.resize(874, 212)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -195,7 +196,7 @@ class astraPlotWidget(QWidget):
         sizePolicy.setHeightForWidth(Form.sizePolicy().hasHeightForWidth())
         Form.setSizePolicy(sizePolicy)
         self.horizontalLayout = QHBoxLayout(Form)
-        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.horizontalLayout.setObjectName("horizontalLayout")
         self.beamPlotXAxisCombo = QComboBox(Form)
         self.beamPlotXAxisCombo.addItems(list(self.beamPlotXAxisDict.keys()))
         self.beamPlotXAxisCombo.setCurrentIndex(2)
@@ -205,23 +206,23 @@ class astraPlotWidget(QWidget):
         self.beamPlotYAxisCombo.setCurrentIndex(6)
         self.horizontalLayout.addWidget(self.beamPlotYAxisCombo)
         self.groupBox = QGroupBox(Form)
-        self.groupBox.setObjectName(_fromUtf8("groupBox"))
+        self.groupBox.setObjectName("groupBox")
         self.formLayout = QFormLayout(self.groupBox)
         self.formLayout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
-        self.formLayout.setObjectName(_fromUtf8("formLayout"))
+        self.formLayout.setObjectName("formLayout")
         self.chooseSliceWidth = QRadioButton(self.groupBox)
-        self.chooseSliceWidth.setObjectName(_fromUtf8("chooseSliceWidth"))
+        self.chooseSliceWidth.setObjectName(("chooseSliceWidth"))
         self.formLayout.setWidget(0, QFormLayout.LabelRole, self.chooseSliceWidth)
         self.sliceWidth = QDoubleSpinBox(self.groupBox)
         self.sliceWidth.setDecimals(6)
-        self.sliceWidth.setObjectName(_fromUtf8("sliceWidth"))
+        self.sliceWidth.setObjectName("sliceWidth")
         self.formLayout.setWidget(0, QFormLayout.FieldRole, self.sliceWidth)
         self.chooseSliceNumber = QRadioButton(self.groupBox)
         self.chooseSliceNumber.setChecked(True)
-        self.chooseSliceNumber.setObjectName(_fromUtf8("chooseSliceNumber"))
+        self.chooseSliceNumber.setObjectName("chooseSliceNumber")
         self.formLayout.setWidget(1, QFormLayout.LabelRole, self.chooseSliceNumber)
         self.sliceNumber = QSpinBox(self.groupBox)
-        self.sliceNumber.setObjectName(_fromUtf8("sliceNumber"))
+        self.sliceNumber.setObjectName(("sliceNumber"))
         self.formLayout.setWidget(1, QFormLayout.FieldRole, self.sliceNumber)
         self.horizontalLayout.addWidget(self.groupBox)
         self.chooseSliceWidth.setText(_translate("Form", "Slice Width", None))
@@ -365,10 +366,10 @@ class astraPlotWidget(QWidget):
         self.tabWidget.addTab(self.twissPlotView,'Twiss Plots')
         self.tabWidget.addTab(self.beamPlotWidget,'Beam Plots')
         self.tabWidget.addTab(self.slicePlotWidget,'Slice Beam Plots')
-        self.log = lw.loggerWidget()
-        self.log.addLogger(logger)
-        sys.stdout = lw.redirectLogger(self.log, 'stdout')
-        self.tabWidget.addTab(self.log,'Log')
+        # self.log = lw.loggerWidget()
+        # self.log.addLogger(logger)
+        # sys.stdout = lw.redirectLogger(self.log, 'stdout')
+        # self.tabWidget.addTab(self.log,'Log')
         self.tabWidget.currentChanged.connect(self.changeTab)
         self.layout.addWidget(self.folderBeamWidget)
         self.layout.addWidget(self.tabWidget)
