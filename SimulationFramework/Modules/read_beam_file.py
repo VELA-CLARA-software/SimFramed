@@ -1,4 +1,4 @@
-import os, time, csv, sys
+import os, time, csv, sys, subprocess
 import copy
 import h5py
 import numpy as np
@@ -73,8 +73,11 @@ class beam(object):
             self.beam['total_charge'] = charge
         self.beam['charge'] = []
 
-    def write_SDDS_file(self, filename, ascii=False):
+    def write_SDDS_file(self, filename, ascii=False, xyzoffset=[0,0,0]):
         """Save an SDDS file using the SDDS class."""
+        xoffset = xyzoffset[0]
+        yoffset = xyzoffset[1]
+        zoffset = xyzoffset[2] # Don't think I need this because we are using t anyway...
         x = sdds.SDDS(0)
         if ascii:
             x.mode = x.SDDS_ASCII
@@ -86,7 +89,7 @@ class beam(object):
         Ctypes = [x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_DOUBLE]
         Csymbols = ["", "x'","","y'","",""]
         Cunits = ["m","","m","","s","m$be$nc"]
-        Ccolumns = [self.x, self.xp, self.y, self.yp, self.t , self.cp/self.E0_eV]
+        Ccolumns = [np.array(self.x) - float(xoffset), self.xp, np.array(self.y) - float(yoffset), self.yp, self.t , self.cp/self.E0_eV]
         # {Step, pCentral, Charge, Particles, IDSlotsPerBunch}
         Pnames = ["pCentral", "Charge", "Particles"]
         Ptypes = [x.SDDS_DOUBLE, x.SDDS_DOUBLE, x.SDDS_LONG]
@@ -240,7 +243,7 @@ class beam(object):
         array = np.array([self.x, self.y, zvector, self.cpx, self.cpy, self.cpz, clockvector, chargevector, indexvector, statusvector]).transpose()
         if 'reference_particle' in self.beam:
             ref_particle = self.beam['reference_particle']
-            # print 'we have a reference particle! ', (array[0] - ref_particle)[6]
+            # print 'we have a reference particle! ', ref_particle
             # np.insert(array, 0, ref_particle, axis=0)
         else:
             ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
@@ -263,6 +266,7 @@ class beam(object):
         if not isinstance(normaliseZ,(bool)):
             array[0,2] += normaliseZ
         ''' normalise pz and the clock '''
+        # print('Mean pz = ', np.mean(array[:,5]))
         array[1:,5] = array[1:,5] - ref_particle[5]
         array[0,6] = array[0,6] + ref_particle[6]
         np.savetxt(file, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%d','%d'))
@@ -283,6 +287,11 @@ class beam(object):
         array = np.array([zvector, self.y, self.x, self.Bz*self.gamma*constants.speed_of_light, self.By*self.gamma*constants.speed_of_light, self.Bx*self.gamma*constants.speed_of_light]).transpose()
         ''' take the rms - if the rms is 0 set it to 1, so we don't get a divide by error '''
         np.savetxt(file, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e'))
+
+    def write_gdf_beam_file(self, filename):
+        dataarray = np.array([self.x, self.y, self.z, self.Bx, self.By, self.Bz]).transpose()
+        namearray = 'x y z Bx By Bz'
+        np.savetxt(filename, dataarray, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e'), header=namearray, comments='')
 
     def read_gdf_beam_file_object(self, file):
         if isinstance(file, (str)):
@@ -385,6 +394,13 @@ class beam(object):
             self.rotate_beamXZ(-1*self.beam['rotation'], -1*offset)
 
     def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None, rotation=None, longitudinal_reference='t', zoffset=0):
+        if isinstance(zoffset,list) and len(zoffset) == 3:
+            xoffset = zoffset[0]
+            yoffset = zoffset[1]
+            zoffset = zoffset[2]
+        else:
+            xoffset = 0
+            yoffset = 0
         with h5py.File(filename, "w") as f:
             inputgrp = f.create_group("Parameters")
             if not 'total_charge' in self.beam or self.beam['total_charge'] == 0:
@@ -414,7 +430,7 @@ class beam(object):
                 chargevector = self.beam['charge']
             else:
                 chargevector = np.full(len(self.x), self.charge/len(self.x))
-            array = np.array([self.x, self.y, self.z + zoffset, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
+            array = np.array([self.x + xoffset, self.y + yoffset, self.z + zoffset, self.cpx, self.cpy, self.cpz, self.t, chargevector]).transpose()
             beamgrp['columns'] = np.array(['x','y','z', 'cpx', 'cpy', 'cpz', 't', 'q'], dtype='S')
             beamgrp['units'] = np.array(['m','m','m','eV','eV','eV','s','e'], dtype='S')
             beamgrp.create_dataset("beam", data=array)
@@ -474,7 +490,7 @@ class beam(object):
         # input data.  To make the results comparable to the other methods,
         # we divide the bandwidth by the sample standard deviation here.
         # Taken from https://jakevdp.github.io/blog/2013/12/01/kernel-density-estimation/
-        if not hasattr(self, '_kde_x') or not np.allclose(x, self._kde_x) or not bandwidth == self._kde_bandwidth:
+        if not hasattr(self, '_kde_x') or not len(x) == len(self._kde_x) or not np.allclose(x, self._kde_x) or not bandwidth == self._kde_bandwidth:
             self._kde_x = x
             self._kde_bandwidth = bandwidth
             self._kde_function = gaussian_kde(x, bw_method=bandwidth / x.std(ddof=1), **kwargs)
@@ -496,7 +512,7 @@ class beam(object):
         return cdf(x_grid)
 
     def FWHM(self, X, Y, frac=0.5):
-        frac = 1/frac if frac > 1 else frac
+        frac = 1.0/frac if frac > 1 else frac 
         d = Y - (max(Y) * frac)
         indexes = np.where(d > 0)[0]
         return abs(X[indexes][-1] - X[indexes][0]), indexes
