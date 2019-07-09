@@ -6,7 +6,7 @@ elements:
     exit_edge_angle: angle
     half_gap: 0.005
     edge_field_integral: 0.4
-    csr_bins: 20.0
+    # csr_bins: 20.0
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"VBC-MAG-DIP-01.CSR"'
@@ -23,7 +23,7 @@ elements:
     entrance_edge_angle: angle
     half_gap: 0.005
     edge_field_integral: 0.4
-    csr_bins: 20.0
+    # csr_bins: 20.0
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"VBC-MAG-DIP-02.CSR"'
@@ -76,7 +76,7 @@ elements:
     exit_edge_angle: angle
     half_gap: 0.005
     edge_field_integral: 0.4
-    csr_bins: 20.0
+    # csr_bins: 20.0
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"VBC-MAG-DIP-03.CSR"'
@@ -93,7 +93,7 @@ elements:
     entrance_edge_angle: angle
     half_gap: 0.005
     edge_field_integral: 0.4
-    csr_bins: 20.0
+    # csr_bins: 20.0
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"VBC-MAG-DIP-04.CSR"'
