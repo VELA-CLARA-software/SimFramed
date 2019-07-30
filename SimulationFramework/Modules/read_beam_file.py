@@ -21,6 +21,7 @@ class beam(object):
     E0 = particle_mass * constants.speed_of_light**2
     E0_eV = E0 / constants.elementary_charge
     q_over_c = (constants.elementary_charge / constants.speed_of_light)
+    speed_of_light = constants.speed_of_light
 
     def __init__(self):
         self.beam = {}
@@ -180,6 +181,25 @@ class beam(object):
         self.beam['charge'] = charge
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 
+    def read_vsim_h5_beam_file(self, filename, charge=70e-12, interval=1):
+        self.reset_dicts()
+        with h5py.File(filename, "r") as h5file:
+            data = np.array(h5file.get('/BeamElectrons'))[1:-1:interval]
+            z, y, x, cpz, cpy, cpx = data.transpose()
+        self.beam['code'] = "VSIM"
+        self.beam['longitudinal_reference'] = 'z'
+        cp = np.sqrt(cpx**2 + cpy**2 + cpz**2)
+        self.beam['x'] = x
+        self.beam['y'] = y
+        self.beam['z'] = z
+        self.beam['px'] = cpx * self.particle_mass
+        self.beam['py'] = cpy * self.particle_mass
+        self.beam['pz'] = cpz * self.particle_mass
+        self.beam['t'] = [(z / (1 * Bz * constants.speed_of_light)) for z, Bz in zip(self.z, self.Bz)]
+        # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
+        self.beam['total_charge'] = charge
+        self.beam['charge'] = []
+
     def read_pacey_beam_file(self, file, charge=250e-12):
         self.reset_dicts()
         data = self.read_csv_file(file, delimiter='\t')
@@ -306,6 +326,7 @@ class beam(object):
         self.reset_dicts()
         gdfbeamdata = None
         gdfbeam = self.read_gdf_beam_file_object(file)
+        print('grab_groups = ',  gdfbeam.grab_groups)
         print(( 'Positions = ', gdfbeam.positions))
         print(( 'Times = ', gdfbeam.times))
 
@@ -348,7 +369,7 @@ class beam(object):
         elif hasattr(gdfbeamdata,'t') and longitudinal_reference == 't':
             print( 't!')
             self.beam['t'] = gdfbeamdata.t
-            self.beam['z'] = (-1 * gdfbeamdata.Bz * constants.speed_of_light) * gdfbeamdata.t
+            self.beam['z'] = (-1 * gdfbeamdata.Bz * constants.speed_of_light) * (gdfbeamdata.t-np.mean(gdfbeamdata.t)) + gdfbeamdata.z
         self.beam['gamma'] = gdfbeamdata.G
         if hasattr(gdfbeamdata,'q') and  hasattr(gdfbeamdata,'nmacro'):
             self.beam['charge'] = gdfbeamdata.q * gdfbeamdata.nmacro
@@ -358,7 +379,7 @@ class beam(object):
                 self.beam['total_charge'] = 0
             else:
                 self.beam['total_charge'] = charge
-        print(( self.beam['charge']))
+        # print(( self.beam['charge']))
         vx = gdfbeamdata.Bx * constants.speed_of_light
         vy = gdfbeamdata.By * constants.speed_of_light
         vz = gdfbeamdata.Bz * constants.speed_of_light
@@ -366,6 +387,7 @@ class beam(object):
         self.beam['px'] = vx / velocity_conversion
         self.beam['py'] = vy / velocity_conversion
         self.beam['pz'] = vz / velocity_conversion
+        return gdfbeam
 
     def rotate_beamXZ(self, theta, preOffset=[0,0,0], postOffset=[0,0,0]):
         preOffset=np.array(preOffset)
@@ -394,13 +416,17 @@ class beam(object):
             self.rotate_beamXZ(-1*self.beam['rotation'], -1*offset)
 
     def write_HDF5_beam_file(self, filename, centered=False, mass=constants.m_e, sourcefilename=None, pos=None, rotation=None, longitudinal_reference='t', zoffset=0):
-        if isinstance(zoffset,list) and len(zoffset) == 3:
+        # print('zoffset = ', zoffset, type(zoffset))
+        if isinstance(zoffset,(list, np.ndarray)) and len(zoffset) == 3:
             xoffset = zoffset[0]
             yoffset = zoffset[1]
             zoffset = zoffset[2]
         else:
             xoffset = 0
             yoffset = 0
+        # print('xoffset = ', xoffset)
+        # print('yoffset = ', yoffset)
+        # print('zoffset = ', zoffset)
         with h5py.File(filename, "w") as f:
             inputgrp = f.create_group("Parameters")
             if not 'total_charge' in self.beam or self.beam['total_charge'] == 0:
@@ -512,7 +538,7 @@ class beam(object):
         return cdf(x_grid)
 
     def FWHM(self, X, Y, frac=0.5):
-        frac = 1.0/frac if frac > 1 else frac 
+        frac = 1.0/frac if frac > 1 else frac
         d = Y - (max(Y) * frac)
         indexes = np.where(d > 0)[0]
         return abs(X[indexes][-1] - X[indexes][0]), indexes

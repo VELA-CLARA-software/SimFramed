@@ -111,4 +111,4 @@ class Executables(object):
             elif isinstance(location,list):
                 self.gpt = location
         else:
-            self.gpt = [r'C:/Program Files (x86)/General Particle Tracer/bin/gpt.exe']
+            self.gpt = ['C:/Program Files/General Particle Tracer/bin/gpt.exe']
