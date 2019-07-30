@@ -26,7 +26,6 @@ def dict_constructor(loader, node):
 yaml.add_representer(OrderedDict, dict_representer)
 yaml.add_constructor(_mapping_tag, dict_constructor)
 
-
 astra_generator_keywords = {
     'keywords':[
         'fname','add','ipart','species','probe','noise_reduc','high_res','cathode','lprompt', 'q_total','ref_zpos','ref_clock','dist_z','ref_ekin','lt','rt','sig_clock','sig_z','lz','rz',
@@ -151,25 +150,9 @@ def clean_directory(folder):
 def list_add(list1, list2):
     return list(map(add, list1, list2))
 
-# def detect_changes(framework):
-#     start = time.time()
-#     origfw = Framework(None)
-#     origfw.loadSettings(framework.settingsFilename)
-#     changedict = {}
-#     for e in framework.elementObjects:
-#         if not origfw.elementObjects[e] == framework.elementObjects[e]:
-#             orig = origfw.elementObjects[e]
-#             new = framework.elementObjects[e]
-#             changedict[e] = {k: new[k] for k in new if not new[k] == orig[k]}
-#     return changedict
-#
-# def save_change_file(framework, filename=None):
-#     if filename is None:
-#         pre, ext = os.path.splitext(os.path.basename(framework.settingsFilename))
-#         filename =  pre     + '_changes.yaml'
-#     changedict = detect_changes(framework)
-#     with open(filename,"w") as yaml_file:
-#         yaml.dump(changedict, yaml_file, default_flow_style=False)
+def _rotation_matrix(theta):
+    return np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
+
 class Framework(Munch):
 
     def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True):
@@ -365,6 +348,22 @@ class Framework(Munch):
                 for k, v in list(d.items()):
                     self.groupObjects[e].change_Parameter(k, v)
                     # print ('modifying ',e,'[',k,']', ' = ', v)
+
+    def check_lattice(self, decimals=4):
+        for elem in self.elementObjects.values():
+            start = elem.position_start
+            end = elem.position_end
+            length = elem.length
+            theta = elem.global_rotation[2]
+            if elem.objecttype == 'dipole':
+                angle = elem.angle
+                rho = length / angle
+                clength = np.array([rho * (np.cos(angle) - 1), 0, rho * np.sin(angle)])
+            else:
+                clength = np.array([0, 0, length])
+            cend = start + np.dot(clength, _rotation_matrix(theta))
+            if not np.round(cend - end, decimals=decimals).any() == 0:
+                print (elem.objectname, cend - end)
 
     def change_Lattice_Code(self, name, code):
         if name == 'All':
@@ -728,7 +727,7 @@ class frameworkLattice(Munch):
             if len(d) > 1:
                 x1, y1, z1 = d[0]
                 x2, y2, z2 = d[1]
-                length = np.sqrt((x2-x1)**2 + (z2-z1)**2)
+                length = np.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
                 if length > 0:
                     elementno += 1
                     name = 'drift'+str(elementno)
@@ -863,6 +862,7 @@ class elegantLattice(frameworkLattice):
         self.particle_definition = self.allElementObjects[self.start].objectname
         self.bunch_charge = None
         self.q = charge(name='START', type='charge',**{'total': 250e-12})
+        self.trackBeam = True
 
     def writeElements(self):
         self.w = self.endScreen(output_filename=self.end+'.SDDS')
@@ -889,14 +889,15 @@ class elegantLattice(frameworkLattice):
 
     def preProcess(self):
         prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
-        # print 'prefix = ', prefix
-        self.hdf5_to_sdds(prefix)
-        self.commandFile = elegantTrackFile(lattice=self, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval)
+        if self.trackBeam:
+            self.hdf5_to_sdds(prefix)
+        self.commandFile = elegantTrackFile(lattice=self, trackBeam=self.trackBeam, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval)
 
     def postProcess(self):
-        for s in self.screens:
-            s.sdds_to_hdf5()
-        self.w.sdds_to_hdf5()
+        if self.trackBeam:
+            for s in self.screens:
+                s.sdds_to_hdf5()
+            self.w.sdds_to_hdf5()
 
     def hdf5_to_sdds(self, prefix=''):
         HDF5filename = prefix+self.particle_definition+'.hdf5'
@@ -944,10 +945,11 @@ class elegantCommandFile(object):
         return output
 
 class elegantTrackFile(elegantCommandFile):
-    def __init__(self, lattice='', elegantbeamfilename='', *args, **kwargs):
+    def __init__(self, lattice='', trackBeam=True, elegantbeamfilename='', *args, **kwargs):
         super(elegantTrackFile, self).__init__(lattice, *args, **kwargs)
         self.elegantbeamfilename = elegantbeamfilename
         self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
+        self.trackBeam = trackBeam
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
             use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
@@ -964,8 +966,9 @@ class elegantTrackFile(elegantCommandFile):
         theta0 = 0)
         mat = self.addCommand(type='matrix_output', SDDS_output="%s.mat",
         full_matrix_only=1, SDDS_output_order=2)
-        self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
-        self.addCommand(type='track')
+        if self.trackBeam:
+            self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
+            self.addCommand(type='track')
 
 class elegantOptimisation(elegantCommandFile):
 
@@ -1164,8 +1167,8 @@ class gptLattice(frameworkLattice):
 
     def postProcess(self):
         for e in self.screens_and_bpms:
-            e.astra_to_hdf5(self.objectname)
-        self.astra_to_hdf5()
+            e.gdf_to_hdf5(self.objectname + '_out.gdf')
+        # self.astra_to_hdf5()
 
     def hdf5_to_gdf(self, prefix=''):
         HDF5filename = prefix+self.particle_definition+'.hdf5'
@@ -1173,7 +1176,7 @@ class gptLattice(frameworkLattice):
         self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=beam.charge)
         gdfbeamfilename = self.particle_definition+'.gdf'
         beam.write_gdf_beam_file(master_subdir + '/' + self.particle_definition+'.txt')
-        subprocess.call(['asci2gdf', '-o', gdfbeamfilename, self.particle_definition+'.txt'], cwd=master_subdir)
+        subprocess.call(["C:/Program Files/General Particle Tracer/bin/asci2gdf.exe", '-o', gdfbeamfilename, self.particle_definition+'.txt'], cwd=master_subdir)
 
 class csrtrackLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -1595,7 +1598,7 @@ class frameworkElement(frameworkObject):
         return self.global_rotation[1]
     @property
     def y_rot(self):
-        return self.global_rotation[2]
+        return self.global_rotation[2] + self.starting_rotation
     @property
     def z_rot(self):
         return self.global_rotation[0]
@@ -1632,12 +1635,9 @@ class frameworkElement(frameworkObject):
         #     rotation +=  self.starting_rotation
         return rotation
 
-    def _rotation_matrix(self, theta):
-        return np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
-
     @property
     def rotation_matrix(self):
-        return self._rotation_matrix(self.theta)
+        return _rotation_matrix(self.theta)
 
     def rotated_position(self, pos=[0,0,0], offset=None, theta=None):
         if offset is None:
@@ -1648,29 +1648,29 @@ class frameworkElement(frameworkObject):
         if theta is None:
             return chop(np.dot(np.array(pos) - np.array(offset), self.rotation_matrix), 1e-6)
         else:
-            return chop(np.dot(np.array(pos) - np.array(offset), self._rotation_matrix(theta)), 1e-6)
+            return chop(np.dot(np.array(pos) - np.array(offset), _rotation_matrix(theta)), 1e-6)
 
     @property
     def start(self):
         start = self.position_start
         length_vector = self.rotated_position([0,0,0], offset=[0,0,0], theta=self.theta)
-        starting_middle = np.array(start) + length_vector
-        return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
+        starting_middle = length_vector
+        return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def middle(self):
         start = self.position_start
         length_vector = self.rotated_position([0,0, self.length / 2.0], offset=[0,0,0], theta=self.theta)
-        starting_middle = np.array(start) + length_vector
+        starting_middle = length_vector
         # print(self.objectname, self.theta, self.starting_rotation, self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)[0])
-        return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
+        return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def end(self):
         start = self.position_start
         length_vector = self.rotated_position([0,0, self.length], offset=[0,0,0], theta=self.theta)
-        starting_middle = np.array(start) + length_vector
-        return self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
+        starting_middle = length_vector
+        return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
     def _write_ASTRA(self, d, n=1):
         output = ''
@@ -1760,6 +1760,7 @@ class dipole(frameworkElement):
         super(dipole, self).__init__(name, type, **kwargs)
         self.keyword_conversion_rules_elegant['isr_enable'] = 'isr'
         self.keyword_conversion_rules_elegant['sr_enable'] = 'synch_rad'
+        self.keyword_conversion_rules_elegant['smoothing_half_width'] = 'sg_halfwidth'
         self.add_default('bins', 100)
         self.add_default('csr_enable', 1)
         self.add_default('isr_enable', True)
@@ -1767,7 +1768,7 @@ class dipole(frameworkElement):
         self.add_default('sr_enable', True)
         self.add_default('integration_order', 4)
         self.add_default('nonlinear', 1)
-        self.add_default('sg_halfwidth', 2)
+        self.add_default('smoothing_half_width', 2)
 
     @property
     def width(self):
@@ -1850,11 +1851,11 @@ class dipole(frameworkElement):
         else:
             rotation = 0
         theta = self.e1+rotation
-        corners[0] = np.array(list(map(add, np.transpose(self.position_start), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta)))))
-        corners[3] = np.array(list(map(add, np.transpose(self.position_start), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta)))))
+        corners[0] = np.array(list(map(add, np.transpose(self.position_start), np.dot([-self.width*self.length,0,0], _rotation_matrix(theta)))))
+        corners[3] = np.array(list(map(add, np.transpose(self.position_start), np.dot([self.width*self.length,0,0], _rotation_matrix(theta)))))
         theta = self.angle-self.e2+rotation
-        corners[1] = np.array(list(map(add, np.transpose(self.position_end), np.dot([-self.width*self.length,0,0], self._rotation_matrix(theta)))))
-        corners[2] = np.array(list(map(add, np.transpose(self.position_end), np.dot([self.width*self.length,0,0], self._rotation_matrix(theta)))))
+        corners[1] = np.array(list(map(add, np.transpose(self.position_end), np.dot([-self.width*self.length,0,0], _rotation_matrix(theta)))))
+        corners[2] = np.array(list(map(add, np.transpose(self.position_end), np.dot([self.width*self.length,0,0], _rotation_matrix(theta)))))
         corners = [self.rotated_position(x, offset=self.starting_offset, theta=self.starting_rotation) for x in corners]
         return corners
 
@@ -1889,6 +1890,26 @@ class dipole(frameworkElement):
             return self._write_ASTRA(params, n)
         else:
             return None
+
+    def gpt_coordinates(self):
+        x,y,z = self.start
+        psi, phi, theta = self.global_rotation
+        output =''
+        for c in [x, y, z]:
+            output += str(c)+', '
+        output += 'cos('+str(theta)+'), 0, -sin('+str(theta)+'), 0, 1 ,0'
+        return output
+
+    def write_GPT(self, Brho):
+        self.rho = self.length / self.angle
+        self.intersect = rho * np.tan(self.angle / 2)
+        '''
+        ccs( "wcs", 0, 0, startofdipole +  intersect1, Cos(theta), 0, -Sin(theta), 0, 1, 0, "bend1" ) ;
+        sectormagnet( "wcs", "bend1", rho, field, e1, e2, 0., 100., 0 ) ;
+        '''
+
+        output = str(self.objecttype) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+        return output
 
 class kicker(dipole):
 
@@ -1971,6 +1992,9 @@ class cavity(frameworkElement):
         self.keyword_conversion_rules_elegant['transverse_wakefield_sdds'] = 'trwakefile'
         self.keyword_conversion_rules_elegant['longitudinal_wakefield_enable'] = 'zwake'
         self.keyword_conversion_rules_elegant['transverse_wakefield_enable'] = 'trwake'
+        self.keyword_conversion_rules_elegant['interpolate_current_bins'] = 'interpolate'
+        self.keyword_conversion_rules_elegant['smooth_current_bins'] = 'smoothing'
+        self.keyword_conversion_rules_elegant['smoothing_half_width'] = 'sg_halfwidth'
         self.add_default('tcolumn', '"t"')
         self.add_default('wzcolumn', '"W"')
         self.add_default('wxcolumn', '"W"')
@@ -1982,6 +2006,8 @@ class cavity(frameworkElement):
         self.add_default('focussing', 1)
         self.add_default('lsc_bins', 100)
         self.add_default('current_bins', 0)
+        self.add_default('interpolate_current_bins', 1)
+        self.add_default('smooth_current_bins', 1)
 
     def update_field_definition(self):
         if hasattr(self, 'field_definition') and self.field_definition is not None:
@@ -2046,6 +2072,8 @@ class cavity(frameworkElement):
                     value = 1/(2**0.5) * value if key.lower() == 'ez' else value
                     # In CAVITY NKICK = n_cells
                     value = self.cells if key.lower() == 'n_kicks' else value
+                    if key.lower() == 'n_bins' and value > 0:
+                        print('WARNING: Cavity n_bins is not zero - check log file to ensure correct behaviour!')
                     value = 1 if value is True else value
                     value = 0 if value is False else value
                 tmpstring = ', '+key+' = '+str(value)
@@ -2176,10 +2204,10 @@ class screen(frameworkElement):
         HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle, zoffset=self.end)
 
-    def gpt_to_hdf5(self):
-        gptbeamfilename = self.objectname + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
-        beam.read_gdf_beam_file(master_subdir + '/' + gptbeamfilename)
-        HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
+    def gdf_to_hdf5(self, gptbeamfilename):
+        # gptbeamfilename = self.objectname + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
+        beam.read_gdf_beam_file(master_subdir + '/' + gptbeamfilename, position=self.middle[2])
+        HDF5filename = self.objectname+'.hdf5'
         beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=gptbeamfilename)
 
 
