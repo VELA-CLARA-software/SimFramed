@@ -15,9 +15,9 @@ def create_base_files(scaling):
         framework.defineCSRTrackCommand(scaling=scaling)
     framework.generator.number_of_particles = 2**(3*scaling)
     # framework.change_Lattice_Code('VBC', 'ASTRA')
-    framework.track()#startfile='VBC')
+    framework.track(endfile="S07")#startfile='VBC')
 
 ## Modify as appropriate! ##
-for i in [4,5,6]:
+for i in [5]:
     create_base_files(i)
 exit()

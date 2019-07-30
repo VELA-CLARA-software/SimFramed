@@ -109,18 +109,20 @@ class read_gdf_file(object):
             self.attrs['time_created'] = struct.unpack('i', f.read(4))[0]
 
             #get creator name and use string part upto zero-character
-            creator = list(f.read(GDFNAMELEN))
-            creator = [struct.unpack('B', element)[0] for element in creator]
+            creator = f.read(GDFNAMELEN)
+            if sys.version_info[0] < 3:
+                creator = [struct.unpack('B', element)[0] for element in creator]
             creator_name = []
             for element in creator:
-                if element is 0:
+                if chr(element) == '\x00':
                     break
                 else:
                     creator_name.append(chr(element))
             self.attrs['creator_name'] = creator_name
            #get destination and use string part upto zero-character
             dest = f.read(GDFNAMELEN)
-            dest = [struct.unpack('B', element)[0] for element in dest]
+            if sys.version_info[0] < 3:
+                dest = [struct.unpack('B', element)[0] for element in dest]
             destination = []
             for element in dest:
                 if element is 0:
@@ -128,19 +130,20 @@ class read_gdf_file(object):
                 else:
                     destination.append(chr(element))
             self.attrs['destination'] = ''.join(destination)
-
+            # print('destination = ', self.attrs['destination'])
             #get other metadata about the GDF file
             major = struct.unpack('B', f.read(1))[0]
             minor = struct.unpack('B', f.read(1))[0]
             self.attrs['gdf_version'] = str(major) + '.' + str(minor)
-
+            # print('gdf_version = ', self.attrs['gdf_version'])
             major = struct.unpack('B', f.read(1))[0]
             minor = struct.unpack('B', f.read(1))[0]
             self.attrs['creator_version'] = str(major) + '.' + str(minor)
-
+            # print('creator_version = ', self.attrs['creator_version'])
             major = struct.unpack('B', f.read(1))[0]
             minor = struct.unpack('B', f.read(1))[0]
             self.attrs['destination_version'] = str(major) + '.' + str(minor)
+            # print('destination_version = ', self.attrs['destination_version'])
 
             f.seek(2, 1)   # skip to next block
 
@@ -155,14 +158,22 @@ class read_gdf_file(object):
             #Read GDF data blocks
             lastarr = False
             while True:
-                if f.read(1) == '':
+                test = f.read(1).decode('utf-8')
+                # print('break check ', test == '')
+                if test == '':
                     break
                 f.seek(-1, 1)
 
                 #Read GDF block header
-                name = f.read(16)
-                typee = struct.unpack('i', f.read(4))[0]
-                size = struct.unpack('i', f.read(4))[0]
+                name = f.read(16).decode("utf-8")
+                if sys.version_info[0] < 3:
+                    typee = struct.unpack('i', f.read(4))[0]
+                    size = struct.unpack('i', f.read(4))[0]
+                else:
+                    typee = int.from_bytes(f.read(4), byteorder='little')
+                    size = int.from_bytes(f.read(4), byteorder='little')
+                # print('typee = ', typee)
+                # print('size = ', size)
 
                 #Get name
                 import string
@@ -188,7 +199,7 @@ class read_gdf_file(object):
 
                 #Get data type
                 dattype = typee & 255
-
+                # print ('dattype = ', dattype)
                 #Check if array block is finished
                 if lastarr and not arr:
                     #We save the stuff as we go rather than storing it in local dictionaries and creating all the groups at the end. Here we make the groups for next time step, as this code only runs when all data current block has been extracted
@@ -201,26 +212,32 @@ class read_gdf_file(object):
                 #Read single value
                 if sval:
                     if dattype == t_dbl:
-                        # print 'new dbl = ', name
+                        # print ('new dbl = ', name)
+                        # if sys.version_info[0] < 3:
                         value = struct.unpack('d', f.read(8))[0]
-                        # print '    dbl = ', value
+                        # else:
+                        #     value = struct.unpack("d", f.read(8))[0]
+                        # print ('    dbl = ', value)
                         param_group.create_dataset(name, data=value)
                     elif dattype == t_null:
-                        # print 'new null = ', name
+                        # print ('new null = ', name)
                         pass
                     elif dattype == t_ascii:
-                        # print 'new ascii = ', name
+                        # print ('new ascii = ', name)
                         value = str(f.read(size))
                         value = value.strip(' \t\r\n\0')
-                        # print '    ascii = ', value
+                        # print ('    ascii = ', value)
                         try:
                             param_group.create_dataset(name, data=value)
                         except RuntimeError:
                             del param_group[name]
                             param_group.create_dataset(name, data=value)
                     elif dattype == t_s32:
-                        # print 'new s32 = ', name
-                        value = struct.unpack('i', f.read(4))[0]
+                        # print ('new s32 = ', name)
+                        if sys.version_info[0] < 3:
+                            value = struct.unpack('i', f.read(4))[0]
+                        else:
+                            value = struct.unpack('i', f.read(4))[0]
                         param_group.create_dataset(name, data=value)
                     else:
                         print( 'unknown datatype of value!!!')
@@ -230,7 +247,7 @@ class read_gdf_file(object):
                         value = f.read(size)
 
                 #Read data array
-                if arr:
+                elif arr:
                     if dattype == t_dbl:
                         if (size % 8) != 0:
                             raise RuntimeWarning('Tried to save an array of doubles, but the array size is not consistant with that of doubles.')
@@ -243,6 +260,19 @@ class read_gdf_file(object):
                         print(( 'type=', typee))
                         print(( 'size=', size))
                         value = f.read(size)
+                else:
+                    print( 'unknown datatype of value!!!')
+                    print(( 'name=', name))
+                    print(( 'type=', dattype))
+                    print(( 'size=', size))
+                    print(( 'dir =',  dir))
+                    print(( 'edir =',  edir))
+                    print(( 'sval =',  sval))
+                    print(( 'arr =',  arr))
+                    raise RuntimeWarning('Tried to save an array of doubles, but the array size is not consistant with that of doubles.')
 
+                    # edir = int(typee & t_edir > 0)
+                    # sval = int(typee & t_sval > 0)
+                    # arr  = int(typee & t_arr > 0)
                 lastarr = arr;
         f.close()
