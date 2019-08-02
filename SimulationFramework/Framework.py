@@ -182,6 +182,7 @@ class Framework(Munch):
         self.defineElegantCommand = self.executables.define_elegant_command
         self.defineGeneratorCommand = self.executables.define_generator_command
         self.defineCSRTrackCommand = self.executables.define_csrtrack_command
+        self.define_gpt_command = self.executables.define_gpt_command
         # self.executables = {'generator': [master_lattice_location+'Codes/generator'], 'astra': [master_lattice_location+'Codes/astra'],
         #                     'elegant': [master_lattice_location+'Codes/elegant'], 'csrtrack': [master_lattice_location+'Codes/csrtrack'],
         #                     'gpt': [r'C:/Program Files/General Particle Tracer/bin/gpt.exe']}
@@ -1133,18 +1134,34 @@ class gptLattice(frameworkLattice):
         self.particle_definition = self.allElementObjects[self.start].objectname
         self.headers = OrderedDict()
         self.headers['setfile'] = gpt_setfile(set="\"beam\"", filename="\"" + self.particle_definition + ".gdf\"")
-        self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=250e-12)
+        # self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=250e-12)
         start = self.allElementObjects[self.start].start[2]
         end = self.allElementObjects[self.end].end[2]
-        self.headers['tout'] = gpt_tout(startpos=start, endpos=self.allElementObjects[self.end].end[2], step=0.025)
+        # self.headers['tout'] = gpt_tout(startpos=0, endpos=self.allElementObjects[self.end].end[2], step=0.1)
 
     def writeElements(self):
+        ccs = gpt_ccs("wcs", [0,0,0], [0,0,0])
         fulltext = ''
+        self.headers['spacecharge'] = gpt_spacecharge(space_charge_mode=self.file_block['charge']['space_charge_mode'])
         for header in self.headers:
             fulltext += self.headers[header].write_GPT()+'\n'
-        for element in list(self.elements.values()):
-            fulltext += element.write_GPT(1)
-        fulltext += self.endScreen().write_GPT(1)
+        for i, element in enumerate(list(self.elements.values())):
+            if i ==0:
+                screen0pos = element.start[2]
+            if i == 0 and element.objecttype == "screen":
+                pass
+            else:
+                fulltext += element.write_GPT(self.Brho, ccs=ccs)
+                new_ccs = element.gpt_ccs(ccs)
+                if not new_ccs == ccs:
+                    relpos, relrot = ccs.relative_position(element.end, element.global_rotation)
+                    fulltext += 'screen( ' + ccs.name + ', "I", '+ str(screen0pos) + ', ' + str(relpos[2]) + ', 0.1);\n'
+                    screen0pos = 0
+                ccs = new_ccs
+        if not element.objecttype == "screen":
+            fulltext += self.endScreen().write_GPT(self.Brho, ccs=ccs)
+        relpos, relrot = ccs.relative_position(element.end, element.global_rotation)
+        fulltext += 'screen( ' + ccs.name + ', "I", '+ str(screen0pos) + ', ' + str(relpos[2]) + ', 0.1);\n'
         return fulltext
 
     def write(self):
@@ -1161,9 +1178,11 @@ class gptLattice(frameworkLattice):
         command = self.executables[self.code] + ['-o', self.objectname+'_out.gdf'] + ['GPTLICENSE=***REMOVED***'] + [self.objectname+'.in']
         # post_command_t = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
         post_command = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['position','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
+        post_command_t = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emitt.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
         with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=master_subdir)
             subprocess.call(post_command, stdout=f, cwd=master_subdir)
+            subprocess.call(post_command_t, stdout=f, cwd=master_subdir)
 
     def postProcess(self):
         for e in self.screens_and_bpms:
@@ -1173,10 +1192,16 @@ class gptLattice(frameworkLattice):
     def hdf5_to_gdf(self, prefix=''):
         HDF5filename = prefix+self.particle_definition+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        # print('beam charge = ', beam.charge)
+        if self.sample_interval > 1:
+            # pass
+            self.headers['setreduce'] = gpt_setreduce(set="\"beam\"", setreduce=len(beam.x)/self.sample_interval)
         self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=beam.charge)
+        self.headers['tout'] = gpt_tout(starttime=min(beam.t), endpos=self.allElementObjects[self.end].end[2]/np.mean(beam.Bz), step=0.1)
         gdfbeamfilename = self.particle_definition+'.gdf'
         beam.write_gdf_beam_file(master_subdir + '/' + self.particle_definition+'.txt')
-        subprocess.call(["C:/Program Files/General Particle Tracer/bin/asci2gdf.exe", '-o', gdfbeamfilename, self.particle_definition+'.txt'], cwd=master_subdir)
+        subprocess.call([self.executables[self.code][0].replace('gpt','asci2gdf'), '-o', gdfbeamfilename, self.particle_definition+'.txt'], cwd=master_subdir)
+        self.Brho = beam.Brho
 
 class csrtrackLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -1742,17 +1767,20 @@ class frameworkElement(frameworkObject):
     def write_CSRTrack(self, n=0):
         return ""
 
-    def write_GPT(self, Brho):
-        return ""
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
+        return ''
 
-    def gpt_coordinates(self):
-        x,y,z = self.middle
-        psi, phi, theta = self.global_rotation
+    def gpt_coordinates(self, position, rotation):
+        x,y,z = chop(position, 1e-6)
+        psi, phi, theta = rotation
         output =''
         for c in [x, y, z]:
             output += str(c)+', '
         output += 'cos('+str(theta)+'), 0, -sin('+str(theta)+'), 0, 1 ,0'
         return output
+
+    def gpt_ccs(self, ccs):
+        return ccs
 
 class dipole(frameworkElement):
 
@@ -1769,6 +1797,19 @@ class dipole(frameworkElement):
         self.add_default('integration_order', 4)
         self.add_default('nonlinear', 1)
         self.add_default('smoothing_half_width', 2)
+
+    @property
+    def middle(self):
+        start = self.position_start
+        length_vector = self.rotated_position([0,0, self.length / 2.0], offset=[0,0,0], theta=self.theta)
+        starting_middle = length_vector
+        # print(self.objectname, self.theta, self.starting_rotation, self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)[0])
+        return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
+
+    @property
+    def end(self):
+        start = self.position_start
+        return np.array(start) + chop(np.dot([0,0,self.intersect], _rotation_matrix(self.global_rotation[2])), 1e-6) + chop(np.dot([0,0,self.intersect], _rotation_matrix(self.global_rotation[2] + self.angle)), 1e-6)
 
     @property
     def width(self):
@@ -1805,6 +1846,9 @@ class dipole(frameworkElement):
         else:
             return 0
 
+    @property
+    def intersect(self):
+        return self.rho * np.tan(self.angle / 2.0)
     @property
     def rho(self):
         return self.length/self.angle if self.length is not None and abs(self.angle) > 1e-9 else 0
@@ -1891,25 +1935,65 @@ class dipole(frameworkElement):
         else:
             return None
 
-    def gpt_coordinates(self):
-        x,y,z = self.start
-        psi, phi, theta = self.global_rotation
+    def gpt_coordinates(self, position, rotation):
+        x,y,z = chop(position, 1e-6)
+        psi, phi, theta = rotation
         output =''
-        for c in [x, y, z]:
+        for c in [0, 0, z]:
             output += str(c)+', '
-        output += 'cos('+str(theta)+'), 0, -sin('+str(theta)+'), 0, 1 ,0'
+        output += 'cos('+str(self.angle)+'), 0, -sin('+str(self.angle)+'), 0, 1 ,0'
         return output
 
-    def write_GPT(self, Brho):
-        self.rho = self.length / self.angle
-        self.intersect = rho * np.tan(self.angle / 2)
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
+        field = Brho/self.rho if abs(self.rho) > 0 else 0
+        relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
+        relpos = relpos + [0, 0, self.intersect]
+        coord = self.gpt_coordinates(relpos, relrot)
+        new_ccs = self.gpt_ccs(ccs).name
+        b1 = 1.0 / (2 * self.half_gap * self.edge_field_integral)
+        # b1 = 0.
         '''
         ccs( "wcs", 0, 0, startofdipole +  intersect1, Cos(theta), 0, -Sin(theta), 0, 1, 0, "bend1" ) ;
         sectormagnet( "wcs", "bend1", rho, field, e1, e2, 0., 100., 0 ) ;
         '''
-
-        output = str(self.objecttype) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+        output = 'ccs( ' + ccs.name + ', '+ coord + ', ' + new_ccs + ');\n'
+        output += 'sectormagnet( ' + ccs.name + ', '+ new_ccs +', '+str(abs(self.rho))+', '+str(abs(field))+', ' + str(abs(self.e1)) + ', ' + str(abs(self.e2)) + ', 0, ' + str(b1) + ', 0);\n'
         return output
+
+    def gpt_ccs(self, ccs):
+        number = str(int(ccs._name.split('_')[1])+1) if ccs._name is not "wcs" else "1"
+        name = 'ccs_' + number if ccs._name is not "wcs" else "ccs_1"
+        # print('middle position = ', self.end)
+        return gpt_ccs(name, self.end, self.global_rotation + np.array([0, 0, self.angle]), self.intersect)
+
+class gpt_ccs(Munch):
+
+    def __init__(self, name, position, rotation, intersect=0):
+        super(gpt_ccs, self).__init__()
+        self._name = name
+        self.intersect = intersect
+        self.x, self.y, self.z = position
+        self.psi, self.phi, self.theta = rotation
+
+    def relative_position(self, position, rotation):
+        x, y, z = position
+        psi, phi, theta = rotation
+        # print(self.name, [x - self.x, y - self.y, z - self.z])
+        # print(self.name, [psi - self.psi, phi - self.phi, theta - self.theta])
+        newpos = [x - self.x, y - self.y, z - self.z]
+        finalrot = [psi - self.psi, phi - self.phi, theta - self.theta]
+        finalpos = np.dot(newpos, _rotation_matrix(-self.theta)) + [0,0,self.intersect]
+        return finalpos, finalrot
+
+    @property
+    def name(self):
+        return '"' + self._name + '"'
+    @property
+    def position(self):
+        return self.x, self.y, self.z
+    @property
+    def rotation(self):
+        return self.psi, self.phi, self.theta
 
 class kicker(dipole):
 
@@ -1938,6 +2022,12 @@ class kicker(dipole):
         if vkick is not None:
             output += vkick
         return output
+
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
+        return ''
+
+    def gpt_ccs(self, ccs):
+        return ccs
 
 class quadrupole(frameworkElement):
 
@@ -1979,8 +2069,11 @@ class quadrupole(frameworkElement):
             ['Q_mult_a', {'type': 'list', 'value': self.multipoles}],
         ]), n)
 
-    def write_GPT(self, Brho):
-        output = str(self.objecttype) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
+        relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
+        relpos = relpos + [0, 0, self.length/2.]
+        coord = self.gpt_coordinates(relpos, relrot)
+        output = str(self.objecttype) + '( ' + ccs.name + ', "z", '+ str(relpos[2]) +', '+str(self.length)+', '+str(-Brho*self.k1)+');\n'
         return output
 
 class cavity(frameworkElement):
@@ -2115,7 +2208,7 @@ class aperture(frameworkElement):
     def __init__(self, name=None, type='aperture', **kwargs):
         super(aperture, self).__init__(name, type, **kwargs)
 
-    def write_GPT(self, Brho):
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
         return ''
         # if self.shape == 'elliptical':
         #     output = 'rmax'
@@ -2179,9 +2272,12 @@ class screen(frameworkElement):
         z = self.middle[2]
         return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
 
-    def write_GPT(self, Brho):
-        # +self.gpt_coordinates()+
-        output = 'screen("wcs", '+self.gpt_coordinates()+','+str(self.middle[2])+');\n'
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
+        relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
+        relpos = relpos + [0, 0, self.length/2.]
+        coord = self.gpt_coordinates(relpos, relrot)
+        self.gpt_screen_position = relpos[2]
+        output = 'screen( ' + ccs.name + ', "I", '+ str(relpos[2]) +');\n'
         return output
 
     def astra_to_hdf5(self, lattice):
@@ -2206,9 +2302,12 @@ class screen(frameworkElement):
 
     def gdf_to_hdf5(self, gptbeamfilename):
         # gptbeamfilename = self.objectname + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
-        beam.read_gdf_beam_file(master_subdir + '/' + gptbeamfilename, position=self.middle[2])
-        HDF5filename = self.objectname+'.hdf5'
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=gptbeamfilename)
+        try:
+            beam.read_gdf_beam_file(master_subdir + '/' + gptbeamfilename, position=self.gpt_screen_position)
+            HDF5filename = self.objectname+'.hdf5'
+            beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=gptbeamfilename)
+        except:
+            pass
 
 
 class monitor(screen):
@@ -2425,8 +2524,10 @@ class global_error(frameworkElement):
     def write_ASTRA(self):
         return self._write_ASTRA(OrderedDict([[key, {'value': value}] for key, value in self._errordict]))
 
-    def write_GPT(self, Brho):
-        output = str(self.objecttype) + '( "wcs", '+self.gpt_coordinates()+', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
+        relpos, relrot = ccs.relative_position(self.middle, [0,0,0])
+        coord = self.gpt_coordinates(relpos, relrot)
+        output = str(self.objecttype) + '( '+ ccs.name +', '+ coord +', '+str(self.length)+', '+str(Brho*self.k1)+');\n'
         return output
 
 class longitudinal_wakefield(cavity):
@@ -2735,7 +2836,7 @@ class gpt_element(frameworkElement):
         #     for k, v in list(gpt_defaults[elementName].items()):
         #         self.add_default(k, v)
 
-    def write_GPT(self):
+    def write_GPT(self, *args, **kwargs):
         output = str(self.objectname) + '('
         for k in elementkeywords[self.objecttype]['keywords']:
             k = k.lower()
@@ -2755,7 +2856,7 @@ class gpt_setfile(gpt_element):
     def hdf5_to_gpt(self, prefix=''):
         HDF5filename = prefix+self.particle_definition.replace('.gdf','')+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
-        beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
+        # beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
         gptbeamfilename = self.particle_definition
         beam.write_gdf_beam_file(master_subdir + '/' + gptbeamfilename, normaliseZ=False)
 
@@ -2764,21 +2865,49 @@ class gpt_charge(gpt_element):
     def __init__(self, **kwargs):
         super(gpt_charge, self).__init__(elementName='settotalcharge', elementType='gpt_charge', **kwargs)
 
-    def write_GPT(self):
+    def write_GPT(self, *args, **kwargs):
         output = str(self.objectname) + '('
         output += str(self.set) + ','
         output += str(-1*abs(self.charge)) + ');\n'
         return output
 
+class gpt_setreduce(gpt_element):
+
+    def __init__(self, **kwargs):
+        super(gpt_setreduce, self).__init__(elementName='setreduce', elementType='gpt_setreduce', **kwargs)
+
+    def write_GPT(self, *args, **kwargs):
+        output = str(self.objectname) + '('
+        output += str(self.set) + ','
+        output += str(self.setreduce) + ');\n'
+        return output
+
+class gpt_spacecharge(gpt_element):
+
+    def __init__(self, **kwargs):
+        super(gpt_spacecharge, self).__init__(elementName='spacecharge', elementType='gpt_spacecharge', **kwargs)
+
+    def write_GPT(self, *args, **kwargs):
+        output = 'setrmacrodist(\"beam\","u",1e-9,0) ;\n'
+        if self.space_charge_mode.lower() == '3d':
+            output += 'Spacecharge3Dmesh();\n'
+        elif self.space_charge_mode.lower() == '2d':
+            output += 'sc3dmesh();\n'
+        else:
+            output = ''
+        return output
 
 class gpt_tout(gpt_element):
 
     def __init__(self, **kwargs):
         super(gpt_tout, self).__init__(elementName='tout', elementType='gpt_tout', **kwargs)
 
-    def write_GPT(self):
-        output = '#' + str(self.objectname) + '('
-        output += str(self.startpos) + '/c,'
+    def write_GPT(self, *args, **kwargs):
+        output = str(self.objectname) + '('
+        if self.starttime is not None:
+            output += str(self.starttime) + ','
+        else:
+            output += str(self.startpos) + '/c,'
         output += str(self.endpos) + '/c,'
         output += str(self.step) + '/c);\n'
         return output

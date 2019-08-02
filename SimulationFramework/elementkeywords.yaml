@@ -177,7 +177,7 @@ drift:
   keywords: {}
 csrdrift:
   keywords: {'csrdz', 'use_stupakov', 'lsc_bins', 'use_saldin54', 'saldin54points', 'lsc_enable', 'lsc_low_frequency_cutoff_start', 'lsc_low_frequency_cutoff_end',
-  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end','csr_enable'}
+  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end','csr_enable','spread'}
 lscdrift:
   keywords: {'lsc_bins', 'lsc_enable', 'lsc_low_frequency_cutoff_start', 'lsc_low_frequency_cutoff_end',
   'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end'}
@@ -271,7 +271,7 @@ gpt_setfile:
     filename
   }
 gpt_charge:
-  keywords: {
+  keywords: { 
     set,
     charge,
   }
@@ -280,6 +280,16 @@ gpt_tout:
     startpos,
     endpos,
     step,
+    starttime,
+  }
+gpt_setreduce:
+  keywords: {
+    set,
+    setreduce,
+  }
+gpt_spacecharge:
+  keywords: {
+    space_charge_mode
   }
 global_error:
   keywords: {
