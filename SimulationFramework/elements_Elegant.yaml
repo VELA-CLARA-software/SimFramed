@@ -1140,7 +1140,7 @@ mapsolenoid:
   accuracy: double
   method: string
   group: string
-  
+
 mark:
   dx: double
   dy: double
@@ -1152,7 +1152,7 @@ marker:
   dy: double
   fitpoint: long
   group: string
-  
+
 matr:
   l: double
   filename: string
@@ -1426,7 +1426,7 @@ quadrupole:
   lambda2m: double
   radial: long
   group: string
-  
+
 qufringe:
   l: double
   k1: double
@@ -1766,7 +1766,7 @@ sbend:
   b1: double
   b2: double
   group: string
-  
+
 sben:
   l: double
   angle: double
@@ -1889,7 +1889,7 @@ sextupole:
   ffringe: double
   order: long
   group: string
-  
+
 sole:
   l: double
   ks: double

@@ -52,7 +52,7 @@ class grab_group(object):
 
         def create_dataset(self, name, data=()):
             self.datasets.append(name)
-            setattr(self,name, data)
+            setattr(self,name, data) 
 
 class read_gdf_file(object):
 ###############################################################################
