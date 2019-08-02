@@ -105,10 +105,15 @@ class Executables(object):
             self.csrtrack = [self.master_lattice_location+'Codes/csrtrack']
 
     def define_gpt_command(self, location=None, ncpu=1, scaling=None):
+        ncpu = self.getNCPU(ncpu, scaling)
         if location is not None:
             if isinstance(location,str):
                 self.gpt = [location]
             elif isinstance(location,list):
                 self.gpt = location
+        elif not self.osname == 'nt':
+            # print('gpt on apclara3')
+            self.gpt = ['/opt/GPT3.3.6/bin/gpt', '-j',str(ncpu),'-v']
+            # print('gpt on apclara3', self.gpt)
         else:
             self.gpt = ['C:/Program Files/General Particle Tracer/bin/gpt.exe']
