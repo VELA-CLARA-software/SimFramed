@@ -309,9 +309,13 @@ class beam(object):
         np.savetxt(file, array, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e'))
 
     def write_gdf_beam_file(self, filename):
-        dataarray = np.array([self.x, self.y, self.z, self.Bx, self.By, self.Bz]).transpose()
-        namearray = 'x y z Bx By Bz'
-        np.savetxt(filename, dataarray, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e'), header=namearray, comments='')
+        q = np.full(len(self.x), -1 * constants.elementary_charge)
+        m = np.full(len(self.x), constants.electron_mass)
+        nmacro = np.full(len(self.x), abs(self.beam['total_charge'] / constants.elementary_charge / len(self.x)))
+        toffset = np.mean(self.z / (self.Bz * constants.speed_of_light))
+        dataarray = np.array([self.x, self.y, self.z, q, m, nmacro, self.gamma*self.Bx, self.gamma*self.By, self.gamma*self.Bz]).transpose()
+        namearray = 'x y z q m nmacro GBx GBy GBz'
+        np.savetxt(filename, dataarray, fmt=('%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e','%.12e'), header=namearray, comments='')
 
     def read_gdf_beam_file_object(self, file):
         if isinstance(file, (str)):
@@ -340,10 +344,12 @@ class beam(object):
             self.beam['longitudinal_reference'] = 't'
             gdfbeamdata = gdfbeam.get_position(position)
             if gdfbeamdata is not None:
+                # print('GDF found position ', position)
                 time = None
                 block = None
             else:
-                 position = None
+                # print('GDF DID NOT find position ', position)
+                position = None
         if position is None and time is not None and block is not None:
             # print 'Assuming time over block!'
             self.beam['longitudinal_reference'] = 'p'
@@ -362,12 +368,12 @@ class beam(object):
         self.beam['x'] = gdfbeamdata.x
         self.beam['y'] = gdfbeamdata.y
         if hasattr(gdfbeamdata,'z') and longitudinal_reference == 'z':
-            print( 'z!')
-            print(( gdfbeamdata.z))
+            # print( 'z!')
+            # print(( gdfbeamdata.z))
             self.beam['z'] = gdfbeamdata.z
             self.beam['t'] = np.full(len(self.z), 0)# self.z / (-1 * self.Bz * constants.speed_of_light)
         elif hasattr(gdfbeamdata,'t') and longitudinal_reference == 't':
-            print( 't!')
+            # print( 't!')
             self.beam['t'] = gdfbeamdata.t
             self.beam['z'] = (-1 * gdfbeamdata.Bz * constants.speed_of_light) * (gdfbeamdata.t-np.mean(gdfbeamdata.t)) + gdfbeamdata.z
         self.beam['gamma'] = gdfbeamdata.G
@@ -1010,6 +1016,9 @@ class beam(object):
     @property
     def cp(self):
         return np.sqrt(self.cpx**2 + self.cpy**2 + self.cpz**2)
+    @property
+    def Brho(self):
+        return np.mean(self.p) / constants.elementary_charge
     @property
     def gamma(self):
         return np.sqrt(1+(self.cp/self.E0_eV)**2)
