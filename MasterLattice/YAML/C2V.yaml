@@ -12,9 +12,8 @@ elements:
     angle: 0.785398
     design_angle: 0.785398
     strength: 0
-    half_gap: 0.005
+    half_gap: 0.01
     edge_field_integral: 0.4
-    csr_bins: 20.0
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"C2V-MAG-DIP-01-D.CSR"'
@@ -49,7 +48,7 @@ elements:
     position_start: [-0.368412, 0, 6.40624]
   CLA-C2V-MAG-QUAD-01:
     type: quadrupole
-    length: 0.1007
+    length: 0.121567
     k1l: 5.59853
     sr_enable: true
     isr_enable: true
@@ -60,11 +59,11 @@ elements:
     Online_Model_Name: CV-QUAD01
     PV: CLA-C2V-MAG-QUAD-01
     global_rotation: [0, 0, 0.785398]
-    position_end: [-0.455542, 0, 6.49337]
-    position_start: [-0.384336, 0, 6.42217]
+    position_end: [-0.46292, 0, 6.50075]
+    position_start: [-0.376958, 0, 6.41479]
   CLA-C2V-MAG-QUAD-02:
     type: quadrupole
-    length: 0.1007
+    length: 0.121512
     k1l: -5.02792
     sr_enable: true
     isr_enable: true
@@ -75,11 +74,11 @@ elements:
     Online_Model_Name: CV-QUAD02
     PV: CLA-C2V-MAG-QUAD-02
     global_rotation: [0, 0, 0.785398]
-    position_end: [-0.660603, 0, 6.69843]
-    position_start: [-0.589397, 0, 6.62723]
+    position_end: [-0.667961, 0, 6.70579]
+    position_start: [-0.582039, 0, 6.61987]
   CLA-C2V-MAG-QUAD-03:
     type: quadrupole
-    length: 0.1007
+    length: 0.121551
     k1l: 5.59853
     sr_enable: true
     isr_enable: true
@@ -90,8 +89,8 @@ elements:
     Online_Model_Name: CV-QUAD03
     PV: CLA-C2V-MAG-QUAD-03
     global_rotation: [0, 0, 0.785398]
-    position_end: [-0.865664, 0, 6.90349]
-    position_start: [-0.794458, 0, 6.83229]
+    position_end: [-0.873036, 0, 6.91086]
+    position_start: [-0.787086, 0, 6.82492]
   CLA-C2V-DIA-SCR-01-W:
     type: screen
     output_filename: '"C2V-DIA-SCR-01.SDDS"'
@@ -106,9 +105,8 @@ elements:
     type: dipole
     length: 0.400003
     angle: -0.785398
-    half_gap: 0.005
+    half_gap: 0.01
     edge_field_integral: 0.4
-    csr_bins: 20.0
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"CLA-C2V-MAG-DIP-02-D.CSR"'
