@@ -32,8 +32,8 @@ elements:
     Online_Model_Name: C1-S02-QUAD01
     PV: CLA-S02-MAG-QUAD-01
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 3.5775]
-    position_start: [0, 0, 3.4768]
+    position_end: [0., 0, 3.57749]
+    position_start: [0., 0, 3.47681]
   CLA-S02-DIA-BPM-01:
     type: beam_position_monitor
     length: 0.04528
@@ -45,7 +45,7 @@ elements:
     position_start: [0, 0, 3.5775]
   CLA-S02-MAG-QUAD-02:
     type: quadrupole
-    length: 0.1007
+    length: 0.126817
     k1l: 0.634871
     sr_enable: true
     isr_enable: true
@@ -56,8 +56,8 @@ elements:
     Online_Model_Name: C1-S02-QUAD02
     PV: CLA-S02-MAG-QUAD-02
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 3.9775]
-    position_start: [0, 0, 3.8768]
+    position_end: [0., 0, 3.99056]
+    position_start: [0., 0, 3.86374]
   CLA-S02-DIA-SCR-01-W:
     type: screen
     output_filename: '"CLA-S02-DIA-SCR-01.SDDS"'
@@ -118,7 +118,7 @@ elements:
     position_start: [0, 0, 5.01083]
   CLA-S02-MAG-QUAD-03:
     type: quadrupole
-    length: 0.1007
+    length: 0.127242
     k1l: -0.407613
     sr_enable: true
     isr_enable: true
@@ -129,11 +129,11 @@ elements:
     Online_Model_Name: C1-S02-QUAD03
     PV: CLA-S02-MAG-QUAD-03
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 5.2775]
-    position_start: [0, 0, 5.1768]
+    position_end: [0., 0, 5.29077]
+    position_start: [0., 0, 5.16353]
   CLA-S02-MAG-QUAD-04:
     type: quadrupole
-    length: 0.1007
+    length: 0.127422
     k1l: -0.407613
     sr_enable: true
     isr_enable: true
@@ -144,5 +144,5 @@ elements:
     Online_Model_Name: C1-S02-QUAD04
     PV: CLA-S02-MAG-QUAD-04
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 5.6775]
-    position_start: [0, 0, 5.5768]
+    position_end: [0., 0, 5.69086]
+    position_start: [0., 0, 5.56344]
