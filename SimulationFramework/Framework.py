@@ -43,7 +43,7 @@ astra_generator_keywords = {
         'clara_400_2ps_Gaussian':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'g',
             'sig_clock': 0.85e-3,
-            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
+            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.25, 'dist_y': '2DGaussian', 'sig_y': 0.25, 'C_sig_x': 3, 'C_sig_y': 3
         },
     },
     'framework_keywords': [
@@ -564,6 +564,7 @@ class frameworkLattice(Munch):
         self.groupSettings = file_block['groups'] if 'groups' in file_block else {}
         self.update_groups()
         self.executables = executables
+        self._csr_enable = True
         self.csrDrifts = True
         self.lscDrifts = True
         self.lsc_bins = 20
@@ -572,6 +573,14 @@ class frameworkLattice(Munch):
         self.lsc_low_frequency_cutoff_start = -1
         self.lsc_low_frequency_cutoff_end = -1
         self._sample_interval = self.file_block['input']['sample_interval'] if 'input' in self.file_block and 'sample_interval' in self.file_block['input'] else 1
+
+    @property
+    def csr_enable(self):
+        return self._csr_enable
+    @csr_enable.setter
+    def csr_enable(self, csr):
+        self.csrDrifts = csr
+        self._csr_enable = csr
 
     @property
     def sample_interval(self):
@@ -1134,6 +1143,7 @@ class gptLattice(frameworkLattice):
         self.particle_definition = self.allElementObjects[self.start].objectname
         self.headers = OrderedDict()
         self.headers['setfile'] = gpt_setfile(set="\"beam\"", filename="\"" + self.particle_definition + ".gdf\"")
+        self.headers['floorplan'] = gpt_writefloorplan(filename="\"" + self.objectname + "_floor.gdf\"")
         # self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=250e-12)
         start = self.allElementObjects[self.start].start[2]
         end = self.allElementObjects[self.end].end[2]
@@ -1143,6 +1153,8 @@ class gptLattice(frameworkLattice):
         ccs = gpt_ccs("wcs", [0,0,0], [0,0,0])
         fulltext = ''
         self.headers['spacecharge'] = gpt_spacecharge(space_charge_mode=self.file_block['charge']['space_charge_mode'])
+        if self.csr_enable:
+            self.headers['csr1d'] = gpt_csr1d()
         for header in self.headers:
             fulltext += self.headers[header].write_GPT()+'\n'
         for i, element in enumerate(list(self.elements.values())):
@@ -1176,13 +1188,19 @@ class gptLattice(frameworkLattice):
     def run(self):
         """Run the code with input 'filename'"""
         command = self.executables[self.code] + ['-o', self.objectname+'_out.gdf'] + ['GPTLICENSE=***REMOVED***'] + [self.objectname+'.in']
+        my_env = os.environ.copy()
+        my_env["LD_LIBRARY_PATH"] = my_env["LD_LIBRARY_PATH"] + ":/opt/GPT3.3.6/lib/" if "LD_LIBRARY_PATH" in my_env else "/opt/GPT3.3.6/lib/"
+        my_env["OMP_WAIT_POLICY"] = "PASSIVE"
         # post_command_t = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
-        post_command = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['position','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
-        post_command_t = [self.executables[self.code][0].replace('gpt.exe','gdfa.exe')] + ['-o', self.objectname+'_emitt.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
+        post_command = [self.executables[self.code][0].replace('gpt','gdfa')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['position','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
+        post_command_t = [self.executables[self.code][0].replace('gpt','gdfa')] + ['-o', self.objectname+'_emitt.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
+        post_command_traj = [self.executables[self.code][0].replace('gpt','gdfa')] + ['-o', self.objectname+'traj.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','avgz','G']
         with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
-            subprocess.call(command, stdout=f, cwd=master_subdir)
+            # print('gpt command = ', command)
+            subprocess.call(command, stdout=f, cwd=master_subdir, env=my_env)
             subprocess.call(post_command, stdout=f, cwd=master_subdir)
             subprocess.call(post_command_t, stdout=f, cwd=master_subdir)
+            subprocess.call(post_command_traj, stdout=f, cwd=master_subdir)
 
     def postProcess(self):
         for e in self.screens_and_bpms:
@@ -1194,7 +1212,6 @@ class gptLattice(frameworkLattice):
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
         # print('beam charge = ', beam.charge)
         if self.sample_interval > 1:
-            # pass
             self.headers['setreduce'] = gpt_setreduce(set="\"beam\"", setreduce=len(beam.x)/self.sample_interval)
         self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=beam.charge)
         self.headers['tout'] = gpt_tout(starttime=min(beam.t), endpos=self.allElementObjects[self.end].end[2]/np.mean(beam.Bz), step=0.1)
@@ -1774,7 +1791,7 @@ class frameworkElement(frameworkObject):
         x,y,z = chop(position, 1e-6)
         psi, phi, theta = rotation
         output =''
-        for c in [x, y, z]:
+        for c in [-x, y, z]:
             output += str(c)+', '
         output += 'cos('+str(theta)+'), 0, -sin('+str(theta)+'), 0, 1 ,0'
         return output
@@ -1789,7 +1806,8 @@ class dipole(frameworkElement):
         self.keyword_conversion_rules_elegant['isr_enable'] = 'isr'
         self.keyword_conversion_rules_elegant['sr_enable'] = 'synch_rad'
         self.keyword_conversion_rules_elegant['smoothing_half_width'] = 'sg_halfwidth'
-        self.add_default('bins', 100)
+        self.keyword_conversion_rules_elegant['csr_bins'] = 'bins'
+        self.add_default('csr_bins', 100)
         self.add_default('csr_enable', 1)
         self.add_default('isr_enable', True)
         self.add_default('n_kicks', 10)
@@ -1946,11 +1964,12 @@ class dipole(frameworkElement):
 
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
         field = Brho/self.rho if abs(self.rho) > 0 else 0
+        field = self.angle * Brho / self.length
         relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
         relpos = relpos + [0, 0, self.intersect]
         coord = self.gpt_coordinates(relpos, relrot)
         new_ccs = self.gpt_ccs(ccs).name
-        b1 = 1.0 / (2 * self.half_gap * self.edge_field_integral)
+        b1 = 0#2.0 / (2 * self.half_gap * self.edge_field_integral)
         # b1 = 0.
         '''
         ccs( "wcs", 0, 0, startofdipole +  intersect1, Cos(theta), 0, -Sin(theta), 0, 1, 0, "bend1" ) ;
@@ -2074,6 +2093,8 @@ class quadrupole(frameworkElement):
         relpos = relpos + [0, 0, self.length/2.]
         coord = self.gpt_coordinates(relpos, relrot)
         output = str(self.objecttype) + '( ' + ccs.name + ', "z", '+ str(relpos[2]) +', '+str(self.length)+', '+str(-Brho*self.k1)+');\n'
+        # coord = self.gpt_coordinates(self.middle, self.global_rotation)
+        # output = str(self.objecttype) + '( "wcs", ' + coord + ', '+str(self.length)+', '+str(-Brho*self.k1)+');\n'
         return output
 
 class cavity(frameworkElement):
@@ -2133,7 +2154,7 @@ class cavity(frameworkElement):
             ['C_numb', {'value': self.cells}],
             ['Nue', {'value': self.frequency / 1e9, 'default': 2998.5}],
             ['MaxE', {'value': self.field_amplitude / 1e6, 'default': 0}],
-            ['Phi', {'value': self.phase, 'default': 0.0}],
+            ['Phi', {'value': -self.phase, 'default': 0.0}],
             ['C_smooth', {'value': self.smooth, 'default': 10}],
             ['C_xoff', {'value': self.start[0] + self.dx, 'default': 0}],
             ['C_yoff', {'value': self.start[1] + self.dy, 'default': 0}],
@@ -2903,6 +2924,7 @@ class gpt_tout(gpt_element):
         super(gpt_tout, self).__init__(elementName='tout', elementType='gpt_tout', **kwargs)
 
     def write_GPT(self, *args, **kwargs):
+        self.starttime = 0 if self.starttime < 0 else self.starttime
         output = str(self.objectname) + '('
         if self.starttime is not None:
             output += str(self.starttime) + ','
@@ -2910,4 +2932,22 @@ class gpt_tout(gpt_element):
             output += str(self.startpos) + '/c,'
         output += str(self.endpos) + '/c,'
         output += str(self.step) + '/c);\n'
+        return output
+
+class gpt_csr1d(gpt_element):
+
+    def __init__(self, **kwargs):
+        super(gpt_csr1d, self).__init__(elementName='csr1d', elementType='gpt_csr1d', **kwargs)
+
+    def write_GPT(self, *args, **kwargs):
+        output = str(self.objectname) + '();\n'
+        return output
+
+class gpt_writefloorplan(gpt_element):
+
+    def __init__(self, **kwargs):
+        super(gpt_writefloorplan, self).__init__(elementName='writefloorplan', elementType='gpt_writefloorplan', **kwargs)
+
+    def write_GPT(self, *args, **kwargs):
+        output = str(self.objectname) + '(' + self.filename + ');\n'
         return output
