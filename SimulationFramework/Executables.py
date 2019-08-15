@@ -113,7 +113,7 @@ class Executables(object):
                 self.gpt = location
         elif not self.osname == 'nt':
             # print('gpt on apclara3')
-            self.gpt = ['/opt/GPT3.3.6/bin/gpt', '-j',str(ncpu),'-v']
+            self.gpt = ['/opt/GPT3.3.6/bin/gpt', '-j',str(ncpu)]
             # print('gpt on apclara3', self.gpt)
         else:
             self.gpt = ['C:/Program Files/General Particle Tracer/bin/gpt.exe']
