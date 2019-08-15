@@ -326,6 +326,36 @@ class beam(object):
             raise Exception('file is not str or gdf object!')
         return gdfbeam
 
+    def calculate_gdf_s(self, file):
+        gdfbeam = self.read_gdf_beam_file_object(file)
+        datagrab = gdfbeam.get_grab(0)
+        avgt = [datagrab.avgt]
+        position = [datagrab.position]
+        sposition = list(zip(*list(sorted(zip(avgt[0], position[0])))))[1]
+        ssposition = list(zip(sposition, list(sposition[1:])+[0]))
+        offset = 0
+        spos = []
+        for p1,p2 in ssposition:
+            spos += [p1 + offset]
+            if p2 < p1:
+                offset += p1
+        return spos
+
+    def calculate_gdf_eta(self, file):
+        gdfbeam = self.read_gdf_beam_file_object(file)
+        etax = []
+        etaxp = []
+        tp = []
+        for p in gdfbeam.positions:
+            self.read_gdf_beam_file(gdfbeam=gdfbeam, position=p)
+            if len(self.x) > 0:
+                e, ep, t = self.calculate_etax()
+                etax += [e]
+                etaxp += [ep]
+                tp += [t]
+        etax, etaxp = list(zip(*list(sorted(zip(tp, etax, etaxp)))))[1:]
+        return etax, etaxp
+
     def read_gdf_beam_file_info(self, file):
         self.reset_dicts()
         gdfbeamdata = None
@@ -334,10 +364,12 @@ class beam(object):
         print(( 'Positions = ', gdfbeam.positions))
         print(( 'Times = ', gdfbeam.times))
 
-    def read_gdf_beam_file(self, file, position=None, time=None, block=None, charge=None, longitudinal_reference='t'):
+    def read_gdf_beam_file(self, file=None, position=None, time=None, block=None, charge=None, longitudinal_reference='t', gdfbeam=None):
         self.reset_dicts()
-        gdfbeamdata = None
-        gdfbeam = self.read_gdf_beam_file_object(file)
+        if gdfbeam is None and not file is None:
+            gdfbeam = self.read_gdf_beam_file_object(file)
+        elif gdfbeam is None and file is None:
+            return None
 
         if position is not None:# and (time is not None or block is not None):
             # print 'Assuming position over time!'
@@ -348,9 +380,9 @@ class beam(object):
                 time = None
                 block = None
             else:
-                # print('GDF DID NOT find position ', position)
+                print('GDF DID NOT find position ', position)
                 position = None
-        if position is None and time is not None and block is not None:
+        elif position is None and time is not None and block is not None:
             # print 'Assuming time over block!'
             self.beam['longitudinal_reference'] = 'p'
             gdfbeamdata = gdfbeam.get_time(time)
@@ -358,11 +390,11 @@ class beam(object):
                 block = None
             else:
                  time = None
-        if position is None and time is None and block is not None:
+        elif position is None and time is None and block is not None:
             gdfbeamdata = gdfbeam.get_grab(block)
             if gdfbeamdata is None:
                 block = None
-        if position is None and time is None and block is None:
+        elif position is None and time is None and block is None:
             gdfbeamdata = gdfbeam.get_grab(0)
         self.beam['code'] = "GPT"
         self.beam['x'] = gdfbeamdata.x
@@ -1075,6 +1107,16 @@ class beam(object):
         C12 /= len(x)
         C22 /= len(x)
         return C11, C12, C22
+
+    def calculate_etax(self):
+        p = self.cp
+        pAve = np.mean(p)
+        p = [a / pAve - 1 for a in p]
+        S11, S16, S66 = self.computeCorrelations(self.x, self.cp)
+        eta1 = -pAve * S16/S66 if S66 else 0
+        S22, S26, S66 = self.computeCorrelations(self.xp, self.cp)
+        etap1 = -pAve * S26/S66 if S66 else 0
+        return eta1, etap1, np.mean(self.t)
 
     def performTransformation(self, x, xp, beta=False, alpha=False, nEmit=False):
         p = self.cp
