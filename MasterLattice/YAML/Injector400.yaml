@@ -23,7 +23,7 @@ elements:
       CLA-HRG1-GUN-SOL:
         type: solenoid
         Controller_Name: SOL1
-        length: 0.0
+        length: 0.15
         field_amplitude: 0.345
         field_definition: $master_lattice_location$Data_Files/HRRG_combined_sols_100mm_onaxis.dat
         position_end: [0, 0, 0.15]
@@ -126,14 +126,14 @@ elements:
         scale_kick: 1
       CLA-L01-CAV-SOL-01:
         type: solenoid
-        length: 0
+        length: 0.5
         field_amplitude: 0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
         position_end: [0, 0, 2.2]
         position_start: [0, 0, 1.70]
       CLA-L01-CAV-SOL-02:
         type: solenoid
-        length: 0
+        length: 0.5
         field_amplitude: -0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
         position_end: [0, 0, 3.2]
