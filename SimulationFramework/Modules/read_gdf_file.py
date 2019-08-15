@@ -52,7 +52,7 @@ class grab_group(object):
 
         def create_dataset(self, name, data=()):
             self.datasets.append(name)
-            setattr(self,name, data) 
+            setattr(self,name, data)
 
 class read_gdf_file(object):
 ###############################################################################
@@ -72,8 +72,9 @@ class read_gdf_file(object):
     def get_position(self, position):
         for datagrab in list(self.grab_groups.values()):
             if hasattr(datagrab.groups['param'],'position'):
-                if str(datagrab.groups['param'].position) == str(position):
+                if datagrab.groups['param'].position == position:
                     return datagrab.groups['data']
+                    
     @property
     def times(self):
         times = []
@@ -85,7 +86,7 @@ class read_gdf_file(object):
     def get_time(self, time):
         for datagrab in list(self.grab_groups.values()):
             if hasattr(datagrab.groups['param'],'time'):
-                if str(datagrab.groups['param'].time) == str(time):
+                if datagrab.groups['param'].time == time:
                     return datagrab.groups['data']
 
     def get_grab(self, grab_group_number=0):
