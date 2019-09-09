@@ -102,10 +102,12 @@ class Optimise_transverse(runEle.fitnessFunc):
         dir = self.optdir+str(self.opt_iteration)
         # print self.inputlist
         fit = self.setup_lattice(self.inputlist, dir, *args, changes=self.changes, **kwargs)
+        self.before_tracking()
         fitvalue = self.calculateBeamParameters()
         print('fitvalue[', self.opt_iteration, '] = ', fitvalue)
         self.saveState(args, fitvalue)
-        self.opt_iteration += 1
+        if isinstance(self.opt_iteration, int):
+            self.opt_iteration += 1
         if fitvalue < self.bestfit:
             if hasattr(self, 'constraintsList'):
                 print(self.cons.constraintsList(self.constraintsList))
@@ -139,13 +141,26 @@ class Optimise_transverse(runEle.fitnessFunc):
         res = minimize(self.optfunc, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
         print(res.x)
 
+    def Example(self, best=None, step=0.1):
+        best = np.array(self.best) if best is None else np.array(best)
+        self.statefile = None
+        self.subdir = 'example'
+        self.optdir = self.subdir
+        self.best_changes = './example_best_changes.yaml'
+        print('best = ', best)
+        self.bestfit = 1e26
+
+        self.opt_iteration = ''
+        self.OptimisingFunction(best)
+
     def saveState(self, args, fitness):
-        with open(self.statefile,'a') as out:
-            csv_out=csv.writer(out)
-            args=list(args)
-            args.append(self.opt_iteration)
-            args.append(fitness)
-            csv_out.writerow(args)
+        if self.statefile is not None:
+            with open(self.statefile,'a') as out:
+                csv_out=csv.writer(out)
+                args=list(args)
+                args.append(self.opt_iteration)
+                args.append(fitness)
+                csv_out.writerow(args)
 
 
 if __name__ == "__main__":
