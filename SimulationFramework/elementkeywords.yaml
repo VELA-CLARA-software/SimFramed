@@ -106,6 +106,7 @@ dipole:
     isr_enable,
     csr_output_filename,
     gap,
+    deltaL
   }
 kicker:
   keywords: {
@@ -271,7 +272,7 @@ gpt_setfile:
     filename
   }
 gpt_charge:
-  keywords: { 
+  keywords: {
     set,
     charge,
   }
@@ -290,6 +291,13 @@ gpt_setreduce:
 gpt_spacecharge:
   keywords: {
     space_charge_mode
+  }
+gpt_csr1d:
+  keywords: {
+  }
+gpt_writefloorplan:
+  keywords: {
+    filename,
   }
 global_error:
   keywords: {
