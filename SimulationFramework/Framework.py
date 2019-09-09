@@ -732,8 +732,43 @@ class frameworkLattice(Munch):
         positions = positions[1:]
         positions.append(positions[-1])
         driftdata = list(zip(iter(list(originalelements.items())), list(chunks(positions, 2))))
+
+        lscbins = self.lsc_bins if self.lscDrifts is True else 0
+        csr = 1 if self.csrDrifts is True else 0
+        lsc = 1 if self.lscDrifts is True else 0
+        drifttype = csrdrift if self.csrDrifts else lscdrift
+
         for e, d in driftdata:
-            newelements[e[0]] = e[1]
+            if e[1]['objecttype'] == 'screen' and e[1]['length'] > 0:
+                name = e[0]+'-drift-01'
+                newdrift = drifttype(name, **{'length': e[1]['length']/2,
+                 'csr_enable': csr,
+                 'lsc_enable': lsc,
+                 'use_stupakov': 1,
+                 'csrdz': 0.01,
+                 'lsc_bins': lscbins,
+                 'lsc_high_frequency_cutoff_start': self.lsc_high_frequency_cutoff_start,
+                 'lsc_high_frequency_cutoff_end': self.lsc_high_frequency_cutoff_end,
+                 'lsc_low_frequency_cutoff_start': self.lsc_low_frequency_cutoff_start,
+                 'lsc_low_frequency_cutoff_end': self.lsc_low_frequency_cutoff_end,
+                })
+                newelements[name] = newdrift
+                newelements[e[0]] = e[1]
+                name = e[0]+'-drift-02'
+                newdrift = drifttype(name, **{'length': e[1]['length']/2,
+                 'csr_enable': csr,
+                 'lsc_enable': lsc,
+                 'use_stupakov': 1,
+                 'csrdz': 0.01,
+                 'lsc_bins': lscbins,
+                 'lsc_high_frequency_cutoff_start': self.lsc_high_frequency_cutoff_start,
+                 'lsc_high_frequency_cutoff_end': self.lsc_high_frequency_cutoff_end,
+                 'lsc_low_frequency_cutoff_start': self.lsc_low_frequency_cutoff_start,
+                 'lsc_low_frequency_cutoff_end': self.lsc_low_frequency_cutoff_end,
+                })
+                newelements[name] = newdrift
+            else:
+                newelements[e[0]] = e[1]
             if len(d) > 1:
                 x1, y1, z1 = d[0]
                 x2, y2, z2 = d[1]
@@ -741,10 +776,6 @@ class frameworkLattice(Munch):
                 if length > 0:
                     elementno += 1
                     name = 'drift'+str(elementno)
-                    lscbins = self.lsc_bins if self.lscDrifts is True else 0
-                    csr = 1 if self.csrDrifts is True else 0
-                    lsc = 1 if self.lscDrifts is True else 0
-                    drifttype = csrdrift if self.csrDrifts else lscdrift
                     newdrift = drifttype(name, **{'length': length,
                      'position_start': list(d[0]),
                      'position_end': list(d[1]),
@@ -873,6 +904,10 @@ class elegantLattice(frameworkLattice):
         self.bunch_charge = None
         self.q = charge(name='START', type='charge',**{'total': 250e-12})
         self.trackBeam = True
+        self.betax = None
+        self.betay = None
+        self.alphax = None
+        self.alphay = None
 
     def writeElements(self):
         self.w = self.endScreen(output_filename=self.end+'.SDDS')
@@ -901,7 +936,11 @@ class elegantLattice(frameworkLattice):
         prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
         if self.trackBeam:
             self.hdf5_to_sdds(prefix)
-        self.commandFile = elegantTrackFile(lattice=self, trackBeam=self.trackBeam, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval)
+        self.commandFile = elegantTrackFile(lattice=self, trackBeam=self.trackBeam, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval,
+        betax=self.betax,
+        betay=self.betay,
+        alphax=self.alphax,
+        alphay=self.alphay)
 
     def postProcess(self):
         if self.trackBeam:
@@ -955,21 +994,25 @@ class elegantCommandFile(object):
         return output
 
 class elegantTrackFile(elegantCommandFile):
-    def __init__(self, lattice='', trackBeam=True, elegantbeamfilename='', *args, **kwargs):
+    def __init__(self, lattice='', trackBeam=True, elegantbeamfilename='', betax=None, betay=None, alphax=None, alphay=None, *args, **kwargs):
         super(elegantTrackFile, self).__init__(lattice, *args, **kwargs)
         self.elegantbeamfilename = elegantbeamfilename
         self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
         self.trackBeam = trackBeam
+        self.betax = betax if betax is not None else beam.beta_x
+        self.betay = betay if betay is not None else beam.beta_y
+        self.alphax = alphax if alphax is not None else beam.alpha_x
+        self.alphay = alphay if alphay is not None else beam.alpha_y
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
             use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
             sigma='%s.sig', default_order=3)
         self.addCommand(type='run_control',n_steps=1, n_passes=1)
         self.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi",
-        beta_x  = beam.beta_x,
-        alpha_x = beam.alpha_x,
-        beta_y  = beam.beta_y,
-        alpha_y = beam.alpha_y)
+        beta_x  = self.betax,
+        alpha_x = self.alphax,
+        beta_y  = self.betay,
+        alpha_y = self.alphay)
         flr = self.addCommand(type='floor_coordinates', filename="%s.flr",
         X0  = lattice.startObject['position_start'][0],
         Z0 = lattice.startObject['position_start'][2],
@@ -1584,7 +1627,6 @@ class frameworkElement(frameworkObject):
         self.add_property('rotation_errors', [0,0,0])
         self.add_default('global_rotation', [0,0,0])
 
-
     def __mul__(self, other):
         return [self.objectproperties for x in range(other)]
 
@@ -1808,6 +1850,7 @@ class dipole(frameworkElement):
         self.keyword_conversion_rules_elegant['smoothing_half_width'] = 'sg_halfwidth'
         self.keyword_conversion_rules_elegant['csr_bins'] = 'bins'
         self.add_default('csr_bins', 100)
+        self.add_default('deltaL', 0)
         self.add_default('csr_enable', 1)
         self.add_default('isr_enable', True)
         self.add_default('n_kicks', 10)
@@ -1963,20 +2006,22 @@ class dipole(frameworkElement):
         return output
 
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
-        field = Brho/self.rho if abs(self.rho) > 0 else 0
+        # field = Brho/self.rho if abs(self.rho) > 0 else 0
         field = self.angle * Brho / self.length
         relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
         relpos = relpos + [0, 0, self.intersect]
         coord = self.gpt_coordinates(relpos, relrot)
         new_ccs = self.gpt_ccs(ccs).name
-        b1 = 0#2.0 / (2 * self.half_gap * self.edge_field_integral)
+        b1 = 1.0 / (2 * self.half_gap * self.edge_field_integral)
+        dl = 0 if self.deltaL is None else self.deltaL
+        print(self.objectname, ' - deltaL = ', dl)
         # b1 = 0.
         '''
         ccs( "wcs", 0, 0, startofdipole +  intersect1, Cos(theta), 0, -Sin(theta), 0, 1, 0, "bend1" ) ;
         sectormagnet( "wcs", "bend1", rho, field, e1, e2, 0., 100., 0 ) ;
         '''
         output = 'ccs( ' + ccs.name + ', '+ coord + ', ' + new_ccs + ');\n'
-        output += 'sectormagnet( ' + ccs.name + ', '+ new_ccs +', '+str(abs(self.rho))+', '+str(abs(field))+', ' + str(abs(self.e1)) + ', ' + str(abs(self.e2)) + ', 0, ' + str(b1) + ', 0);\n'
+        output += 'sectormagnet( ' + ccs.name + ', '+ new_ccs +', '+str(abs(self.rho))+', '+str(abs(field))+', ' + str(abs(self.e1)) + ', ' + str(abs(self.e2)) + ', ' + str(abs(dl)) + ', ' + str(b1) + ', 0);\n'
         return output
 
     def gpt_ccs(self, ccs):
@@ -2288,6 +2333,30 @@ class screen(frameworkElement):
             ['Scr_xrot', {'value': self.y_rot + self.dy_rot, 'default': 0}],
             ['Scr_yrot', {'value': self.x_rot + self.dx_rot, 'default': 0}],
         ]), n)
+
+    def _write_Elegant(self):
+        wholestring=''
+        etype = self._convertType_Elegant(self.objecttype)
+        string = self.objectname+': '+ etype
+        # if self.length > 0:
+        #     d = drift(self.objectname+'-drift-01', type='drift', **{'length': self.length/2})
+        #     wholestring+=d._write_Elegant()
+        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        # if self.length > 0:
+        #     d = drift(self.objectname+'-drift-02', type='drift', **{'length': self.length/2})
+        #     wholestring+=d._write_Elegant()
+        return wholestring
 
     def write_CSRTrack(self, n):
         z = self.middle[2]
