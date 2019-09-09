@@ -13,6 +13,7 @@ elements:
     design_angle: 0.785398
     strength: 0
     half_gap: 0.01
+    deltaL: 0.0001
     edge_field_integral: 0.4
     sr_enable: true
     isr_enable: true
@@ -49,7 +50,7 @@ elements:
   CLA-C2V-MAG-QUAD-01:
     type: quadrupole
     length: 0.121567
-    k1l: 5.59853
+    k1l: 5.7572751421298305
     sr_enable: true
     isr_enable: true
     buffer_start: [0.368412, 0, 6.40624]
@@ -64,7 +65,7 @@ elements:
   CLA-C2V-MAG-QUAD-02:
     type: quadrupole
     length: 0.121512
-    k1l: -5.02792
+    k1l: -4.696861959661223
     sr_enable: true
     isr_enable: true
     buffer_start: [0.573473, 0, 6.6113]
@@ -79,7 +80,7 @@ elements:
   CLA-C2V-MAG-QUAD-03:
     type: quadrupole
     length: 0.121551
-    k1l: 5.59853
+    k1l: 5.7572751421298305
     sr_enable: true
     isr_enable: true
     buffer_start: [0.778534, 0, 6.81636]
@@ -106,6 +107,7 @@ elements:
     length: 0.397752
     angle: -0.785398
     half_gap: 0.01
+    deltaL: -0.0001
     edge_field_integral: 0.4
     sr_enable: true
     isr_enable: true
