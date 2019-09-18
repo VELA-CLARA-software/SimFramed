@@ -10,19 +10,17 @@ import SimulationFramework.Modules.id_number_server as idnserver
 from copy import copy
 import deap, deap.base, deap.creator
 
-populationSize = 10
+populationSize = 16
 nChildren = 2*populationSize
 crossoverprobability = 0.6
 mutationprobability = 0.2
-ngenerations = 1
+ngenerations = 10
 
 class UltrashortMOGA(MOGA):
 
     parameter_names = [
         ['CLA-HRG1-GUN-CAV', 'phase'],
         ['CLA-HRG1-GUN-SOL', 'field_amplitude'],
-        ['CLA-L01-CAV', 'field_amplitude'],
-        ['CLA-L01-CAV', 'phase'],
         ['CLA-L01-CAV-SOL-01', 'field_amplitude'],
         ['CLA-L01-CAV-SOL-02', 'field_amplitude'],
         ['CLA-L01-CAV', 'field_amplitude'],
@@ -120,7 +118,7 @@ moga.set_lattice_file('Lattices/clara400_v12_v3.def')
 moga.start_lattice = 'generator'
 
 if os.name == 'nt':
-    nProc = 8 #change this, if more than 1 doesn't show useful errors
+    nProc = 16 #change this, if more than 1 doesn't show useful errors
 else:
     nProc = 11
 moga.create_toolbox()
