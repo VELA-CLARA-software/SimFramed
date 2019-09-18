@@ -66,6 +66,7 @@ class fitnessFunc(object):
         self.elegant_ncpu = 1
         self.genesis_ncpu = 2
         self.doTracking = True
+        self.change_to_elegant = True
 
     def set_CLARA_directory(self, clara_dir):
         self.CLARA_dir = clara_dir
@@ -105,7 +106,8 @@ class fitnessFunc(object):
         # if os.name == 'nt':
         #     self.framework.defineElegantCommand(['mpiexec','-np','10','pelegant'])
         self.framework.loadSettings(self.lattice_file)
-        self.framework.change_Lattice_Code('All','elegant')
+        if self.change_to_elegant:
+            self.framework.change_Lattice_Code('All','elegant')
 
         ### Define starting lattice
         if self.start_lattice is None:
@@ -130,7 +132,7 @@ class fitnessFunc(object):
     def before_tracking(self):
         pass
 
-    def track(self):
+    def track(self, endfile=None):
         ### Have we defined where the base files are?
         if self.base_files is not None:
             # print('Using base_files = ', self.base_files)
@@ -151,7 +153,7 @@ class fitnessFunc(object):
 
         ### TRACKING
         if self.doTracking:
-            self.framework.track(startfile=self.start_lattice)
+            self.framework.track(startfile=self.start_lattice, endfile=endfile)
 
 def optfunc(inputargs, dir=None, *args, **kwargs):
     global bestfit
