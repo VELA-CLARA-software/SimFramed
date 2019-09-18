@@ -113,10 +113,7 @@ def optfunc(inputargs, **kwargs):
 
 moga = UltrashortMOGA()
 moga.set_lattice_file('Lattices/clara400_v12_v3.def')
-moga.set_changes_file([])
-# moga.base_files = '../../../../CLARA/basefiles_6/'
 moga.start_lattice = 'generator'
-moga.runElegant = True
 
 if __name__ == "__main__":
     if os.name == 'nt':
