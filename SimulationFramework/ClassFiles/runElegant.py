@@ -84,7 +84,7 @@ class fitnessFunc(object):
                 elif n == 'bunch_compressor' and p == 'set_angle':
                     best.append(data['CLA-VBC-MAG-DIP-01']['angle'])
                 else:
-                    print(n, p)
+                    # print(n, p)
                     if not hasattr(self, 'framework'):
                         self.framework = fw.Framework(None)
                         self.framework.loadSettings(self.lattice_file)
