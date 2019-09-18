@@ -9,11 +9,11 @@ import SimulationFramework.Modules.id_number as idn
 import SimulationFramework.Modules.id_number_server as idnserver
 from copy import copy
 
-populationSize = 44
+populationSize = 10
 nChildren = 2*populationSize
 crossoverprobability = 0.6
 mutationprobability = 0.2
-ngenerations = 200
+ngenerations = 1
 
 class UltrashortMOGA(MOGA):
 
@@ -34,19 +34,20 @@ class UltrashortMOGA(MOGA):
         ['CLA-L4H-CAV', 'phase'],
         ['CLA-L04-CAV', 'field_amplitude'],
         ['CLA-L04-CAV', 'phase'],
+        #if add/remove parameters here, change mutation function sigmas below
     ]
 
     def __init__(self):
         super(UltrashortMOGA, self).__init__()
         # self.CLARA_dir = os.path.relpath(__file__+'/../../../../CLARA/')
         self.scaling = 3
-        self.sample_interval=2**(3*1)
+        #self.sample_interval=2**(3*1)
         # self.base_files = '../../../../CLARA/basefiles_6/'
         self.verbose = False
         self.ncpu = 1
         self.change_to_elegant = False
         self.post_injector = False
-        self.doTracking = False
+        self.doTracking = True
 
     def before_tracking(self):
         elements = self.framework.elementObjects.values()
@@ -60,10 +61,12 @@ class UltrashortMOGA(MOGA):
         for l in lattices:
             l.lscDrifts = True
             l.lsc_bins = 200
+        #add TURN VBC OFF HERE
+        #set QUADS HERE
 
     def MOGAoptFunc(self, inputargs, *args, **kwargs):
         energy_spread, peak_current = self.OptimisingFunction(inputargs, **kwargs)
-        fitness = energy_spread/peak_current
+        fitness = energy_spread/peak_current #doesn't do much atm
         print ('fitvalue[', self.opt_iteration, '] - eSpread=', energy_spread, '  peakI=', peak_current, '  fitness=', fitness)
         self.saveState(inputargs, self.opt_iteration, [energy_spread, peak_current], fitness)
         return energy_spread, peak_current
@@ -89,14 +92,14 @@ class UltrashortMOGA(MOGA):
         fitvalue = self.track(endfile='S07')
 
         self.beam.read_HDF5_beam_file(self.dirname+'/CLA-S07-MARK-03.hdf5')
-        self.beam.slices = 100
+        self.beam.slices = 50
         self.beam.bin_time()
         sigmat = 1e12*np.std(self.beam.t)
         sigmap = np.std(self.beam.cp)
         meanp = np.mean(self.beam.cp)
         emitx = 1e6*self.beam.normalized_horizontal_emittance
         emity = 1e6*self.beam.normalized_horizontal_emittance
-        fitp = 100*sigmap/meanp
+        fitp = 100*sigmap/meanp #percentage energy spread
         peakI, peakIstd, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
 
         if isinstance(self.opt_iteration, int):
@@ -117,15 +120,15 @@ moga.start_lattice = 'generator'
 
 if __name__ == "__main__":
     if os.name == 'nt':
-        nProc = 1
+        nProc = 1 #change this, if more than 1 doesn't show useful errors
     else:
         nProc = 11
     moga.create_toolbox()
     moga.create_fitness_function(optfunc)
-    moga.create_weights_function(weights=(-1.0, 1.0, ))
+    moga.create_weights_function(weights=(-1.0, 1.0, )) #minus is minimise
     moga.create_uniform_mating_function(probability=0.3)
     # gun phase, gun sol, l01 sol1, l01 sol2, l01 amp, l01 phase, l02 amp, l02 phase, l03 amp, l03 phase, l4h amp, l4h phase, l04 amp, l04 phase
-    moga.create_gaussian_mutation_function(probability=0.3, mu=0, sigma=[1, 0.01, 0.01, 0.01, 1e6, 1, 1e6, 1, 1e6, 1, 1e6, 1, 1e6, 1])
+    moga.create_gaussian_mutation_function(probability=0.3, mu=0, sigma=[1, 0.01, 0.01, 0.01, 1e6, 1, 1e6, 1, 1e6, 1, 1e6, 1, 1e6, 1]) 
     # moga.add_bounds(MIN, MAX)
     moga.create_NSGA2_selection_function()
     best = moga.load_best('./GA_best_changes.yaml')
