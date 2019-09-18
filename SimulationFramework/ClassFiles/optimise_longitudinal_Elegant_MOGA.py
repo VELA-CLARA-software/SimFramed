@@ -6,8 +6,8 @@ from SimulationFramework.Modules.optimiser import optimiser
 from SimulationFramework.ClassFiles.Optimise_longitudinal_Elegant import Optimise_Elegant
 opt = optimiser()
 import multiprocessing
-from scoop import futures
-import deap, deap.base, deap.creator
+# from scoop import futures
+import deap#, deap.base, deap.creator, deap.tools
 from copy import copy
 import csv
 import SimulationFramework.Modules.id_number as idn
