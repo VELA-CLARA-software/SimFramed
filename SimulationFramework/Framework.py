@@ -43,7 +43,7 @@ astra_generator_keywords = {
         'clara_400_2ps_Gaussian':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'g',
             'sig_clock': 0.85e-3,
-            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.25, 'dist_y': '2DGaussian', 'sig_y': 0.25, 'C_sig_x': 3, 'C_sig_y': 3
+            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.35, 'dist_y': '2DGaussian', 'sig_y': 0.35, 'C_sig_x': 3, 'C_sig_y': 3
         },
     },
     'framework_keywords': [
@@ -1745,6 +1745,7 @@ class frameworkElement(frameworkObject):
     def middle(self):
         start = self.position_start
         length_vector = self.rotated_position([0,0, self.length / 2.0], offset=[0,0,0], theta=self.theta)
+        # print(self.objectname, '  length_vector = ', length_vector, '  starting_rotation = ', self.starting_rotation)
         starting_middle = length_vector
         # print(self.objectname, self.theta, self.starting_rotation, self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)[0])
         return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
@@ -2118,6 +2119,7 @@ class quadrupole(frameworkElement):
         self.strength_errors[0] = dk1
 
     def write_ASTRA(self, n):
+        # print('theta = ', self.theta,'  middle = ', self.middle)
         return self._write_ASTRA(OrderedDict([
             ['Q_pos', {'value': self.middle[2] + self.dz, 'default': 0}],
             ['Q_xoff', {'value': self.middle[0], 'default': 0}],
