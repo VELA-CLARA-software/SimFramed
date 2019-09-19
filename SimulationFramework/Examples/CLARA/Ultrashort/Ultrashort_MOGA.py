@@ -10,29 +10,34 @@ import SimulationFramework.Modules.id_number_server as idnserver
 from copy import copy
 import deap, deap.base, deap.creator
 
-populationSize = 16
-nChildren = 2*populationSize
+if os.name == 'nt':
+    nProc = 7 #change this, if more than 1 doesn't show useful errors
+else:
+    nProc = 11
+
+populationSize = 2*nProc
+nChildren = populationSize
 crossoverprobability = 0.6
 mutationprobability = 0.2
-ngenerations = 10
+ngenerations = 200
 
 class UltrashortMOGA(MOGA):
 
     parameter_names = [
-        ['CLA-HRG1-GUN-CAV', 'phase'],
-        ['CLA-HRG1-GUN-SOL', 'field_amplitude'],
-        ['CLA-L01-CAV-SOL-01', 'field_amplitude'],
-        ['CLA-L01-CAV-SOL-02', 'field_amplitude'],
-        ['CLA-L01-CAV', 'field_amplitude'],
-        ['CLA-L01-CAV', 'phase'],
-        ['CLA-L02-CAV', 'field_amplitude'],
-        ['CLA-L02-CAV', 'phase'],
-        ['CLA-L03-CAV', 'field_amplitude'],
-        ['CLA-L03-CAV', 'phase'],
-        ['CLA-L4H-CAV', 'field_amplitude'],
-        ['CLA-L4H-CAV', 'phase'],
-        ['CLA-L04-CAV', 'field_amplitude'],
-        ['CLA-L04-CAV', 'phase'],
+        ['CLA-HRG1-GUN-CAV', 'phase', 5, 1],
+        ['CLA-HRG1-GUN-SOL', 'field_amplitude', 0.005, 0.001],
+        ['CLA-L01-CAV-SOL-01', 'field_amplitude', 0.005, 0.001],
+        ['CLA-L01-CAV-SOL-02', 'field_amplitude', 0.005, 0.001],
+        ['CLA-L01-CAV', 'field_amplitude', 5e6, 1e6],
+        ['CLA-L01-CAV', 'phase', 5, 1],
+        ['CLA-L02-CAV', 'field_amplitude', 5e6, 1e6],
+        ['CLA-L02-CAV', 'phase', 5, 1],
+        ['CLA-L03-CAV', 'field_amplitude', 5e6, 1e6],
+        ['CLA-L03-CAV', 'phase', 5, 1],
+        # ['CLA-L4H-CAV', 'field_amplitude', 5e6, 1e6],
+        # ['CLA-L4H-CAV', 'phase', 5, 1],
+        ['CLA-L04-CAV', 'field_amplitude', 5e6, 1e6],
+        ['CLA-L04-CAV', 'phase', 5, 1],
         #if add/remove parameters here, change mutation function sigmas below
     ]
 
@@ -47,8 +52,10 @@ class UltrashortMOGA(MOGA):
         self.change_to_elegant = False
         self.post_injector = False
         self.doTracking = True
+        self.clean = True
 
     def before_tracking(self):
+        self.framework.change_Lattice_Code('VBC','ASTRA')
         elements = self.framework.elementObjects.values()
         for e in elements:
             e.lsc_enable = True
@@ -60,19 +67,25 @@ class UltrashortMOGA(MOGA):
         for l in lattices:
             l.lscDrifts = True
             l.lsc_bins = 200
+        quads = self.framework.getElementType('quadrupole')
+        for q in quads:
+            q.k1l = 0
+        self.framework['bunch_compressor'].angle = 0  # Turn OFF Bunch Compressor
+        self.framework['CLA-L4H-CAV'].field_amplitude = 0  # Turn OFF 4th Harmonic
+        self.framework['CLA-S07-DCP-01'].factor = 0  # Turn OFF Dechirper
         #add TURN VBC OFF HERE
         #set QUADS HERE
 
     def MOGAoptFunc(self, inputargs, *args, **kwargs):
-        energy_spread, peak_current = self.OptimisingFunction(inputargs, **kwargs)
+        energy_spread, peak_current, max_xrms = self.OptimisingFunction(inputargs, **kwargs)
         fitness = energy_spread/peak_current #doesn't do much atm
         print ('fitvalue[', self.opt_iteration, '] - eSpread=', energy_spread, '  peakI=', peak_current, '  fitness=', fitness)
         self.saveState(inputargs, self.opt_iteration, [energy_spread, peak_current], fitness)
-        return energy_spread, peak_current
+        return energy_spread, peak_current, max_xrms
 
     def OptimisingFunction(self, inputargs, **kwargs):
         self.optdir = 'MOGA/iteration_'
-        parameternames = copy(self.parameter_names)
+        parameternames = [r[:2] for r in self.parameter_names]
 
         self.inputlist = list(map(lambda a: a[0]+[a[1]], zip(parameternames, inputargs)))
 
@@ -101,38 +114,37 @@ class UltrashortMOGA(MOGA):
         fitp = 100*sigmap/meanp #percentage energy spread
         peakI, peakIstd, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
 
+        self.twiss.read_astra_emit_files( [ self.dirname+'/'+n+'.Zemit.001' for n in self.framework.fileSettings.keys()[:-1] if self.framework.fileSettings[n]['code'].upper() == 'ASTRA'] )
+        max_xrms = max(1e3*self.twiss['sigma_x'])
         if isinstance(self.opt_iteration, int):
             self.opt_iteration += 1
 
-        return fitp, peakI
+        return fitp, peakI, max_xrms
 
 def optfunc(inputargs, **kwargs):
     try:
         return moga.MOGAoptFunc(inputargs, **kwargs)
     except Exception as e:
         print(traceback.format_exc())
-        return (1, 0)
+        return (1, 0, 10)
 
 moga = UltrashortMOGA()
 moga.set_lattice_file('Lattices/clara400_v12_v3.def')
 moga.start_lattice = 'generator'
 
-if os.name == 'nt':
-    nProc = 16 #change this, if more than 1 doesn't show useful errors
-else:
-    nProc = 11
 moga.create_toolbox()
 moga.create_fitness_function(optfunc)
-moga.create_weights_function(weights=(-1.0, 1.0, )) #minus is minimise
+moga.create_weights_function(weights=(-1.0, 1.0, -0.5, )) #minus is minimise
 moga.create_uniform_mating_function(probability=0.3)
-# gun phase, gun sol, l01 sol1, l01 sol2, l01 amp, l01 phase, l02 amp, l02 phase, l03 amp, l03 phase, l4h amp, l4h phase, l04 amp, l04 phase
-moga.create_gaussian_mutation_function(probability=0.3, mu=0, sigma=[1, 0.01, 0.01, 0.01, 1e6, 1, 1e6, 1, 1e6, 1, 1e6, 1, 1e6, 1])
+gmf_sigmas = [r[3] for r in moga.parameter_names]
+moga.create_gaussian_mutation_function(probability=0.3, mu=0, sigma=gmf_sigmas)
 # moga.add_bounds(MIN, MAX)
 moga.create_NSGA2_selection_function()
 
 if __name__ == "__main__":
     best = moga.load_best('./GA_best_changes.yaml')
-    moga.initialise_population(best, populationSize, sigma=[5, 0.05, 0.05, 0.05, 5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5])
+    ip_sigmas = [r[2] for r in moga.parameter_names]
+    moga.initialise_population(best, populationSize, sigma=ip_sigmas)
 
     if nProc > 1:
         pool = multiprocessing.Pool(processes=nProc)
