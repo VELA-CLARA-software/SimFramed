@@ -1170,9 +1170,9 @@ class astraLattice(frameworkLattice):
         endpos = np.array(self.allElementObjects[self.end].end)-np.array(zstart)
         astrabeamfilename = self.objectname + '.' + str(int(round(endpos[2]*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
         if not os.path.isfile(master_subdir + '/' + astrabeamfilename):
-            print('Can\'t find ASTRA beam file: ', astrabeamfilename)
+            # print('Can\'t find ASTRA beam file: ', astrabeamfilename)
             astrabeamfilename = self.objectname + '.' + str(int(round((endpos[2]-startpos[2])*1000))).zfill(4) + '.' + str(master_run_no).zfill(3)
-            print('Trying relative naming convention: ', astrabeamfilename)
+            # print('Trying relative naming convention: ', astrabeamfilename)
         beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
         beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
         HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
@@ -2119,21 +2119,23 @@ class quadrupole(frameworkElement):
         self.strength_errors[0] = dk1
 
     def write_ASTRA(self, n):
-        # print('theta = ', self.theta,'  middle = ', self.middle)
-        return self._write_ASTRA(OrderedDict([
-            ['Q_pos', {'value': self.middle[2] + self.dz, 'default': 0}],
-            ['Q_xoff', {'value': self.middle[0], 'default': 0}],
-            ['Q_yoff', {'value': self.middle[1] + self.dy, 'default': 0}],
-            ['Q_xrot', {'value': -1*self.y_rot + self.dy_rot, 'default': 0}],
-            ['Q_yrot', {'value': -1*self.x_rot + self.dx_rot, 'default': 0}],
-            ['Q_zrot', {'value': -1*self.z_rot + self.dz_rot, 'default': 0}],
-            ['Q_k', {'value': self.k1 + self.dk1, 'default': 0}],
-            ['Q_length', {'value': self.length, 'default': 0}],
-            ['Q_smooth', {'value': self.smooth, 'default': 10}],
-            ['Q_bore', {'value': self.bore, 'default': 0.016}],
-            ['Q_noscale', {'value': self.scale_field}],
-            ['Q_mult_a', {'type': 'list', 'value': self.multipoles}],
-        ]), n)
+        if abs(self.k1 + self.dk1) > 0:
+            return self._write_ASTRA(OrderedDict([
+                ['Q_pos', {'value': self.middle[2] + self.dz, 'default': 0}],
+                ['Q_xoff', {'value': self.middle[0], 'default': 0}],
+                ['Q_yoff', {'value': self.middle[1] + self.dy, 'default': 0}],
+                ['Q_xrot', {'value': -1*self.y_rot + self.dy_rot, 'default': 0}],
+                ['Q_yrot', {'value': -1*self.x_rot + self.dx_rot, 'default': 0}],
+                ['Q_zrot', {'value': -1*self.z_rot + self.dz_rot, 'default': 0}],
+                ['Q_k', {'value': self.k1 + self.dk1, 'default': 0}],
+                ['Q_length', {'value': self.length, 'default': 0}],
+                ['Q_smooth', {'value': self.smooth, 'default': 10}],
+                ['Q_bore', {'value': self.bore, 'default': 0.016}],
+                ['Q_noscale', {'value': self.scale_field}],
+                ['Q_mult_a', {'type': 'list', 'value': self.multipoles}],
+            ]), n)
+        else:
+            return None
 
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
         relpos, relrot = ccs.relative_position(self.start, self.global_rotation)

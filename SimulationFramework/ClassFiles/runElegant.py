@@ -78,7 +78,7 @@ class fitnessFunc(object):
         with open(filename, 'r') as infile:
             data = dict(yaml.load(infile, Loader=yaml.UnsafeLoader))
             best = []
-            for n, p in self.parameter_names:
+            for n, p in [r[:2] for r in self.parameter_names]:
                 if n in data:
                     best.append(data[n][p])
                 elif n == 'bunch_compressor' and p == 'set_angle':
