@@ -81,11 +81,12 @@ class MOGA(Optimise_Elegant):
     def saveState(self, args, n, params, fitness):
         with open('MOGA/best_solutions_running.csv','a') as out:
             csv_out=csv.writer(out)
-            args=list(args)
+            args = [float(a) for a in args]
             for p in params:
                 args.append(p)
             args.append(n)
             args.append(fitness)
+            args = [float(a) for a in args]
             csv_out.writerow(args)
 
     def rangeFunc(self, i):
