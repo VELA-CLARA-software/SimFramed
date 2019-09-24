@@ -39,7 +39,6 @@ class UltrashortMOGA(MOGA):
         # ['CLA-L4H-CAV', 'phase', 5, 1],
         ['CLA-L04-CAV', 'field_amplitude', 5e6, 1e6],
         ['CLA-L04-CAV', 'phase', 5, 1],
-        #if add/remove parameters here, change mutation function sigmas below
     ]
 
     def __init__(self):
