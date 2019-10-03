@@ -42,3 +42,8 @@ Dechirper/
 gaussian*/
 example*/
 simplex*/
+*changes*.yaml
+*.in
+NORRAN
+iteration_*/
+basefiles_*/

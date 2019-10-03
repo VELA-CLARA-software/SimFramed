@@ -4,7 +4,7 @@ CLA-HRG1-GUN-SOL:
   field_amplitude: 0.345
 CLA-L01-CAV:
   field_amplitude: 21000000.0
-  phase: -16
+  phase: 80
 CLA-L01-CAV-SOL-01:
   field_amplitude: 0.05
 CLA-L01-CAV-SOL-02:
@@ -21,3 +21,5 @@ CLA-L04-CAV:
 CLA-L4H-CAV:
   field_amplitude: 24000000.0
   phase: 184
+CLA-S07-DCP-01:
+  factor: 1

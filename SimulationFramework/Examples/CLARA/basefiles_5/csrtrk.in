@@ -2,18 +2,18 @@ io_path{logfile = log.txt}
 lattice{
 dipole{
 position{rho=26.0651, psi=0, marker=d1a}
-properties{r=-1.696042194092827}
+properties{r=1.696042194092827}
 position{rho=26.2658, psi=0, marker=d1b}
 }
 dipole{
 position{rho=27.7658, psi=0, marker=d2a}
-properties{r=1.696042194092827}
+properties{r=-1.696042194092827}
 position{rho=27.9664, psi=0, marker=d2b}
 }
 quadrupole{
-position{rho=28.3557, psi=0.0, marker=screen1a}
+position{rho=28.371299999999998, psi=0.0, marker=screen1a}
 properties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}
-position{rho=28.355701, psi=0.0, marker=screen1b}
+position{rho=28.371301, psi=0.0, marker=screen1b}
 }
 quadrupole{
 position{rho=28.9048, psi=0.0, marker=screen3a}
@@ -22,12 +22,12 @@ position{rho=28.904801000000003, psi=0.0, marker=screen3b}
 }
 dipole{
 position{rho=29.2664, psi=0, marker=d3a}
-properties{r=1.696042194092827}
+properties{r=-1.696042194092827}
 position{rho=29.4671, psi=0, marker=d3b}
 }
 dipole{
 position{rho=30.9671, psi=0, marker=d4a}
-properties{r=-1.696042194092827}
+properties{r=1.696042194092827}
 position{rho=31.1678, psi=0, marker=d4b}
 }
 quadrupole{

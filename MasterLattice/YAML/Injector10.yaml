@@ -106,7 +106,7 @@ elements:
     coupling_cell_length: 0.0495
     field_amplitude: 21000000.0
     frequency: 2998500000.0
-    phase: -16
+    phase: 0
     longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
     transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
