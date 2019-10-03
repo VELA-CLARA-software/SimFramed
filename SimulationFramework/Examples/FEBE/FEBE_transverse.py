@@ -23,8 +23,9 @@ best = parameters
 #     print n, p
 # exit()
 best = [-0.0744722, 0.47353, -0.0940485, -0.0244515, 0.0257142, -0.10087, 0.57013, -0.61296, #S07
-1.55838, -1.09374] #ARC F and D quads
-#1.08184, -2.38876, 1.66352, -1.29897, 2.07599, -1.95901, -1.73588, 1.63013, -0.154276, -0.048223, 0.0478511, -0.0479035, 0.0472847]
+#1.55838, -1.09374, #ARC F and D quads
+#1.08184, -2.38876, 1.66352, -1.29897, 2.07599, -1.95901, -1.73588, 1.63013, -0.154276, -0.048223, 0.0478511, -0.0479035, 0.0472847,
+]
 best = best + parameters[index3:]
 
 with open('FEBE_transverse_best_changes.yaml', 'r') as infile:
@@ -50,7 +51,7 @@ class FEBE_Transverse(Optimise_transverse):
         self.parameters = []
         # self.parameter_names = [q for q in names[index1:index2]]
         # self.parameters = [[q, 'k1l'] for q in names[index1:index2]]
-        self.parameter_names += [q for q in names[index2:]]
+        self.parameter_names += [q for q in names[index3:]]
         # self.parameters.append(['FODO_F', 'k1l'])
         # self.parameters.append(['FODO_D', 'k1l'])
         self.parameters += [[q, 'k1l'] for q in names[index3:]]
@@ -58,28 +59,37 @@ class FEBE_Transverse(Optimise_transverse):
         self.base_files = '../../../CLARA/basefiles_' + str(int(scaling)) + '/'
         # self.base_files = '../../example/'
         self.best_changes = './FEBE_transverse_best_changes.yaml'
-        # self.start_file = 'S02'
+        self.clean = True
         self.start_file = 'PreFEBE'
+
+    def before_tracking(self):
+        self.framework.change_Lattice_Code('All','elegant')
+        lattices = self.framework.latticeObjects.values()
+        for l in lattices:
+            l.trackBeam = True
 
     def calculateBeamParameters(self):
         twiss = self.twiss
-        self.framework.change_Lattice_Code('All','elegant')
         self.framework.defineElegantCommand(location=['elegant'])
         self.framework[self.start_file].prefix = self.base_files
-        self.framework[self.start_file].sample_interval = 2**(3*4)
+        self.framework[self.start_file].sample_interval = 2**(3*1)
+        # self.framework['FEBE'].betax = 0.74306
+        # self.framework['FEBE'].betay = 3.96111
+        # self.framework['FEBE'].alphax = -0.623844
+        # self.framework['FEBE'].alphay = 0.872959
         self.framework.track(startfile=self.start_file)
 
         constraintsList = {}
 
         twiss.reset_dicts()
         twiss.read_sdds_file( self.dirname+'/FEBE.mat' )
-        print((1e3*twiss.elegant['R56'][-1]))
+        # print((1e3*twiss.elegant['R56'][-1]))
         constraintsListR56 = {
             'isochronous': {'type': 'lessthan', 'value': abs(1e3*twiss.elegant['R56'][-1]), 'limit': 0.1, 'weight': 00},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListR56)
 
-        for lat in ['FEBE', 'FEBE600']:
+        for lat in ['FEBE']:
             quadkls = self.framework[lat].getElementType('quadrupole','k1l')
             quadlengths = self.framework[lat].getElementType('quadrupole','length')
             constraintsListQuads = {
@@ -88,23 +98,28 @@ class FEBE_Transverse(Optimise_transverse):
             }
             constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
 
-        twiss.read_elegant_twiss_files( [ self.dirname+'/FEBE.twi' ,  self.dirname+'/FEBE600.twi' ])
+        twiss.read_elegant_twiss_files( [ self.dirname+'/FEBE.twi'])
         ipindex = list(twiss['element_name']).index('CLA-FEB-FOCUS-01')
         constraintsListFEBE = {
-            'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 100, 'weight': 15},
-            'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 100, 'weight': 15},
-            'ip_sigmax': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'][ipindex], 'limit': 0.025, 'weight': 15},
-            'ip_sigmay': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 0.025, 'weight': 15},
+            'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 25, 'weight': 150},
+            'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 25, 'weight': 150},
+            'ip_sigmax': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'][ipindex], 'limit': 0.05, 'weight': 15},
+            'ip_sigmay': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 0.05, 'weight': 15},
             # 'ip_sigmaxy': {'type': 'equalto', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 1e3*twiss['sigma_x'][ipindex], 'weight': 25},
             'ip_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex], 'limit': 0., 'weight': 5},
             'ip_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex], 'limit': 0., 'weight': 5},
             'ip_etax': {'type': 'equalto', 'value': twiss['eta_x'][ipindex], 'limit': 0., 'weight': 5000},
             'ip_etaxp': {'type': 'equalto', 'value': twiss['eta_xp'][ipindex], 'limit': 0., 'weight': 5000},
-            # 'ip_enx': {'type': 'lessthan', 'value': 1e6*twiss['enx'][ipindex], 'limit': 2, 'weight': 15},
-            # 'ip_eny': {'type': 'lessthan', 'value': 1e6*twiss['eny'][ipindex], 'limit': 1, 'weight': 25},
-            'dump_etax': {'type': 'equalto', 'value': twiss['eta_x'][-1], 'limit': 0., 'weight': 5000},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
+
+        # twiss.read_elegant_twiss_files( [ self.dirname+'/FEBE600.twi' ])
+        constraintsListFEBE600 = {
+            'max_betax_600': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 25, 'weight': 150},
+            'max_betay_600': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 25, 'weight': 150},
+            'dump_etax_600': {'type': 'equalto', 'value': twiss['eta_x'][-1], 'limit': 0., 'weight': 5000},
+        }
+        constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE600)
 
         self.constraintsList = constraintsList
         fitness = self.cons.constraints(constraintsList)

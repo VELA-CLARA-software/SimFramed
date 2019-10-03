@@ -16,16 +16,40 @@ class FEBE(Optimise_Elegant):
         self.parameter_names.append(['FODO_F', 'k1l'])
         self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*1)
+        self.sample_interval = 2**(3*0)
         self.base_files = '../../CLARA/basefiles_'+str(self.scaling)+'/'
         self.clean = True
         self.doTracking = True
 
+    def before_tracking(self):
+            elements = self.framework.elementObjects.values()
+            for e in elements:
+                e.lsc_enable = True
+                e.lsc_bins = 100
+                e.current_bins = 0
+                e.longitudinal_wakefield_enable = True
+                e.transverse_wakefield_enable = True
+                e.smoothing_half_width = 2
+                pass
+            lattices = self.framework.latticeObjects.values()
+            for l in lattices:
+                l.lscDrifts = True
+                l.lsc_bins = 100
+                l.lsc_high_frequency_cutoff_start = 0.25
+                l.lsc_high_frequency_cutoff_end = 0.33
+                pass
+            self.framework['FEBE'].betax = 0.74306
+            self.framework['FEBE'].betay = 3.96111
+            self.framework['FEBE'].alphax = -0.623844
+            self.framework['FEBE'].alphay = 0.872959
+            self.framework['CLA-L4H-CAV'].field_amplitude = 0
+            self.framework['bunch_compressor'].angle = 1.18*0.12850503205442976
+
 if __name__ == "__main__":
     opt = FEBE()
-    opt.set_changes_file(['./transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
+    opt.set_changes_file(['./transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml'])
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
-    opt.load_best('./nelder_mead/iteration_201/changes.yaml')
-    opt.Example()
+    opt.load_best('./nelder_mead_best_changes.yaml')
+    opt.Example(dir='example_no4HC')
     # opt.Simplex()

@@ -60,12 +60,18 @@ class FEBE_Transverse(Optimise_transverse):
         self.best_changes = './S07_transverse_best_changes.yaml'
         self.start_file = 'PreFEBE'
 
+    def before_tracking(self):
+        self.framework.change_Lattice_Code('All','elegant')
+        lattices = self.framework.latticeObjects.values()
+        for l in lattices:
+            l.trackBeam = True
+
     def calculateBeamParameters(self):
         twiss = self.twiss
         self.framework.change_Lattice_Code('All','elegant')
         self.framework[self.start_file].prefix = self.base_files
-        self.framework[self.start_file].sample_interval = 2**(3*4)
-        self.framework.track(startfile=self.start_file)
+        self.framework[self.start_file].sample_interval = 2**(3*1)
+        self.framework.track(files=[self.start_file])
 
         constraintsList = {}
         quadkls = self.framework.getElementType('quadrupole','k1l')
@@ -81,8 +87,8 @@ class FEBE_Transverse(Optimise_transverse):
             'min_yrms': {'type': 'greaterthan', 'value': min(1e3*twiss['sigma_y']), 'limit': 0.05, 'weight': 50},
             'last_exn': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 2, 'weight': 0},
             'last_eyn': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.75, 'weight': 0},
-            'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 250, 'weight': 5},
-            'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 250, 'weight': 5},
+            'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 100, 'weight': 5},
+            'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 100, 'weight': 5},
             # 'max_alphax': {'type': 'lessthan', 'value': max(abs(twiss['alpha_x'])), 'limit': 10, 'weight': 5},
             # 'max_alphay': {'type': 'lessthan', 'value': max(abs(twiss['alpha_y'])), 'limit': 10, 'weight': 5},
         }
@@ -99,12 +105,24 @@ class FEBE_Transverse(Optimise_transverse):
         }
         # constraintsList = merge_two_dicts(constraintsList, constraintsListS07)
 
-        # twiss.read_elegant_twiss_files( self.dirname+'/S07F.twi' )
+        twiss.read_elegant_twiss_files( self.dirname+'/PreFEBE.twi' )
+        # print('beta_x = ', twiss.elegant['betax'])
         constraintsListFEBEStart = {
-            'betax': {'type': 'equalto', 'value': twiss['beta_x'][-1], 'limit': 0.706961, 'weight': 50},
-            'betay': {'type': 'equalto', 'value': twiss['beta_y'][-1], 'limit': 3.94176, 'weight': 50},
-            'alphax': {'type': 'equalto', 'value': twiss['alpha_x'][-1], 'limit': -1.40098, 'weight': 50},
-            'alphay': {'type': 'equalto', 'value': twiss['alpha_y'][-1], 'limit': 0.872449, 'weight': 50},
+            # VALUES FOR NONIMAL FEBE
+            # 'betax': {'type': 'equalto', 'value': twiss['beta_x'][-1], 'limit': 0.706961, 'weight': 50},
+            # 'betay': {'type': 'equalto', 'value': twiss['beta_y'][-1], 'limit': 3.94176, 'weight': 50},
+            # 'alphax': {'type': 'equalto', 'value': twiss['alpha_x'][-1], 'limit': -1.40098, 'weight': 50},
+            # 'alphay': {'type': 'equalto', 'value': twiss['alpha_y'][-1], 'limit': 0.872449, 'weight': 50},
+            # VALUES FOR FODO FEBE
+            # 'betax': {'type': 'equalto', 'value': twiss['beta_x'][-1], 'limit': 1.15791, 'weight': 50},
+            # 'betay': {'type': 'equalto', 'value': twiss['beta_y'][-1], 'limit': 3.77078, 'weight': 50},
+            # 'alphax': {'type': 'equalto', 'value': twiss['alpha_x'][-1], 'limit': -0.955335, 'weight': 50},
+            # 'alphay': {'type': 'equalto', 'value': twiss['alpha_y'][-1], 'limit': 1.61446, 'weight': 50},
+            # VALUES FOR BROKEN FODO FEBE
+            'betax': {'type': 'equalto', 'value': twiss['beta_x'][-1], 'limit': 0.74306, 'weight': 500},
+            'betay': {'type': 'equalto', 'value': twiss['beta_y'][-1], 'limit': 3.96111, 'weight': 500},
+            'alphax': {'type': 'equalto', 'value': twiss['alpha_x'][-1], 'limit': -0.623844, 'weight': 500},
+            'alphay': {'type': 'equalto', 'value': twiss['alpha_y'][-1], 'limit': 0.872959, 'weight': 500},
             # 'etax': {'type': 'equalto', 'value': twiss.elegant['etax'][-1], 'limit': 0., 'weight': 500},
             # 'etaxp': {'type': 'equalto', 'value': twiss.elegant['etaxp'][-1], 'limit': 0., 'weight': 500},
         }
@@ -122,5 +140,5 @@ if __name__ == "__main__":
         fit = FEBE_Transverse('./FEBE_Single.def', scaling=6)
         fit.setChangesFile(['./nelder_mead_best_changes.yaml','./transverse_best_changes_upto_S07.yaml'])
         fit.verbose = False
-        fit.Nelder_Mead(best, step=0.1)
-        # fit.Simplex(best)
+        # fit.Nelder_Mead(best, step=0.1)
+        fit.Simplex(best)

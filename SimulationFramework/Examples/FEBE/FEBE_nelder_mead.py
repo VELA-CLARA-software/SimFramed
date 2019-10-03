@@ -15,15 +15,44 @@ class FEBE(Optimise_Elegant):
     #     2.74842883e+07,  1.87482967e+02,  3.11918859e+07,  5.07160187e+01,
     #    -1.22393267e-01,  6.12784140e-01])
 
+    parameter_names = [
+        ['CLA-L02-CAV', 'field_amplitude'],
+        ['CLA-L02-CAV', 'phase'],
+        ['CLA-L03-CAV', 'field_amplitude'],
+        ['CLA-L03-CAV', 'phase'],
+        ['CLA-L04-CAV', 'field_amplitude'],
+        ['CLA-L04-CAV', 'phase'],
+        ['bunch_compressor', 'angle'],
+        ['CLA-S07-DCP-01', 'factor'],
+    ]
+
     def __init__(self):
         super(FEBE, self).__init__()
-        self.parameter_names.append(['FODO_F', 'k1l'])
-        self.parameter_names.append(['FODO_D', 'k1l'])
+        # self.parameter_names.append(['FODO_F', 'k1l'])
+        # self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*0)
+        self.sample_interval = 2**(3*2)
         self.base_files = '../../../CLARA/basefiles_'+str(self.scaling)+'/'
         self.clean = True
         self.doTracking = True
+
+    def before_tracking(self):
+            elements = self.framework.elementObjects.values()
+            for e in elements:
+                e.lsc_enable = True
+                e.lsc_bins = 50
+                e.current_bins = 0
+                e.longitudinal_wakefield_enable = True
+                e.transverse_wakefield_enable = True
+                e.smoothing_half_width = 2
+                pass
+            lattices = self.framework.latticeObjects.values()
+            for l in lattices:
+                l.lscDrifts = True
+                l.lsc_bins = 50
+                l.lsc_high_frequency_cutoff_start = 0.25
+                l.lsc_high_frequency_cutoff_end = 0.33
+                pass
 
     def calculate_constraints(self):
         constraintsList = {}
@@ -35,10 +64,10 @@ class FEBE(Optimise_Elegant):
         self.beam.slice_length = 0.05e-12
 
         t = 1e12*(self.beam.t-np.mean(self.beam.t))
-        t_grid = np.linspace(min(t), max(t), 2**10)
+        t_grid = np.linspace(min(t), max(t), 2**8)
         peakIPDF = self.beam.PDF(t, t_grid, bandwidth=self.beam.rms(t)/(2**4))
         peakICDF = self.beam.CDF(t, t_grid, bandwidth=self.beam.rms(t)/(2**4))
-        peakIFWHM, indexes = self.beam.FWHM(t_grid, peakIPDF, frac=4)
+        peakIFWHM, indexes = self.beam.FWHM(t_grid, peakIPDF, frac=2)
         # peakIFWHM2, indexes2 = self.beam.FWHM(t_grid, peakIPDF, frac=10)
         # stdpeakIPDF = (max(peakIPDF[indexes2]) - min(peakIPDF[indexes2]))/np.mean(peakIPDF[indexes2])
         # print('stdpeakIPDF = ', stdpeakIPDF)
@@ -72,17 +101,17 @@ class FEBE(Optimise_Elegant):
         constraintsListFEBE = {
             # 'ip_enx': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 0},
             # 'ip_eny': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 2.5},
-            'field_max': {'type': 'lessthan', 'value': linac_fields, 'limit': 32, 'weight': 300},
-            'momentum_max': {'type': 'lessthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 250, 'weight': 250},
+            'field_max': {'type': 'lessthan', 'value': linac_fields, 'limit': 32, 'weight': 3000},
+            'momentum_max': {'type': 'lessthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 260, 'weight': 250},
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 240, 'weight': 150},
             # 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 950, 'weight': 20},
             # 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 1050, 'weight': 20},
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
-            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 5, 'weight': 15},
+            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 5, 'weight': 1.5},
             'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 1.5},
-            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.05, 'weight': 100},
+            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.025, 'weight': 100},
             # 'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 1, 'weight': 0},
-            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 75, 'weight': 200},
+            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 99, 'weight': 200},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
 
@@ -96,6 +125,6 @@ if __name__ == "__main__":
     opt.set_changes_file(['./nelder_mead_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
-    opt.load_best('./nelder_mead_best_changes.yaml')
-    opt.Nelder_Mead(step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 0.05, 0.1, 0.5, 0.5])
+    opt.load_best('./nelder_mead_best_changes_no4HC.yaml')
+    opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_no4HC.yaml', step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 0.005, 0.1])
     # opt.Simplex()

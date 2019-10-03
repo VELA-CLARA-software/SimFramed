@@ -66,15 +66,6 @@ files:
     input: {}
     output:
       start_element: CLA-FEB-START-01
-      end_element: CLA-FEB-DIA-SCR-06
-  FEBE600:
-    code: elegant
-    charge:
-      cathode: False
-      space_charge_mode: 3D
-    input: {}
-    output:
-      start_element: CLA-FEB-DIA-SCR-06
       end_element: CLA-FEB-DUMP-01-START
 groups:
   laser-heater:
