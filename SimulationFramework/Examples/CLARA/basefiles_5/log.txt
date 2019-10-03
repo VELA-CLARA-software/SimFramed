@@ -1,20 +1,20 @@
   end of lattice definition                                              
-  momentum of reference particle =   356.991582860955                    
-  averaged momentum              =   356.902494463932                    
-  reference momentum             =   356.991582860955                    
-  total charge / C               = -2.621439999999545E-010               
+  momentum of reference particle =   356.991702554786                    
+  averaged momentum              =   356.903070531053                    
+  reference momentum             =   356.991702554786                    
+  total charge / C               = -2.621359999998551E-010               
   end of particles definition, npart =       32768                       
   
  ------------------------------------------------------                  
  CSRtrack                                                                
-    rel1.2   0004                   from 02.10.12                        
-    maxprt= 2001000                                                      
+    rel1.2   0001                   from 06.02.06                        
+    maxprt=  300000                                                      
     solver: fld3f3_13_no_wint2.for  from 17.03.05                        
-            rel1_projected.for           02.10.12                        
+            rel1_projected.for           17.03.05                        
  ------------------------------------------------------                  
   
-  start time           =  -25.8251819820226                              
-  tracking to end_time =  -20.3593400621547                              
+  start time           =  -21.0893519315654                              
+  tracking to end_time =  -15.6235100116425                              
   with 'projected' force                                                 
   with pre-conditioning                                                  
   with iterative tracking, maxit=           2                            
@@ -27,257 +27,257 @@
   increase_factor               =   2.00000000000000                     
   arc_factor                    =  0.300000000000000                     
   
-  ctstep= 0.00900 ---> ct= -25.81618                                     
+  ctstep= 0.00900 ---> ct= -21.08035                                     
                      step_error/step_time=  0.000000000000000E+000       
-  ctstep= 0.01773 ---> ct= -25.79846                                     
+  ctstep= 0.01773 ---> ct= -21.06263                                     
                      step_error/step_time=  0.000000000000000E+000       
-  ctstep= 0.03538 ---> ct= -25.76307                                     
+  ctstep= 0.03538 ---> ct= -21.02724                                     
                      step_error/step_time=  0.000000000000000E+000       
-  ctstep= 0.07074 ---> ct= -25.69234                                     
+  ctstep= 0.07074 ---> ct= -20.95651                                     
                      step_error/step_time=  0.000000000000000E+000       
-  ctstep= 0.10609 ---> ct= -25.58624                                     
+  ctstep= 0.10609 ---> ct= -20.85041                                     
                      step_error/step_time=  0.000000000000000E+000       
   --- duty --------------           1                                    
-  ctstep= 0.00233 ---> ct= -25.58391                                     
-                     step_error/step_time=  1.772118055071500E-008       
+  ctstep= 0.00233 ---> ct= -20.84808                                     
+                     step_error/step_time=  1.770997415777922E-008       
   --- duty --------------           2                                    
-  ctstep= 0.00430 ---> ct= -25.57961                                     
-                     step_error/step_time=  3.256858629880099E-007       
-  ctstep= 0.00832 ---> ct= -25.57129                                     
-                     step_error/step_time=  2.025145868990632E-006       
-  ctstep= 0.01639 ---> ct= -25.55490                                     
-                     step_error/step_time=  9.657557899476470E-006       
-  ctstep= 0.03253 ---> ct= -25.52236                                     
-                     step_error/step_time=  4.191251379560131E-005       
-  ctstep= 0.06477 ---> ct= -25.45760                                     
-                     step_error/step_time=  1.731973881651934E-004       
-  ctstep= 0.07254 ---> ct= -25.38505                                     
-                     step_error/step_time=  3.975206154995681E-004       
+  ctstep= 0.00430 ---> ct= -20.84378                                     
+                     step_error/step_time=  3.256872466149855E-007       
+  ctstep= 0.00832 ---> ct= -20.83546                                     
+                     step_error/step_time=  2.025187260291416E-006       
+  ctstep= 0.01639 ---> ct= -20.81907                                     
+                     step_error/step_time=  9.657181457100579E-006       
+  ctstep= 0.03253 ---> ct= -20.78653                                     
+                     step_error/step_time=  4.190443023832851E-005       
+  ctstep= 0.06477 ---> ct= -20.72177                                     
+                     step_error/step_time=  1.732532664871727E-004       
+  ctstep= 0.07254 ---> ct= -20.64922                                     
+                     step_error/step_time=  3.976613073101617E-004       
   --- duty --------------           1                                    
-  ctstep= 0.00229 ---> ct= -25.38276                                     
-                     step_error/step_time=  3.840256996272703E-004       
+  ctstep= 0.00229 ---> ct= -20.64693                                     
+                     step_error/step_time=  3.841620892874189E-004       
   --- duty --------------           2                                    
-  ctstep= 0.00423 ---> ct= -25.37853                                     
-                     step_error/step_time=  3.859803856722447E-004       
-  ctstep= 0.00792 ---> ct= -25.37061                                     
-                     step_error/step_time=  3.880782624128987E-004       
-  ctstep= 0.01495 ---> ct= -25.35566                                     
-                     step_error/step_time=  3.883092002864456E-004       
-  ctstep= 0.02846 ---> ct= -25.32719                                     
-                     step_error/step_time=  3.791895687180718E-004       
-  ctstep= 0.05448 ---> ct= -25.27272                                     
-                     step_error/step_time=  3.431831751026918E-004       
-  ctstep= 0.10460 ---> ct= -25.16811                                     
-                     step_error/step_time=  2.552365144314188E-004       
-  ctstep= 0.19201 ---> ct= -24.97610                                     
-                     step_error/step_time=  1.591221319813671E-004       
-  ctstep= 0.19201 ---> ct= -24.78409                                     
-                     step_error/step_time=  1.152974566447807E-004       
-  ctstep= 0.19201 ---> ct= -24.59208                                     
-                     step_error/step_time=  9.033896361139046E-005       
-  ctstep= 0.19201 ---> ct= -24.40006                                     
-                     step_error/step_time=  7.422703941638657E-005       
-  ctstep= 0.19201 ---> ct= -24.20805                                     
-                     step_error/step_time=  6.296851307455718E-005       
-  ctstep= 0.19201 ---> ct= -24.01604                                     
-                     step_error/step_time=  5.465769744747856E-005       
-  ctstep= 0.14201 ---> ct= -23.87402                                     
-                     step_error/step_time=  4.978625164188546E-005       
+  ctstep= 0.00423 ---> ct= -20.64270                                     
+                     step_error/step_time=  3.861016419306693E-004       
+  ctstep= 0.00791 ---> ct= -20.63479                                     
+                     step_error/step_time=  3.881708418528610E-004       
+  ctstep= 0.01495 ---> ct= -20.61984                                     
+                     step_error/step_time=  3.883386574948543E-004       
+  ctstep= 0.02846 ---> ct= -20.59138                                     
+                     step_error/step_time=  3.790741871625348E-004       
+  ctstep= 0.05447 ---> ct= -20.53691                                     
+                     step_error/step_time=  3.430859785703759E-004       
+  ctstep= 0.10459 ---> ct= -20.43232                                     
+                     step_error/step_time=  2.552445191059651E-004       
+  ctstep= 0.19202 ---> ct= -20.24030                                     
+                     step_error/step_time=  1.591178830449168E-004       
+  ctstep= 0.19202 ---> ct= -20.04828                                     
+                     step_error/step_time=  1.152913262166468E-004       
+  ctstep= 0.19202 ---> ct= -19.85627                                     
+                     step_error/step_time=  9.033279864155304E-005       
+  ctstep= 0.19202 ---> ct= -19.66425                                     
+                     step_error/step_time=  7.422123093563008E-005       
+  ctstep= 0.19202 ---> ct= -19.47223                                     
+                     step_error/step_time=  6.296316552720548E-005       
+  ctstep= 0.19202 ---> ct= -19.28021                                     
+                     step_error/step_time=  5.465277819499230E-005       
+  ctstep= 0.14202 ---> ct= -19.13819                                     
+                     step_error/step_time=  4.978157879416847E-005       
   --- duty --------------           1                                    
-  ctstep= 0.00141 ---> ct= -23.87261                                     
-                     step_error/step_time=  4.962202341868007E-005       
+  ctstep= 0.00140 ---> ct= -19.13678                                     
+                     step_error/step_time=  4.961767880350045E-005       
   --- duty --------------           2                                    
-  ctstep= 0.00230 ---> ct= -23.87032                                     
-                     step_error/step_time=  4.918406662712968E-005       
-  ctstep= 0.00425 ---> ct= -23.86607                                     
-                     step_error/step_time=  4.836762203847712E-005       
-  ctstep= 0.00823 ---> ct= -23.85784                                     
-                     step_error/step_time=  4.678512518555549E-005       
-  ctstep= 0.01625 ---> ct= -23.84160                                     
-                     step_error/step_time=  4.450992476688772E-005       
-  ctstep= 0.03243 ---> ct= -23.80917                                     
-                     step_error/step_time=  6.263951171830275E-005       
-  ctstep= 0.06485 ---> ct= -23.74432                                     
-                     step_error/step_time=  3.009429469120287E-004       
-  ctstep= 0.07138 ---> ct= -23.67293                                     
-                     step_error/step_time=  1.040471949664857E-003       
-                     step_error/step_time=  1.878112558070869E-010       
+  ctstep= 0.00229 ---> ct= -19.13449                                     
+                     step_error/step_time=  4.918048254654022E-005       
+  ctstep= 0.00424 ---> ct= -19.13025                                     
+                     step_error/step_time=  4.836462919478502E-005       
+  ctstep= 0.00822 ---> ct= -19.12202                                     
+                     step_error/step_time=  4.678240391558716E-005       
+  ctstep= 0.01624 ---> ct= -19.10578                                     
+                     step_error/step_time=  4.450238635620842E-005       
+  ctstep= 0.03243 ---> ct= -19.07335                                     
+                     step_error/step_time=  6.254988270095209E-005       
+  ctstep= 0.06486 ---> ct= -19.00849                                     
+                     step_error/step_time=  3.007941793901348E-004       
+  ctstep= 0.07139 ---> ct= -18.93710                                     
+                     step_error/step_time=  1.040357295557791E-003       
+                     step_error/step_time=  1.841558033867767E-010       
   --- duty --------------           1                                    
-  ctstep= 0.00137 ---> ct= -23.67156                                     
-                     step_error/step_time=  9.742357641435030E-004       
+  ctstep= 0.00137 ---> ct= -18.93573                                     
+                     step_error/step_time=  9.740628684223818E-004       
   --- duty --------------           2                                    
-  ctstep= 0.00219 ---> ct= -23.66937                                     
-                     step_error/step_time=  9.729458039604421E-004       
-  ctstep= 0.00401 ---> ct= -23.66536                                     
-                     step_error/step_time=  9.689163458427839E-004       
-  ctstep= 0.00772 ---> ct= -23.65764                                     
-                     step_error/step_time=  9.574617306906551E-004       
-  ctstep= 0.01517 ---> ct= -23.64247                                     
-                     step_error/step_time=  9.246911281868313E-004       
-  ctstep= 0.03008 ---> ct= -23.61240                                     
-                     step_error/step_time=  8.366600647905008E-004       
-  ctstep= 0.05989 ---> ct= -23.55251                                     
-                     step_error/step_time=  6.454875996672931E-004       
-  ctstep= 0.11944 ---> ct= -23.43307                                     
-                     step_error/step_time=  4.179033216947201E-004       
-  ctstep= 0.14944 ---> ct= -23.28363                                     
-                     step_error/step_time=  2.891080080103243E-004       
+  ctstep= 0.00227 ---> ct= -18.93347                                     
+                     step_error/step_time=  9.727405139610933E-004       
+  ctstep= 0.00421 ---> ct= -18.92925                                     
+                     step_error/step_time=  9.684320206117708E-004       
+  ctstep= 0.00817 ---> ct= -18.92109                                     
+                     step_error/step_time=  9.559897326208329E-004       
+  ctstep= 0.01611 ---> ct= -18.90498                                     
+                     step_error/step_time=  9.202592274013524E-004       
+  ctstep= 0.03201 ---> ct= -18.87297                                     
+                     step_error/step_time=  8.248646890695358E-004       
+  ctstep= 0.06381 ---> ct= -18.80916                                     
+                     step_error/step_time=  6.243615692595180E-004       
+  ctstep= 0.12736 ---> ct= -18.68180                                     
+                     step_error/step_time=  3.995124936639195E-004       
+  ctstep= 0.14960 ---> ct= -18.53220                                     
+                     step_error/step_time=  2.800294872024498E-004       
   --- duty --------------           1                                    
-  ctstep= 0.00137 ---> ct= -23.28226                                     
-                     step_error/step_time=  2.882564066047760E-004       
+  ctstep= 0.00137 ---> ct= -18.53083                                     
+                     step_error/step_time=  2.792320797483909E-004       
   --- duty --------------           2                                    
-  ctstep= 0.00275 ---> ct= -23.27952                                     
-                     step_error/step_time=  2.866326297603188E-004       
-  ctstep= 0.00549 ---> ct= -23.27402                                     
-                     step_error/step_time=  2.834400729540739E-004       
-  ctstep= 0.01098 ---> ct= -23.26304                                     
-                     step_error/step_time=  2.772609836328128E-004       
-  ctstep= 0.02196 ---> ct= -23.24108                                     
-                     step_error/step_time=  2.656726688910332E-004       
-  ctstep= 0.04393 ---> ct= -23.19715                                     
-                     step_error/step_time=  2.451576354565513E-004       
-  ctstep= 0.08785 ---> ct= -23.10930                                     
-                     step_error/step_time=  2.123053456602775E-004       
-  ctstep= 0.17570 ---> ct= -22.93360                                     
-                     step_error/step_time=  1.673071384416342E-004       
-  ctstep= 0.19907 ---> ct= -22.73453                                     
-                     step_error/step_time=  1.347826882345835E-004       
+  ctstep= 0.00273 ---> ct= -18.52810                                     
+                     step_error/step_time=  2.777141199350796E-004       
+  ctstep= 0.00547 ---> ct= -18.52263                                     
+                     step_error/step_time=  2.747264965781745E-004       
+  ctstep= 0.01093 ---> ct= -18.51170                                     
+                     step_error/step_time=  2.689393958646648E-004       
+  ctstep= 0.02187 ---> ct= -18.48983                                     
+                     step_error/step_time=  2.580620910540300E-004       
+  ctstep= 0.04373 ---> ct= -18.44610                                     
+                     step_error/step_time=  2.387310019857977E-004       
+  ctstep= 0.08747 ---> ct= -18.35863                                     
+                     step_error/step_time=  2.075729340056576E-004       
+  ctstep= 0.17493 ---> ct= -18.18370                                     
+                     step_error/step_time=  1.644877772119678E-004       
+  ctstep= 0.18501 ---> ct= -17.99870                                     
+                     step_error/step_time=  1.347647047156946E-004       
   --- duty --------------           1                                    
-  ctstep= 0.00137 ---> ct= -22.73316                                     
-                     step_error/step_time=  1.345813543886600E-004       
+  ctstep= 0.00137 ---> ct= -17.99733                                     
+                     step_error/step_time=  1.345657070432966E-004       
   --- duty --------------           2                                    
-  ctstep= 0.00205 ---> ct= -22.73111                                     
-                     step_error/step_time=  1.343118654979719E-004       
-  ctstep= 0.00365 ---> ct= -22.72745                                     
-                     step_error/step_time=  1.338347661132713E-004       
-  ctstep= 0.00693 ---> ct= -22.72052                                     
-                     step_error/step_time=  1.329389513038061E-004       
-  ctstep= 0.01351 ---> ct= -22.70701                                     
-                     step_error/step_time=  1.312264473207270E-004       
-  ctstep= 0.02667 ---> ct= -22.68034                                     
-                     step_error/step_time=  1.279717767435362E-004       
-  ctstep= 0.05295 ---> ct= -22.62739                                     
-                     step_error/step_time=  1.219599785793783E-004       
-  ctstep= 0.10541 ---> ct= -22.52199                                     
-                     step_error/step_time=  1.115145635987292E-004       
-  ctstep= 0.14906 ---> ct= -22.37293                                     
-                     step_error/step_time=  9.943564207661741E-005       
+  ctstep= 0.00205 ---> ct= -17.99528                                     
+                     step_error/step_time=  1.342966763823229E-004       
+  ctstep= 0.00365 ---> ct= -17.99163                                     
+                     step_error/step_time=  1.338199703376821E-004       
+  ctstep= 0.00693 ---> ct= -17.98470                                     
+                     step_error/step_time=  1.329244904347880E-004       
+  ctstep= 0.01351 ---> ct= -17.97119                                     
+                     step_error/step_time=  1.312123347985373E-004       
+  ctstep= 0.02667 ---> ct= -17.94452                                     
+                     step_error/step_time=  1.279580848287148E-004       
+  ctstep= 0.05295 ---> ct= -17.89157                                     
+                     step_error/step_time=  1.219466835231505E-004       
+  ctstep= 0.10541 ---> ct= -17.78616                                     
+                     step_error/step_time=  1.115017889733955E-004       
+  ctstep= 0.14906 ---> ct= -17.63709                                     
+                     step_error/step_time=  9.942385288242919E-005       
   --- duty --------------           1                                    
-  ctstep= 0.00137 ---> ct= -22.37156                                     
-                     step_error/step_time=  1.000052567831952E-004       
+  ctstep= 0.00137 ---> ct= -17.63573                                     
+                     step_error/step_time=  9.999354770953142E-005       
   --- duty --------------           2                                    
-  ctstep= 0.00244 ---> ct= -22.36911                                     
-                     step_error/step_time=  1.020944657490532E-004       
-  ctstep= 0.00458 ---> ct= -22.36454                                     
-                     step_error/step_time=  1.061365542225287E-004       
-  ctstep= 0.00895 ---> ct= -22.35559                                     
-                     step_error/step_time=  1.149674448614617E-004       
-  ctstep= 0.01781 ---> ct= -22.33778                                     
-                     step_error/step_time=  1.432694291355522E-004       
-  ctstep= 0.03562 ---> ct= -22.30216                                     
-                     step_error/step_time=  3.442310368002031E-004       
-  ctstep= 0.07124 ---> ct= -22.23092                                     
-                     step_error/step_time=  2.716986877795474E-003       
-                     step_error/step_time=  1.382120493101839E-009       
-  ctstep= 0.05919 ---> ct= -22.17174                                     
-                     step_error/step_time=  7.179071496244747E-003       
-                     step_error/step_time=  5.828648282523587E-009       
+  ctstep= 0.00244 ---> ct= -17.63329                                     
+                     step_error/step_time=  1.020761888543285E-004       
+  ctstep= 0.00457 ---> ct= -17.62872                                     
+                     step_error/step_time=  1.061132648454113E-004       
+  ctstep= 0.00895 ---> ct= -17.61977                                     
+                     step_error/step_time=  1.149364180413351E-004       
+  ctstep= 0.01781 ---> ct= -17.60196                                     
+                     step_error/step_time=  1.432160049848607E-004       
+  ctstep= 0.03562 ---> ct= -17.56635                                     
+                     step_error/step_time=  3.445735391731334E-004       
+  ctstep= 0.07123 ---> ct= -17.49511                                     
+                     step_error/step_time=  2.718147789913719E-003       
+                     step_error/step_time=  1.598267855883109E-009       
+  ctstep= 0.05921 ---> ct= -17.43590                                     
+                     step_error/step_time=  7.174886693528509E-003       
+                     step_error/step_time=  1.599304010493956E-008       
   --- duty --------------           1                                    
-  ctstep= 0.00133 ---> ct= -22.17041                                     
-                     step_error/step_time=  6.021402604755241E-003       
-                     step_error/step_time=  2.082011821561506E-012       
+  ctstep= 0.00133 ---> ct= -17.43458                                     
+                     step_error/step_time=  6.017798664708355E-003       
+                     step_error/step_time=  5.710258277848923E-013       
   --- duty --------------           2                                    
-  ctstep= 0.00266 ---> ct= -22.16774                                     
-                     step_error/step_time=  5.883106167752032E-003       
-                     step_error/step_time=  8.287713100451456E-013       
-  ctstep= 0.00532 ---> ct= -22.16242                                     
-                     step_error/step_time=  5.618756069958391E-003       
-                     step_error/step_time=  2.581657385509608E-012       
-  ctstep= 0.01065 ---> ct= -22.15177                                     
-                     step_error/step_time=  5.141816913576851E-003       
-                     step_error/step_time=  7.635337217821528E-012       
-  ctstep= 0.02130 ---> ct= -22.13047                                     
-                     step_error/step_time=  4.367852128096284E-003       
-                     step_error/step_time=  1.868664096422920E-011       
-  ctstep= 0.04260 ---> ct= -22.08787                                     
-                     step_error/step_time=  3.315176041073930E-003       
-                     step_error/step_time=  3.567030001704540E-011       
-  ctstep= 0.08520 ---> ct= -22.00268                                     
-                     step_error/step_time=  2.196815503629468E-003       
-                     step_error/step_time=  5.474966458535636E-011       
-  ctstep= 0.17039 ---> ct= -21.83229                                     
-                     step_error/step_time=  1.289194729018283E-003       
-                     step_error/step_time=  6.423239433121414E-011       
-  ctstep= 0.20000 ---> ct= -21.63229                                     
-                     step_error/step_time=  8.604605469298575E-004       
-  ctstep= 0.20000 ---> ct= -21.43229                                     
-                     step_error/step_time=  6.426015560524816E-004       
-  ctstep= 0.20000 ---> ct= -21.23229                                     
-                     step_error/step_time=  5.110684841761153E-004       
-  ctstep= 0.20000 ---> ct= -21.03229                                     
-                     step_error/step_time=  4.231233284209714E-004       
-  ctstep= 0.20000 ---> ct= -20.83229                                     
-                     step_error/step_time=  3.602155596354500E-004       
-  ctstep= 0.17158 ---> ct= -20.66071                                     
-                     step_error/step_time=  3.189533333303229E-004       
+  ctstep= 0.00265 ---> ct= -17.43193                                     
+                     step_error/step_time=  5.880211195135023E-003       
+                     step_error/step_time=  8.133096742351825E-013       
+  ctstep= 0.00530 ---> ct= -17.42663                                     
+                     step_error/step_time=  5.617320996339377E-003       
+                     step_error/step_time=  2.539454961059614E-012       
+  ctstep= 0.01060 ---> ct= -17.41602                                     
+                     step_error/step_time=  5.142730389218392E-003       
+                     step_error/step_time=  7.776623749496084E-012       
+  ctstep= 0.02120 ---> ct= -17.39482                                     
+                     step_error/step_time=  4.371693137229773E-003       
+                     step_error/step_time=  1.860785702593814E-011       
+  ctstep= 0.04241 ---> ct= -17.35242                                     
+                     step_error/step_time=  3.320969451736652E-003       
+                     step_error/step_time=  3.546094983083281E-011       
+  ctstep= 0.08481 ---> ct= -17.26760                                     
+                     step_error/step_time=  2.202426731641400E-003       
+                     step_error/step_time=  5.186011249409558E-011       
+  ctstep= 0.16963 ---> ct= -17.09798                                     
+                     step_error/step_time=  1.293314017889167E-003       
+                     step_error/step_time=  6.495672187418186E-011       
+  ctstep= 0.20000 ---> ct= -16.89798                                     
+                     step_error/step_time=  8.621642439419804E-004       
+  ctstep= 0.20000 ---> ct= -16.69798                                     
+                     step_error/step_time=  6.434703301395799E-004       
+  ctstep= 0.20000 ---> ct= -16.49798                                     
+                     step_error/step_time=  5.115648978023782E-004       
+  ctstep= 0.20000 ---> ct= -16.29798                                     
+                     step_error/step_time=  4.234265910005322E-004       
+  ctstep= 0.20000 ---> ct= -16.09798                                     
+                     step_error/step_time=  3.604080298677944E-004       
+  ctstep= 0.17310 ---> ct= -15.92488                                     
+                     step_error/step_time=  3.187621873695624E-004       
   --- duty --------------           1                                    
-  ctstep= 0.00042 ---> ct= -20.66028                                     
-                     step_error/step_time=  3.180894044805801E-004       
+  ctstep= 0.00042 ---> ct= -15.92445                                     
+                     step_error/step_time=  3.178977298268755E-004       
   --- duty --------------           2                                    
-  ctstep= 0.00195 ---> ct= -20.65833                                     
-                     step_error/step_time=  3.117631249531584E-004       
-  ctstep= 0.00384 ---> ct= -20.65448                                     
-                     step_error/step_time=  2.986996429203467E-004       
-  ctstep= 0.00759 ---> ct= -20.64690                                     
-                     step_error/step_time=  2.778564259443447E-004       
-  ctstep= 0.01500 ---> ct= -20.63190                                     
-                     step_error/step_time=  3.877794992026239E-004       
-  ctstep= 0.02965 ---> ct= -20.60225                                     
-                     step_error/step_time=  1.399474703510161E-003       
-                     step_error/step_time=  9.575300974952803E-010       
-  ctstep= 0.05198 ---> ct= -20.55027                                     
-                     step_error/step_time=  4.817341726345589E-003       
-                     step_error/step_time=  2.082388795540101E-009       
-  ctstep= 0.05201 ---> ct= -20.49826                                     
-                     step_error/step_time=  7.232321390971218E-003       
-                     step_error/step_time=  2.264633756554683E-009       
-  ctstep= 0.03874 ---> ct= -20.45952                                     
-                     step_error/step_time=  6.122851089505170E-003       
-                     step_error/step_time=  9.506411688373949E-010       
+  ctstep= 0.00195 ---> ct= -15.92250                                     
+                     step_error/step_time=  3.115818965347771E-004       
+  ctstep= 0.00384 ---> ct= -15.91866                                     
+                     step_error/step_time=  2.985423729068240E-004       
+  ctstep= 0.00758 ---> ct= -15.91107                                     
+                     step_error/step_time=  2.777060513715176E-004       
+  ctstep= 0.01499 ---> ct= -15.89608                                     
+                     step_error/step_time=  3.890643735573945E-004       
+  ctstep= 0.02962 ---> ct= -15.86646                                     
+                     step_error/step_time=  1.418116926292276E-003       
+                     step_error/step_time=  9.826734953712666E-010       
+  ctstep= 0.05200 ---> ct= -15.81446                                     
+                     step_error/step_time=  4.826430763476374E-003       
+                     step_error/step_time=  2.447503604481891E-009       
+  ctstep= 0.05203 ---> ct= -15.76244                                     
+                     step_error/step_time=  7.229313726257144E-003       
+                     step_error/step_time=  2.295076788345815E-009       
+  ctstep= 0.03875 ---> ct= -15.72369                                     
+                     step_error/step_time=  6.118773071263480E-003       
+                     step_error/step_time=  8.941228471089422E-010       
   --- duty --------------           1                                    
-  ctstep= 0.00038 ---> ct= -20.45913                                     
-                     step_error/step_time=  5.662041767843490E-003       
-                     step_error/step_time=  6.251379711317644E-013       
+  ctstep= 0.00038 ---> ct= -15.72330                                     
+                     step_error/step_time=  5.658255763763898E-003       
+                     step_error/step_time=  5.498645996704442E-013       
   --- duty --------------           2                                    
-  ctstep= 0.00184 ---> ct= -20.45730                                     
-                     step_error/step_time=  5.571690631867490E-003       
-                     step_error/step_time=  4.753626467972308E-013       
-  ctstep= 0.00363 ---> ct= -20.45367                                     
-                     step_error/step_time=  5.398318165420101E-003       
-                     step_error/step_time=  9.281566327589988E-013       
-  ctstep= 0.00724 ---> ct= -20.44643                                     
-                     step_error/step_time=  5.075305812838831E-003       
-                     step_error/step_time=  2.910753749144572E-012       
-  ctstep= 0.01449 ---> ct= -20.43194                                     
-                     step_error/step_time=  4.517302873005917E-003       
-                     step_error/step_time=  8.324890793246608E-012       
-  ctstep= 0.02897 ---> ct= -20.40297                                     
-                     step_error/step_time=  3.673769846228947E-003       
-                     step_error/step_time=  1.906719029002592E-011       
-  ctstep= 0.04345 ---> ct= -20.35952                                     
-                     step_error/step_time=  2.841199704976127E-003       
-                     step_error/step_time=  2.266793052755095E-011       
+  ctstep= 0.00184 ---> ct= -15.72147                                     
+                     step_error/step_time=  5.567981144727716E-003       
+                     step_error/step_time=  4.575223587612912E-013       
+  ctstep= 0.00363 ---> ct= -15.71784                                     
+                     step_error/step_time=  5.394731602308070E-003       
+                     step_error/step_time=  9.139134329226055E-013       
+  ctstep= 0.00724 ---> ct= -15.71060                                     
+                     step_error/step_time=  5.071952313823251E-003       
+                     step_error/step_time=  2.905585842810665E-012       
+  ctstep= 0.01449 ---> ct= -15.69611                                     
+                     step_error/step_time=  4.514454970966521E-003       
+                     step_error/step_time=  8.228849976044961E-012       
+  ctstep= 0.02897 ---> ct= -15.66714                                     
+                     step_error/step_time=  3.671593675419109E-003       
+                     step_error/step_time=  1.907976563997617E-011       
+  ctstep= 0.04345 ---> ct= -15.62369                                     
+                     step_error/step_time=  2.839632094581082E-003       
+                     step_error/step_time=  2.256907601562124E-011       
   --- duty --------------           1                                    
-  ctstep= 0.00018 ---> ct= -20.35934                                     
-                     step_error/step_time=  2.838227339550297E-003       
-                     step_error/step_time=  1.412055292352997E-013       
-  ctstep= 0.00000 ---> ct= -20.35934                                     
-  integrated step error=  1.209984171347016E-003                         
-  monitor=CLA-S06-MARK-01.fmt2  ctptcl=  -20.3593400621547               
+  ctstep= 0.00018 ---> ct= -15.62351                                     
+                     step_error/step_time=  2.836658408330388E-003       
+                     step_error/step_time=  1.629967284202382E-013       
+  ctstep= 0.00000 ---> ct= -15.62351                                     
+  integrated step error=  1.210962238457678E-003                         
+  monitor=CLA-S06-MARK-01.fmt2  ctptcl=  -15.6235100116425               
  ------------------------------------------------------                  
  CSRtrack                                                                
-    rel1.2   0004                   from 02.10.12                        
-    maxprt= 2001000                                                      
+    rel1.2   0001                   from 06.02.06                        
+    maxprt=  300000                                                      
     solver: fld3f3_13_no_wint2.for  from 17.03.05                        
-            rel1_projected.for           02.10.12                        
+            rel1_projected.for           17.03.05                        
  ------------------------------------------------------                  
