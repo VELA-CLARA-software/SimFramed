@@ -22,7 +22,8 @@ mutationprobability = 0.2
 ngenerations = 200
 
 class UltrashortMOGA(MOGA):
-
+#first column is initial sigmas for randomness
+#second column is sigmas for Gaussian mutation 
     parameter_names = [
         ['CLA-HRG1-GUN-CAV', 'phase', 5, 1],
         ['CLA-HRG1-GUN-SOL', 'field_amplitude', 0.005, 0.001],
@@ -38,7 +39,6 @@ class UltrashortMOGA(MOGA):
         # ['CLA-L4H-CAV', 'phase', 5, 1],
         ['CLA-L04-CAV', 'field_amplitude', 5e6, 1e6],
         ['CLA-L04-CAV', 'phase', 5, 1],
-        #if add/remove parameters here, change mutation function sigmas below
     ]
 
     def __init__(self):
@@ -54,7 +54,7 @@ class UltrashortMOGA(MOGA):
         self.doTracking = True
         self.clean = True
 
-    def before_tracking(self):
+    def before_tracking(self): #This comes AFTER loading the lattice, and then loading default settings, and after randomisation
         self.framework.change_Lattice_Code('VBC','ASTRA')
         elements = self.framework.elementObjects.values()
         for e in elements:
@@ -68,13 +68,12 @@ class UltrashortMOGA(MOGA):
             l.lscDrifts = True
             l.lsc_bins = 200
         quads = self.framework.getElementType('quadrupole')
-        for q in quads:
+        for q in quads: # Set all Quads zero
             q.k1l = 0
         self.framework['bunch_compressor'].angle = 0  # Turn OFF Bunch Compressor
         self.framework['CLA-L4H-CAV'].field_amplitude = 0  # Turn OFF 4th Harmonic
         self.framework['CLA-S07-DCP-01'].factor = 0  # Turn OFF Dechirper
-        #add TURN VBC OFF HERE
-        #set QUADS HERE
+        
 
     def MOGAoptFunc(self, inputargs, *args, **kwargs):
         energy_spread, peak_current, max_xrms = self.OptimisingFunction(inputargs, **kwargs)
@@ -141,7 +140,7 @@ moga.create_gaussian_mutation_function(probability=0.3, mu=0, sigma=gmf_sigmas)
 # moga.add_bounds(MIN, MAX)
 moga.create_NSGA2_selection_function()
 
-if __name__ == "__main__":
+if __name__ == "__main__": #This changes the defaults settings in the lattice, before randomisation
     best = moga.load_best('./GA_best_changes.yaml')
     ip_sigmas = [r[2] for r in moga.parameter_names]
     moga.initialise_population(best, populationSize, sigma=ip_sigmas)
