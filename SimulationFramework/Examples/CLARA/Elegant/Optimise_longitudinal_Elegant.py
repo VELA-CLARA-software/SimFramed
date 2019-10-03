@@ -136,11 +136,11 @@ class Optimise_Elegant(runEle.fitnessFunc):
             self.bestfit = fitvalue
         return fitvalue
 
-    def Nelder_Mead(self, best=None, step=0.1):
+    def Nelder_Mead(self, best=None, step=0.1, best_changes='./nelder_mead_best_changes.yaml'):
         best = np.array(self.best) if best is None else np.array(best)
         self.subdir = 'nelder_mead'
         self.optdir = self.subdir + '/iteration_'
-        self.best_changes = './nelder_mead_best_changes.yaml'
+        self.best_changes = best_changes
         print('best = ', best)
         self.bestfit = 1e26
 
@@ -149,11 +149,11 @@ class Optimise_Elegant(runEle.fitnessFunc):
         res = nelder_mead(self.OptimisingFunction, best, step=step, max_iter=300, no_improv_break=100)
         print(res)
 
-    def Simplex(self, best=None):
+    def Simplex(self, best=None, best_changes='./simplex_best_changes.yaml'):
         best = self.best if best is None else best
         self.subdir = 'simplex'
         self.optdir = self.subdir + '/iteration_'
-        self.best_changes = './simplex_best_changes.yaml'
+        self.best_changes = best_changes
         print('best = ', best)
         self.bestfit = 1e26
 

@@ -1,7 +1,4 @@
 &INPUT
-FName = 'laser.generator',
-q_total = 0.25,
-Ipart = 32768,
 add = False,
 species = 'electrons',
 probe = True,
@@ -20,5 +17,8 @@ le = 0.00062,
 dist_x = 'radial',
 sig_x = 0.25,
 dist_y = 'r',
-sig_y = 0.25
+sig_y = 0.25,
+FName = 'laser.generator',
+q_total = 0.25,
+Ipart = 32768
 /

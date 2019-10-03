@@ -1,19 +1,27 @@
 &NEWRUN
-Distribution = 'CLA-S04-APER.astra',
-high_res = True,
-auto_phase = True,
-track_all = True,
-check_ref_part = False,
-head = trial,
-run = 1,
-h_max = 0.0007,
 n_red = 1,
-h_min = 0.0007,
+track_all = True,
+auto_phase = True,
 phase_scan = False,
-lprompt = False
+check_ref_part = False,
+h_max = 0.0007,
+h_min = 0.0007,
+run = 1,
+head = trial,
+lprompt = False,
+Distribution = 'CLA-S04-APER.astra',
+high_res = True
 /
 
 &OUTPUT
+zemit = 1050,
+zphase = 1,
+lmagnetized = False,
+refs = True,
+emits = True,
+phases = True,
+high_res = True,
+tracks = True,
 zstart = 16.2002,
 zstop = 23.4572,
 Screen(1) = 16.2002,
@@ -29,31 +37,30 @@ Screen(10) = 20.4886,
 Screen(11) = 21.3152,
 Screen(12) = 22.3002,
 Screen(13) = 23.2802,
-Screen(14) = 23.4572,
-zphase = 1,
-phases = True,
-high_res = True,
-refs = True,
-tracks = True,
-zemit = 1050,
-lmagnetized = False,
-emits = True
+Screen(14) = 23.4572
 /
 
 &CHARGE
+cell_var = 2,
+min_grid = 3.424657e-13,
+smooth_x = 2,
+smooth_y = 2,
+smooth_z = 2,
+max_scale = 0.1,
+max_count = 100,
+nxf = 32,
+nyf = 32,
+nzf = 64,
 Lmirror = False,
 LSPCH = True,
-LSPCH3D = True,
-nxf = 6,
-nyf = 6,
-nzf = 6,
-max_scale = 0.1,
-cell_var = 2,
-max_count = 100,
-smooth_z = 2,
-smooth_y = 2,
-smooth_x = 2,
-min_grid = 3.424657e-13
+LSPCH3D = True
+/
+
+&ERROR
+lerror = True,
+log_error = True,
+errors = True,
+suppress_output = False
 /
 
 &CAVITY
@@ -70,57 +77,60 @@ LBField = False
 /
 &QUADRUPOLE
 LQuad = True
-Q_pos(1) = 16.4992, Q_xoff(1) = 0, Q_xrot(1) = -0.0, 
-Q_k(1) = 0.621798, Q_length(1) = 0.162, Q_smooth(1) = 10, 
-Q_bore(1) = 0.016
-Q_pos(2) = 17.019199999999998, Q_xoff(2) = 0, Q_xrot(2) = -0.0, 
-Q_k(2) = 0.166334, Q_length(2) = 0.162, Q_smooth(2) = 10, 
+Q_pos(1) = 16.4992, Q_xoff(1) = 0, Q_yoff(1) = 0, Q_xrot(1) = 0.0, 
+Q_yrot(1) = 0, Q_zrot(1) = 0, Q_k(1) = 0.621796296296, 
+Q_length(1) = 0.162, Q_smooth(1) = 10, Q_bore(1) = 0.016
+Q_pos(2) = 17.019199999999998, Q_xoff(2) = 0, Q_yoff(2) = 0, 
+Q_xrot(2) = 0.0, Q_yrot(2) = 0, Q_zrot(2) = 0, 
+Q_k(2) = 0.166333950617, Q_length(2) = 0.162, Q_smooth(2) = 10, 
 Q_bore(2) = 0.016
-Q_pos(3) = 17.519199999999998, Q_xoff(3) = 0, Q_xrot(3) = -0.0, 
-Q_k(3) = -0.387754, Q_length(3) = 0.162, Q_smooth(3) = 10, 
+Q_pos(3) = 17.519199999999998, Q_xoff(3) = 0, Q_yoff(3) = 0, 
+Q_xrot(3) = 0.0, Q_yrot(3) = 0, Q_zrot(3) = 0, 
+Q_k(3) = -0.387753703704, Q_length(3) = 0.162, Q_smooth(3) = 10, 
 Q_bore(3) = 0.016
-Q_pos(4) = 18.019199999999998, Q_xoff(4) = 0, Q_xrot(4) = -0.0, 
-Q_k(4) = -0.208383, Q_length(4) = 0.162, Q_smooth(4) = 10, 
+Q_pos(4) = 18.019199999999998, Q_xoff(4) = 0, Q_yoff(4) = 0, 
+Q_xrot(4) = 0.0, Q_yrot(4) = 0, Q_zrot(4) = 0, 
+Q_k(4) = -0.208382716049, Q_length(4) = 0.162, Q_smooth(4) = 10, 
 Q_bore(4) = 0.016
-Q_pos(5) = 21.5342, Q_xoff(5) = 0, Q_xrot(5) = -0.0, 
-Q_k(5) = 0.253635, Q_length(5) = 0.162, Q_smooth(5) = 10, 
-Q_bore(5) = 0.016
-Q_pos(6) = 22.0342, Q_xoff(6) = 0, Q_xrot(6) = -0.0, 
-Q_k(6) = 0.433247, Q_length(6) = 0.162, Q_smooth(6) = 10, 
-Q_bore(6) = 0.016
-Q_pos(7) = 22.5342, Q_xoff(7) = 0, Q_xrot(7) = -0.0, 
-Q_k(7) = 0.521807, Q_length(7) = 0.162, Q_smooth(7) = 10, 
-Q_bore(7) = 0.016
-Q_pos(8) = 23.0442, Q_xoff(8) = 0, Q_xrot(8) = -0.0, 
-Q_k(8) = -0.26879, Q_length(8) = 0.162, Q_smooth(8) = 10, 
-Q_bore(8) = 0.016
+Q_pos(5) = 21.5342, Q_xoff(5) = 0, Q_yoff(5) = 0, Q_xrot(5) = 0.0, 
+Q_yrot(5) = 0, Q_zrot(5) = 0, Q_k(5) = 0.253635185185, 
+Q_length(5) = 0.162, Q_smooth(5) = 10, Q_bore(5) = 0.016
+Q_pos(6) = 22.0342, Q_xoff(6) = 0, Q_yoff(6) = 0, Q_xrot(6) = 0.0, 
+Q_yrot(6) = 0, Q_zrot(6) = 0, Q_k(6) = 0.43324691358, 
+Q_length(6) = 0.162, Q_smooth(6) = 10, Q_bore(6) = 0.016
+Q_pos(7) = 22.5342, Q_xoff(7) = 0, Q_yoff(7) = 0, Q_xrot(7) = 0.0, 
+Q_yrot(7) = 0, Q_zrot(7) = 0, Q_k(7) = 0.521806790123, 
+Q_length(7) = 0.162, Q_smooth(7) = 10, Q_bore(7) = 0.016
+Q_pos(8) = 23.0442, Q_xoff(8) = 0, Q_yoff(8) = 0, Q_xrot(8) = 0.0, 
+Q_yrot(8) = 0, Q_zrot(8) = 0, Q_k(8) = -0.268790123457, 
+Q_length(8) = 0.162, Q_smooth(8) = 10, Q_bore(8) = 0.016
 
 /
 &DIPOLE
 LDipole = True
 D_Type(1) = 'horizontal', D_Gap(1,1) = 0.02, D_Gap(2,1) = 0.02, 
 D1(1) = (0.020000000000000004, 18.5902),
-D3(1) = (0.020004999499969617, 18.69019600000003),
-D4(1) = (-0.019994999700030394, 18.690203999999973),
+D3(1) = (0.01999499990003039, 18.6902),
+D4(1) = (-0.020005000099969618, 18.6902),
 D2(1) = (-0.020000000000000004, 18.5902),
-D_radius(1) = -1000.0
+D_radius(1) = 1000.0
 D_Type(2) = 'horizontal', D_Gap(1,2) = 0.02, D_Gap(2,2) = 0.02, 
-D1(2) = (0.02003999950027795, 19.040196000000027),
-D3(2) = (0.020044999900300002, 19.1402),
-D4(2) = (-0.019955000099700006, 19.1402),
-D2(2) = (-0.01995999969972206, 19.04020399999997),
-D_radius(2) = 1000.0
+D1(2) = (0.019959999899722056, 19.0402),
+D3(2) = (0.019954999899700003, 19.1402),
+D4(2) = (-0.020045000100300005, 19.1402),
+D2(2) = (-0.02004000010027795, 19.0402),
+D_radius(2) = -1000.0
 D_Type(3) = 'horizontal', D_Gap(1,3) = 0.02, D_Gap(2,3) = 0.02, 
-D1(3) = (0.020044999900300002, 20.6152),
-D3(3) = (0.020039999400330393, 20.71520399999997),
-D4(3) = (-0.019959999799669618, 20.715196000000027),
-D2(3) = (-0.019955000099700006, 20.6152),
-D_radius(3) = 1000.0
+D1(3) = (0.019954999899700003, 20.6152),
+D3(3) = (0.019959999799669618, 20.7152),
+D4(3) = (-0.02004000020033039, 20.7152),
+D2(3) = (-0.020045000100300005, 20.6152),
+D_radius(3) = -1000.0
 D_Type(4) = 'horizontal', D_Gap(1,4) = 0.02, D_Gap(2,4) = 0.02, 
-D1(4) = (0.02000499940002206, 21.065203999999973),
+D1(4) = (0.019994999799977948, 21.0652),
 D3(4) = (0.020000000000000004, 21.1652),
 D4(4) = (-0.020000000000000004, 21.1652),
-D2(4) = (-0.01999499979997795, 21.06519600000003),
-D_radius(4) = -1000.0
+D2(4) = (-0.02000500020002206, 21.0652),
+D_radius(4) = 1000.0
 
 /
