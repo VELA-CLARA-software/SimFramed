@@ -61,22 +61,26 @@ def setMomentum():
     # res = minimize(optFunc, best, method='BFGS', tol=1, options={'eps': 10000, 'disp': True})
     return res.x
 
-def set_Phase(phase, charge=70):
+def set_Phase(phase, charge=70, track=True):
     global dir, lattice, scaling
     dir = 'SETUP/TOMP_SETUP_'+str(phase)+'_'+str(charge)
     lattice.setSubDirectory(dir)
-    lattice.change_Lattice_Code('L01','elegant')
-    lattice.modifyElement('CLA-L01-CAV', 'phase', phase)
-    lattice['L01'].file_block['input']['prefix'] = '../../basefiles_'+str(scaling)+'_'+str(charge)+'/'
-    lattice['L01'].sample_interval = 8
-    mom = setMomentum()
-    optFunc(mom)
+    if track:
+        lattice.change_Lattice_Code('L01','elegant')
+        lattice.modifyElement('CLA-L01-CAV', 'phase', phase)
+        lattice['L01'].file_block['input']['prefix'] = '../../../CLARA_BA1_Gaussian/basefiles_'+str(scaling)+'_'+str(charge)+'/'
+        lattice['L01'].sample_interval = 8
+        mom = setMomentum()
+        print('mom = ', mom)
+        optFunc(mom)
     lattice.change_Lattice_Code('L01','ASTRA')
+    lattice['L01'].file_block['input']['prefix'] = '../../../CLARA_BA1_Gaussian/basefiles_'+str(scaling)+'_'+str(charge)+'/'
     lattice['L01'].sample_interval = 8
     lattice.modifyElement('CLA-L01-CAV', 'phase', phase)
     lattice.modifyElement('CLA-L01-CAV', 'field_amplitude', abs(mom[0]))
     before_tracking()
-    lattice.track(startfile='L01', endfile='L01')
+    if track:
+        lattice.track(startfile='L01', endfile='L01')
     lattice['S02'].file_block['input']['prefix'] = '../SETUP/TOMP_SETUP_'+str(phase)+'_'+str(charge)+'/'
 
 def track_phase_elegant(phase, charge=70):
@@ -383,8 +387,9 @@ def setVELA(quads):
     res = minimize(optFuncVELA, best, method='nelder-mead', options={'disp': False, 'adaptive': True, 'fatol': 1e-3, 'maxiter': 100})
     return res.x
 
-def optimise_Lattice(q=70, do_optimisation=False):
-    global dir, lattice, scaling
+def optimise_Lattice(phase=None, q=70, do_optimisation=False):
+    global dir, lattice, scaling, bestdelta
+    bestdelta = 1e10
     dir = './SETUP/TOMP_SETUP'
     lattice = Framework(dir, clean=False, verbose=False)
     lattice.loadSettings('CLA10-BA1_TOMP.def')
@@ -394,10 +399,6 @@ def optimise_Lattice(q=70, do_optimisation=False):
         lattice.defineCSRTrackCommand(scaling=(scaling))
         lattice.define_gpt_command(scaling=(scaling))
     lattice['L01'].file_block['input']['prefix'] = '../basefiles_'+str(scaling)+'_'+str(q)+'/'
-    # lattice.modifyElement('CLA-L01-CAV', 'phase', 0)
-    # setMomentum()
-    # lattice.change_Lattice_Code('L01','ASTRA')
-    # lattice.track(startfile='L01', endfile='L01', track=True)
     quads = 0.107*np.array([  21.11058462, -11.36377551,  24.69336696, -22.63264054,  56.07039682, -51.58739658])
     # quads = setChicane(quads)
     # optFuncChicane(quads)
@@ -424,45 +425,45 @@ def optimise_Lattice(q=70, do_optimisation=False):
         lattice.getElement('EBT-BA1-MAG-QUAD-07', 'k1l'),
 
     ]
-    # quads = quads + [19.27190175, -17.69572111,   7.0315249,   -5.1809911,    2.34047285,   3.39357893, 1,-1,1,-1,1,-1,1]
     quadsNEW = np.array([
     1.7901911899775773,-1.6407693149976745,2.2849042966309447,-1.3685069221066561,5.7572751421298305,-4.696861959661223,1.653747009525063,-1.597658628810405,0.3920095459041216,-0.3922879907823872,0.16851104048712628,0.12208077087083297,-0.26073294653351364,-0.9516625759490311,1.2270249450337767,1.1374710985669274,0.038188155183286554,-1.3227126094830322,1.360338937783752
     ])
     lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
     lattice['S02'].sample_interval = 2**(3*3)
     if do_optimisation:
+        if phase is not None:
+            lattice['S02'].file_block['input']['prefix'] = '../TOMP_SETUP_'+str(phase)+'_'+str(q)+'/'
         quads = setVELA(quads)
     optFuncVELA(quads)
-    # print('VELA = ', quads)
     lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
     lattice['S02'].sample_interval = 1
 
 
 optimise_Lattice()
-elegantNoSCOut = open('elegant_NoSC_phase_data.csv','w')
-elegantSCOut = open('elegant_SC_phase_data.csv','w')
-elegantSCCSROut = open('elegant_SC_CSR_phase_data.csv','w')
+# elegantNoSCOut = open('elegant_NoSC_phase_data.csv','w')
+# elegantSCOut = open('elegant_SC_phase_data.csv','w')
+# elegantSCCSROut = open('elegant_SC_CSR_phase_data.csv','w')
 # ASTRAOut = open('ASTRA_phase_data.csv','w')
 # GPTout = open('GPT_phase_data.csv','w')
 # GPTCSRout = open('GPT_CSR_phase_data.csv','w')
 
-elegentNoSC_csv_out = csv.writer(elegantNoSCOut)
-elegentSC_csv_out = csv.writer(elegantSCOut)
-elegentSCCSR_csv_out = csv.writer(elegantSCCSROut)
+# elegentNoSC_csv_out = csv.writer(elegantNoSCOut)
+# elegentSC_csv_out = csv.writer(elegantSCOut)
+# elegentSCCSR_csv_out = csv.writer(elegantSCCSROut)
 # ASTRA_csv_out = csv.writer(ASTRAOut)
 # GPT_csv_out = csv.writer(GPTout)
 # GPTCSR_csv_out = csv.writer(GPTCSRout)
 
 for i in range(-4,-3,1):
     for q in [20,50,70,150,250]:
-        set_Phase(i, q)
-        # optimise_Lattice(q, True)
+        set_Phase(i, q, track=False)
+        optimise_Lattice(i, q, False)
         data = track_phase_elegant(i, q)
-        elegentNoSC_csv_out.writerow(data)
+        # elegentNoSC_csv_out.writerow(data)
         data = track_phase_elegant_SC(i, q)
-        elegentSC_csv_out.writerow(data)
+        # elegentSC_csv_out.writerow(data)
         data = track_phase_elegant_SC_CSR(i, q)
-        elegentSCCSR_csv_out.writerow(data)
+        # elegentSCCSR_csv_out.writerow(data)
         # data = track_phase_astra(i, q)
         # ASTRA_csv_out.writerow(data)
         # data = track_phase_gpt(i)
