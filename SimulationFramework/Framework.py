@@ -43,7 +43,7 @@ astra_generator_keywords = {
         'clara_400_2ps_Gaussian':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'g',
             'sig_clock': 0.85e-3,
-            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.35, 'dist_y': '2DGaussian', 'sig_y': 0.35, 'C_sig_x': 3, 'C_sig_y': 3
+            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.25, 'dist_y': '2DGaussian', 'sig_y': 0.25, 'C_sig_x': 1, 'C_sig_y': 1
         },
     },
     'framework_keywords': [
@@ -955,6 +955,7 @@ class elegantLattice(frameworkLattice):
             self.q = charge(name='START', type='charge',**{'total': abs(self.bunch_charge)})
         else:
             self.q = charge(name='START', type='charge',**{'total': abs(beam.charge)})
+        # print('mean cpz = ', np.mean(beam.cpz), ' prefix = ', prefix)
         sddsbeamfilename = self.particle_definition+'.sdds'
         beam.write_SDDS_file(master_subdir + '/' + sddsbeamfilename, xyzoffset=self.startObject.position_start)
 
@@ -1614,14 +1615,13 @@ class frameworkGenerator(object):
 
 class frameworkElement(frameworkObject):
 
-    keyword_conversion_rules_elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
-                                 'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
-                                 'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'change_p0', 'bunched_beam': 'bunched_beam_mode', 'current_bins': 'n_bins',
-                                 'lsc_enable': 'lsc',
-                                 }
-
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(frameworkElement, self).__init__(elementName, elementType, **kwargs)
+        self.keyword_conversion_rules_elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
+                                     'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
+                                     'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'change_p0', 'bunched_beam': 'bunched_beam_mode', 'current_bins': 'n_bins',
+                                     'lsc_enable': 'lsc',
+                                     }
         self.add_default('length', 0)
         self.add_property('position_errors', [0,0,0])
         self.add_property('rotation_errors', [0,0,0])

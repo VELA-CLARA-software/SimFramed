@@ -14,7 +14,7 @@ lattice = fw.Framework('GPT_Test', clean=False, verbose=False)
 # Load a lattice definition. By default the frameowrk looks in "OnlineModel/MasterLattice/" to find things
 # This example loads a lattice with a CLARA 400Hz gun, and tracking to VELA BA1
 lattice.loadSettings('./CLARA_FE/CLARA_BA1_Gaussian/CLA10-BA1_TOMP_ASTRA.def')
-# This is a scaling parameter 
+# This is a scaling parameter
 scaling = 5
 # This defines the location of tracking codes - On windows this uses versions in "OnlineModel/MasterLattice/Codes",
 # but you will need to define these yourself on linux
@@ -25,7 +25,7 @@ lattice.defineCSRTrackCommand(location=['/opt/CSRTrack/csrtrack.sh'])
 lattice.generator.number_of_particles = 2**(3*scaling)
 # This tracks the beam based on the definitions in the lattice file loaded using "lattice.loadSettings"
 lattice.change_Lattice_Code('All','gpt')
-lattice['S02'].prefix = '../CLARA_FE/CLARA_BA1_Gaussian/TOMP_SETUP_-10/'
+lattice['S02'].prefix = '../CLARA_FE/CLARA_FE_Gaussian/TOMP_SETUP_-10/'
 lattice['S02'].sample_interval = 2**(3*1)
 lattice.track(files=['S02', 'C2V'], preprocess=True, write=True, track=True, postprocess=True)
 # beam = rbf.beam()
