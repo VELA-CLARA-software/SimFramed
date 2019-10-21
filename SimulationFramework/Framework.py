@@ -29,7 +29,7 @@ yaml.add_constructor(_mapping_tag, dict_constructor)
 astra_generator_keywords = {
     'keywords':[
         'fname','add','ipart','species','probe','noise_reduc','high_res','cathode','lprompt', 'q_total','ref_zpos','ref_clock','dist_z','ref_ekin','lt','rt','sig_clock','sig_z','lz','rz',
-        'dist_pz','le','dist_x','sig_x','dist_y','sig_y','dist_px','nemit',
+        'dist_pz','le','dist_x','sig_x','dist_y','sig_y','dist_px','nemit', 'C_sig_x', 'C_sig_y',
     ],
     'defaults': {
         'clara_400_3ps':{
@@ -43,7 +43,7 @@ astra_generator_keywords = {
         'clara_400_2ps_Gaussian':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'g',
             'sig_clock': 0.85e-3,
-            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.25, 'dist_y': '2DGaussian', 'sig_y': 0.25, 'C_sig_x': 1, 'C_sig_y': 1
+            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.25, 'dist_y': '2DGaussian', 'sig_y': 0.25, 'C_sig_x': 3, 'C_sig_y': 3
         },
     },
     'framework_keywords': [
