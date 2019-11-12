@@ -31,21 +31,21 @@ def create_base_files(scaling, charge=70):
     if not os.name == 'nt':
         framework.defineASTRACommand(scaling=(scaling))
         framework.defineCSRTrackCommand(scaling=(scaling))
-    framework.generator.number_of_particles = 2**(3*(scaling-2))
-    framework.modifyElement('CLA-LRG1-GUN-CAV', 'phase', 5)
+    framework.generator.number_of_particles = 2**(3*(scaling))
+    framework.modifyElement('CLA-LRG1-GUN-CAV', 'phase', -5)
     framework.modifyElement('CLA-LRG1-GUN-SOL', 'field_amplitude', 0.15)
     framework['generator'].charge = charge * 1e-12
     # before_tracking()
     framework.track(files=['generator','injector10'])
 
 ## Modify as appropriate! ##
-for i in [6]:
+# for i in [6]:
     # create_base_files(i,20)
     # create_base_files(i,50)
-    create_base_files(i,70)
+    # create_base_files(i,70)
     # create_base_files(i,150)
     # create_base_files(i,250)
-exit()
+# exit()
 
 def optFunc(linac1field):
     global dir, lattice
@@ -300,7 +300,7 @@ optimise_Lattice(do_optimisation=False)
 for i in [81]:
     for q in [70]:
         # print('q = ', q, '  i = ', i)
-        set_Phase(i, q, track=False)
+        set_Phase(i, q, track=True)
         optimise_Lattice(i, q, True)
         # data = track_phase_elegant(i, q)
         # exit()

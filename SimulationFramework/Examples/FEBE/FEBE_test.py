@@ -16,10 +16,14 @@ class FEBE(Optimise_Elegant):
         self.parameter_names.append(['FODO_F', 'k1l'])
         self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*0)
+        self.sample_interval = 2**(3*4)
         self.base_files = '../../CLARA/basefiles_'+str(self.scaling)+'/'
         self.clean = True
         self.doTracking = True
+        self.change_to_elegant = True
+        self.change_to_astra = False
+        self.change_to_gpt = False
+        # self.start_lattice = 'FEBE'
 
     def before_tracking(self):
             elements = self.framework.elementObjects.values()
@@ -42,8 +46,16 @@ class FEBE(Optimise_Elegant):
             self.framework['FEBE'].betay = 3.96111
             self.framework['FEBE'].alphax = -0.623844
             self.framework['FEBE'].alphay = 0.872959
-            self.framework['CLA-L4H-CAV'].field_amplitude = 0
-            self.framework['bunch_compressor'].angle = 1.18*0.12850503205442976
+
+            BPM1_replacement_index = list(self.framework['FEBE'].elements.keys()).index('CLA-FEB-DIA-BPM-01')
+            self.framework.add_Element(name='CLA-FEBE-TDC-01', type='rf_deflecting_cavity', **{'length': self.framework['CLA-FEB-DIA-BPM-01'].length, 'phase': 0.0, 'global_rotation': [0, 0, 0],
+            'position_end': self.framework['CLA-FEB-DIA-BPM-01'].position_end, 'position_start': self.framework['CLA-FEB-DIA-BPM-01'].position_start})
+            self.framework['FEBE'].insert_element()
+            print(self.framework['CLA-FEBE-TDC-01'])
+            exit()
+            # self.framework['laser-heater'].angle = 0
+            # self.framework['CLA-L4H-CAV'].field_amplitude = 0
+            # self.framework['bunch_compressor'].angle = 1.18*0.12850503205442976
 
 if __name__ == "__main__":
     opt = FEBE()
@@ -51,5 +63,5 @@ if __name__ == "__main__":
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
     opt.load_best('./nelder_mead_best_changes.yaml')
-    opt.Example(dir='example_no4HC')
+    opt.Example(dir='example_GPT')
     # opt.Simplex()

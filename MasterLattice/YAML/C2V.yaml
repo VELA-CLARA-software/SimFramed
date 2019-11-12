@@ -4,17 +4,17 @@ elements:
     fit_point: 1.0
     PV: 'None'
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 5.72687]
-    position_start: [0, 0, 5.72687]
+    position_end: [0, 0, 5.72609]
+    position_start: [0, 0, 5.72609]
   CLA-C2V-MAG-DIP-01:
     type: dipole
     length: 0.399216
     angle: 0.785398
     design_angle: 0.785398
     strength: 0
-    half_gap: 0.01
+    half_gap: 0.02
     deltaL: 0.0001
-    edge_field_integral: 0.4
+    edge_field_integral: 0.5
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"C2V-MAG-DIP-01-D.CSR"'
@@ -106,9 +106,9 @@ elements:
     type: dipole
     length: 0.397752
     angle: -0.785398
-    half_gap: 0.01
+    half_gap: 0.02
     deltaL: -0.0001
-    edge_field_integral: 0.4
+    edge_field_integral: 0.5
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"CLA-C2V-MAG-DIP-02-D.CSR"'

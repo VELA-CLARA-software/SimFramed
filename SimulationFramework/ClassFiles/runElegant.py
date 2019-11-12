@@ -106,8 +106,12 @@ class fitnessFunc(object):
         # if os.name == 'nt':
         #     self.framework.defineElegantCommand(['mpiexec','-np','10','pelegant'])
         self.framework.loadSettings(self.lattice_file)
-        if self.change_to_elegant:
+        if hasattr(self, 'change_to_elegant') and self.change_to_elegant:
             self.framework.change_Lattice_Code('All','elegant')
+        elif hasattr(self, 'change_to_astra') and self.change_to_astra:
+            self.framework.change_Lattice_Code('All','ASTRA')
+        elif hasattr(self, 'change_to_gpt') and self.change_to_gpt:
+            self.framework.change_Lattice_Code('All','GPT')
 
         ### Define starting lattice
         if self.start_lattice is None:
