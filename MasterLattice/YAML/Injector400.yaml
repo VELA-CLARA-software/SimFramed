@@ -16,6 +16,7 @@ elements:
     frequency: 2998500000.0
     phase: -9
     field_definition: $master_lattice_location$Data_Files/HRRG_1D_RF.dat
+    field_definition_gdf: $master_lattice_location$Data_Files/2.5cell_mapgun.gdf
     lsc_cutoff_high: [0, 0]
     position_end: [0, 0, 0.15]
     position_start: [0, 0, 0]
@@ -102,6 +103,7 @@ elements:
     longitudinal_wakefield_sdds: $master_lattice_location$Data_Files/Sz5um10mm.sdds
     transverse_wakefield_sdds: $master_lattice_location$Data_Files/Sx5um10mm.sdds
     field_definition: $master_lattice_location$Data_Files/TWS_S-DL.dat
+    field_definition_gdf: $master_lattice_location$Data_Files/mockup2m.gdf
     lsc_enable: true
     lsc_bins: 20.0
     lsc_cutoff_high: [0.2, 0.25]

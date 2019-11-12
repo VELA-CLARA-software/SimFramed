@@ -46,12 +46,12 @@ files:
       zstart: 0
       end_element: CLA-S02-APER-01
   PreFEBE:
-    code: ASTRA
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: 3D
     output:
-      start_element: CLA-S02-APER-01
+      start_element: CLA-S01-DIA-SCR-01-W
       end_element: CLA-FEB-START-01
     groups:
       laser-heater:
@@ -59,7 +59,7 @@ files:
         width: 0.2
         gap: 0.02
   FEBE:
-    code: elegant
+    code: GPT
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -84,4 +84,4 @@ elements:
   filename: [YAML/Injector400.yaml, YAML/S02.yaml, YAML/L02.yaml,
              YAML/S03.yaml, YAML/L03.yaml, YAML/S04.yaml, YAML/L4H.yaml,
              YAML/S05.yaml, YAML/VBC.yaml, YAML/S06.yaml, YAML/L04.yaml,
-             YAML/S07.yaml, YAML/FEBE.yaml]
+             YAML/S07.yaml, YAML/FEBE2.yaml]

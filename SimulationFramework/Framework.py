@@ -574,6 +574,11 @@ class frameworkLattice(Munch):
         self.lsc_low_frequency_cutoff_end = -1
         self._sample_interval = self.file_block['input']['sample_interval'] if 'input' in self.file_block and 'sample_interval' in self.file_block['input'] else 1
 
+    def insert_element(self, index, element):
+        for i, _ in enumerate(range(len(self.elements))):
+            k, v = self.elements.popitem(False)
+            self.elements[element.objectname if i == index else k] = element
+
     @property
     def csr_enable(self):
         return self._csr_enable
@@ -790,6 +795,9 @@ class frameworkLattice(Munch):
                      'lsc_low_frequency_cutoff_end': self.lsc_low_frequency_cutoff_end,
                     })
                     newelements[name] = newdrift
+                elif length < 0:
+                    raise Exception('Lattice has negative drifts!', name, length)
+                    exit()
         return newelements
 
     def getSValues(self):
@@ -1120,6 +1128,7 @@ class astraLattice(frameworkLattice):
         # Create objects for the newrun, output and charge blocks
         self.headers['output'].start_element = self.allElementObjects[self.start]
         self.headers['output'].end_element = self.allElementObjects[self.end]
+        self.headers['output'].screens = self.screens_and_bpms
         # write the headers and their elements
         for header in self.headers:
             fulltext += self.headers[header].write_ASTRA()+'\n'
@@ -1204,19 +1213,21 @@ class gptLattice(frameworkLattice):
         for i, element in enumerate(list(self.elements.values())):
             if i ==0:
                 screen0pos = element.start[2]
+                ccs = element.gpt_ccs(ccs)
             if i == 0 and element.objecttype == "screen":
                 pass
             else:
                 fulltext += element.write_GPT(self.Brho, ccs=ccs)
                 new_ccs = element.gpt_ccs(ccs)
                 if not new_ccs == ccs:
+                    # print('ccs = ', ccs, '  new_ccs = ', new_ccs)
                     relpos, relrot = ccs.relative_position(element.end, element.global_rotation)
                     fulltext += 'screen( ' + ccs.name + ', "I", '+ str(screen0pos) + ', ' + str(relpos[2]) + ', 0.1);\n'
                     screen0pos = 0
                 ccs = new_ccs
         if not element.objecttype == "screen":
             fulltext += self.endScreen().write_GPT(self.Brho, ccs=ccs)
-        relpos, relrot = ccs.relative_position(element.end, element.global_rotation)
+        relpos, relrot = ccs.relative_position(element.position_end, element.global_rotation)
         fulltext += 'screen( ' + ccs.name + ', "I", '+ str(screen0pos) + ', ' + str(relpos[2]) + ', 0.1);\n'
         return fulltext
 
@@ -1739,7 +1750,7 @@ class frameworkElement(frameworkObject):
         start = self.position_start
         length_vector = self.rotated_position([0,0,0], offset=[0,0,0], theta=self.theta)
         starting_middle = length_vector
-        return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
+        return self.rotated_position(np.array(start) + np.array(starting_middle), offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def middle(self):
@@ -1748,14 +1759,14 @@ class frameworkElement(frameworkObject):
         # print(self.objectname, '  length_vector = ', length_vector, '  starting_rotation = ', self.starting_rotation)
         starting_middle = length_vector
         # print(self.objectname, self.theta, self.starting_rotation, self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)[0])
-        return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
+        return self.rotated_position(np.array(start) + np.array(starting_middle), offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def end(self):
         start = self.position_start
         length_vector = self.rotated_position([0,0, self.length], offset=[0,0,0], theta=self.theta)
         starting_middle = length_vector
-        return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
+        return self.rotated_position(np.array(start) + np.array(starting_middle), offset=self.starting_offset, theta=self.starting_rotation)
 
     def _write_ASTRA(self, d, n=1):
         output = ''
@@ -1850,6 +1861,7 @@ class dipole(frameworkElement):
         self.keyword_conversion_rules_elegant['sr_enable'] = 'synch_rad'
         self.keyword_conversion_rules_elegant['smoothing_half_width'] = 'sg_halfwidth'
         self.keyword_conversion_rules_elegant['csr_bins'] = 'bins'
+        self.keyword_conversion_rules_elegant['edge_order'] = 'edge_order'
         self.add_default('csr_bins', 100)
         self.add_default('deltaL', 0)
         self.add_default('csr_enable', 1)
@@ -1859,6 +1871,9 @@ class dipole(frameworkElement):
         self.add_default('integration_order', 4)
         self.add_default('nonlinear', 1)
         self.add_default('smoothing_half_width', 2)
+        self.add_default('edge_order', 2)
+        self.add_default('edge1_effects', 1)
+        self.add_default('edge2_effects', 1)
 
     @property
     def middle(self):
@@ -1899,14 +1914,14 @@ class dipole(frameworkElement):
         newself.objectname = '-'+newself.objectname
         return newself
 
-    def _edge_angles(self, estr):
+    def check_value(self, estr, default=0):
         if estr in self.objectproperties:
             if isinstance(self.objectproperties[estr], str):
-                return checkValue(self, self.objectproperties[estr],0)
+                return checkValue(self, self.objectproperties[estr],default)
             else:
                 return self.objectproperties[estr]
         else:
-            return 0
+            return default
 
     @property
     def intersect(self):
@@ -1917,10 +1932,10 @@ class dipole(frameworkElement):
 
     @property
     def e1(self):
-        return self._edge_angles('entrance_edge_angle')
+        return self.check_value('entrance_edge_angle')
     @property
     def e2(self):
-        return self._edge_angles('exit_edge_angle')
+        return self.check_value('exit_edge_angle')
 
     def _write_Elegant(self):
         wholestring=''
@@ -1977,7 +1992,7 @@ class dipole(frameworkElement):
                 self.plane = 'horizontal'
             params = OrderedDict([
                 ['D_Type', {'value': '\''+self.plane+'\'', 'default': '\'horizontal\''}],
-                ['D_Gap', {'type': 'list', 'value': [self.gap, self.gap], 'default': [0.02, 0.02]}],
+                ['D_Gap', {'type': 'list', 'value': [self.gap, self.gap], 'default': [0.0001, 0.0001]}],
                 ['D1', {'type': 'array', 'value': [corners[3][0],corners[3][2]] }],
                 ['D3', {'type': 'array', 'value': [corners[2][0],corners[2][2]] }],
                 ['D4', {'type': 'array', 'value': [corners[1][0],corners[1][2]] }],
@@ -2009,27 +2024,34 @@ class dipole(frameworkElement):
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
         # field = Brho/self.rho if abs(self.rho) > 0 else 0
         field = self.angle * Brho / self.length
-        relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
-        relpos = relpos + [0, 0, self.intersect]
-        coord = self.gpt_coordinates(relpos, relrot)
-        new_ccs = self.gpt_ccs(ccs).name
-        b1 = 1.0 / (2 * self.half_gap * self.edge_field_integral)
-        dl = 0 if self.deltaL is None else self.deltaL
-        print(self.objectname, ' - deltaL = ', dl)
-        # b1 = 0.
-        '''
-        ccs( "wcs", 0, 0, startofdipole +  intersect1, Cos(theta), 0, -Sin(theta), 0, 1, 0, "bend1" ) ;
-        sectormagnet( "wcs", "bend1", rho, field, e1, e2, 0., 100., 0 ) ;
-        '''
-        output = 'ccs( ' + ccs.name + ', '+ coord + ', ' + new_ccs + ');\n'
-        output += 'sectormagnet( ' + ccs.name + ', '+ new_ccs +', '+str(abs(self.rho))+', '+str(abs(field))+', ' + str(abs(self.e1)) + ', ' + str(abs(self.e2)) + ', ' + str(abs(dl)) + ', ' + str(b1) + ', 0);\n'
+        if abs(field) > 0 and abs(self.rho) < 100:
+            relpos, relrot = ccs.relative_position(self.position_start, self.global_rotation)
+            relpos = relpos + [0, 0, self.intersect]
+            coord = self.gpt_coordinates(relpos, relrot)
+            new_ccs = self.gpt_ccs(ccs).name
+            b1 = 1.0 / (2 * self.check_value(self.half_gap, default=0.02) * self.check_value(self.edge_field_integral, default=0.4))
+            dl = 0 if self.deltaL is None else self.deltaL
+            # print(self.objectname, ' - deltaL = ', dl)
+            # b1 = 0.
+            '''
+            ccs( "wcs", 0, 0, startofdipole +  intersect1, Cos(theta), 0, -Sin(theta), 0, 1, 0, "bend1" ) ;
+            sectormagnet( "wcs", "bend1", rho, field, e1, e2, 0., 100., 0 ) ;
+            '''
+            output = 'ccs( ' + ccs.name + ', '+ coord + ', ' + new_ccs + ');\n'
+            output += 'sectormagnet( ' + ccs.name + ', '+ new_ccs +', '+str(abs(self.rho))+', '+str(abs(field))+', ' + str(abs(self.e1)) + ', ' + str(abs(self.e2)) + ', ' + str(abs(dl)) + ', ' + str(b1) + ', 0);\n'
+        else:
+            output = ''
         return output
 
     def gpt_ccs(self, ccs):
-        number = str(int(ccs._name.split('_')[1])+1) if ccs._name is not "wcs" else "1"
-        name = 'ccs_' + number if ccs._name is not "wcs" else "ccs_1"
-        # print('middle position = ', self.end)
-        return gpt_ccs(name, self.end, self.global_rotation + np.array([0, 0, self.angle]), self.intersect)
+        if abs(self.angle) > 0 and abs(self.rho) < 100:
+            # print('Creating new CCS')
+            number = str(int(ccs._name.split('_')[1])+1) if ccs._name is not "wcs" else "1"
+            name = 'ccs_' + number if ccs._name is not "wcs" else "ccs_1"
+            # print('middle position = ', self.end)
+            return gpt_ccs(name, self.end, self.global_rotation + np.array([0, 0, self.angle]), self.intersect)
+        else:
+            return ccs
 
 class gpt_ccs(Munch):
 
@@ -2046,8 +2068,9 @@ class gpt_ccs(Munch):
         # print(self.name, [x - self.x, y - self.y, z - self.z])
         # print(self.name, [psi - self.psi, phi - self.phi, theta - self.theta])
         newpos = [x - self.x, y - self.y, z - self.z]
+        # print('newpos = ', self.name,  x, self.x, y, self.y, z, self.z)
         finalrot = [psi - self.psi, phi - self.phi, theta - self.theta]
-        finalpos = np.dot(newpos, _rotation_matrix(-self.theta)) + [0,0,self.intersect]
+        finalpos = np.array([0,0,self.intersect]) + np.dot(np.array(newpos), _rotation_matrix(-self.theta))
         return finalpos, finalrot
 
     @property
@@ -2138,7 +2161,9 @@ class quadrupole(frameworkElement):
             return None
 
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
-        relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
+        # print(self.objectname)
+        # print('self.start = ', self.position_start)
+        relpos, relrot = ccs.relative_position(self.position_start, self.global_rotation)
         relpos = relpos + [0, 0, self.length/2.]
         coord = self.gpt_coordinates(relpos, relrot)
         output = str(self.objecttype) + '( ' + ccs.name + ', "z", '+ str(relpos[2]) +', '+str(self.length)+', '+str(-Brho*self.k1)+');\n'
@@ -2177,6 +2202,8 @@ class cavity(frameworkElement):
             self.field_definition = '"' + expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'"'
         if hasattr(self, 'field_definition_sdds') and self.field_definition_sdds is not None:
             self.field_definition_sdds = '"' + expand_substitution(self, '\''+self.field_definition_sdds+'\'').strip('\'"')+'"'
+        if hasattr(self, 'field_definition_gdf') and self.field_definition_gdf is not None:
+            self.field_definition_gdf = '"' + expand_substitution(self, '\''+self.field_definition_gdf+'\'').strip('\'"')+'"'
         if hasattr(self, 'longitudinal_wakefield_sdds') and self.longitudinal_wakefield_sdds is not None:
             self.longitudinal_wakefield_sdds = '"' + expand_substitution(self, '\''+self.longitudinal_wakefield_sdds+'\'').strip('\'"')+'"'
         if hasattr(self, 'transverse_wakefield_sdds') and self.transverse_wakefield_sdds is not None:
@@ -2234,7 +2261,7 @@ class cavity(frameworkElement):
                     # If using rftmez0 or similar
                     value = 1/(2**0.5) * value if key.lower() == 'ez' else value
                     # In CAVITY NKICK = n_cells
-                    value = self.cells if key.lower() == 'n_kicks' else value
+                    value = 3*self.cells if key.lower() == 'n_kicks' else value
                     if key.lower() == 'n_bins' and value > 0:
                         print('WARNING: Cavity n_bins is not zero - check log file to ensure correct behaviour!')
                     value = 1 if value is True else value
@@ -2248,6 +2275,16 @@ class cavity(frameworkElement):
                     string+= tmpstring
         wholestring+=string+';\n'
         return wholestring
+
+    def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
+        relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
+        relpos = relpos + [0, 0, self.length/2.]
+        coord = self.gpt_coordinates(relpos, relrot)
+        '''
+        map1D_TM("wcs","z",linacposition,"mockup2m.gdf","Z","Ez",ffacl,phil,w);
+        '''
+        output = 'map1D_TM' + '( ' + ccs.name + ', "z", '+ str(relpos[2]) +', \"'+str(self.field_definition_gdf)+'\", "Z","Ez", '+str(self.field_amplitude)+', ' + str(self.phase) + ');\n'
+        return output
 
 class rf_deflecting_cavity(cavity):
 
@@ -2367,7 +2404,7 @@ class screen(frameworkElement):
         return """quadrupole{\nposition{rho="""+str(z)+""", psi=0.0, marker=screen"""+str(n)+"""a}\nproperties{strength=0.0, alpha=0, horizontal_offset=0,vertical_offset=0}\nposition{rho="""+str(z+1e-6)+""", psi=0.0, marker=screen"""+str(n)+"""b}\n}\n"""
 
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
-        relpos, relrot = ccs.relative_position(self.start, self.global_rotation)
+        relpos, relrot = ccs.relative_position(self.position_start, self.global_rotation)
         relpos = relpos + [0, 0, self.length/2.]
         coord = self.gpt_coordinates(relpos, relrot)
         self.gpt_screen_position = relpos[2]
@@ -2721,7 +2758,7 @@ class astra_newrun(astra_header):
     def hdf5_to_astra(self, prefix=''):
         HDF5filename = prefix+self.particle_definition.replace('.astra','')+'.hdf5'
         beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
-        beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
+        beam.rotate_beamXZ(self.starting_rotation, preOffset=self.starting_offset)
         astrabeamfilename = self.particle_definition
         beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
 
@@ -2737,6 +2774,7 @@ class astra_output(astra_header):
         self.end_element.starting_offset = self.starting_offset
         self.start_element.starting_rotation = self.starting_rotation
         self.end_element.starting_rotation = self.starting_rotation
+        # print self.end_element.objectname, self.end_element.end, self.start_element.objectname, self.start_element.end
         keyworddict = OrderedDict([
             ['zstart', {'value': self.start_element.start[2]}],
             ['zstop', {'value': self.end_element.end[2]}],

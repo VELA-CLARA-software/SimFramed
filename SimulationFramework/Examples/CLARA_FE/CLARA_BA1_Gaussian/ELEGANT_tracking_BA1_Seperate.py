@@ -27,7 +27,7 @@ def before_tracking():
 
 def create_base_files(scaling, charge=70):
     framework = Framework('basefiles_'+str(scaling)+'_'+str(charge), overwrite=True, clean=True)
-    framework.loadSettings('CLA10-BA1_TOMP.def')
+    framework.loadSettings('CLA10-BA1_TOMP_ASTRA.def')
     if not os.name == 'nt':
         framework.defineASTRACommand(scaling=(scaling))
         framework.defineCSRTrackCommand(scaling=(scaling))
@@ -289,25 +289,27 @@ def optFuncChicane(args):
     lattice.modifyElement('CLA-C2V-MAG-QUAD-01', 'k1l', c2vq1)
     lattice.modifyElement('CLA-C2V-MAG-QUAD-02', 'k1l', c2vq2)
     lattice.modifyElement('CLA-C2V-MAG-QUAD-03', 'k1l', c2vq1)
-    lattice.track(startfile='S02', endfile='C2V', track=True)
+    lattice.track(startfile='S02', endfile='S02', track=True)
     beam.read_HDF5_beam_file(dir+'/CLA-C2V-MARK-01.hdf5')
     twiss.reset_dicts()
-    twiss.read_sdds_file(dir+'/C2V.twi')
+    twiss.read_elegant_twiss_files(dir+'/S02.twi')
     emitStart = beam.normalized_horizontal_emittance
-    betaXStart = twiss.elegant['betax'][0]
-    betaYStart = twiss.elegant['betay'][0]
+    c2v1index = list(twiss['element_name']).index('CLA-C2V-MARK-01')
+    c2v2index = list(twiss['element_name']).index('CLA-C2V-MARK-02')
+    betaXStart = twiss.elegant['betax'][c2v1index]
+    betaYStart = twiss.elegant['betay'][c2v1index]
     # print 'Start beta_x = ', betaXStart, '  beta_y = ', betaYStart, '  emit_x = ', emitStart
     beam.read_HDF5_beam_file(dir+'/CLA-C2V-MARK-02.hdf5')
     emitEnd = beam.normalized_horizontal_emittance
-    betaXEnd = twiss.elegant['betax'][-1]
-    betaYEnd = twiss.elegant['betay'][-1]
+    betaXEnd = twiss.elegant['betax'][c2v2index]
+    betaYEnd = twiss.elegant['betay'][c2v2index]
     betaYPenalty = betaYStart - 50 if betaYStart > 50 else 0
     etaXEnd = twiss.elegant['etax'][-1]
     etaXEnd = etaXEnd if abs(etaXEnd) > 1e-3 else 0
     etaXPEnd = twiss.elegant['etaxp'][-1]
     etaXPEnd = etaXEnd if abs(etaXEnd) > 1e-3 else 0
     # print 'End beta_x = ', betaXEnd, '  beta_y = ', betaYEnd, '  emit_x = ', emitEnd
-    delta = np.sqrt((1e6*abs(emitStart-emitEnd))**2 + 1*abs(betaXStart-betaXEnd)**2 + 1*abs(betaYStart-betaYEnd)**2 + 10*abs(betaYPenalty)**2 + 100*abs(etaXEnd)**2 + 100*abs(etaXPEnd)**2)
+    delta = np.sqrt((1e1*abs(emitStart-emitEnd))**2 + 1*abs(betaXStart-betaXEnd)**2 + 1*abs(betaYStart-betaYEnd)**2 + 10*abs(betaYPenalty)**2 + 1000*abs(etaXEnd)**2 + 1000*abs(etaXPEnd)**2)
     if delta < 0.1:
         delta = 0.1
     updateOutput('Chicane delta = ' + str(delta))
@@ -323,70 +325,76 @@ def setChicane(quads):
             lattice.getElement('CLA-C2V-MAG-QUAD-02', 'k1l')
     ]
     best = quads
-    res = minimize(optFuncChicane, best, method='nelder-mead', options={'disp': False, 'adaptive': True})
+    res = minimize(optFuncChicane, best, method='nelder-mead', options={'disp': False, 'adaptive': True, 'maxiter': 100})
     return res.x
 
-def optFuncVELA(args):
+def optFuncVELA(args, track=True):
     global dir, lattice, bestdelta
     try:
-        lattice.modifyElement('CLA-S02-MAG-QUAD-01', 'k1l', args[0])
-        lattice.modifyElement('CLA-S02-MAG-QUAD-02', 'k1l', args[1])
-        lattice.modifyElement('CLA-S02-MAG-QUAD-03', 'k1l', args[2])
-        lattice.modifyElement('CLA-S02-MAG-QUAD-04', 'k1l', args[3])
-        lattice.modifyElement('CLA-C2V-MAG-QUAD-01', 'k1l', args[4])
-        lattice.modifyElement('CLA-C2V-MAG-QUAD-02', 'k1l', args[5])
-        lattice.modifyElement('CLA-C2V-MAG-QUAD-03', 'k1l', args[4])
-        lattice.modifyElement('EBT-INJ-MAG-QUAD-07', 'k1l', args[6])
-        lattice.modifyElement('EBT-INJ-MAG-QUAD-08', 'k1l', args[7])
-        lattice.modifyElement('EBT-INJ-MAG-QUAD-09', 'k1l', args[8])
-        lattice.modifyElement('EBT-INJ-MAG-QUAD-10', 'k1l', args[9])
-        lattice.modifyElement('EBT-INJ-MAG-QUAD-11', 'k1l', args[10])
-        lattice.modifyElement('EBT-INJ-MAG-QUAD-15', 'k1l', args[11])
-        lattice.modifyElement('EBT-BA1-MAG-QUAD-01', 'k1l', args[12])
-        lattice.modifyElement('EBT-BA1-MAG-QUAD-02', 'k1l', args[13])
-        lattice.modifyElement('EBT-BA1-MAG-QUAD-03', 'k1l', args[14])
-        lattice.modifyElement('EBT-BA1-MAG-QUAD-04', 'k1l', args[15])
-        lattice.modifyElement('EBT-BA1-MAG-QUAD-05', 'k1l', args[16])
-        lattice.modifyElement('EBT-BA1-MAG-QUAD-06', 'k1l', args[17])
-        lattice.modifyElement('EBT-BA1-MAG-QUAD-07', 'k1l', args[18])
-        lattice.track(startfile='S02', endfile='S02', track=True)
+        offset = 6
+        if offset > 0:
+            lattice.modifyElement('CLA-S02-MAG-QUAD-01', 'k1l', args[0])
+            lattice.modifyElement('CLA-S02-MAG-QUAD-02', 'k1l', args[1])
+            lattice.modifyElement('CLA-S02-MAG-QUAD-03', 'k1l', args[2])
+            lattice.modifyElement('CLA-S02-MAG-QUAD-04', 'k1l', args[3])
+            lattice.modifyElement('CLA-C2V-MAG-QUAD-01', 'k1l', args[4])
+            lattice.modifyElement('CLA-C2V-MAG-QUAD-02', 'k1l', args[5])
+            lattice.modifyElement('CLA-C2V-MAG-QUAD-03', 'k1l', args[4])
+        lattice.modifyElement('EBT-INJ-MAG-QUAD-07', 'k1l', args[offset + 0])
+        lattice.modifyElement('EBT-INJ-MAG-QUAD-08', 'k1l', args[offset + 1])
+        lattice.modifyElement('EBT-INJ-MAG-QUAD-09', 'k1l', args[offset + 2])
+        lattice.modifyElement('EBT-INJ-MAG-QUAD-10', 'k1l', args[offset + 3])
+        lattice.modifyElement('EBT-INJ-MAG-QUAD-11', 'k1l', args[offset + 4])
+        lattice.modifyElement('EBT-INJ-MAG-QUAD-15', 'k1l', args[offset + 5])
+        lattice.modifyElement('EBT-BA1-MAG-QUAD-01', 'k1l', args[offset + 6])
+        lattice.modifyElement('EBT-BA1-MAG-QUAD-02', 'k1l', args[offset + 7])
+        lattice.modifyElement('EBT-BA1-MAG-QUAD-03', 'k1l', args[offset + 8])
+        lattice.modifyElement('EBT-BA1-MAG-QUAD-04', 'k1l', args[offset + 9])
+        lattice.modifyElement('EBT-BA1-MAG-QUAD-05', 'k1l', args[offset + 10])
+        lattice.modifyElement('EBT-BA1-MAG-QUAD-06', 'k1l', args[offset + 11])
+        lattice.modifyElement('EBT-BA1-MAG-QUAD-07', 'k1l', args[offset + 12])
+        delta = 0
+        if track:
+            lattice.track(startfile='S02', endfile='S02', track=True)
 
-        constraintsList = {}
-        twiss.reset_dicts()
-        twiss.read_elegant_twiss_files(dir+'/S02.twi')
-        c2v1index = list(twiss['element_name']).index('CLA-C2V-MARK-01')
-        c2v2index = list(twiss['element_name']).index('CLA-C2V-MARK-02')
-        ipindex = list(twiss['element_name']).index('EBT-BA1-COFFIN-FOC')
-        constraintsListBA1 = {
-            'BA1_max_betax': {'type': 'lessthan', 'value': twiss['beta_x'][c2v2index:ipindex], 'limit': 30, 'weight': 150},
-            'BA1_max_betay': {'type': 'lessthan', 'value': twiss['beta_y'][c2v2index:ipindex], 'limit': 30, 'weight': 150},
+            constraintsList = {}
+            twiss.reset_dicts()
+            twiss.read_elegant_twiss_files(dir+'/S02.twi')
+            c2v1index = list(twiss['element_name']).index('CLA-C2V-MARK-01')
+            c2v2index = list(twiss['element_name']).index('CLA-C2V-MARK-02')
+            ipindex = list(twiss['element_name']).index('EBT-BA1-COFFIN-FOC')
+            constraintsListBA1 = {
+                'BA1_max_betax': {'type': 'lessthan', 'value': twiss['beta_x'][c2v2index:ipindex], 'limit': 30, 'weight': 150},
+                'BA1_max_betay': {'type': 'lessthan', 'value': twiss['beta_y'][c2v2index:ipindex], 'limit': 30, 'weight': 150},
 
-            'c2v_betax': {'type': 'equalto', 'value': twiss['beta_x'][c2v1index], 'limit': twiss['beta_x'][c2v2index], 'weight': 10},
-            'c2v_betay': {'type': 'equalto', 'value': twiss['beta_y'][c2v1index], 'limit': twiss['beta_y'][c2v2index], 'weight': 10},
-            'c2v_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][c2v1index], 'limit': -1*twiss['alpha_x'][c2v2index], 'weight': 10},
-            'c2v_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][c2v1index], 'limit': -1*twiss['alpha_y'][c2v2index], 'weight': 10},
+                'c2v_betax': {'type': 'equalto', 'value': twiss['beta_x'][c2v1index], 'limit': twiss['beta_x'][c2v2index], 'weight': 10},
+                'c2v_betay': {'type': 'equalto', 'value': twiss['beta_y'][c2v1index], 'limit': twiss['beta_y'][c2v2index], 'weight': 10},
+                'c2v_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][c2v1index], 'limit': -1*twiss['alpha_x'][c2v2index], 'weight': 10},
+                'c2v_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][c2v1index], 'limit': -1*twiss['alpha_y'][c2v2index], 'weight': 10},
+                'c2v_etax': {'type': 'lessthan', 'value': abs(twiss['eta_x'][c2v2index]), 'limit': 1e-4, 'weight': 50},
+                'c2v_etaxp': {'type': 'lessthan', 'value': abs(twiss['eta_xp'][c2v2index]), 'limit': 1e-4, 'weight': 50},
 
-            'ip_betax': {'type': 'lessthan', 'value': twiss['beta_x'][ipindex], 'limit': 0.5, 'weight': 25},
-            'ip_betay': {'type': 'lessthan', 'value': twiss['beta_y'][ipindex], 'limit': 0.5, 'weight': 25},
-            'ip_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex], 'limit': 0., 'weight': 2.5},
-            'ip_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex], 'limit': 0., 'weight': 2.5},
-            'ip_etax': {'type': 'lessthan', 'value': abs(twiss['eta_x'][ipindex]), 'limit': 1e-4, 'weight': 50},
-            'ip_etaxp': {'type': 'lessthan', 'value': abs(twiss['eta_xp'][ipindex]), 'limit': 1e-4, 'weight': 50},
-            'dump_etax': {'type': 'equalto', 'value': twiss['eta_x'][-1], 'limit': 0.67, 'weight': 5000},
-            'dump_betax': {'type': 'lessthan', 'value': twiss['beta_x'][-1], 'limit': 20, 'weight': 1.5},
-            'dump_betay': {'type': 'lessthan', 'value': twiss['beta_y'][-1], 'limit': 20, 'weight': 1.5},
-        }
-        constraintsList = merge_two_dicts(constraintsList, constraintsListBA1)
+                'ip_betax': {'type': 'lessthan', 'value': twiss['beta_x'][ipindex], 'limit': 0.5, 'weight': 25},
+                'ip_betay': {'type': 'lessthan', 'value': twiss['beta_y'][ipindex], 'limit': 0.5, 'weight': 25},
+                'ip_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex], 'limit': 0., 'weight': 2.5},
+                'ip_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex], 'limit': 0., 'weight': 2.5},
+                'ip_etax': {'type': 'lessthan', 'value': abs(twiss['eta_x'][ipindex]), 'limit': 1e-4, 'weight': 50},
+                'ip_etaxp': {'type': 'lessthan', 'value': abs(twiss['eta_xp'][ipindex]), 'limit': 1e-4, 'weight': 50},
+                'dump_etax': {'type': 'equalto', 'value': twiss['eta_x'][-1], 'limit': 0.67, 'weight': 5000},
+                'dump_betax': {'type': 'lessthan', 'value': twiss['beta_x'][-1], 'limit': 20, 'weight': 1.5},
+                'dump_betay': {'type': 'lessthan', 'value': twiss['beta_y'][-1], 'limit': 20, 'weight': 1.5},
+            }
+            constraintsList = merge_two_dicts(constraintsList, constraintsListBA1)
 
-        cons = constraintsClass()
-        delta = cons.constraints(constraintsList)
-        updateOutput('VELA delta = ' + str(delta))
-        if delta < bestdelta:
-            bestdelta = delta
-            print('### New Best: ', delta)
-            # print(*args, sep = ", ")
-            print '[',', '.join(map(str,args)),']'
-            # print(cons.constraintsList(constraintsList))
+            cons = constraintsClass()
+            delta = cons.constraints(constraintsList)
+            updateOutput('VELA delta = ' + str(delta))
+            if delta < bestdelta:
+                bestdelta = delta
+                print('### New Best: ', delta)
+                # print(*args, sep = ", ")
+                print '[',', '.join(map(str,args)),']'
+                # print(cons.constraintsList(constraintsList))
     except:
         delta = 1e6
     else:
@@ -399,12 +407,14 @@ def setVELA(quads):
     res = minimize(optFuncVELA, best, method='nelder-mead', options={'disp': False, 'adaptive': True, 'fatol': 1e-3, 'maxiter': 100})
     return res.x
 
-def optimise_Lattice(phase=None, q=70, do_optimisation=False):
+def optimise_Lattice(phase=4, q=70, do_optimisation=False):
     global dir, lattice, scaling, bestdelta
     bestdelta = 1e10
     dir = './SETUP/TOMP_SETUP'
     lattice = Framework(dir, clean=False, verbose=False)
-    lattice.loadSettings('CLA10-BA1_TOMP.def')
+    lattice.loadSettings('CLA10-BA1_TOMP_ASTRA.def')
+    lattice.change_Lattice_Code('S02','elegant')
+    lattice.change_Lattice_Code('C2V','elegant')
     scaling = 6
     if not os.name == 'nt':
         lattice.defineASTRACommand(scaling=(scaling))
@@ -412,16 +422,13 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
         lattice.define_gpt_command(scaling=(scaling))
     lattice['L01'].file_block['input']['prefix'] = '../basefiles_'+str(scaling)+'_'+str(q)+'/'
     quads = 0.107*np.array([  21.11058462, -11.36377551,  24.69336696, -22.63264054,  56.07039682, -51.58739658])
-    # quads = setChicane(quads)
-    # optFuncChicane(quads)
-    # print('Chicane = ', quads)
     quads = [
-        lattice.getElement('CLA-S02-MAG-QUAD-01', 'k1l'),
-        lattice.getElement('CLA-S02-MAG-QUAD-02', 'k1l'),
-        lattice.getElement('CLA-S02-MAG-QUAD-03', 'k1l'),
-        lattice.getElement('CLA-S02-MAG-QUAD-04', 'k1l'),
-        lattice.getElement('CLA-C2V-MAG-QUAD-01', 'k1l'),
-        lattice.getElement('CLA-C2V-MAG-QUAD-02', 'k1l'),
+        # lattice.getElement('CLA-S02-MAG-QUAD-01', 'k1l'),
+        # lattice.getElement('CLA-S02-MAG-QUAD-02', 'k1l'),
+        # lattice.getElement('CLA-S02-MAG-QUAD-03', 'k1l'),
+        # lattice.getElement('CLA-S02-MAG-QUAD-04', 'k1l'),
+        # lattice.getElement('CLA-C2V-MAG-QUAD-01', 'k1l'),
+        # lattice.getElement('CLA-C2V-MAG-QUAD-02', 'k1l'),
         lattice.getElement('EBT-INJ-MAG-QUAD-07', 'k1l'),
         lattice.getElement('EBT-INJ-MAG-QUAD-08', 'k1l'),
         lattice.getElement('EBT-INJ-MAG-QUAD-09', 'k1l'),
@@ -437,19 +444,144 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
         lattice.getElement('EBT-BA1-MAG-QUAD-07', 'k1l'),
 
     ]
-    quadsNEW = np.array([
-    1.7901911899775773,-1.6407693149976745,2.2849042966309447,-1.3685069221066561,5.7572751421298305,-4.696861959661223,1.653747009525063,-1.597658628810405,0.3920095459041216,-0.3922879907823872,0.16851104048712628,0.12208077087083297,-0.26073294653351364,-0.9516625759490311,1.2270249450337767,1.1374710985669274,0.038188155183286554,-1.3227126094830322,1.360338937783752
+    quads = np.array(
+    [ 1.813883341270411, -1.657984997152041, 2.436078305927638, -1.3805803719324001, 5.757521138743945, -4.774512264530579, 1.5759640821849459, -1.5658635139945611, 0.4665090704522008, -0.3701448642096947, 0.14139459095219498, 0.1294045271940972, -0.26170990073523187, -0.972243028906357, 1.2999713197810956, 1.3880410074706666, 0.043801044316032774, -1.3992446074305926, 1.3604179976621753
     ])
-    lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
+    quadsCHICANE = quads[:6]
+    # quadsCHICANE = np.array([ 1.81966806, -1.60694003,  2.52387281, -1.34318408,  5.75696896,
+    #    -4.86231975,])
     lattice['S02'].sample_interval = 2**(3*3)
     if do_optimisation:
         if phase is not None:
             lattice['S02'].file_block['input']['prefix'] = '../TOMP_SETUP_'+str(phase)+'_'+str(q)+'/'
-        quads = setVELA(quads)
-    optFuncVELA(quads)
+        lattice['S02'].file_block['output']['end_element'] = 'CLA-C2V-MARK-02'
+        val = optFuncChicane(quadsCHICANE)
+        quadsCHICANE = setChicane(quadsCHICANE)
+        val = optFuncChicane(quadsCHICANE)
+        print val
+        print('Chicane = ', quadsCHICANE)
+        quads[:6] = quadsCHICANE
+        # exit()
+        lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
+        val = optFuncVELA(quads)
+        while val > 10:
+            print('################  CURRENT VALUE OF OPTIMISATION IS ', val, '  ##################')
+            quads = setVELA(quads)
+            val = optFuncVELA(quads)
+    else:
+        val = optFuncVELA(quads)
     lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
     lattice['S02'].sample_interval = 1
+    return quads
 
+def test_Elegant(quads, phase=4, charge=70):
+    global dir, lattice, scaling, bestdelta
+    dir = './SETUP/TOMP_SETUP'
+    lattice = Framework(dir, clean=True, verbose=False)
+    lattice.loadSettings('CLA10-BA1_TOMP_ASTRA.def')
+    lattice.change_Lattice_Code('S02','elegant')
+    lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
+    scaling = 6
+    if not os.name == 'nt':
+        lattice.defineASTRACommand(scaling=(scaling))
+        lattice.defineCSRTrackCommand(scaling=(scaling))
+        lattice.define_gpt_command(scaling=(scaling))
+    lattice['S02'].file_block['input']['prefix'] = '../SETUP/TOMP_SETUP_'+str(phase)+'_'+str(charge)+'/'
+    lattice['S02'].sample_interval = 1#2**(3*3)
+    dir = './test_elegant_'+str(phase)+'_'+str(charge)
+    lattice.setSubDirectory(dir)
+    lattices = lattice.latticeObjects.values()
+    # for l in lattices:
+    #     if hasattr(l, 'headers'):
+    #         if isinstance(l.headers, (dict)):
+    #             if 'charge' in l.headers.keys():
+    #                 l.headers['charge'].space_charge_mode = False
+    optFuncVELA(quads, track=False)
+    lattice.track(files=['S02'], track=True)
+
+def test_ASTRA_Single(quads, phase=4, charge=70):
+    global dir, lattice, scaling, bestdelta
+    dir = './SETUP/TOMP_SETUP'
+    lattice = Framework(dir, clean=True, verbose=False)
+    lattice.loadSettings('CLA10-BA1_TOMP_ASTRA.def')
+    lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
+    scaling = 6
+    if not os.name == 'nt':
+        lattice.defineASTRACommand(scaling=(scaling))
+        lattice.defineCSRTrackCommand(scaling=(scaling))
+        lattice.define_gpt_command(scaling=(scaling))
+    lattice['S02'].file_block['input']['prefix'] = '../SETUP/TOMP_SETUP_'+str(phase)+'_'+str(charge)+'/'
+    lattice['S02'].sample_interval = 1#2**(3*3)
+    dir = './test_ASTRASingle_'+str(phase)+'_'+str(charge)
+    lattice.setSubDirectory(dir)
+    lattices = lattice.latticeObjects.values()
+    # for l in lattices:
+    #     if hasattr(l, 'headers'):
+    #         if isinstance(l.headers, (dict)):
+    #             if 'charge' in l.headers.keys():
+    #                 l.headers['charge'].space_charge_mode = False
+    optFuncVELA(quads, track=False)
+    lattice.track(files=['S02'], track=True)
+
+def test_ASTRA(quads, phase=4, charge=70):
+    global dir, lattice, scaling, bestdelta
+    dir = './SETUP/TOMP_SETUP'
+    lattice = Framework(dir, clean=True, verbose=False)
+    lattice.loadSettings('CLA10-BA1_TOMP_ASTRA.def')
+    # lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
+    scaling = 6
+    if not os.name == 'nt':
+        lattice.defineASTRACommand(scaling=(scaling))
+        lattice.defineCSRTrackCommand(scaling=(scaling))
+        lattice.define_gpt_command(scaling=(scaling))
+    lattice['S02'].file_block['input']['prefix'] = '../SETUP/TOMP_SETUP_'+str(phase)+'_'+str(charge)+'/'
+    lattice['S02'].sample_interval = 2**(3*2)
+    dir = './test_'+str(phase)+'_'+str(charge)
+    lattice.setSubDirectory(dir)
+    lattices = lattice.latticeObjects.values()
+    # for l in lattices:
+    #     if hasattr(l, 'headers'):
+    #         if isinstance(l.headers, (dict)):
+    #             if 'charge' in l.headers.keys():
+    #                 l.headers['charge'].space_charge_mode = False
+    optFuncVELA(quads, track=False)
+    lattice.track(startfile='S02', track=True)
+
+def test_ASTRA_Elegant_C2V(quads, phase=4, charge=70):
+    global dir, lattice, scaling, bestdelta
+    dir = './SETUP/TOMP_SETUP'
+    lattice = Framework(dir, clean=True, verbose=False)
+    lattice.loadSettings('CLA10-BA1_TOMP_ASTRA.def')
+    lattice.change_Lattice_Code('C2V','elegant')
+    scaling = 6
+    if not os.name == 'nt':
+        lattice.defineASTRACommand(scaling=(scaling))
+        lattice.defineCSRTrackCommand(scaling=(scaling))
+        lattice.define_gpt_command(scaling=(scaling))
+    lattice['S02'].file_block['input']['prefix'] = '../SETUP/TOMP_SETUP_'+str(phase)+'_'+str(charge)+'/'
+    lattice['S02'].sample_interval = 1#2**(3*2)
+    dir = './test_EleC2V_'+str(phase)+'_'+str(charge)
+    lattice.setSubDirectory(dir)
+    lattices = lattice.latticeObjects.values()
+    # for l in lattices:
+    #     if hasattr(l, 'headers'):
+    #         if isinstance(l.headers, (dict)):
+    #             if 'charge' in l.headers.keys():
+    #                 l.headers['charge'].space_charge_mode = False
+    optFuncVELA(quads, track=False)
+    lattice.track(startfile='S02', track=True)
+
+
+i=-10
+q=70
+optimise_Lattice()
+set_Phase(i, q, track=False)
+quads = optimise_Lattice(i, q, False)
+# test_Elegant(quads,phase=i,charge=q)
+test_ASTRA(quads,phase=i,charge=q)
+# test_ASTRA_Elegant_C2V(quads,phase=i,charge=q)
+# test_ASTRA_Single(quads,phase=i,charge=q)
+exit()
 
 optimise_Lattice()
 # elegantNoSCOut = open('elegant_NoSC_phase_data.csv','w')

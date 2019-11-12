@@ -3,10 +3,10 @@ import argparse
 from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox
 from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout
 
-from . import astra_plotter_test as astraplotter
+import astra_plotter_test as astraplotter
 import numpy as np
-from . import read_beam_file as raf
-from . import read_twiss_file as rtf
+import read_beam_file as raf
+import read_twiss_file as rtf
 
 parser = argparse.ArgumentParser(description='Plot ASTRA Data Files')
 parser.add_argument('filename')
