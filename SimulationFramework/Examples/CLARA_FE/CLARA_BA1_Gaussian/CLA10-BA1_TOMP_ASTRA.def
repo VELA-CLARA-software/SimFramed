@@ -3,7 +3,7 @@ global:
   SC_2D_Nlong: 45
   SC_3D_Nxf: 8
   SC_3D_Nyf: 8
-  SC_3D_Nzf: 8
+  SC_3D_Nzf: 64
   accuracy: 6
   initial_distribution: '../1k-250pC-76fsrms-1mm_TE09fixN12.ini'
   ASTRAsettings:
@@ -19,8 +19,9 @@ global:
     check_ref_part: False
     Zphase: 1
     Zemit: 1050
-    H_max: 0.0007
-    H_min: 0.0007
+    H_max: 0.0001
+    H_min: 0.0001
+    MAX_STEP: 10000000
     title: 'trial'
     run_no: 1
     Smooth_x: 2
@@ -32,7 +33,7 @@ global:
     min_grid: 3.424657e-13
     Lmagnetized: False
 generator:
-  default: clara_400_3ps
+  default: clara_400_2ps_Gaussian
   charge: 70e-12
 files:
   injector10:
@@ -47,7 +48,7 @@ files:
       zstart: 0
       end_element: CLA-S01-DIA-SCR-01-W
   L01:
-    code: Elegant
+    code: ASTRA
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -58,6 +59,8 @@ files:
       end_element: CLA-S02-APER-01
   S02:
     code: ASTRA
+    starting_offset: $self.getElement('CLA-S02-APER-01','position_end')$
+    starting_rotation: 0
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -68,6 +71,8 @@ files:
       end_element: CLA-C2V-MARK-01
   C2V:
     code: ASTRA
+    starting_offset: $self.getElement('CLA-C2V-MAG-DIP-01','position_end')$
+    starting_rotation: $-1*self.getElement('CLA-C2V-MAG-DIP-01','angle')$
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -75,7 +80,41 @@ files:
       {}
     output:
       start_element: CLA-C2V-MARK-01
-      end_element: EBT-BA1-COFFIN-FOC
+      end_element: CLA-C2V-MARK-02
+  VELA:
+    code: ASTRA
+    starting_offset: $self.getElement('CLA-C2V-MARK-02','position_end')$
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      {}
+    output:
+      start_element: CLA-C2V-MARK-02
+      end_element: EBT-INJ-PSS-SHUT-02
+  BA1:
+    code: ASTRA
+    starting_offset: $self.getElement('EBT-INJ-PSS-SHUT-02','position_end')$
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      {}
+    output:
+      start_element: EBT-INJ-PSS-SHUT-02
+      end_element: EBT-BA1-DIA-YAG-02
+  BA1FCUP:
+    code: ASTRA
+    starting_offset: $self.getElement('EBT-BA1-MAG-DIP-01','position_end')$
+    global_rotation: $self.getElement('EBT-BA1-MAG-DIP-01','angle')$
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      {}
+    output:
+      start_element: EBT-BA1-DIA-YAG-02
+      end_element: EBT-BA1-DIA-FCUP-01
 groups:
 elements:
   filename: ['YAML/Injector10.yaml',

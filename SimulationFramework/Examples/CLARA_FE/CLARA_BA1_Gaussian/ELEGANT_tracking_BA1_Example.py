@@ -452,33 +452,16 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
 
 
 optimise_Lattice()
-# elegantNoSCOut = open('elegant_NoSC_phase_data.csv','w')
-# elegantSCOut = open('elegant_SC_phase_data.csv','w')
-# elegantSCCSROut = open('elegant_SC_CSR_phase_data.csv','w')
-# ASTRAOut = open('ASTRA_phase_data.csv','w')
-# GPTout = open('GPT_phase_data.csv','w')
-# GPTCSRout = open('GPT_CSR_phase_data.csv','w')
+for i in [4]: # THIS IS THE LINAC RF PHASE
+    for q in [70]: # THIS IS THE BUNCH CHARGE
+        set_Phase(i, q, track=False) # THIS SETS UP THE RF TO THE CORRECT LINAC PHASE
+        optimise_Lattice(phase=i, q=q, do_optimisation=False) # THIS SETS THE QUADRUPOLES TO THE RIGHT VALUES
 
-# elegentNoSC_csv_out = csv.writer(elegantNoSCOut)
-# elegentSC_csv_out = csv.writer(elegantSCOut)
-# elegentSCCSR_csv_out = csv.writer(elegantSCCSROut)
-# ASTRA_csv_out = csv.writer(ASTRAOut)
-# GPT_csv_out = csv.writer(GPTout)
-# GPTCSR_csv_out = csv.writer(GPTCSRout)
+        ## THE FOLLOWING RUN ELEGANT/ASTRA/GPT IN VARIOUS DIFFERENT MODES. UNCOMMENT AS APPROPRIATE
 
-for i in [4]:#range(-20,5):
-    for q in [70]:
-        set_Phase(i, q, track=False)
-        optimise_Lattice(i, q, False)
         # data = track_phase_elegant(i, q)
-        # elegentNoSC_csv_out.writerow(data)
         # data = track_phase_elegant_SC(i, q)
-        # elegentSC_csv_out.writerow(data)
         # data = track_phase_elegant_SC_CSR(i, q)
-        # elegentSCCSR_csv_out.writerow(data)
-        data = track_phase_astra(i, q)
-        # ASTRA_csv_out.writerow(data)
+        # data = track_phase_astra(i, q)
         # data = track_phase_gpt(i)
-        # GPT_csv_out.writerow(data)
         # data = track_phase_gpt_CSR(i)
-        # GPTCSR_csv_out.writerow(data)

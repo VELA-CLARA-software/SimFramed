@@ -25,6 +25,7 @@ cavity:
     phase,
     field_definition,
     field_definition_sdds,
+    field_definition_gdf,
     lsc_cutoff_high,
     field_amplitude,
     cell_length,
