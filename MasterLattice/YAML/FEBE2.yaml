@@ -299,8 +299,8 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 62.8483]
-    position_start: [3.6807513048841103, 0, 62.8483]
+    position_end: [3.6807513048841103, 0, 62.7958]
+    position_start: [3.6807513048841103, 0, 62.7958]
   CLA-FEB-LAS-ENTR-01-MIDDLE:
     type: marker
     fit_point: 1.0
@@ -311,20 +311,20 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 63.1483]
-    position_start: [3.6807513048841103, 0, 63.1483]
+    position_end: [3.6807513048841103, 0, 63.2008]
+    position_start: [3.6807513048841103, 0, 63.2008]
   CLA-FEB-SHUT-01-START:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 63.24277 ]
-    position_start: [3.6807513048841103, 0, 63.24277 ]
+    position_end: [3.6807513048841103, 0, 63.4196 ]
+    position_start: [3.6807513048841103, 0, 63.4196 ]
   CLA-FEB-SHUT-01-END:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 63.84277 ]
-    position_start: [3.6807513048841103, 0, 63.84277 ]
+    position_end: [3.6807513048841103, 0, 63.7695 ]
+    position_start: [3.6807513048841103, 0, 63.7695 ]
   CLA-FEB-WALL-01-START:
     type: marker
     fit_point: 1.0
@@ -428,33 +428,33 @@ elements:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 69.75]
-    position_start: [3.6807513048841103, 0, 69.54]
+    position_end: [3.6807513048841103, 0, 69.76]
+    position_start: [3.6807513048841103, 0, 69.55]
   CLA-FEB-LAS-EXIT-01-START:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 69.755]
-    position_start: [3.6807513048841103, 0, 69.755]
+    position_end: [3.6807513048841103, 0, 69.7975]
+    position_start: [3.6807513048841103, 0, 69.7975]
   CLA-FEB-LAS-EXIT-01-MIDDLE:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 69.9]
-    position_start: [3.6807513048841103, 0, 69.9]
+    position_end: [3.6807513048841103, 0, 70]
+    position_start: [3.6807513048841103, 0, 70]
   CLA-FEB-LAS-EXIT-01-END:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 70.05]
-    position_start: [3.6807513048841103, 0, 70.05]
+    position_end: [3.6807513048841103, 0, 70.2025]
+    position_start: [3.6807513048841103, 0, 70.2025]
   CLA-FEB-MAG-QUAD-21:
     type: quadrupole
     length: 0.15
     k1l: -0.0453959
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 70.25]
-    position_start: [3.6807513048841103, 0, 70.1]
+    position_end: [3.6807513048841103, 0, 70.4]
+    position_start: [3.6807513048841103, 0, 70.25]
   CLA-FEB-DIA-BPM-10:
     type: beam_position_monitor
     length: 0.21
@@ -540,20 +540,20 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 75.200]
-    position_start: [3.6807513048841103, 0, 75.200]
+    position_end: [3.6807513048841103, 0, 75.2214]
+    position_start: [3.6807513048841103, 0, 75.2214]
   CLA-FEB-SHUT-02-END:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 75.8]
-    position_start: [3.6807513048841103, 0, 75.8]
+    position_end: [3.6807513048841103, 0, 75.5714]
+    position_start: [3.6807513048841103, 0, 75.5714]
   CLA-FEB-MAG-HVCOR-12:
     type: kicker
     length: 0.1
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 76.327264]
-    position_start: [3.6807513048841103, 0, 76.227264]
+    position_end: [3.6807513048841103, 0, 76.325]
+    position_start: [3.6807513048841103, 0,76.225]
   CLA-FEB-DIA-BPM-12:
     type: beam_position_monitor
     length: 0.21
@@ -630,14 +630,14 @@ elements:
     length: 0.15
     k1l: 1.5
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [3.31836, 0, 81.2357]
-    position_start: [3.36966, 0, 81.0948]
+    position_end: [3.3081, 0, 81.2639]
+    position_start: [3.3594, 0, 81.123]
   CLA-FEB-DIA-SCR-11-WIDE:
     type: screen
     output_filename: '"CLA-FEB-DIA-SCR-10-WIDE.SDDS"'
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [2.873, 0., 82.45874 ]
-    position_start: [2.873, 0., 82.45874 ]
+    position_end: [2.88902, 0, 82.4147 ]
+    position_start: [2.88902, 0, 82.4147 ]
   CLA-FEB-DUMP-01-START:
     type: marker
     fit_point: 1.0
