@@ -4,7 +4,7 @@ import traceback
 import itertools
 import copy
 from collections import OrderedDict
-from .ASTRARules import *
+from SimulationFramework.ASTRARules import *
 from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from SimulationFramework.FrameworkHelperFunctions import *
 import SimulationFramework.Modules.read_beam_file as rbf
@@ -176,6 +176,7 @@ class Framework(Munch):
             master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
         else:
             master_lattice_location = master_lattice
+        self.master_lattice_location = master_lattice_location
 
         self.executables = exes.Executables(master_lattice_location)
         self.defineASTRACommand = self.executables.define_astra_command
@@ -289,21 +290,23 @@ class Framework(Munch):
         elif elements is not None:
             changeelements = elements
         else:
-            changeelements = self.elementObjects
+            changeelements = list(self.elementObjects.keys())
         # print('changeelements = ', changeelements)
-        if len(changeelements) > 0 and len(changeelements[0]) > 1:
-            for ek in changeelements:
-                new = None
-                e, k = ek[:2]
-                if e in self.elementObjects:
-                    new = unmunchify(self.elementObjects[e])
-                elif e in self.groupObjects:
-                    new = self.groupObjects[e]
-                    # print 'detecting group = ', e, new, new[k]
-                if new is not None:
-                    if e not in changedict:
-                        changedict[e] = {}
-                    changedict[e][k] = self.convert_numpy_types(new[k])
+        # print(changeelements[0])
+        if len(changeelements) > 0 and isinstance(changeelements[0], (list, tuple, dict)) and len(changeelements[0]) > 1:
+                for ek in changeelements:
+                    new = None
+                    e, k = ek[:2]
+                    if e in self.elementObjects:
+                        new = unmunchify(self.elementObjects[e])
+                    elif e in self.groupObjects:
+                        new = self.groupObjects[e]
+                        # print 'detecting group = ', e, new, new[k]
+                    if new is not None:
+                        # print (new)
+                        if e not in changedict:
+                            changedict[e] = {}
+                        changedict[e][k] = self.convert_numpy_types(new[k])
         else:
             for e in changeelements:
                 # print 'saving element: ', e
@@ -2572,10 +2575,10 @@ class lscdrift(frameworkElement):
         wholestring+=string+';\n'
         return wholestring
 
-class modulator(frameworkElement):
+class fel_modulator(frameworkElement):
 
     def __init__(self, name=None, type='modulator', **kwargs):
-        super(modulator, self).__init__(name, type, **kwargs)
+        super(fel_modulator, self).__init__(name, type, **kwargs)
         self.add_default('k1l', 0)
         self.add_default('n_steps', 1*self.periods)
         self.keyword_conversion_rules_elegant.update({'peak_field': 'bu', 'gradient': 'TGU_GRADIENT', 'wavelength': 'LASER_WAVELENGTH', 'peak_power': 'LASER_PEAK_POWER',
