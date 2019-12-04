@@ -25,7 +25,7 @@ elements:
       CLA-LRG1-GUN-SOL:
         type: solenoid
         length: 0
-        field_amplitude: 0.237
+        field_amplitude: 0.255
         field_definition: $master_lattice_location$Data_Files/Measured_Main_Solenoid_2019.txt
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 0]
@@ -33,7 +33,7 @@ elements:
       CLA-LRG1-GUN-BSOL:
         type: solenoid
         length: 0
-        field_amplitude: -0.2133
+        field_amplitude: $-0.31158 * 0.255$
         field_definition: $master_lattice_location$Data_Files/Measured_Bucking_Solenoid_2019.txt
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 0]
