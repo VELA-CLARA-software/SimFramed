@@ -102,7 +102,7 @@ def isevaluable(self, s):
     except:
         return False
 
-def expand_substitution(self, param, subs={}):
+def expand_substitution(self, param, subs={}, elements={}):
     if isinstance(param,(str)):
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, param)
@@ -115,6 +115,9 @@ def expand_substitution(self, param, subs={}):
                 replaced_str = replaced_str.replace(key, subs[key])
             if os.path.exists(replaced_str):
                 replaced_str = os.path.relpath(replaced_str, master_subdir).replace('\\','/')
+            for e in elements.keys():
+                if e in replaced_str:
+                    print('Element is in string!', e, replaced_str)
             return replaced_str
         else:
             return param
