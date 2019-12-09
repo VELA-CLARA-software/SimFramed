@@ -11,7 +11,7 @@ import argparse
 import imageio
 import numpy as np
 sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
-print (sys.path)
+# print (sys.path)
 import SimulationFramework.Modules.read_beam_file as raf
 import SimulationFramework.Modules.read_twiss_file as rtf
 sys.path.append(os.path.realpath(__file__)+'/../../../../')
@@ -144,7 +144,7 @@ class astraPlotWidget(QWidget):
         self.twissPlotWidget = GraphicsLayout()
         self.twissPlotView.setCentralItem(self.twissPlotWidget)
 
-        self.latticePlotData = imageio.imread(os.path.dirname( os.path.abspath(__file__))+'/lattice_plot.png')
+        # self.latticePlotData = imageio.imread(os.path.dirname( os.path.abspath(__file__))+'/lattice_plot.png')
         self.latticePlots = {}
         self.twissPlots = {}
         i = -1
@@ -157,13 +157,13 @@ class astraPlotWidget(QWidget):
                 p.showGrid(x=True, y=True)
                 vb = p.vb
                 vb.setYRange(*entry['range'])
-                latticePlot = ImageItem(self.latticePlotData)
-                latticePlot.setOpts(axisOrder='row-major')
-                vb.addItem(latticePlot)
-                latticePlot.setZValue(-1)  # make sure this image is on top
+                # latticePlot = ImageItem(self.latticePlotData)
+                # latticePlot.setOpts(axisOrder='row-major')
+                # vb.addItem(latticePlot)
+                # latticePlot.setZValue(-1)  # make sure this image is on top
                 # latticePlot.setOpacity(0.5)
                 self.twissPlots[entry['name']] = p.plot(pen=mkPen('b', width=3))
-                self.latticePlots[p.vb] = latticePlot
+                # self.latticePlots[p.vb] = latticePlot
                 p.vb.sigRangeChanged.connect(self.scaleLattice)
 
         ''' beamPlotWidget '''
@@ -444,7 +444,7 @@ class astraPlotWidget(QWidget):
         screenfirstpos = np.array(screenfirstpos)
         # print 'screenfirstpos = ', screenfirstpos
         sortedscreennames = sorted(screenfirstpos, key=lambda x: float(x[1]))
-        print('sortedscreennames = ', sortedscreennames)
+        # print('sortedscreennames = ', sortedscreennames)
         for f in sortedscreennames:
             self.fileSelector.addItem(f[0])
             i += 1
@@ -455,7 +455,7 @@ class astraPlotWidget(QWidget):
         if len(self.screenpositions) > 0 and not self.fileSelector.currentText() == '':
             run = self.screenpositions[str(self.fileSelector.currentText())]['run']
             self.beamFileName = str(self.screenpositions[str(self.fileSelector.currentText())]['screennames'][self.screenSelector.currentIndex()])+'.hdf5'
-            print('beamFileName = ', self.beamFileName)
+            # print('beamFileName = ', self.beamFileName)
             self.loadDataFile()
 
     def updateScreenCombo(self):
@@ -546,8 +546,11 @@ class astraPlotWidget(QWidget):
         yrange = range[1]
         scaleY = 0.05*abs(yrange[1] - yrange[0])
         rect = QRectF(0, yrange[0] + 2*scaleY, 49.2778, 4*scaleY)
-        self.latticePlots[vb].setRect(rect)
+        # self.latticePlots[vb].setRect(rect)
 
+setConfigOptions(antialias=True)
+setConfigOption('background', 'w')
+setConfigOption('foreground', 'k')
 def main():
     global app
     args = parser.parse_args()

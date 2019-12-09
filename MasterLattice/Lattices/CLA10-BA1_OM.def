@@ -48,7 +48,7 @@ files:
       zstart: 0
       end_element: CLA-S02-APER-01
   S02:
-    code: ASTRA
+    code: elegant
     starting_rotation: 0
     charge:
       cathode: False
@@ -59,7 +59,7 @@ files:
       start_element: CLA-S02-APER-01
       end_element: CLA-C2V-MARK-01
   C2V:
-    code: ASTRA
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -69,7 +69,7 @@ files:
       start_element: CLA-C2V-MARK-01
       end_element: CLA-C2V-MARK-02
   VELA:
-    code: ASTRA
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -79,7 +79,7 @@ files:
       start_element: CLA-C2V-MARK-02
       end_element: EBT-INJ-PSS-SHUT-02
   BA1:
-    code: ASTRA
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: 3D
@@ -87,7 +87,17 @@ files:
       {}
     output:
       start_element: EBT-INJ-PSS-SHUT-02
-      end_element: EBT-BA1-COFFIN-FOC
+      end_element: EBT-BA1-DIA-YAG-02
+  BA1_dipole:
+    code: elegant
+    charge:
+      cathode: False
+      space_charge_mode: 3D
+    input:
+      {}
+    output:
+      start_element: EBT-BA1-DIA-YAG-02
+      end_element: EBT-BA1-DIA-FCUP-01
 groups:
 elements:
   filename: ['YAML/Injector10.yaml',
