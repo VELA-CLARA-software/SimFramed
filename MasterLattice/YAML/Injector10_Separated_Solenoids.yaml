@@ -22,7 +22,7 @@ elements:
     position_end: [0, 0, 0.17]
     position_start: [0, 0, 0]
     sub_elements:
-      CLA-LRG1-GUN-SOL:
+      CLA-LRG1-MAG-SOL-01:
         type: solenoid
         length: 0
         field_amplitude: 0.255
@@ -30,7 +30,7 @@ elements:
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 0]
         position_start: [0, 0, 0]
-      CLA-LRG1-GUN-BSOL:
+      CLA-LRG1-MAG-BSOL-01:
         type: solenoid
         length: 0
         field_amplitude: $-0.3462 * 0.9 * 0.255$
