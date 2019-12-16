@@ -316,7 +316,11 @@ class Framework(Munch):
                 if not self.original_elementObjects[e] == unmunchify(self.elementObjects[e]):
                     orig = self.original_elementObjects[e]
                     new = unmunchify(self.elementObjects[e])
-                    changedict[e] = {k: self.convert_numpy_types(new[k]) for k in new if not new[k] == orig[k]}
+                    try:
+                        changedict[e] = {k: self.convert_numpy_types(new[k]) for k in new if not new[k] == orig[k]}
+                    except:
+                        print (e, new)
+                        pass
         return changedict
 
     def save_changes_file(self, filename=None, type=None, elements=None, function=None):
@@ -897,12 +901,15 @@ class frameworkObject(Munch):
         return self
 
     def __getitem__(self, key, default=None):
-        key = key.lower()
+        lkey = key.lower()
         defaults = self.get('objectdefaults', {})
-        if key in defaults:
-            return self.get(key, defaults[key])
+        if lkey in defaults:
+            return self.get(lkey, defaults[lkey])
         else:
-            return self.get(key, None)
+            try:
+                return getattr(self, key)
+            except:
+                return self.get(lkey, None)
 
     def __repr__(self):
         string = ''
@@ -1725,6 +1732,13 @@ class frameworkElement(frameworkObject):
     @property
     def tilt(self):
         return self.dz_rot
+
+    @property
+    def PV(self):
+        if hasattr(self, 'PV_root'):
+            return self.PV_root
+        else:
+            return self.objectName
 
     @property
     def theta(self):

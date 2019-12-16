@@ -16,7 +16,10 @@ elements:
     Controller_Name: GUN10
     Structure_Type: 'StandingWave'
     phase: -16
-    PV: CLA-GUN-LRF-CTRL-01
+    PV_suffixes:
+      phase: vm:dsp:sp_ph:phase
+      field_amplitude: ad1:ch6:power_remote_s.POWER
+    PV_root: CLA-GUN-LRF-CTRL-01
     field_definition: $master_lattice_location$Data_Files/bas_gun.txt
     lsc_cutoff_high: [0, 0]
     global_rotation: [0, 0, 0]
@@ -25,20 +28,25 @@ elements:
     sub_elements:
       CLA-LRG1-MAG-SOL-01:
         type: solenoid
-        length: 0
+        length: 0.13950
         field_amplitude: 0.255
         field_definition: $master_lattice_location$Data_Files/Measured_Main_Solenoid_2019.txt
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 0]
         position_start: [0, 0, 0]
+        field_integral_coefficients: [2.17321571, -0.858179277, 0.172127130, -0.0171033399, 6.70371530e-04, -3.53922e-08,
+                     1.53138e-05, 0.167819191, 0.0]
       CLA-LRG1-MAG-BSOL-01:
         type: solenoid
-        length: 0
+        length: 0.0125
         field_amplitude: $-0.3462 * 0.9 * 0.255$
         field_definition: $master_lattice_location$Data_Files/Measured_Bucking_Solenoid_2019.txt
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 0]
         position_start: [0, 0, 0]
+        field_integral_coefficients: [0.000513431, -1.27695e-7, 1.61655e-10, -0.032733798, -4.29885e-06, 2.28967e-08, 0.001833327,
+                      -2.5354e-06, -1.04715e-09, -1.61177e-12, -2.94837e-05, 2.13938e-07, -0.003957362, 0.246073139,
+                      -4.393602393, 0.0]
   CLA-S01-APER:
     type: aperture
     shape: rectangular
@@ -64,10 +72,11 @@ elements:
     length: 0.05
     Controller_Name: WCM01
     Online_Model_Name: C1-WCM01
-    PV: CLA-S01-DIA-WCM-01
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 0.7277]
     position_start: [0, 0, 0.6777]
+    PV_suffixes:
+      charge: Q
   CLA-S01-MAG-HVCOR-02:
     type: kicker
     length: 0.102
@@ -128,7 +137,7 @@ elements:
     buffer_end_length: 0.14457
     Controller_Name: L01
     Online_Model_Name: C1-L01
-    PV: CLA-L01-LRF-CTRL-01
+    PV_root: CLA-L01-LRF-CTRL-01
     position_end: [0, 0, 3.2269]
     position_start: [0, 0, 1.19357]
     sub_elements:
@@ -144,15 +153,19 @@ elements:
         scale_kick: 1
       CLA-L01-MAG-SOL-01:
         type: solenoid
-        length: 0
+        length: 0.72691820512820505
         field_amplitude: 0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
         position_end: [0, 0, 2.2]
         position_start: [0, 0, 1.70]
+        field_integral_coefficients: [0.911580969, -0.0374385376, 0.00106926073, -1.64644381e-05, 1.01769629e-07, 0, 0, 0.37651102,
+                      0.12171419]
       CLA-L01-MAG-SOL-02:
         type: solenoid
-        length: 0
+        length: 0.72691820512820505
         field_amplitude: -0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
         position_end: [0, 0, 3.2]
         position_start: [0, 0, 2.70]
+        field_integral_coefficients: [0.847688880, -0.0653499119, 0.00243270133, -4.29020066e-05, 2.87019853e-07, 0, 0, 0.37651102,
+                      0.12171419]
