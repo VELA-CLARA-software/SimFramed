@@ -396,8 +396,11 @@ class astraPlotWidget(QWidget):
         self.loadDataFile()
 
     def changeDirectory(self, directory=None):
-        self.screenSelector.currentIndexChanged.disconnect(self.changeScreen)
-        self.fileSelector.currentIndexChanged.disconnect(self.updateScreenCombo)
+        try:
+            self.screenSelector.currentIndexChanged.disconnect(self.changeScreen)
+            self.fileSelector.currentIndexChanged.disconnect(self.updateScreenCombo)
+        except:
+            pass
         if directory == None or directory == False:
             self.directory = str(QFileDialog.getExistingDirectory(self, "Select Directory", self.directory, QFileDialog.ShowDirsOnly))
         else:

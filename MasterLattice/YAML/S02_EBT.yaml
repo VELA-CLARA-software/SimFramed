@@ -26,14 +26,11 @@ elements:
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 3.44808]
-    buffer_start_length: 0.02872
-    buffer_end_length: 0
-    Controller_Name: S02-QUAD1
-    Online_Model_Name: C1-S02-QUAD01
-    PV: CLA-S02-MAG-QUAD-01
     global_rotation: [0, 0, 0]
     position_end: [0., 0, 3.59149]
     position_start: [0., 0, 3.46281]
+    field_integral_coefficients: [-2.23133410405682E-10, 4.5196171252132E-08, -3.46208258004659E-06, 1.11195870210961E-04,
+                    2.38129337415767E-02, 9.81229429460256E-03]
   CLA-S02-DIA-BPM-01:
     type: beam_position_monitor
     length: 0.04528
@@ -50,14 +47,11 @@ elements:
     sr_enable: true
     isr_enable: true
     buffer_start: [0, 0, 3.84808]
-    buffer_start_length: 0.02872
-    buffer_end_length: 0.02802
-    Controller_Name: S02-QUAD2
-    Online_Model_Name: C1-S02-QUAD02
-    PV: CLA-S02-MAG-QUAD-02
     global_rotation: [0, 0, 0]
     position_end: [0., 0, 3.99056]
     position_start: [0., 0, 3.86374]
+    field_integral_coefficients: [-4.69068497199892E-10, 7.81236692669882E-08, -4.99557108021749E-06, 1.39687166906618E-04,
+                    2.32819099224878E-02, 9.77695097574923E-03]
   CLA-S02-DIA-SCR-01-W:
     type: screen
     output_filename: '"CLA-S02-DIA-SCR-01.SDDS"'
@@ -122,27 +116,20 @@ elements:
     k1l: 2.2849042966309447
     sr_enable: true
     isr_enable: true
-    buffer_start: [0, 0, 5.14808]
-    buffer_start_length: 0.02872
-    buffer_end_length: 0.02802
-    Controller_Name: S02-QUAD3
-    Online_Model_Name: C1-S02-QUAD03
-    PV: CLA-S02-MAG-QUAD-03
     global_rotation: [0, 0, 0]
     position_end: [0., 0, 5.29077]
     position_start: [0., 0, 5.16353]
+    field_integral_coefficients: [-4.01132756980213E-10, 7.04774652367448E-08, -4.7303680012511E-06, 1.37571730391246E-04,
+                    2.33327839789932E-02, 9.49568371388574E-03]
   CLA-S02-MAG-QUAD-04:
     type: quadrupole
     length: 0.127422
     k1l: -1.3685069221066561
     sr_enable: true
     isr_enable: true
-    buffer_start: [0, 0, 5.54808]
-    buffer_start_length: 0.02872
-    buffer_end_length: 0.02802
-    Controller_Name: S02-QUAD4
-    Online_Model_Name: C1-S02-QUAD04
     PV: CLA-S02-MAG-QUAD-04
     global_rotation: [0, 0, 0]
     position_end: [0., 0, 5.69086]
     position_start: [0., 0, 5.56344]
+    field_integral_coefficients: [-3.12868198002574E-10, 5.87771428279647E-08, -4.18748562338666E-06, 1.27524427731924E-04,
+                    2.34218216296292E-02, 9.38588316008555E-03]
