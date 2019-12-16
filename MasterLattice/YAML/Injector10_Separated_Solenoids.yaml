@@ -16,6 +16,7 @@ elements:
     Controller_Name: GUN10
     Structure_Type: 'StandingWave'
     phase: -16
+    PV: CLA-GUN-LRF-CTRL-01
     field_definition: $master_lattice_location$Data_Files/bas_gun.txt
     lsc_cutoff_high: [0, 0]
     global_rotation: [0, 0, 0]
@@ -141,14 +142,14 @@ elements:
         position_end: [0, 0, 3.2269]
         position_start: [0, 0, 1.19357]
         scale_kick: 1
-      CLA-L01-CAV-SOL-01:
+      CLA-L01-MAG-SOL-01:
         type: solenoid
         length: 0
         field_amplitude: 0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
         position_end: [0, 0, 2.2]
         position_start: [0, 0, 1.70]
-      CLA-L01-CAV-SOL-02:
+      CLA-L01-MAG-SOL-02:
         type: solenoid
         length: 0
         field_amplitude: -0.05
