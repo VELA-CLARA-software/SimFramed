@@ -17,6 +17,7 @@ elements:
     isr_enable: true
     position_end: [-1.25, 0, 22.5498]
     position_start: [-1.25, 0, 22.3898]
+    field_integral_coefficients: [1.59491, -0.01760]
   EBT-BA1-MAG-QUAD-02:
     type: quadrupole
     length: 0.16
@@ -25,6 +26,7 @@ elements:
     isr_enable: true
     position_end: [-1.25, 0, 22.9498]
     position_start: [-1.25, 0, 22.7898]
+    field_integral_coefficients: [1.59214, -0.01508]
   EBT-BA1-DIA-BPM-02:
     type: beam_position_monitor
     length: 0.235
@@ -38,6 +40,7 @@ elements:
     isr_enable: true
     position_end: [-1.25, 0, 23.3448]
     position_start: [-1.25, 0, 23.1848]
+    field_integral_coefficients: [1.59020, -0.01823]
   EBT-BA1-LASERBOX-BEG:
     type: marker
     fit_point: 1.0
@@ -76,6 +79,7 @@ elements:
     isr_enable: true
     position_end: [-1.25, 0, 27.1898]
     position_start: [-1.25, 0, 27.0298]
+    field_integral_coefficients: [1.58881, -0.01033]
   EBT-BA1-MAG-QUAD-05:
     type: quadrupole
     length: 0.16
@@ -84,6 +88,7 @@ elements:
     isr_enable: true
     position_end: [-1.25, 0, 27.6228]
     position_start: [-1.25, 0, 27.4628]
+    field_integral_coefficients: [1.59298, -0.02111]
   EBT-BA1-MAG-QUAD-06:
     type: quadrupole
     length: 0.16
@@ -92,6 +97,7 @@ elements:
     isr_enable: true
     position_end: [-1.25, 0, 28.0558]
     position_start: [-1.25, 0, 27.8958]
+    field_integral_coefficients: [1.58624, 0.00451]
   EBT-BA1-DIA-YAG-02:
     type: watch_point
     output_filename: EBT-BA1-DIA-YAG-02.SDDS
@@ -121,6 +127,7 @@ elements:
     global_rotation: [0, 0, 1.0472]
     position_end: [-2.07159, 0, 29.3038]
     position_start: [-1.81178, 0, 29.1538]
+    field_integral_coefficients: [0.36799, 0.00144]
   EBT-BA1-DIA-BPM-04:
     type: beam_position_monitor
     length: 0.235
