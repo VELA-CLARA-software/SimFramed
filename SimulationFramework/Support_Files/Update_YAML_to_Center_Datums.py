@@ -5,6 +5,8 @@ from SimulationFramework.Framework import *
 from collections import OrderedDict
 from munch import Munch, unmunchify
 import mysql.connector as mariadb
+import csv
+from difflib import get_close_matches
 
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
@@ -25,6 +27,17 @@ class Converter(Framework):
         master_lattice_location = self.master_lattice_location
         self.mariadb_connection = mariadb.connect(host='astecnas2', user='root', password='control123', database='master_lattice')
         self.cursor = self.mariadb_connection.cursor(buffered=True)
+        self.datums = {k:v for k,v in self.load_datums().items() if not '-a' == k[-2:] and not '-b'  == k[-2:]}
+
+    def load_datums(self):
+        datums = {}
+        with open(r'\\fed.cclrc.ac.uk\Org\NLab\ASTeC-TDL\Projects\tdl-1168 CLARA\CLARA-ASTeC Folder\Layouts\CLARA V12 layout\CLA_V12_layout.csv') as csvfile:
+            datumreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+            for row in datumreader:
+                elemname = row[1].lower()
+                elemname = elemname[:-2] if elemname[-2:] == '-k' else elemname
+                datums[elemname] = [float(row[5]), 0, float(row[4])]
+        return datums
 
     def loadSettings(self, filename='short_240.settings'):
         """Load Lattice Settings from file"""
@@ -92,29 +105,41 @@ class Converter(Framework):
                 for subname, subelem in list(element['sub_elements'].items()):
                     self.read_Element(subname, subelem, subelement=name)
 
-    # def element_exists(self, element):
+    def load_Elements_File(self, input):
+        if isinstance(input,(list,tuple)):
+            filename = input
+        else:
+            filename = [input]
+        for f in filename:
+            print('#####', f,'#####')
+            if os.path.isfile(f):
+                with open(f, 'r') as stream:
+                    elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
+            else:
+                with open(master_lattice_location + f, 'r') as stream:
+                    elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
+            for name, elem in list(elements.items()):
+                self.read_Element(name, elem)
 
     def insert_element(self, element):
-        self.insert_element_type(element)
-        # print((element['name'], element['type'], element['subelement'], self.default_value(element,'length',0),
-        # element['position_start'][0], element['position_start'][1], element['position_start'][2],
-        # element['position_end'][0], element['position_end'][1], element['position_end'][2],
-        # self.default_value(element, 'global_rotation',default=0, index=0), self.default_value(element, 'global_rotation',default=0, index=1), self.default_value(element, 'global_rotation',default=0, index=2),))
-        middle = self.elementObjects[element['name']].middle
-        # print (self.elementObjects[element['name']].middle)
-        # exit()
-        self.cursor.execute("""INSERT IGNORE INTO element (name, type, parent, length, center_x, center_y, center_z, datum_x, datum_y, datum_z, phi, psi, theta)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-        (element['name'], element['type'], element['subelement'], self.default_value(element,'length',0),
-        middle[0], middle[1], middle[2],
-        element['position_end'][0], element['position_end'][1], element['position_end'][2],
-        self.default_value(element, 'global_rotation',default=0, index=0), self.default_value(element, 'global_rotation',default=0, index=1), self.default_value(element, 'global_rotation',default=0, index=2),))
+        # self.insert_element_type(element)
+        if element['name'].lower() in self.datums:
+            element['datum_x'], element['datum_y'], element['datum_z'] = self.datums[element['name'].lower()]
+        else:
+            match = self.closeMatches(self.datums, element['name'].lower())
+            if not match == []:
+                dx, dy, dz = self.datums[match.lower()]
+                ex, ey, ez = element['center_x'], element['center_y'], element['center_z']
+                diff = ((dx-ex)**2 + (dy-ey)**2 + (dz-ez)**2)**0.5
+                print('diff = ', diff)
+                if diff <
+        element['center_x'], element['center_y'], element['center_z'] = self.elementObjects[element['name']].middle
+        element = {k:element[k] for k in element.keys() if not 'position' in k and not 'buffer' in k}
+        if not element['name'].lower() in self.datums:
+            print (element)
 
-        # print (element['name'], element['type'], self.default_value(element,'length',0),
-        # element['position_start'][0], element['position_start'][1], element['position_start'][2],
-        # element['position_end'][0], element['position_end'][1], element['position_end'][2],
-        # element['global_rotation'][0], element['global_rotation'][1], element['global_rotation'][2],)
-        self.mariadb_connection.commit()
+    def closeMatches(self, patterns, word):
+         return (get_close_matches(word, patterns,1,0.9))
 
     def insert_element_type(self, element):
         type = element['type']
