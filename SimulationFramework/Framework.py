@@ -317,9 +317,10 @@ class Framework(Munch):
                     orig = self.original_elementObjects[e]
                     new = unmunchify(self.elementObjects[e])
                     try:
-                        changedict[e] = {k: self.convert_numpy_types(new[k]) for k in new if not new[k] == orig[k]}
+                        changedict[e] = {k: self.convert_numpy_types(new[k]) for k in new if k in orig and not new[k] == orig[k]}
+                        changedict[e].update({k: self.convert_numpy_types(new[k]) for k in new if k not in orig})
                     except:
-                        print (e, new)
+                        print ('##### ERROR IN CHANGE ELEMS: ', e, new)
                         pass
         return changedict
 
@@ -480,14 +481,17 @@ class Framework(Munch):
         # outputfile.write(k+' '+v+' ')
 
     def __getitem__(self,key):
-        if key in self.get('elementObjects', {}):
+        if key in super().__getitem__('elementObjects'):
             return self.elementObjects.get(key)
-        elif key in self.get('latticeObjects', {}):
+        elif key in super().__getitem__('latticeObjects'):
             return self.latticeObjects.get(key)
-        elif key in self.get('groupObjects', {}):
+        elif key in super().__getitem__('groupObjects'):
             return self.groupObjects.get(key)
         else:
-            return self.get(key, None)
+            try:
+                return super().__getitem__(key)
+            except:
+                return None
 
     @property
     def elements(self):
@@ -900,16 +904,22 @@ class frameworkObject(Munch):
     def objectproperties(self):
         return self
 
-    def __getitem__(self, key, default=None):
+    def __getitem__(self, key):
         lkey = key.lower()
-        defaults = self.get('objectdefaults', {})
+        defaults = super().__getitem__('objectdefaults')
         if lkey in defaults:
-            return self.get(lkey, defaults[lkey])
+            try:
+                return super().__getitem__(lkey)
+            except:
+                return defaults[lkey]
         else:
             try:
-                return getattr(self, key)
+                return super().__getitem__(lkey)
             except:
-                return self.get(lkey, None)
+                try:
+                    return super().__getattribute__(key)
+                except:
+                    return None
 
     def __repr__(self):
         string = ''
