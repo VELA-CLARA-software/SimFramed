@@ -138,6 +138,9 @@ elements:
     Controller_Name: L01
     Online_Model_Name: C1-L01
     PV_root: CLA-L01-LRF-CTRL-01
+    PV_suffixes:
+      phase: vm:dsp:sp_ph:phase
+      field_amplitude: ad1:ch6:power_remote_s.POWER
     position_end: [0, 0, 3.2269]
     position_start: [0, 0, 1.19357]
     sub_elements:
