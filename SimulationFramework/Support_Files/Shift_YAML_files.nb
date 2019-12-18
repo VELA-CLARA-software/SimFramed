@@ -1,0 +1,239 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      8695,        231]
+NotebookOptionsPosition[      7517,        202]
+NotebookOutlinePosition[      7863,        217]
+CellTagsIndexPosition[      7820,        214]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"splitdata", "=", 
+   RowBox[{"Split", "[", 
+    RowBox[{
+     RowBox[{"ReadList", "[", 
+      RowBox[{
+      "\"\<C:\\\\Users\\\\jkj62\\\\Documents\\\\GitHub\\\\OnlineModel\\\\\
+MasterLattice\\\\YAML\\\\FEBE3.yaml\>\"", ",", "Record"}], "]"}], ",", 
+     RowBox[{
+      RowBox[{"!", 
+       RowBox[{"StringMatchQ", "[", 
+        RowBox[{"#2", ",", "\"\<  CLA-FEB*:*\>\""}], "]"}]}], "&"}]}], 
+    "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.7856782861596327`*^9, 3.7856784018868403`*^9}},
+ CellLabel->
+  "In[1783]:=",ExpressionUUID->"1972315c-381f-4072-90e4-813b12535ebb"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"startpos", "=", 
+  RowBox[{"Quiet", "[", 
+   RowBox[{
+    RowBox[{"Position", "[", 
+     RowBox[{"splitdata", ",", 
+      RowBox[{"_", "?", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"StringMatchQ", "[", 
+          RowBox[{"#", ",", "\"\<  CLA-FEB-MAG-QUAD-17-CORR:*\>\""}], "]"}], 
+         "&"}], ")"}]}]}], "]"}], "[", 
+    RowBox[{"[", 
+     RowBox[{"1", ",", "1"}], "]"}], "]"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.7856784041194205`*^9, 3.785678471894628*^9}},
+ CellLabel->
+  "In[1784]:=",ExpressionUUID->"678df515-17da-4807-8e4d-bf2afd1db605"],
+
+Cell[BoxData["53"], "Output",
+ CellChangeTimes->{{3.785678456856022*^9, 3.785678472270624*^9}, 
+   3.785680200971301*^9},
+ CellLabel->
+  "Out[1784]=",ExpressionUUID->"9412a406-8a48-4b95-ba9f-cd3a08a29ca8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"endpos", "=", 
+  RowBox[{"Quiet", "[", 
+   RowBox[{
+    RowBox[{"Position", "[", 
+     RowBox[{"splitdata", ",", 
+      RowBox[{"_", "?", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"StringMatchQ", "[", 
+          RowBox[{"#", ",", "\"\<  CLA-FEB-MAG-HVCOR-17:*\>\""}], "]"}], 
+         "&"}], ")"}]}]}], "]"}], "[", 
+    RowBox[{"[", 
+     RowBox[{"1", ",", "1"}], "]"}], "]"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.7856784041194205`*^9, 3.7856784978381634`*^9}},
+ CellLabel->
+  "In[1785]:=",ExpressionUUID->"106da3c7-7d00-404f-b916-4f227740a6d0"],
+
+Cell[BoxData["94"], "Output",
+ CellChangeTimes->{3.7856784988265224`*^9, 3.785680201052085*^9},
+ CellLabel->
+  "Out[1785]=",ExpressionUUID->"a2c203cc-1445-40c1-a7de-64586bff21c8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"$globaloffset", "=", "0.1"}]], "Input",
+ CellChangeTimes->{{3.7856788531434126`*^9, 3.7856788639337564`*^9}},
+ CellLabel->
+  "In[1786]:=",ExpressionUUID->"fd11afcb-d7e9-47de-b693-a4eb52676d13"],
+
+Cell[BoxData["0.1`"], "Output",
+ CellChangeTimes->{{3.785678854340214*^9, 3.7856788645303636`*^9}, 
+   3.7856802011328697`*^9},
+ CellLabel->
+  "Out[1786]=",ExpressionUUID->"6ea83d76-a709-4a1f-97b4-9ed2fdeb051f"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+  "\"\<C:\\\\Users\\\\jkj62\\\\Documents\\\\GitHub\\\\OnlineModel\\\\\
+MasterLattice\\\\YAML\\\\FEBE3.yaml\>\"", ",", 
+   RowBox[{"StringRiffle", "[", 
+    RowBox[{
+     RowBox[{"Flatten", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Block", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"pos", "=", "#"}], ",", "elementdata"}], "}"}], ",", 
+          "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{"elementdata", "=", 
+            RowBox[{"splitdata", "[", 
+             RowBox[{"[", "pos", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"Block", "[", 
+              RowBox[{
+               RowBox[{"{", "splitstring", "}"}], ",", "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"splitstring", "=", 
+                 RowBox[{"StringSplit", "[", 
+                  RowBox[{"#", ",", "\"\<:\>\""}], "]"}]}], ";", 
+                "\[IndentingNewLine]", 
+                RowBox[{"If", "[", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"pos", ">=", "startpos"}], "&&", 
+                   RowBox[{"pos", "\[LessEqual]", "endpos"}], "&&", 
+                   RowBox[{"StringMatchQ", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"StringSplit", "[", 
+                    RowBox[{"#", ",", "\"\<:\>\""}], "]"}], "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", 
+                    "\"\<*position*\>\""}], "]"}]}], ",", 
+                  "\[IndentingNewLine]", 
+                  RowBox[{"StringJoin", "[", 
+                   RowBox[{
+                    RowBox[{"splitstring", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", "\"\<: \>\"", ",", 
+                    RowBox[{"StringReplace", "[", 
+                    RowBox[{
+                    RowBox[{"ToString", "[", 
+                    RowBox[{
+                    RowBox[{"ToExpression", "[", 
+                    RowBox[{"StringReplace", "[", 
+                    RowBox[{
+                    RowBox[{"splitstring", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{"\"\<[\>\"", "\[Rule]", "\"\<{\>\""}], ",", 
+                    RowBox[{"\"\<]\>\"", "\[Rule]", "\"\<}\>\""}]}], "}"}]}], 
+                    "]"}], "]"}], "+", 
+                    RowBox[{"{", 
+                    RowBox[{"0", ",", "0", ",", "$globaloffset"}], "}"}]}], 
+                    "]"}], ",", 
+                    RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{"\"\<{\>\"", "\[Rule]", "\"\<[\>\""}], ",", 
+                    RowBox[{"\"\<}\>\"", "\[Rule]", "\"\<]\>\""}]}], "}"}]}], 
+                    "]"}]}], "]"}], "\[IndentingNewLine]", ",", 
+                  "\[IndentingNewLine]", "#"}], "]"}]}]}], 
+              "\[IndentingNewLine]", "]"}], "&"}], "/@", "elementdata"}]}]}], 
+         "\[IndentingNewLine]", "]"}], "&"}], "/@", 
+       RowBox[{"Range", "[", 
+        RowBox[{"Length", "[", "splitdata", "]"}], "]"}]}], "]"}], ",", 
+     "\"\<\\n\>\""}], "]"}], ",", "\"\<Text\>\""}], "]"}]], "Input",
+ CellChangeTimes->{{3.7856785187272263`*^9, 3.785678846752158*^9}, {
+  3.7856788870798616`*^9, 3.7856790985399904`*^9}, {3.7856791373518066`*^9, 
+  3.785679213998604*^9}, {3.7856801990035534`*^9, 3.7856801993017607`*^9}},
+ CellLabel->
+  "In[1787]:=",ExpressionUUID->"c7e565aa-601c-4bf5-af54-046ccad771b7"],
+
+Cell[BoxData["\<\"C:\\\\Users\\\\jkj62\\\\Documents\\\\GitHub\\\\OnlineModel\\\
+\\MasterLattice\\\\YAML\\\\FEBE3.yaml\"\>"], "Output",
+ CellChangeTimes->{
+  3.7856785666047087`*^9, 3.785678637163437*^9, 3.785678667757785*^9, {
+   3.7856787092133923`*^9, 3.7856787939828286`*^9}, {3.785678826479045*^9, 
+   3.7856789465877447`*^9}, {3.7856790761308537`*^9, 
+   3.7856790995203714`*^9}, {3.7856791504266434`*^9, 
+   3.7856791652709827`*^9}, {3.785679207653527*^9, 3.7856792146837435`*^9}, 
+   3.7856802012256227`*^9},
+ CellLabel->
+  "Out[1787]=",ExpressionUUID->"6ffcf067-6c1d-499c-83cb-9bdb093a4651"]
+}, Open  ]]
+},
+WindowSize->{668, 568},
+WindowMargins->{{Automatic, -1147}, {Automatic, 204}},
+FrontEndVersion->"12.0 for Microsoft Windows (64-bit) (April 8, 2019)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 611, 16, 124, "Input",ExpressionUUID->"1972315c-381f-4072-90e4-813b12535ebb"],
+Cell[CellGroupData[{
+Cell[1194, 40, 592, 16, 86, "Input",ExpressionUUID->"678df515-17da-4807-8e4d-bf2afd1db605"],
+Cell[1789, 58, 205, 4, 32, "Output",ExpressionUUID->"9412a406-8a48-4b95-ba9f-cd3a08a29ca8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2031, 67, 588, 16, 86, "Input",ExpressionUUID->"106da3c7-7d00-404f-b916-4f227740a6d0"],
+Cell[2622, 85, 179, 3, 32, "Output",ExpressionUUID->"a2c203cc-1445-40c1-a7de-64586bff21c8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2838, 93, 217, 4, 28, "Input",ExpressionUUID->"fd11afcb-d7e9-47de-b693-a4eb52676d13"],
+Cell[3058, 99, 211, 4, 32, "Output",ExpressionUUID->"6ea83d76-a709-4a1f-97b4-9ed2fdeb051f"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3306, 108, 3593, 79, 333, "Input",ExpressionUUID->"c7e565aa-601c-4bf5-af54-046ccad771b7"],
+Cell[6902, 189, 599, 10, 32, "Output",ExpressionUUID->"6ffcf067-6c1d-499c-83cb-9bdb093a4651"]
+}, Open  ]]
+}
+]
+*)
+
