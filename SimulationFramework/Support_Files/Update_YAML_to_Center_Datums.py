@@ -35,7 +35,14 @@ class Converter(Framework):
             datumreader = csv.reader(csvfile, delimiter=',', quotechar='|')
             for row in datumreader:
                 elemname = row[1].lower()
-                elemname = elemname[:-2] if elemname[-2:] == '-k' else elemname
+                elemname = elemname[:-2] if (elemname[-2:] == '-k' or elemname[-2:] == '-w' or elemname[-2:] == '-b') else elemname
+                baseelemname = elemname
+                i=1
+                if not elemname[-2:].isdigit():
+                    elemname = baseelemname + '-' + str(i).zfill(2)
+                while elemname in datums:
+                    elemname = baseelemname + '-' + str(i).zfill(2)
+                    i += 1
                 datums[elemname] = [float(row[5]), 0, float(row[4])]
         return datums
 
@@ -123,23 +130,39 @@ class Converter(Framework):
 
     def insert_element(self, element):
         # self.insert_element_type(element)
-        if element['name'].lower() in self.datums:
-            element['datum_x'], element['datum_y'], element['datum_z'] = self.datums[element['name'].lower()]
-        else:
-            match = self.closeMatches(self.datums, element['name'].lower())
-            if not match == []:
-                dx, dy, dz = self.datums[match.lower()]
-                ex, ey, ez = element['center_x'], element['center_y'], element['center_z']
-                diff = ((dx-ex)**2 + (dy-ey)**2 + (dz-ez)**2)**0.5
-                print('diff = ', diff)
-                if diff <
         element['center_x'], element['center_y'], element['center_z'] = self.elementObjects[element['name']].middle
+        # if element['name'].lower() in self.datums:
+        #     finalmatch = element['name']
+        # else:
+        lname = element['name'].lower()
+        if 'dip' in lname:
+            lname = lname + '-d'
+        match = self.closeMatches(self.datums, lname)
+        finalmatch = None
+        mdiff = 100
+        if not match == []:
+            for m in match:
+                dx, dy, dz = self.datums[m.lower()]
+                ex, ey, ez = element['position_end']
+                diff = ((dx-ex)**2 + (dz-ez)**2)**0.5
+                if diff < 0.001:
+                    finalmatch = m
+                elif diff < mdiff:
+                    finalmatch = m
+                    mdiff = diff
+            if diff > 0.001:
+                print('Match found but diff big', mdiff, ez, dz , ex, dx, lname, finalmatch)
+        if finalmatch is None or diff > 0.001:
+            print('No Match found  ', lname, finalmatch)
+        else:
+            element['datum_x'], element['datum_y'], element['datum_z'] = self.datums[finalmatch.lower()]
+            # print('found match!  ', diff, lname, finalmatch)
         element = {k:element[k] for k in element.keys() if not 'position' in k and not 'buffer' in k}
-        if not element['name'].lower() in self.datums:
-            print (element)
+        # if not element['name'].lower() in self.datums:
+        #     print (element)
 
     def closeMatches(self, patterns, word):
-         return (get_close_matches(word, patterns,1,0.9))
+         return (get_close_matches(word, patterns,1,0.3))
 
     def insert_element_type(self, element):
         type = element['type']
