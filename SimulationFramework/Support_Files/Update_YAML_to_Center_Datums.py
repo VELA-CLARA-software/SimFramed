@@ -35,7 +35,7 @@ class Converter(Framework):
             datumreader = csv.reader(csvfile, delimiter=',', quotechar='|')
             for row in datumreader:
                 elemname = row[1].lower()
-                elemname = elemname[:-2] if (elemname[-2:] == '-k' or elemname[-2:] == '-w' or elemname[-2:] == '-b') else elemname
+                elemname = elemname[:-2] if (elemname[-2:] == '-k' or elemname[-2:] == '-w') else elemname
                 baseelemname = elemname
                 i=1
                 if not elemname[-2:].isdigit():
@@ -147,12 +147,13 @@ class Converter(Framework):
                 diff = ((dx-ex)**2 + (dz-ez)**2)**0.5
                 if diff < 0.001:
                     finalmatch = m
+                    mdiff = diff
                 elif diff < mdiff:
                     finalmatch = m
                     mdiff = diff
-            if diff > 0.001:
+            if mdiff > 0.001:
                 print('Match found but diff big', mdiff, ez, dz , ex, dx, lname, finalmatch)
-        if finalmatch is None or diff > 0.001:
+        if finalmatch is None or mdiff > 0.001:
             print('No Match found  ', lname, finalmatch)
         else:
             element['datum_x'], element['datum_y'], element['datum_z'] = self.datums[finalmatch.lower()]
@@ -162,7 +163,7 @@ class Converter(Framework):
         #     print (element)
 
     def closeMatches(self, patterns, word):
-         return (get_close_matches(word, patterns,1,0.3))
+         return (get_close_matches(word, patterns,3,0.3))
 
     def insert_element_type(self, element):
         type = element['type']

@@ -3,14 +3,14 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 49.4778]
-    position_start: [0, 0, 49.4778]
+    position_end: [0, 0, 49.2778]
+    position_start: [0, 0, 49.2778]
   CLA-FMS-MARK-01:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 49.4778]
-    position_start: [0, 0, 49.4778]
+    position_end: [0, 0, 49.2778]
+    position_start: [0, 0, 49.2778]
   CLA-FMS-DIP-01:
     type: dipole
     length: 0.100167
@@ -23,8 +23,8 @@ elements:
     buffer_start_length: 0.05
     buffer_end_length: 0.05
     global_rotation: [0, 0, 0]
-    position_end: [-0.00500418, 0, 49.6278]
-    position_start: [0, 0, 49.5278]
+    position_end: [-0.00500418, 0, 49.4278]
+    position_start: [0, 0, 49.3278]
   CLA-FMS-DIP-02:
     type: dipole
     length: 0.100167
@@ -37,14 +37,14 @@ elements:
     buffer_start_length: 0.05
     buffer_end_length: 0.05
     global_rotation: [0, 0, 0.1]
-    position_end: [-0.0300252, 0, 49.9273]
-    position_start: [-0.025021, 0, 49.8273]
+    position_end: [-0.0300252, 0, 49.7273]
+    position_start: [-0.025021, 0, 49.6273]
   CLA-FMS-MARK-02:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [-0.0300252, 0, 49.9873]
-    position_start: [-0.0300252, 0, 49.9873]
+    position_end: [-0.0300252, 0, 49.7873]
+    position_start: [-0.0300252, 0, 49.7873]
   CLA-FMS-DIP-03:
     type: dipole
     length: 0.100167
@@ -57,8 +57,8 @@ elements:
     buffer_start_length: 0.05
     buffer_end_length: 0.05
     global_rotation: [0, 0, 0]
-    position_end: [-0.025021, 0, 50.1473]
-    position_start: [-0.0300252, 0, 50.0473]
+    position_end: [-0.025021, 0, 49.9473]
+    position_start: [-0.0300252, 0, 49.8473]
   CLA-FMS-DIP-04:
     type: dipole
     length: 0.100167
@@ -71,14 +71,14 @@ elements:
     buffer_start_length: 0.05
     buffer_end_length: 0.05
     global_rotation: [0, 0, -0.1]
-    position_end: [0, 0, 50.4468]
-    position_start: [-0.00500418, 0, 50.3468]
+    position_end: [0, 0, 50.2468]
+    position_start: [-0.00500418, 0, 50.1468]
   CLA-FMS-MARK-03:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 50.4968]
-    position_start: [0, 0, 50.4968]
+    position_end: [0, 0, 50.2968]
+    position_start: [0, 0, 50.2968]
   CLA-FMS-DIA-SCR-01-W:
     type: marker
     fit_point: 1.0
@@ -86,14 +86,14 @@ elements:
     buffer_start_length: 0.021667
     buffer_end_length: 0.038334
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 50.5184]
-    position_start: [0, 0, 50.5184]
+    position_end: [0, 0, 50.3184]
+    position_start: [0, 0, 50.3184]
   CLA-FMS-MU1-APER-01:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 50.5568]
-    position_start: [0, 0, 50.5568]
+    position_end: [0, 0, 50.3568]
+    position_start: [0, 0, 50.3568]
   CLA-FMS-MU1-WIGG-01:
     type: wiggler
     length: 0.45
@@ -102,13 +102,13 @@ elements:
     k: 5
     poles: 6
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 51.0568]
-    position_start: [0, 0, 50.6068]
+    position_end: [0, 0, 50.8568]
+    position_start: [0, 0, 50.4068]
   CLA-FMS-MU1-MARK-01:
     type: marker
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 51.0568]
-    position_start: [0, 0, 51.0568]
+    position_end: [0, 0, 50.8568]
+    position_start: [0, 0, 50.8568]
   CLA-FMS-MU1-WIGG-02:
     type: wiggler
     length: 0.45
@@ -117,33 +117,39 @@ elements:
     k: 5
     poles: 6
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 51.5068]
-    position_start: [0, 0, 51.0568]
+    position_end: [0, 0, 51.3068]
+    position_start: [0, 0, 50.8568]
   CLA-FMS-DIA-SCR-02W:
     type: marker
     fit_point: 1.0
     buffer_start: [0, 0, 51.5568]
     buffer_start_length: 0.021667
     buffer_end_length: 0.038334
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 51.5784]
-    position_start: [0, 0, 51.5784]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 51.3784]
+    position_start: [0, 0, 51.3784]
   CLA-FMS-DIA-BPM-01:
     type: beam_position_monitor
     length: 0.21
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 51.8268]
-    position_start: [0, 0, 51.6168]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 51.6268]
+    position_start: [0, 0, 51.4168]
+  CLA-FMS-DIA-BAM-01:
+    type: beam_position_monitor
+    length: 0.03
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 51.6568]
+    position_start: [0, 0, 51.6268]
   CLA-FMS-MAG-QUAD-01:
     type: quadrupole
-    length: 0.028
+    length: 0.11
     k1l: 0.508275
     buffer_start: [-1.6e-06, 0, 51.8568]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 51.9348]
-    position_start: [0, 0, 51.9068]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 51.8168]
+    position_start: [0, 0, 51.7068]
   CLA-FMS-DIP-05:
     type: dipole
     length: 0.100257
@@ -156,8 +162,8 @@ elements:
     buffer_start_length: 0.05
     buffer_end_length: 0.050387
     global_rotation: [0, 0, -2.0e-06]
-    position_end: [-0.00620582, 0, 52.1348]
-    position_start: [0, 0, 52.0348]
+    position_end: [-0.00620582, 0, 52.0168]
+    position_start: [0, 0, 51.9168]
   CLA-FMS-DIP-06:
     type: dipole
     length: 0.200513
@@ -170,8 +176,8 @@ elements:
     buffer_start_length: 0.050387
     buffer_end_length: 0.050387
     global_rotation: [0, 0, 0.123998]
-    position_end: [-0.021162, 0, 52.4548]
-    position_start: [-0.0211624, 0, 52.2548]
+    position_end: [-0.021162, 0, 52.3368]
+    position_start: [-0.0211624, 0, 52.1368]
   CLA-FMS-DIP-07:
     type: dipole
     length: 0.200513
@@ -184,8 +190,8 @@ elements:
     buffer_start_length: 0.050387
     buffer_end_length: 0.050387
     global_rotation: [0, 0, -0.124002]
-    position_end: [0.0211368, 0, 52.9941]
-    position_start: [0.0211364, 0, 52.7941]
+    position_end: [0.0211368, 0, 52.8762]
+    position_start: [0.0211364, 0, 52.6762]
   CLA-FMS-DIP-08:
     type: dipole
     length: 0.100257
@@ -198,26 +204,33 @@ elements:
     buffer_start_length: 0.050387
     buffer_end_length: 0.05
     global_rotation: [0, 0, 0.123998]
-    position_end: [-2.75534e-05, 0, 53.2141]
-    position_start: [0.00618022, 0, 53.1141]
+    position_end: [0, 0, 53.0962]
+    position_start: [0.00618022, 0, 52.9962]
   CLA-FMS-DIA-BPM-02:
     type: beam_position_monitor
     length: 0.21
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 53.4741]
-    position_start: [0, 0, 53.2641]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 53.3562]
+    position_start: [0, 0, 53.1462]
   CLA-FMS-CBPM-APER-01:
     type: marker
     fit_point: 1.0
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 53.4741]
-    position_start: [0, 0, 53.4741]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 53.3562]
+    position_start: [0, 0, 53.3562]
+  CLA-FMS-CBPM-01:
+    type: beam_position_monitor
+    length: 0.08
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 53.4362]
+    position_start: [0, 0, 53.3562]
   CLA-FMS-MU1-APER-02:
     type: marker
     fit_point: 1.0
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 53.5541]
-    position_start: [0, 0, 53.5541]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 53.4362]
+    position_start: [0, 0, 53.4362]
   CLA-FMS-MAG-QUAD-02:
     type: quadrupole
     length: 0.028
@@ -225,24 +238,24 @@ elements:
     buffer_start: [2.68734e-05, 0, 53.5541]
     buffer_start_length: 0.05
     buffer_end_length: 0.05
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 53.6321]
-    position_start: [0, 0, 53.6041]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 53.5962]
+    position_start: [0, 0, 53.4862]
   CLA-FMS-DIA-SCR-03-W:
     type: marker
     fit_point: 1.0
     buffer_start: [2.66174e-05, 0, 53.6821]
     buffer_start_length: 0.021667
     buffer_end_length: 0.038334
-    global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 53.7038]
-    position_start: [0, 0, 53.7038]
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 53.6678]
+    position_start: [0, 0, 53.6678]
   CLA-FMS-MU2-APER-01:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, -2.0e-06]
-    position_end: [0, 0, 53.7421]
-    position_start: [0, 0, 53.7421]
+    position_end: [0, 0, 53.7062]
+    position_start: [0, 0, 53.7062]
   CLA-FMS-MU2-WIGG-01:
     type: wiggler
     length: 0.535
@@ -251,13 +264,13 @@ elements:
     poles: 8
     k: 5
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 54.2921]
-    position_start: [0, 0, 53.7571]
+    position_end: [0, 0, 54.2562]
+    position_start: [0, 0, 53.7212]
   CLA-FMS-MU2-MARK-01:
     type: marker
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 54.2921]
-    position_start: [0, 0, 54.2921]
+    position_end: [0, 0, 54.2562]
+    position_start: [0, 0, 54.2562]
   CLA-FMS-MU2-WIGG-02:
     type: wiggler
     length: 0.535
@@ -266,8 +279,8 @@ elements:
     poles: 8
     k: 5
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 54.8271]
-    position_start: [0, 0, 54.2921]
+    position_end: [0, 0, 54.7912]
+    position_start: [0, 0, 54.2562]
   CLA-FMS-DIA-SCR-04-W:
     type: marker
     fit_point: 1.0
@@ -275,14 +288,14 @@ elements:
     buffer_start_length: 0.021667
     buffer_end_length: 0.038334
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 54.8638]
-    position_start: [0, 0, 54.8638]
+    position_end: [0, 0, 54.8278]
+    position_start: [0, 0, 54.8278]
   CLA-FMS-DIA-BPM-03:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 55.1121]
-    position_start: [0, 0, 54.9021]
+    position_end: [0, 0, 55.0762]
+    position_start: [0, 0, 54.8662]
   CLA-FMS-PMD-01:
     type: dipole
     length: 0.07500
@@ -291,9 +304,9 @@ elements:
     entrance_edge_angle: 0.0
     exit_edge_angle: -0.01
     k1: 0.0
-    global_rotation: [0, 0, -4.0e-06]
-    position_end: [-0.000396699, 0, 55.2171]
-    position_start: [0, 0, 55.1421]
+    global_rotation: [0, 0, 0]
+    position_end: [-0.000406796518809995, 0, 55.1812]
+    position_start: [0, 0, 55.1062]
   CLA-FMS-PMD-02:
     type: dipole
     length: 0.15000
@@ -303,8 +316,8 @@ elements:
     exit_edge_angle: 0.01
     k1: 0.0
     global_rotation: [0, 0, 0.009996]
-    position_end: [-0.000396099, 0, 55.3671]
-    position_start: [-0.000396699, 0, 55.2171]
+    position_end: [-0.000406796518809995, 0, 55.3312]
+    position_start: [-0.000406796518809995, 0, 55.1812]
   CLA-FMS-PMD-03:
     type: dipole
     length: 0.07500
@@ -314,8 +327,8 @@ elements:
     exit_edge_angle: 0.0
     k1: 0.0
     global_rotation: [0, 0, -0.010004]
-    position_end: [0, 0, 55.4421]
-    position_start: [-0.000396099, 0, 55.3671]
+    position_end: [0, 0, 55.4062]
+    position_start: [-0.000406796518809995, 0, 55.1812]
   CLA-FMS-DIA-SCR-05-W:
     type: marker
     fit_point: 1.0
@@ -323,11 +336,18 @@ elements:
     buffer_start_length: 0.021667
     buffer_end_length: 0.038334
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 55.4638]
-    position_start: [0, 0, 55.4638]
-  CLA-FMS-APER-02:
+    position_end: [0, 0, 55.4278]
+    position_start: [0, 0, 55.4278]
+  CLA-FMS-CBPM-APER-02:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [0, 0, 55.5021]
-    position_start: [0, 0, 55.5021]
+    position_end: [0, 0, 53.3562]
+    position_start: [0, 0, 53.3562]
+  CLA-FMS-CBPM-02:
+    type: beam_position_monitor
+    length: 0.08
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 55.5462]
+    position_start: [0, 0, 55.4662]
