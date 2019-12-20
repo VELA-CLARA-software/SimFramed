@@ -1,5 +1,5 @@
 import time, os, subprocess, re, sys
-from ruamel import yaml
+from ruamel.yaml import YAML
 sys.path.append('../..')
 from SimulationFramework.Framework import *
 from collections import OrderedDict
@@ -28,6 +28,7 @@ class Converter(Framework):
         self.mariadb_connection = mariadb.connect(host='astecnas2', user='root', password='control123', database='master_lattice')
         self.cursor = self.mariadb_connection.cursor(buffered=True)
         self.datums = {k:v for k,v in self.load_datums().items() if not '-a' == k[-2:] and not '-b'  == k[-2:]}
+        self.all_data = OrderedDict()
 
     def load_datums(self):
         datums = {}
@@ -69,9 +70,6 @@ class Converter(Framework):
 
         for name, elem in list(elements.items()):
             self.read_Element(name, elem)
-
-        # for name, lattice in list(self.fileSettings.items()):
-        #     self.read_Lattice(name, lattice)
 
     def read_Lattice(self, name, lattice):
         print (name)
@@ -119,6 +117,8 @@ class Converter(Framework):
             filename = [input]
         for f in filename:
             print('#####', f,'#####')
+            self.currentfile = f
+            self.all_data[self.currentfile] = OrderedDict()
             if os.path.isfile(f):
                 with open(f, 'r') as stream:
                     elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
@@ -127,13 +127,17 @@ class Converter(Framework):
                     elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
             for name, elem in list(elements.items()):
                 self.read_Element(name, elem)
+            with open(self.currentfile.replace('YAML/','newYAML/'), 'w') as outfile:
+                yaml.dump({'elements': self.all_data[self.currentfile]}, outfile)
+
+    def FSlist(self, l):  # concert list into flow-style (default is block style)
+        from ruamel.yaml.comments import CommentedSeq
+        cs = CommentedSeq(l)
+        cs.fa.set_block_style()
+        return cs
 
     def insert_element(self, element):
-        # self.insert_element_type(element)
-        element['center_x'], element['center_y'], element['center_z'] = self.elementObjects[element['name']].middle
-        # if element['name'].lower() in self.datums:
-        #     finalmatch = element['name']
-        # else:
+        element['center'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].middle]
         lname = element['name'].lower()
         if 'dip' in lname:
             lname = lname + '-d'
@@ -155,12 +159,18 @@ class Converter(Framework):
                 print('Match found but diff big', mdiff, ez, dz , ex, dx, lname, finalmatch)
         if finalmatch is None or mdiff > 0.001:
             print('No Match found  ', lname, finalmatch)
+            element['datum'] = [ round(elem, 6) for elem in element['position_end']]
         else:
-            element['datum_x'], element['datum_y'], element['datum_z'] = self.datums[finalmatch.lower()]
-            # print('found match!  ', diff, lname, finalmatch)
-        element = {k:element[k] for k in element.keys() if not 'position' in k and not 'buffer' in k}
-        # if not element['name'].lower() in self.datums:
-        #     print (element)
+            element['datum'] = [ round(elem, 6) for elem in self.datums[finalmatch.lower()]]
+        subelem = element['subelement']
+        newelement = OrderedDict()
+        [newelement.update({k: self.convert_numpy_types(element[k])}) for k in element.keys() if not 'position' in k and not 'buffer' in k and not 'subelement' in k and not 'Online_Model_Name' in k and not 'Controller_Name' in k]
+        element = newelement
+        if not subelem == '':
+            print('found subelement ', subelem, element['name'])
+            self.all_data[self.currentfile][subelem]['sub_elements'][element['name']] = element
+        else:
+            self.all_data[self.currentfile][element['name']] = element
 
     def closeMatches(self, patterns, word):
          return (get_close_matches(word, patterns,3,0.3))
