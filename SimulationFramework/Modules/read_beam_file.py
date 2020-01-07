@@ -6,13 +6,15 @@ import scipy.constants as constants
 from scipy.spatial.distance import cdist
 from scipy.spatial import ConvexHull
 from scipy.stats import gaussian_kde
+from itertools import compress
 try:
     import sdds
 except:
     print('sdds failed to load')
     pass
-from . import read_gdf_file as rgf
-from . import minimumVolumeEllipse as mve
+sys.path.append(os.path.dirname(__file__))
+import read_gdf_file as rgf
+import minimumVolumeEllipse as mve
 MVE = mve.EllipsoidTool()
 
 class beam(object):
@@ -787,8 +789,8 @@ class beam(object):
         self.slice['t_Bins'] = binst
         self._t_binned = np.digitize(t, self.slice['t_Bins'])
         self._tfbins = [[self._t_binned == i] for i in range(1, len(binst))]
-        self._tbins = [self.t[tuple(tbin)] for tbin in self._tfbins]
-        self._cpbins = [self.cp[tuple(tbin)] for tbin in self._tfbins]
+        self._tbins = [np.array(self.t)[tuple(tbin)] for tbin in self._tfbins]
+        self._cpbins = [np.array(self.cp)[tuple(tbin)] for tbin in self._tfbins]
 
     def bin_momentum(self, width=10**6):
         if not hasattr(self,'slice'):
