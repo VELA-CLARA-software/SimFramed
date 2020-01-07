@@ -1,8 +1,13 @@
 import sys, os, time, math, datetime, copy, re,  h5py, csv
 from collections import OrderedDict
 import glob
-from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
-from PyQt4.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
+try:
+    from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
+    from PyQt4.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
+except:
+    from PyQt5.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
+    from PyQt5.QtGui import *
+    from PyQt5.QtWidgets import *
 from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, \
 setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout, AxisItem, ViewBox, PlotDataItem, colorStr, mkColor, ImageView, PlotItem
 from pyqtgraph.graphicsItems.LegendItem import ItemSample
@@ -446,7 +451,7 @@ class astraPlotWidget(QWidget):
                 y = getattr(self.beam, param['name'])
                 self.curve[param['name']].setData(x=x, y=y)
                 self.sliceaxis[param['name']][0].setVisible(True)
-                with open(self.directory+'/'+self.fileSelector.currentText()+'.'+self.screenSelector.currentText()+'.'+param['name']+'_slices.csv', 'wb') as csvfile:
+                with open(self.directory+'/'+self.fileSelector.currentText()+'.'+self.screenSelector.currentText()+'.'+param['name']+'_slices.csv', 'w') as csvfile:
                     spamwriter = csv.writer(csvfile, delimiter=',',
                                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
                     for row in zip(x,y):
@@ -466,7 +471,7 @@ class astraPlotWidget(QWidget):
         yrange = range[1]
         scaleY = 0.05*abs(yrange[1] - yrange[0])
         rect = QRectF(0, yrange[0] + 2*scaleY, 49.2778, 4*scaleY)
-        self.latticePlots[vb].setRect(rect)
+        # self.latticePlots[vb].setRect(rect)
 
 setConfigOptions(antialias=True)
 setConfigOption('background', 'w')

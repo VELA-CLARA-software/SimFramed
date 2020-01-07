@@ -1,10 +1,11 @@
-import os, math, h5py
+import os, math, h5py, sys
 import numpy as np
 from scipy import interpolate
 import scipy.integrate as integrate
 import scipy.constants as constants
 import sdds
-from . import read_gdf_file as rgf
+sys.path.append(os.path.dirname(__file__))
+import read_gdf_file as rgf
 import munch
 
 class twiss(munch.Munch):
