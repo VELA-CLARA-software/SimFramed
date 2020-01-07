@@ -27,7 +27,7 @@ def before_tracking():
 
 def create_base_files(scaling, charge=70):
     framework = Framework('basefiles_'+str(scaling)+'_'+str(charge), overwrite=True, clean=True)
-    framework.loadSettings('CLA10-BA1_TOMP.def')
+    framework.loadSettings('CLA10-BA1_TOMP_Separated.def')
     if not os.name == 'nt':
         framework.defineASTRACommand(scaling=(scaling))
         framework.defineCSRTrackCommand(scaling=(scaling))
@@ -39,11 +39,11 @@ def create_base_files(scaling, charge=70):
 
 ## Modify as appropriate! ##
 # for i in [6]:
-#     create_base_files(i,20)
-#     create_base_files(i,50)
-#     create_base_files(i,70)
-#     create_base_files(i,150)
-#     create_base_files(i,250)
+    # create_base_files(i,20)
+    # create_base_files(i,50)
+    # create_base_files(i,70)
+    # create_base_files(i,150)
+    # create_base_files(i,250)
 # exit()
 
 def optFunc(linac1field):
@@ -85,11 +85,7 @@ def set_Phase(phase, charge=70, track=True):
     if track:
         elements = lattice.elementObjects.values()
         for e in elements:
-            e.lsc_enable = True
-            e.lsc_bins = 200
-            e.current_bins = 0
-            e.longitudinal_wakefield_enable = True
-            e.transverse_wakefield_enable = True
+            e.lsc_enable = False
     lattice['L01'].file_block['input']['prefix'] = '../../../CLARA_BA1_Gaussian/basefiles_'+str(scaling)+'_'+str(charge)+'/'
     lattice['L01'].sample_interval = 8
     lattice.modifyElement('CLA-L01-CAV', 'phase', phase)
@@ -408,7 +404,7 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
     bestdelta = 1e10
     dir = './SETUP/TOMP_SETUP'
     lattice = Framework(dir, clean=False, verbose=False)
-    lattice.loadSettings('CLA10-BA1_TOMP.def')
+    lattice.loadSettings('CLA10-BA1_TOMP_Separated.def')
     scaling = 6
     if not os.name == 'nt':
         lattice.defineASTRACommand(scaling=(scaling))
@@ -441,8 +437,8 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
         lattice.getElement('EBT-BA1-MAG-QUAD-07', 'k1l'),
 
     ]
-    quadsNEW = np.array([
-    1.7901911899775773,-1.6407693149976745,2.2849042966309447,-1.3685069221066561,5.7572751421298305,-4.696861959661223,1.653747009525063,-1.597658628810405,0.3920095459041216,-0.3922879907823872,0.16851104048712628,0.12208077087083297,-0.26073294653351364,-0.9516625759490311,1.2270249450337767,1.1374710985669274,0.038188155183286554,-1.3227126094830322,1.360338937783752
+    quads = np.array([
+    1.7815538119218322, -1.6517067100557492, 2.3043853160232697, -1.3861969157005136, 5.757177173351052, -4.733558263809512, 1.7234634394591193, -1.5865723560117138, 0.3758596578541717, -0.3895175193164829, 0.17091495276247198, 0.12327634704511606, -0.2637956911506127, -0.9593369561940668, 1.2250265489541068, 1.150196537233205, 0.0385787389105507, -1.3341278723969179, 1.3605277843974064 
     ])
     lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
     lattice['S02'].sample_interval = 2**(3*3)
@@ -456,33 +452,16 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
 
 
 optimise_Lattice()
-# elegantNoSCOut = open('elegant_NoSC_phase_data.csv','w')
-# elegantSCOut = open('elegant_SC_phase_data.csv','w')
-# elegantSCCSROut = open('elegant_SC_CSR_phase_data.csv','w')
-# ASTRAOut = open('ASTRA_phase_data.csv','w')
-# GPTout = open('GPT_phase_data.csv','w')
-# GPTCSRout = open('GPT_CSR_phase_data.csv','w')
+for i in [0]: # THIS IS THE LINAC RF PHASE
+    for q in [70]: # THIS IS THE BUNCH CHARGE
+        set_Phase(i, q, track=False) # THIS SETS UP THE RF TO THE CORRECT LINAC PHASE
+        optimise_Lattice(phase=i, q=q, do_optimisation=True) # THIS SETS THE QUADRUPOLES TO THE RIGHT VALUES
 
-# elegentNoSC_csv_out = csv.writer(elegantNoSCOut)
-# elegentSC_csv_out = csv.writer(elegantSCOut)
-# elegentSCCSR_csv_out = csv.writer(elegantSCCSROut)
-# ASTRA_csv_out = csv.writer(ASTRAOut)
-# GPT_csv_out = csv.writer(GPTout)
-# GPTCSR_csv_out = csv.writer(GPTCSRout)
+        ## THE FOLLOWING RUN ELEGANT/ASTRA/GPT IN VARIOUS DIFFERENT MODES. UNCOMMENT AS APPROPRIATE
 
-for i in [4]:#range(-20,5):
-    for q in [70]:
-        set_Phase(i, q, track=False)
-        optimise_Lattice(i, q, False)
-        # data = track_phase_elegant(i, q)
-        # elegentNoSC_csv_out.writerow(data)
+        data = track_phase_elegant(i, q)
         # data = track_phase_elegant_SC(i, q)
-        # elegentSC_csv_out.writerow(data)
         # data = track_phase_elegant_SC_CSR(i, q)
-        # elegentSCCSR_csv_out.writerow(data)
-        data = track_phase_astra(i, q)
-        # ASTRA_csv_out.writerow(data)
+        # data = track_phase_astra(i, q)
         # data = track_phase_gpt(i)
-        # GPT_csv_out.writerow(data)
         # data = track_phase_gpt_CSR(i)
-        # GPTCSR_csv_out.writerow(data)
