@@ -481,15 +481,15 @@ class Framework(Munch):
         # outputfile.write(k+' '+v+' ')
 
     def __getitem__(self,key):
-        if key in super().__getitem__('elementObjects'):
+        if key in super(Framework, self).__getitem__('elementObjects'):
             return self.elementObjects.get(key)
-        elif key in super().__getitem__('latticeObjects'):
+        elif key in super(Framework, self).__getitem__('latticeObjects'):
             return self.latticeObjects.get(key)
-        elif key in super().__getitem__('groupObjects'):
+        elif key in super(Framework, self).__getitem__('groupObjects'):
             return self.groupObjects.get(key)
         else:
             try:
-                return super().__getitem__(key)
+                return super(Framework, self).__getitem__(key)
             except:
                 return None
 
@@ -906,18 +906,18 @@ class frameworkObject(Munch):
 
     def __getitem__(self, key):
         lkey = key.lower()
-        defaults = super().__getitem__('objectdefaults')
+        defaults = super(frameworkObject, self).__getitem__('objectdefaults')
         if lkey in defaults:
             try:
-                return super().__getitem__(lkey)
+                return super(frameworkObject, self).__getitem__(lkey)
             except:
                 return defaults[lkey]
         else:
             try:
-                return super().__getitem__(lkey)
+                return super(frameworkObject, self).__getitem__(lkey)
             except:
                 try:
-                    return super().__getattribute__(key)
+                    return super(frameworkObject, self).__getattribute__(key)
                 except:
                     return None
 
