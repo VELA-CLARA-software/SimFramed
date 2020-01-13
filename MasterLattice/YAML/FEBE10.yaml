@@ -103,8 +103,8 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 67.225]
-    position_start: [3.68075, 0, 67.225]
+    position_end: [3.68075, 0, 67.4167]
+    position_start: [3.68075, 0, 67.4167]
   CLA-FEB-FOCUS-01-END:
     type: marker
     fit_point: 1.0
@@ -285,8 +285,8 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 74.225]
-    position_start: [3.68075, 0, 74.225]
+    position_end: [3.68075, 0, 74.0333]
+    position_start: [3.68075, 0, 74.0333]
   CLA-FEB-FOCUS-03-END:
     type: marker
     fit_point: 1.0
@@ -337,25 +337,25 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 77.16]
     position_start: [3.6807513048841103, 0, 77.16]
+  CLA-FEB-SHUT-02-START:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 77.25]
+    position_start: [3.6807513048841103, 0, 77.25]
+  CLA-FEB-SHUT-02-END:
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 77.85]
+    position_start: [3.6807513048841103, 0, 77.85]
   CLA-FEB-MAG-QUAD-29:
     type: quadrupole
     length: 0.15
     k1l: 0.506404946457
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 77.396195]
-    position_start: [3.6807513048841103, 0, 77.246195]
-  CLA-FEB-SHUT-02-START:
-    type: marker
-    fit_point: 1.0
-    global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 77.500]
-    position_start: [3.6807513048841103, 0, 77.500]
-  CLA-FEB-SHUT-02-END:
-    type: marker
-    fit_point: 1.0
-    global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 78.1]
-    position_start: [3.6807513048841103, 0, 78.1]
+    position_end: [3.6807513048841103, 0, 77.9]
+    position_start: [3.6807513048841103, 0, 78.05]
   CLA-FEB-MAG-QUAD-30:
     type: quadrupole
     length: 0.15

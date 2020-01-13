@@ -139,6 +139,8 @@ class Converter(Framework):
     def insert_element(self, element):
         element['center'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].middle]
         lname = element['name'].lower()
+        for r in (("FEA", "FEB"), ("FEH", "FEB"), ("FED", "FEB")):
+            lname = lname.replace(*r)
         if 'dip' in lname:
             lname = lname + '-d'
         match = self.closeMatches(self.datums, lname)
@@ -159,9 +161,16 @@ class Converter(Framework):
                 print('Match found but diff big', mdiff, ez, dz , ex, dx, lname, finalmatch)
         if finalmatch is None or mdiff > 0.001:
             print('No Match found  ', lname, finalmatch)
-            element['datum'] = [ round(elem, 6) for elem in element['position_end']]
+            if 'FEB' in lname:
+                element['datum'] = element['center']
+            else:
+                element['datum'] = [ round(elem, 6) for elem in element['position_end']]
         else:
             element['datum'] = [ round(elem, 6) for elem in self.datums[finalmatch.lower()]]
+        if element['type'] == 'screen' and not 'MASK' in element['name'] and not 'CTR' in element['name']:
+            element['datum'] = element['datum'] - [0,0,0.0167]
+        if element['type'] == 'beam_position_monitor':
+            element['datum'] = element['datum'] - [0,0,0.0697]
         subelem = element['subelement']
         newelement = OrderedDict()
         [newelement.update({k: self.convert_numpy_types(element[k])}) for k in element.keys() if not 'position' in k and not 'buffer' in k and not 'subelement' in k and not 'Online_Model_Name' in k and not 'Controller_Name' in k]
@@ -194,5 +203,5 @@ class Converter(Framework):
         return [c[0] for c in self.cursor]
 
 fw = Converter()
-fw.loadSettings('Lattices/clara400_v12_v3.def')
-# fw.get_columns('cavity')
+# fw.loadSettings('Lattices/clara400_v12_FEBE.def')
+fw.read_Element('filename', ['YAML/FEBE_ARC.yaml', 'YAML/FEBE.yaml'])

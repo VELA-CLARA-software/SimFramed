@@ -1,9 +1,9 @@
 import sys, os, time, math, datetime, copy, re,  h5py
 from collections import OrderedDict
 import glob
-from PyQt4.QtCore import * #QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
-from PyQt4.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
-# from PyQt5.QtWidgets import *
+from PyQt5.QtCore import * #QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
+from PyQt5.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
+from PyQt5.QtWidgets import *
 from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, \
 setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout, AxisItem, ViewBox, PlotDataItem, colorStr, mkColor, ImageView, PlotItem
 from pyqtgraph.graphicsItems.LegendItem import ItemSample
