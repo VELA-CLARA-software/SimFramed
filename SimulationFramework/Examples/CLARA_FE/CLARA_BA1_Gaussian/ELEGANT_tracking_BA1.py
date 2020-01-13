@@ -25,7 +25,7 @@ def before_tracking():
         l.lscDrifts = True
         l.lsc_bins = 200
 
-def create_base_files(scaling, charge=70):
+def create_base_files(scaling, charge=70, sol01=0.237):
     framework = Framework('basefiles_'+str(scaling)+'_'+str(charge), overwrite=True, clean=True)
     framework.loadSettings('CLA10-BA1_TOMP.def')
     if not os.name == 'nt':
@@ -33,12 +33,16 @@ def create_base_files(scaling, charge=70):
         framework.defineCSRTrackCommand(scaling=(scaling))
     framework.generator.number_of_particles = 2**(3*scaling)
     framework.modifyElement('CLA-LRG1-GUN-CAV', 'phase', -5)
+    framework.modifyElement('CLA-LRG1-GUN-SOL', 'field_amplitude', sol01)
     framework['generator'].charge = charge * 1e-12
     # before_tracking()
     framework.track(files=['generator','injector10'])
 
 ## Modify as appropriate! ##
 # for i in [6]:
+
+#    create_base_files(i,1, 0.212)
+#    create_base_files(i,10, 0.212)
 #     create_base_files(i,20)
 #     create_base_files(i,50)
 #     create_base_files(i,70)
@@ -470,17 +474,17 @@ optimise_Lattice()
 # GPT_csv_out = csv.writer(GPTout)
 # GPTCSR_csv_out = csv.writer(GPTCSRout)
 
-for i in [4]:#range(-20,5):
-    for q in [70]:
-        set_Phase(i, q, track=False)
-        optimise_Lattice(i, q, False)
+for i in range(-20,5):
+    for q in [1]:
+        set_Phase(i, q, track=True)
+        optimise_Lattice(i, q, True)
         # data = track_phase_elegant(i, q)
         # elegentNoSC_csv_out.writerow(data)
         # data = track_phase_elegant_SC(i, q)
         # elegentSC_csv_out.writerow(data)
-        # data = track_phase_elegant_SC_CSR(i, q)
+        data = track_phase_elegant_SC_CSR(i, q)
         # elegentSCCSR_csv_out.writerow(data)
-        data = track_phase_astra(i, q)
+        # data = track_phase_astra(i, q)
         # ASTRA_csv_out.writerow(data)
         # data = track_phase_gpt(i)
         # GPT_csv_out.writerow(data)
