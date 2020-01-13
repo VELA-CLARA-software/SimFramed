@@ -103,8 +103,8 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 67.225]
-    position_start: [3.68075, 0, 67.225]
+    position_end: [3.68075, 0, 67.4167]
+    position_start: [3.68075, 0, 67.4167]
   CLA-FEB-FOCUS-01-END:
     type: marker
     fit_point: 1.0
@@ -285,8 +285,8 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 74.225]
-    position_start: [3.68075, 0, 74.225]
+    position_end: [3.68075, 0, 74.0333]
+    position_start: [3.68075, 0, 74.0333]
   CLA-FEB-FOCUS-03-END:
     type: marker
     fit_point: 1.0
