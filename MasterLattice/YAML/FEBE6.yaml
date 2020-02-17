@@ -467,8 +467,8 @@ elements:
     type: dipole
     length: 0.5
     angle: -0.3490658504
-    entrance_edge_angle: 0.174533
-    exit_edge_angle: 0.174533
+    entrance_edge_angle: -0.174533
+    exit_edge_angle: -0.174533
     global_rotation: [0, 0, 0]
     position_end: [3.5943673473222746, 0, 80.4774]
     position_start: [3.6807513048841103, 0, 79.9875]

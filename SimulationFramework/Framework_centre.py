@@ -1035,7 +1035,6 @@ class elegantTrackFile(elegantCommandFile):
         self.betay = betay if betay is not None else beam.beta_y
         self.alphax = alphax if alphax is not None else beam.alpha_x
         self.alphay = alphay if alphay is not None else beam.alpha_y
-        self.addCommand(type='global_settings', mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
             use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
@@ -1778,22 +1777,21 @@ class frameworkElement(frameworkObject):
 
     @property
     def start(self):
-        start = np.array(self.position_start)
-        return start
+        centre = np.array(self.centre)
+        return centre - self.rotated_position(np.array([0,0, self.length / 2.0]), offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def middle(self):
-        start = np.array(self.position_start)
-        return start + self.rotated_position(np.array([0,0, self.length / 2.0]), offset=self.starting_offset, theta=self.starting_rotation)
+        return self.centre
 
     @property
     def end(self):
-        start = np.array(self.position_start)
-        return start + self.rotated_position(np.array([0,0, self.length]), offset=self.starting_offset, theta=self.starting_rotation)
+        centre = np.array(self.centre)
+        return centre + self.rotated_position(np.array([0,0, self.length / 2.0]), offset=self.starting_offset, theta=self.starting_rotation)
 
     def relative_position_from_centre(self, vec=[0,0,0]):
-        start = np.array(self.start)
-        return start + self.rotated_position(np.array([0,0, self.length / 2.0]) + np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
+        centre = np.array(self.centre)
+        return centre + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
 
     def _write_ASTRA(self, d, n=1):
         output = ''
@@ -1911,78 +1909,29 @@ class dipole(frameworkElement):
     #     return np.array(start) + self.rotated_position(starting_middle, offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
-    def middle(self):
-        sx, sy, sz = self.position_start
-        angle = -self.angle
+    def start(self):
+        cx,cy,cz = self.centre
+        angle = self.angle
         l = self.length
         if abs(angle) > 0:
-            cx = 0
-            cy = 0
-            cz = (l * np.tan(angle/2.0)) / angle
-            vec = [cx, cy, cz]
+            sx = 0
+            sy = 0
+            sz = (l * np.tan(angle/2.0)) / angle
+            vec = [sx, sy, sz]
         else:
             vec = [0,0,l/2.0]
-        # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
-
-    @property
-    def arc_middle(self):
-        sx, sy, sz = self.position_start
-        angle = -self.angle
-        l = self.length
-        r = l / angle
-        if abs(angle) > 0:
-            cx = r * (np.cos(angle/2.0) - 1)
-            cy = 0
-            cz = r * np.sin(angle/2.0)
-            vec = [cx, cy, cz]
-        else:
-            vec = [0,0,l/2.0]
-        # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
-
-    @property
-    def line_middle(self):
-        sx, sy, sz = self.position_start
-        angle = -self.angle
-        l = self.length
-        r = l / angle
-        if abs(angle) > 0:
-            cx = 0.5 * r * (np.cos(angle) - 1)
-            cy = 0
-            cz = 0.5 * r * np.sin(angle)
-            vec = [cx, cy, cz]
-        else:
-            vec = [0,0,l/2.0]
-        # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
-
-    @property
-    def TD_middle(self):
-        sx, sy, sz = self.position_start
-        angle = -self.angle
-        l = self.length
-        r = l / angle
-        if abs(angle) > 0:
-            cx = 0.25 * r * (2.0 * np.cos(angle/2.0) + np.cos(angle) - 3)
-            cy = 0
-            cz = 0.25 * r * (2 * np.sin(angle/2.0) + np.sin(angle))
-            vec = [cx, cy, cz]
-        else:
-            vec = [0,0,l/2.0]
-        # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
+        return np.array(self.centre) - self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def end(self):
-        start = self.position_start
+        start = self.start
         if abs(self.angle) > 1e-9:
             ex = -1. * (self.length * (np.cos(self.angle) - 1)) / self.angle
             ey = 0
             ez = (self.length * (np.sin(self.angle))) / self.angle
-            return np.array(self.position_start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=self.starting_rotation)
+            return np.array(start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=self.starting_rotation)
         else:
-            return np.array(self.position_start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=self.starting_rotation)
+            return np.array(start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=self.starting_rotation)
 
     @property
     def width(self):

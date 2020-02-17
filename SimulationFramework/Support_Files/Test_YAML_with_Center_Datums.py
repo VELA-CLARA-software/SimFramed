@@ -1,7 +1,7 @@
 import time, os, subprocess, re, sys
 from ruamel.yaml import YAML
 sys.path.append('../..')
-from SimulationFramework.Framework import *
+from SimulationFramework.Framework_centre import *
 from collections import OrderedDict
 from munch import Munch, unmunchify
 import mysql.connector as mariadb
@@ -124,7 +124,7 @@ class Converter(Framework):
                     elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
             for name, elem in list(elements.items()):
                 self.read_Element(name, elem)
-            with open(self.currentfile.replace('YAML/','newYAML/'), 'w') as outfile:
+            with open(self.currentfile.replace('newYAML/','testYAML/'), 'w') as outfile:
                 yaml.dump({'elements': self.all_data[self.currentfile]}, outfile)
 
     def FSlist(self, l):  # concert list into flow-style (default is block style)
@@ -162,15 +162,11 @@ class Converter(Framework):
             if '-feb-' in lname:
                 element['start'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].start ]
                 element['end'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].end ]
-                element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].middle ]
-                if element['type'] == 'dipole' and '-feb-' in lname:
-                    element['arc_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].arc_middle ]
-                    element['line_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].line_middle ]
-                    element['TD_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].TD_middle ]
-                if element['type'] == 'screen' and '-feb-' in lname and not 'mask' in lname and not 'ctr' in lname:
-                    element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0167]) ]
-                if element['type'] == 'beam_position_monitor' and '-feb-' in lname:
-                    element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0697]) ]
+                # element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].middle ]
+                # if element['type'] == 'screen' and '-feb-' in lname and not 'mask' in lname and not 'ctr' in lname:
+                #     element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0167]) ]
+                # if element['type'] == 'beam_position_monitor' and '-feb-' in lname:
+                #     element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0697]) ]
             else:
                 element['old_datum'] = [ round(elem, 6) for elem in element['position_end']]
         else:
@@ -178,14 +174,13 @@ class Converter(Framework):
 
         subelem = element['subelement']
         newelement = OrderedDict()
-        [newelement.update({k: self.convert_numpy_types(element[k])}) for k in element.keys() if not 'position' in k and not 'buffer' in k and not 'subelement' in k and not 'Online_Model_Name' in k and not 'Controller_Name' in k and not 'name' in k]
-        name = element['name']
+        [newelement.update({k: self.convert_numpy_types(element[k])}) for k in element.keys() if not 'position' in k and not 'buffer' in k and not 'subelement' in k and not 'Online_Model_Name' in k and not 'Controller_Name' in k]
         element = newelement
         if not subelem == '':
-            print('found subelement ', subelem, name)
-            self.all_data[self.currentfile][subelem]['sub_elements'][name] = element
+            print('found subelement ', subelem, element['name'])
+            self.all_data[self.currentfile][subelem]['sub_elements'][element['name']] = element
         else:
-            self.all_data[self.currentfile][name] = element
+            self.all_data[self.currentfile][element['name']] = element
 
     def closeMatches(self, patterns, word):
          return (get_close_matches(word, patterns,3,0.3))
@@ -211,7 +206,7 @@ class Converter(Framework):
 fw = Converter()
 # fw.loadSettings('Lattices/clara400_v12_FEBE.def')
 
-fw.read_Element('filename', ['YAML/FEBE5_long_laser_input.yaml'])
+fw.read_Element('filename', ['newYAML/FEBE_arc.yaml'])
 
 exit()
 
