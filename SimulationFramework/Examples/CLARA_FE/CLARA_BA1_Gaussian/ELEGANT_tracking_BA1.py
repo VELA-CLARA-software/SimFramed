@@ -374,15 +374,15 @@ def optFuncVELA(args):
             'c2v_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][c2v1index], 'limit': -1*twiss['alpha_x'][c2v2index], 'weight': 10},
             'c2v_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][c2v1index], 'limit': -1*twiss['alpha_y'][c2v2index], 'weight': 10},
 
-            'ip_betax': {'type': 'lessthan', 'value': twiss['beta_x'][ipindex], 'limit': 0.5, 'weight': 25},
-            'ip_betay': {'type': 'lessthan', 'value': twiss['beta_y'][ipindex], 'limit': 0.5, 'weight': 25},
+            'ip_betax': {'type': 'lessthan', 'value': twiss['beta_x'][ipindex], 'limit': 0.25, 'weight': 50},
+            'ip_betay': {'type': 'lessthan', 'value': twiss['beta_y'][ipindex], 'limit': 0.25, 'weight': 50},
             'ip_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex], 'limit': 0., 'weight': 2.5},
             'ip_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex], 'limit': 0., 'weight': 2.5},
             'ip_etax': {'type': 'lessthan', 'value': abs(twiss['eta_x'][ipindex]), 'limit': 1e-4, 'weight': 50},
             'ip_etaxp': {'type': 'lessthan', 'value': abs(twiss['eta_xp'][ipindex]), 'limit': 1e-4, 'weight': 50},
-            'dump_etax': {'type': 'equalto', 'value': twiss['eta_x'][-1], 'limit': 0.67, 'weight': 5000},
-            'dump_betax': {'type': 'lessthan', 'value': twiss['beta_x'][-1], 'limit': 20, 'weight': 1.5},
-            'dump_betay': {'type': 'lessthan', 'value': twiss['beta_y'][-1], 'limit': 20, 'weight': 1.5},
+            # 'dump_etax': {'type': 'equalto', 'value': twiss['eta_x'][-1], 'limit': 0.67, 'weight': 5000},
+            # 'dump_betax': {'type': 'lessthan', 'value': twiss['beta_x'][-1], 'limit': 20, 'weight': 1.5},
+            # 'dump_betay': {'type': 'lessthan', 'value': twiss['beta_y'][-1], 'limit': 20, 'weight': 1.5},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListBA1)
 
@@ -407,7 +407,7 @@ def setVELA(quads):
     res = minimize(optFuncVELA, best, method='nelder-mead', options={'disp': False, 'adaptive': True, 'fatol': 1e-3, 'maxiter': 100})
     return res.x
 
-def optimise_Lattice(phase=None, q=70, do_optimisation=False):
+def optimise_Lattice(phase=None, q=70, do_optimisation=False, quads=None):
     global dir, lattice, scaling, bestdelta
     bestdelta = 1e10
     dir = './SETUP/TOMP_SETUP'
@@ -419,35 +419,35 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
         lattice.defineCSRTrackCommand(scaling=(scaling))
         lattice.define_gpt_command(scaling=(scaling))
     lattice['L01'].file_block['input']['prefix'] = '../basefiles_'+str(scaling)+'_'+str(q)+'/'
-    quads = 0.107*np.array([  21.11058462, -11.36377551,  24.69336696, -22.63264054,  56.07039682, -51.58739658])
+    # quads = 0.107*np.array([  21.11058462, -11.36377551,  24.69336696, -22.63264054,  56.07039682, -51.58739658])
     # quads = setChicane(quads)
     # optFuncChicane(quads)
     # print('Chicane = ', quads)
-    quads = [
-        lattice.getElement('CLA-S02-MAG-QUAD-01', 'k1l'),
-        lattice.getElement('CLA-S02-MAG-QUAD-02', 'k1l'),
-        lattice.getElement('CLA-S02-MAG-QUAD-03', 'k1l'),
-        lattice.getElement('CLA-S02-MAG-QUAD-04', 'k1l'),
-        lattice.getElement('CLA-C2V-MAG-QUAD-01', 'k1l'),
-        lattice.getElement('CLA-C2V-MAG-QUAD-02', 'k1l'),
-        lattice.getElement('EBT-INJ-MAG-QUAD-07', 'k1l'),
-        lattice.getElement('EBT-INJ-MAG-QUAD-08', 'k1l'),
-        lattice.getElement('EBT-INJ-MAG-QUAD-09', 'k1l'),
-        lattice.getElement('EBT-INJ-MAG-QUAD-10', 'k1l'),
-        lattice.getElement('EBT-INJ-MAG-QUAD-11', 'k1l'),
-        lattice.getElement('EBT-INJ-MAG-QUAD-15', 'k1l'),
-        lattice.getElement('EBT-BA1-MAG-QUAD-01', 'k1l'),
-        lattice.getElement('EBT-BA1-MAG-QUAD-02', 'k1l'),
-        lattice.getElement('EBT-BA1-MAG-QUAD-03', 'k1l'),
-        lattice.getElement('EBT-BA1-MAG-QUAD-04', 'k1l'),
-        lattice.getElement('EBT-BA1-MAG-QUAD-05', 'k1l'),
-        lattice.getElement('EBT-BA1-MAG-QUAD-06', 'k1l'),
-        lattice.getElement('EBT-BA1-MAG-QUAD-07', 'k1l'),
-
-    ]
-    quadsNEW = np.array([
-    1.7901911899775773,-1.6407693149976745,2.2849042966309447,-1.3685069221066561,5.7572751421298305,-4.696861959661223,1.653747009525063,-1.597658628810405,0.3920095459041216,-0.3922879907823872,0.16851104048712628,0.12208077087083297,-0.26073294653351364,-0.9516625759490311,1.2270249450337767,1.1374710985669274,0.038188155183286554,-1.3227126094830322,1.360338937783752
-    ])
+    if quads is None:
+        quads = [
+            lattice.getElement('CLA-S02-MAG-QUAD-01', 'k1l'),
+            lattice.getElement('CLA-S02-MAG-QUAD-02', 'k1l'),
+            lattice.getElement('CLA-S02-MAG-QUAD-03', 'k1l'),
+            lattice.getElement('CLA-S02-MAG-QUAD-04', 'k1l'),
+            lattice.getElement('CLA-C2V-MAG-QUAD-01', 'k1l'),
+            lattice.getElement('CLA-C2V-MAG-QUAD-02', 'k1l'),
+            lattice.getElement('EBT-INJ-MAG-QUAD-07', 'k1l'),
+            lattice.getElement('EBT-INJ-MAG-QUAD-08', 'k1l'),
+            lattice.getElement('EBT-INJ-MAG-QUAD-09', 'k1l'),
+            lattice.getElement('EBT-INJ-MAG-QUAD-10', 'k1l'),
+            lattice.getElement('EBT-INJ-MAG-QUAD-11', 'k1l'),
+            lattice.getElement('EBT-INJ-MAG-QUAD-15', 'k1l'),
+            lattice.getElement('EBT-BA1-MAG-QUAD-01', 'k1l'),
+            lattice.getElement('EBT-BA1-MAG-QUAD-02', 'k1l'),
+            lattice.getElement('EBT-BA1-MAG-QUAD-03', 'k1l'),
+            lattice.getElement('EBT-BA1-MAG-QUAD-04', 'k1l'),
+            lattice.getElement('EBT-BA1-MAG-QUAD-05', 'k1l'),
+            lattice.getElement('EBT-BA1-MAG-QUAD-06', 'k1l'),
+            lattice.getElement('EBT-BA1-MAG-QUAD-07', 'k1l'),
+        ]
+    # quadsNEW = np.array([
+    # 1.7901911899775773,-1.6407693149976745,2.2849042966309447,-1.3685069221066561,5.7572751421298305,-4.696861959661223,1.653747009525063,-1.597658628810405,0.3920095459041216,-0.3922879907823872,0.16851104048712628,0.12208077087083297,-0.26073294653351364,-0.9516625759490311,1.2270249450337767,1.1374710985669274,0.038188155183286554,-1.3227126094830322,1.360338937783752
+    # ])
     lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
     lattice['S02'].sample_interval = 2**(3*3)
     if do_optimisation:
@@ -457,6 +457,7 @@ def optimise_Lattice(phase=None, q=70, do_optimisation=False):
     optFuncVELA(quads)
     lattice['S02'].file_block['output']['end_element'] = 'EBT-BA1-DIA-FCUP-01'
     lattice['S02'].sample_interval = 1
+    return quads
 
 
 optimise_Lattice()
@@ -473,14 +474,18 @@ optimise_Lattice()
 # ASTRA_csv_out = csv.writer(ASTRAOut)
 # GPT_csv_out = csv.writer(GPTout)
 # GPTCSR_csv_out = csv.writer(GPTCSRout)
+quadsQ = {}
+quadsQ[1] = [ 1.8191594996267786, -1.707317513724687, 2.4090989401599714, -1.3216733771899425, 5.7557767968313325, -4.503118599193744, 1.6268964529195808, -1.5949011837174787, 0.38843946325285816, -0.3870099642428687, 0.17320941870881462, 0.12325946316027796, -0.2618271290343703, -0.9582850760318442, 1.2817383905901392, 1.1084573711072419, 0.041695091719189586, -1.3229354721150517, 1.411543562229589 ]
+quadsQ[10] = [ 1.8667707927240773, -1.6789870593500358, 2.3378080401545382, -1.3484402805668665, 5.757621739439527, -4.785179723245205, 1.692323674490794, -1.582308354093925, 0.39850148984450856, -0.38117966044985574, 0.16899272163187412, 0.11991473512631567, -0.26249659602903985, -0.9618367641754275, 1.2508648057093943, 1.1280240018016188, 0.042488285290006485, -1.35072248361301, 1.451439620667969 ]
 
-for i in range(-20,5):
-    for q in [1]:
-        set_Phase(i, q, track=True)
-        optimise_Lattice(i, q, True)
-        # data = track_phase_elegant(i, q)
+for i in sorted(list(np.arange(-13,-9.9,0.25)) + range(-20,20)):
+    for q in [1, 10]:
+        quads = quadsQ[q]
+        set_Phase(i, q, track=False)
+        quads = optimise_Lattice(i, q, False, quads=quads)
+        data = track_phase_elegant(i, q)
         # elegentNoSC_csv_out.writerow(data)
-        # data = track_phase_elegant_SC(i, q)
+        data = track_phase_elegant_SC(i, q)
         # elegentSC_csv_out.writerow(data)
         data = track_phase_elegant_SC_CSR(i, q)
         # elegentSCCSR_csv_out.writerow(data)
