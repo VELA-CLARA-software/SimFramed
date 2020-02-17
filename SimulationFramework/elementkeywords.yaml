@@ -96,6 +96,7 @@ common:
     buffer_end_length,
     position_errors,
     rotation_errors,
+    centre,
   }
 dipole:
   keywords: {
