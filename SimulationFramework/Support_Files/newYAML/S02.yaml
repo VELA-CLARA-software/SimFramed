@@ -1,0 +1,164 @@
+elements:
+  CLA-S02-APER-01:
+    name: CLA-S02-APER-01
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 3.37147]
+    datum: [0, 0, 3.37147]
+  CLA-S02-MAG-HVCOR-01:
+    name: CLA-S02-MAG-HVCOR-01
+    type: kicker
+    length: 0.076607
+    sr_enable: true
+    isr_enable: true
+    Horizontal_PV: CLA-S02-MAG-HCOR-01
+    Vertcal_PV: CLA-S02-MAG-VCOR-01
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 3.409774]
+    datum: [0, 0, 3.44808]
+  CLA-S02-MAG-QUAD-01:
+    name: CLA-S02-MAG-QUAD-01
+    type: quadrupole
+    length: 0.1007
+    k1l: -0.128366
+    sr_enable: true
+    isr_enable: true
+    PV: CLA-S02-MAG-QUAD-01
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 3.52715]
+    datum: [0.0, 0, 3.5775]
+  CLA-S02-DIA-BPM-01:
+    name: CLA-S02-DIA-BPM-01
+    type: beam_position_monitor
+    length: 0.04528
+    PV: CLA-S02-DIA-BPM-01
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 3.60014]
+    datum: [0.0, 0, 3.62278]
+  CLA-S02-MAG-QUAD-02:
+    name: CLA-S02-MAG-QUAD-02
+    type: quadrupole
+    length: 0.1007
+    k1l: 0.0385686
+    sr_enable: true
+    isr_enable: true
+    PV: CLA-S02-MAG-QUAD-02
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 3.92715]
+    datum: [0.0, 0, 3.9775]
+  CLA-S02-DIA-SCR-01-W:
+    name: CLA-S02-DIA-SCR-01-W
+    type: screen
+    output_filename: CLA-S02-DIA-SCR-01.SDDS
+    camera_PV: CLA-S02-DIA-CAM-01
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 4.08983]
+    datum: [0.0, 0, 4.089833]
+  CLA-S02-MAG-HVCOR-02:
+    name: CLA-S02-MAG-HVCOR-02
+    type: kicker
+    length: 0.03
+    sr_enable: true
+    isr_enable: true
+    Horizontal_PV: CLA-S02-MAG-HCOR-02
+    Vertcal_PV: CLA-S02-MAG-VCOR-02
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 4.25307]
+    datum: [0.0, 0, 4.26807]
+  CLA-S02-COL-01:
+    name: CLA-S02-COL-01
+    type: collimator
+    length: 0.35
+    shape: elliptical
+    horizontal_size: 0.01
+    vertical_size: 0.01
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 4.51862]
+    datum: [0.0, 0, 4.69362]
+  CLA-S02-APER-02:
+    name: CLA-S02-APER-02
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 4.69362]
+    datum: [0.0, 0, 4.69362]
+  CLA-S02-MAG-HVCOR-03:
+    name: CLA-S02-MAG-HVCOR-03
+    type: kicker
+    length: 0.03
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 4.83056]
+    datum: [0.0, 0, 4.84556]
+  CLA-S02-DIA-SCR-02-W:
+    name: CLA-S02-DIA-SCR-02-W
+    type: screen
+    output_filename: CLA-S02-DIA-SCR-02.SDDS
+    camera_PV: CLA-S02-DIA-CAM-02
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 5.01083]
+    datum: [0.0, 0, 5.010833]
+  CLA-S02-MAG-QUAD-03:
+    name: CLA-S02-MAG-QUAD-03
+    type: quadrupole
+    length: 0.1007
+    k1l: 0.0303256
+    sr_enable: true
+    isr_enable: true
+    PV: CLA-S02-MAG-QUAD-03
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 5.22715]
+    datum: [0.0, 0, 5.2775]
+  CLA-S02-MAG-QUAD-04:
+    name: CLA-S02-MAG-QUAD-04
+    type: quadrupole
+    length: 0.1007
+    k1l: 0.0854535
+    sr_enable: true
+    isr_enable: true
+    PV: CLA-S02-MAG-QUAD-04
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 5.62715]
+    datum: [0.0, 0, 5.6775]
+  CLA-S02-MAG-QUAD-05:
+    name: CLA-S02-MAG-QUAD-05
+    type: quadrupole
+    length: 0.1007
+    k1l: 0.0743208
+    sr_enable: true
+    isr_enable: true
+    PV: CLA-S02-MAG-QUAD-05
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 6.4403]
+    datum: [0.0, 0, 6.49065]
+  CLA-S02-DIA-BPM-02:
+    name: CLA-S02-DIA-BPM-02
+    type: beam_position_monitor
+    length: 0.05135
+    PV: CLA-S02-DIA-BPM-02
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 6.516325]
+    datum: [0.0, 0, 6.542]
+  CLA-S02-DIA-SCR-03-W:
+    name: CLA-S02-DIA-SCR-03-W
+    type: screen
+    output_filename: CLA-S02-DIA-SCR-03.SDDS
+    camera_PV: CLA-S02-DIA-CAM-03
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 6.58343]
+    datum: [0.0, 0, 6.583433]
+  CLA-S02-MAG-HVCOR-04:
+    name: CLA-S02-MAG-HVCOR-04
+    type: kicker
+    length: 0.0574
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 6.6888]
+    datum: [0.0, 0, 6.7175]

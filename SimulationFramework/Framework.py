@@ -332,6 +332,33 @@ class Framework(Munch):
         with open(filename,"w") as yaml_file:
             yaml.dump(changedict, yaml_file, default_flow_style=False)
 
+    def save_lattice(self, lattice=None, filename=None, directory='.'):
+        if filename is None:
+            pre, ext = os.path.splitext(os.path.basename(self.settingsFilename))
+        dict = OrderedDict({'elements': OrderedDict()})
+        latticedict = dict['elements']
+        if lattice is None:
+            elements = list(self.elementObjects.keys())
+            filename =  pre     + '_lattice.yaml'
+        else:
+            if self.latticeObjects[lattice].elements is None:
+                return
+            elements = list(self.latticeObjects[lattice].elements.keys())
+            filename =  pre + '_' + lattice + '_lattice.yaml'
+        disallowed = ['allowedkeywords', 'keyword_conversion_rules_elegant', 'objectdefaults']
+        for e in elements:
+            new = unmunchify(self.elementObjects[e])
+            if ('subelement' in new and not new['subelement']) or not 'subelement' in new:
+                try:
+                    latticedict[e] = {k.replace('object',''): self.convert_numpy_types(new[k]) for k in new if not k in disallowed}
+                    # latticedict[e].update({k: self.convert_numpy_types(new[k]) for k in new})
+                except:
+                    print ('##### ERROR IN CHANGE ELEMS: ', e, new)
+                    pass
+        print('#### Saving Lattice - ', filename)
+        with open(directory + '/' + filename,"w") as yaml_file:
+            yaml.dump(dict, yaml_file, default_flow_style=False)
+
     def load_changes_file(self, filename=None, apply=True):
         if isinstance(filename, (tuple, list)):
             for c in filename:
@@ -967,7 +994,7 @@ class elegantLattice(frameworkLattice):
         prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
         if self.trackBeam:
             self.hdf5_to_sdds(prefix)
-        self.commandFile = elegantTrackFile(lattice=self, trackBeam=self.trackBeam, elegantbeamfilename=self.particle_definition+'.sdds', sample_interval=self.sample_interval,
+        self.commandFile = elegantTrackFile(lattice=self, trackBeam=self.trackBeam, elegantbeamfilename=self.objectname+'.sdds', sample_interval=self.sample_interval,
         betax=self.betax,
         betay=self.betay,
         alphax=self.alphax,
@@ -987,7 +1014,7 @@ class elegantLattice(frameworkLattice):
         else:
             self.q = charge(name='START', type='charge',**{'total': abs(beam.charge)})
         # print('mean cpz = ', np.mean(beam.cpz), ' prefix = ', prefix)
-        sddsbeamfilename = self.particle_definition+'.sdds'
+        sddsbeamfilename = self.objectname+'.sdds'
         beam.write_SDDS_file(master_subdir + '/' + sddsbeamfilename, xyzoffset=self.startObject.position_start)
 
     def run(self):
@@ -1568,9 +1595,9 @@ class frameworkGenerator(object):
 
     def load_defaults(self, defaults):
         if isinstance(defaults, str) and defaults in astra_generator_keywords['defaults']:
-            self.__init__(**astra_generator_keywords['defaults'][defaults])
+            self.__init__(self.executables, **astra_generator_keywords['defaults'][defaults])
         elif isinstance(defaults, dict):
-            self.__init__(**defaults)
+            self.__init__(self.executables, **defaults)
 
     @property
     def particles(self):

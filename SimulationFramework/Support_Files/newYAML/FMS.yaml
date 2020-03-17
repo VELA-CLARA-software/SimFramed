@@ -1,0 +1,347 @@
+elements:
+  CLA-FMS-APER-01:
+    name: CLA-FMS-APER-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 49.2778]
+    datum: [-0.0, 0, 49.277792]
+  CLA-FMS-MARK-01:
+    name: CLA-FMS-MARK-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 49.2778]
+    datum: [-0.0, 0, 49.277792]
+  CLA-FMS-DIP-01:
+    name: CLA-FMS-DIP-01
+    type: dipole
+    length: 0.100167
+    angle: -0.1
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.1
+    k1: 0.0
+    global_rotation: [0, 0, 0]
+    center: [0.0, 0.0, 49.377884]
+    datum: [-0.005004, 0, 49.427792]
+  CLA-FMS-DIP-02:
+    name: CLA-FMS-DIP-02
+    type: dipole
+    length: 0.100167
+    angle: 0.1
+    gap: 0.005
+    entrance_edge_angle: 0.1
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, 0.1]
+    center: [-0.034971, 0.0, 49.676385]
+    datum: [-0.030025, 0, 49.727292]
+  CLA-FMS-MARK-02:
+    name: CLA-FMS-MARK-02
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [-0.030025, 0, 49.7873]
+    datum: [-0.030025, 0, 49.787292]
+  CLA-FMS-DIP-03:
+    name: CLA-FMS-DIP-03
+    type: dipole
+    length: 0.100167
+    angle: 0.1
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: 0.1
+    k1: 0.0
+    global_rotation: [0, 0, 0]
+    center: [-0.030025, 0.0, 49.897384]
+    datum: [-0.025021, 0, 49.947292]
+  CLA-FMS-DIP-04:
+    name: CLA-FMS-DIP-04
+    type: dipole
+    length: 0.100167
+    angle: -0.1
+    gap: 0.005
+    entrance_edge_angle: -0.1
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, -0.1]
+    center: [0.004946, 0.0, 50.195885]
+    datum: [-0.0, 0, 50.246793]
+  CLA-FMS-MARK-03:
+    name: CLA-FMS-MARK-03
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 50.2968]
+    datum: [-0.0, 0, 50.296793]
+  CLA-FMS-DIA-SCR-01-W:
+    name: CLA-FMS-DIA-SCR-01-W
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 50.3184]
+    datum: [-0.0, 0, 50.318459]
+  CLA-FMS-MU1-APER-01:
+    name: CLA-FMS-MU1-APER-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 50.3568]
+    datum: [-0.0, 0, 50.356793]
+  CLA-FMS-MU1-WIGG-01:
+    name: CLA-FMS-MU1-WIGG-01
+    type: wiggler
+    length: 0.45
+    peak_field: 0.0
+    periods: 3
+    k: 5
+    poles: 6
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 50.6318]
+    datum: [-0.0, 0, 50.856793]
+  CLA-FMS-MU1-MARK-01:
+    name: CLA-FMS-MU1-MARK-01
+    type: marker
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 50.8568]
+    datum: [-0.0, 0, 50.856793]
+  CLA-FMS-MU1-WIGG-02:
+    name: CLA-FMS-MU1-WIGG-02
+    type: wiggler
+    length: 0.45
+    peak_field: 0.0
+    periods: 3
+    k: 5
+    poles: 6
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 51.0818]
+    datum: [0, 0, 51.3068]
+  CLA-FMS-DIA-SCR-02W:
+    name: CLA-FMS-DIA-SCR-02W
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 51.3784]
+    datum: [-0.0, 0, 51.378459]
+  CLA-FMS-DIA-BPM-01:
+    name: CLA-FMS-DIA-BPM-01
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 51.5218]
+    datum: [-0.0, 0, 51.626793]
+  CLA-FMS-DIA-BAM-01:
+    name: CLA-FMS-DIA-BAM-01
+    type: beam_position_monitor
+    length: 0.03
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 51.6418]
+    datum: [-0.0, 0, 51.656793]
+  CLA-FMS-MAG-QUAD-01:
+    name: CLA-FMS-MAG-QUAD-01
+    type: quadrupole
+    length: 0.11
+    k1l: 0.508275
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 51.7618]
+    datum: [-0.0, 0, 51.816793]
+  CLA-FMS-DIP-05:
+    name: CLA-FMS-DIP-05
+    type: dipole
+    length: 0.100257
+    angle: -0.124
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.124
+    k1: 0.0
+    global_rotation: [0, 0, -2e-06]
+    center: [0.0, 0.0, 51.966928]
+    datum: [-0.006208, 0, 52.016793]
+  CLA-FMS-DIP-06:
+    name: CLA-FMS-DIP-06
+    type: dipole
+    length: 0.200513
+    angle: 0.248
+    gap: 0.005
+    entrance_edge_angle: 0.124
+    exit_edge_angle: 0.124
+    k1: 0.0
+    global_rotation: [0, 0, 0.123998]
+    center: [-0.045772, 0.0, 52.233989]
+    datum: [-0.021165, 0, 52.336793]
+  CLA-FMS-DIP-07:
+    name: CLA-FMS-DIP-07
+    type: dipole
+    length: 0.200513
+    angle: -0.248
+    gap: 0.005
+    entrance_edge_angle: -0.124
+    exit_edge_angle: -0.124
+    k1: 0.0
+    global_rotation: [0, 0, -0.124002]
+    center: [0.045746, 0.0, 52.773389]
+    datum: [0.021133, 0, 52.876152]
+  CLA-FMS-DIP-08:
+    name: CLA-FMS-DIP-08
+    type: dipole
+    length: 0.100257
+    angle: 0.124
+    gap: 0.005
+    entrance_edge_angle: 0.124
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, 0.123998]
+    center: [-0.006124, 0.0, 53.044795]
+    datum: [-3.2e-05, 0, 53.096152]
+  CLA-FMS-DIA-BPM-02:
+    name: CLA-FMS-DIA-BPM-02
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.2512]
+    datum: [-3.2e-05, 0, 53.356152]
+  CLA-FMS-CBPM-APER-01:
+    name: CLA-FMS-CBPM-APER-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.3562]
+    datum: [-3.2e-05, 0, 53.356152]
+  CLA-FMS-CBPM-01:
+    name: CLA-FMS-CBPM-01
+    type: beam_position_monitor
+    length: 0.08
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.3962]
+    datum: [-3.2e-05, 0, 53.436152]
+  CLA-FMS-MU1-APER-02:
+    name: CLA-FMS-MU1-APER-02
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.4362]
+    datum: [-3.2e-05, 0, 53.436152]
+  CLA-FMS-MAG-QUAD-02:
+    name: CLA-FMS-MAG-QUAD-02
+    type: quadrupole
+    length: 0.028
+    k1l: 0.558401
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.5002]
+    datum: [-3.2e-05, 0, 53.596152]
+  CLA-FMS-DIA-SCR-03-W:
+    name: CLA-FMS-DIA-SCR-03-W
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.6678]
+    datum: [-3.2e-05, 0, 53.667819]
+  CLA-FMS-MU2-APER-01:
+    name: CLA-FMS-MU2-APER-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, -2e-06]
+    center: [0.000107, 0, 53.7062]
+    datum: [-3.2e-05, 0, 53.706152]
+  CLA-FMS-MU2-WIGG-01:
+    name: CLA-FMS-MU2-WIGG-01
+    type: wiggler
+    length: 0.535
+    peak_field: 0.0
+    periods: 8
+    poles: 8
+    k: 5
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.9887]
+    datum: [-3.2e-05, 0, 54.256152]
+  CLA-FMS-MU2-MARK-01:
+    name: CLA-FMS-MU2-MARK-01
+    type: marker
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 54.2562]
+    datum: [-3.2e-05, 0, 54.256152]
+  CLA-FMS-MU2-WIGG-02:
+    name: CLA-FMS-MU2-WIGG-02
+    type: wiggler
+    length: 0.535
+    peak_field: 0.0
+    periods: 8
+    poles: 8
+    k: 5
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 54.5237]
+    datum: [0, 0, 54.7912]
+  CLA-FMS-DIA-SCR-04-W:
+    name: CLA-FMS-DIA-SCR-04-W
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 54.8278]
+    datum: [-3.2e-05, 0, 54.827819]
+  CLA-FMS-DIA-BPM-03:
+    name: CLA-FMS-DIA-BPM-03
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 54.9712]
+    datum: [-3.2e-05, 0, 55.076152]
+  CLA-FMS-PMD-01:
+    name: CLA-FMS-PMD-01
+    type: dipole
+    length: 0.075
+    angle: -0.01
+    gap: 0.005
+    entrance_edge_angle: 0.0
+    exit_edge_angle: -0.01
+    k1: 0.0
+    global_rotation: [0, 0, 0]
+    center: [0.0, 0.0, 55.1437]
+    datum: [-0.000407, 0, 55.181152]
+  CLA-FMS-PMD-02:
+    name: CLA-FMS-PMD-02
+    type: dipole
+    length: 0.15
+    angle: 0.02
+    gap: 0.005
+    entrance_edge_angle: 0.01
+    exit_edge_angle: 0.01
+    k1: 0.0
+    global_rotation: [0, 0, 0.009996]
+    center: [-0.001906, 0.0, 55.256185]
+    datum: [-0.000407, 0, 55.331152]
+  CLA-FMS-PMD-03:
+    name: CLA-FMS-PMD-03
+    type: dipole
+    length: 0.075
+    angle: -0.01
+    gap: 0.005
+    entrance_edge_angle: -0.01
+    exit_edge_angle: 0.0
+    k1: 0.0
+    global_rotation: [0, 0, -0.010004]
+    center: [0.000343, 0.0, 55.218692]
+    datum: [-3.2e-05, 0, 55.406152]
+  CLA-FMS-DIA-SCR-05-W:
+    name: CLA-FMS-DIA-SCR-05-W
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 55.4278]
+    datum: [-3.2e-05, 0, 55.427819]
+  CLA-FMS-CBPM-APER-02:
+    name: CLA-FMS-CBPM-APER-02
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 53.3562]
+    datum: [-3.2e-05, 0, 53.356152]
+  CLA-FMS-CBPM-02:
+    name: CLA-FMS-CBPM-02
+    type: beam_position_monitor
+    length: 0.08
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    center: [0, 0, 55.5062]
+    datum: [-3.2e-05, 0, 55.546152]
