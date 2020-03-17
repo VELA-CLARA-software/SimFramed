@@ -10,8 +10,8 @@ framework = fw.Framework(None)
 framework.loadSettings('FEBE.def')
 parameters = framework.getElementType('quadrupole','k1l')
 names = framework.getElementType('quadrupole','objectname')
-index1 = names.index('CLA-S07-MAG-QUAD-01')
-index2 = names.index('CLA-S07-MAG-QUAD-10')+1
+index1 = names.index('CLA-S07F-MAG-QUAD-01')
+index2 = names.index('CLA-S07F-MAG-QUAD-10')+1
 index3 = names.index('CLA-FEB-MAG-QUAD-13')
 parameter_names = []
 # parameter_names = [q for q in names[index1:index2]]
@@ -44,9 +44,10 @@ class FEBE_Transverse(Optimise_transverse):
     def __init__(self, lattice='FEBE.def', scaling=6):
         super(FEBE_Transverse, self).__init__(lattice=lattice, scaling=scaling)
         names = framework.getElementType('quadrupole','objectname')
-        index1 = names.index('CLA-S07-MAG-QUAD-01')
-        index2 = names.index('CLA-S07-MAG-QUAD-10') + 1
-        index3 = names.index('CLA-FEB-MAG-QUAD-13')
+        index1 = names.index('CLA-S07F-MAG-QUAD-01')
+        index2 = names.index('CLA-S07F-MAG-QUAD-10') + 1
+        index3 = names.index('CLA-FEA-MAG-QUAD-13')
+        index4 = names.index('CLA-FEH-MAG-QUAD-24-CORR')
         self.parameter_names = []
         self.parameters = []
         # self.parameter_names = [q for q in names[index1:index2]]
@@ -99,17 +100,25 @@ class FEBE_Transverse(Optimise_transverse):
             constraintsList = merge_two_dicts(constraintsList, constraintsListQuads)
 
         twiss.read_elegant_twiss_files( [ self.dirname+'/FEBE.twi'])
-        ipindex = list(twiss['element_name']).index('CLA-FEB-FOCUS-01')
+        ipindex1 = list(twiss['element_name']).index('CLA-FEH-FOCUS-01')
+        ipindex2 = list(twiss['element_name']).index('CLA-FEH-FOCUS-02')
         constraintsListFEBE = {
             'max_betax': {'type': 'lessthan', 'value': max(twiss['beta_x']), 'limit': 25, 'weight': 150},
             'max_betay': {'type': 'lessthan', 'value': max(twiss['beta_y']), 'limit': 25, 'weight': 150},
-            'ip_sigmax': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'][ipindex], 'limit': 0.05, 'weight': 15},
-            'ip_sigmay': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 0.05, 'weight': 15},
+            'ip1_sigmax': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'][ipindex1], 'limit': 0.05, 'weight': 15},
+            'ip1_sigmay': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'][ipindex1], 'limit': 0.05, 'weight': 15},
             # 'ip_sigmaxy': {'type': 'equalto', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 1e3*twiss['sigma_x'][ipindex], 'weight': 25},
-            'ip_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex], 'limit': 0., 'weight': 5},
-            'ip_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex], 'limit': 0., 'weight': 5},
-            'ip_etax': {'type': 'equalto', 'value': twiss['eta_x'][ipindex], 'limit': 0., 'weight': 5000},
-            'ip_etaxp': {'type': 'equalto', 'value': twiss['eta_xp'][ipindex], 'limit': 0., 'weight': 5000},
+            'ip1_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex1], 'limit': 0., 'weight': 5},
+            'ip1_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex1], 'limit': 0., 'weight': 5},
+            'ip1_etax': {'type': 'equalto', 'value': twiss['eta_x'][ipindex1], 'limit': 0., 'weight': 5000},
+            'ip1_etaxp': {'type': 'equalto', 'value': twiss['eta_xp'][ipindex1], 'limit': 0., 'weight': 5000},
+            'ip2_sigmax': {'type': 'lessthan', 'value': 1e3*twiss['sigma_x'][ipindex2], 'limit': 0.05, 'weight': 15},
+            'ip2_sigmay': {'type': 'lessthan', 'value': 1e3*twiss['sigma_y'][ipindex2], 'limit': 0.05, 'weight': 15},
+            # 'ip_sigmaxy': {'type': 'equalto', 'value': 1e3*twiss['sigma_y'][ipindex], 'limit': 1e3*twiss['sigma_x'][ipindex], 'weight': 25},
+            'ip2_alphax': {'type': 'equalto', 'value': twiss['alpha_x'][ipindex2], 'limit': 0., 'weight': 5},
+            'ip2_alphay': {'type': 'equalto', 'value': twiss['alpha_y'][ipindex2], 'limit': 0., 'weight': 5},
+            'ip2_etax': {'type': 'equalto', 'value': twiss['eta_x'][ipindex2], 'limit': 0., 'weight': 5000},
+            'ip2_etaxp': {'type': 'equalto', 'value': twiss['eta_xp'][ipindex2], 'limit': 0., 'weight': 5000},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
 

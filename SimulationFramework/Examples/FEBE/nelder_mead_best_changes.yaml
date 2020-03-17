@@ -1,16 +1,36 @@
 CLA-L02-CAV:
-  field_amplitude: 29296371.954950977
-  phase: -14.664971564888855
+  field_amplitude: 33855946.66424171
+  phase: -22.43116441558625
 CLA-L03-CAV:
-  field_amplitude: 18865485.93547681
-  phase: -19.346397580295914
+  field_amplitude: 31752974.61298495
+  phase: -3.6881720368003985
 CLA-L04-CAV:
-  field_amplitude: 31979491.00142487
-  phase: 0.5744484899157232
+  field_amplitude: 32978142.964843735
+  phase: 51.33680805414654
 CLA-L4H-CAV:
-  field_amplitude: 48151532.87815372
-  phase: 184.01241350626682
+  field_amplitude: 28317532.503767073
+  phase: 192.4324203752911
 CLA-S07-DCP-01:
-  factor: 0.9377756192088171
+  factor: 0.6333389103135202
+FODO_D:
+  k1l: -1.056341278165194
+FODO_F:
+  k1l: 1.5256549736730602
 bunch_compressor:
-  angle: 0.13860222025051797
+  angle: 0.12647657713124252
+# CLA-L02-CAV:
+#   field_amplitude: 30490609.294055868
+#   phase: -37.48507681230261
+# CLA-L03-CAV:
+#   field_amplitude: 28847924.56184221
+#   phase: -8.724575964723384
+# CLA-L04-CAV:
+#   field_amplitude: 32122644.519824315
+#   phase: 47.88402466013672
+# CLA-L4H-CAV:
+#   field_amplitude: 28449149.498951986
+#   phase: 196.2288073128569
+# CLA-S07-DCP-01:
+#   factor: 0.6515866971889119
+# bunch_compressor:
+#   angle: 0.10560398838163555

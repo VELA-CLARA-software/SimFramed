@@ -8,12 +8,12 @@ from ruamel import yaml
 import numpy as np
 
 framework = fw.Framework(None)
-framework.loadSettings('FEBE.def')
+framework.loadSettings('FEBE_single.def')
 parameters = framework.getElementType('quadrupole','k1l')
 names = framework.getElementType('quadrupole','objectname')
-index1 = names.index('CLA-S07-MAG-QUAD-01')
-index2 = names.index('CLA-S07-MAG-QUAD-10')+1
-index3 = names.index('CLA-FEB-MAG-QUAD-13')
+index1 = names.index('CLA-S07F-MAG-QUAD-01')
+index2 = names.index('CLA-S07F-MAG-QUAD-10')+1
+index3 = names.index('CLA-FEA-MAG-QUAD-13')
 parameter_names = [q for q in names[:index1]]
 # parameter_names.append('CLA-FEB-MAG-QUAD-01')
 # parameter_names.append('CLA-FEB-MAG-QUAD-02')
@@ -50,9 +50,9 @@ class FEBE_Transverse(Optimise_transverse):
     def __init__(self, lattice='FEBE.def', scaling=6):
         super(FEBE_Transverse, self).__init__(lattice=lattice, scaling=scaling)
         names = framework.getElementType('quadrupole','objectname')
-        index1 = names.index('CLA-S07-MAG-QUAD-01')
-        index2 = names.index('CLA-S07-MAG-QUAD-10') + 1
-        index3 = names.index('CLA-FEB-MAG-QUAD-13')
+        index1 = names.index('CLA-S07F-MAG-QUAD-01')
+        index2 = names.index('CLA-S07F-MAG-QUAD-10') + 1
+        index3 = names.index('CLA-FEA-MAG-QUAD-13')
         self.parameters = []
         self.parameters = [[q, 'k1l'] for q in names[:index2]]
         # self.parameter_names.append('CLA-FEB-MAG-QUAD-01')
@@ -75,7 +75,7 @@ class FEBE_Transverse(Optimise_transverse):
         twiss = self.twiss
         self.framework.change_Lattice_Code('All','elegant')
         self.framework[self.start_file].prefix = self.base_files
-        self.framework[self.start_file].sample_interval = 2**(3*3) 
+        self.framework[self.start_file].sample_interval = 2**(3*3)
         # self.framework[self.start_file].betax = 31.83468426136683
         # self.framework[self.start_file].betay = 31.793807462253913
         # self.framework[self.start_file].alphax = -3.304548178432217
@@ -106,8 +106,8 @@ class FEBE_Transverse(Optimise_transverse):
             'min_yrms': {'type': 'greaterthan', 'value': min(1e3*twiss['sigma_y']), 'limit': 0.025, 'weight': 5},
             'last_exn': {'type': 'lessthan', 'value': 1e6*twiss['enx'][-1], 'limit': 2, 'weight': 0},
             'last_eyn': {'type': 'lessthan', 'value': 1e6*twiss['eny'][-1], 'limit': 0.75, 'weight': 0},
-            'max_betax': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 100, 'weight': 150},
-            'max_betay': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 100, 'weight': 150},
+            'max_betax': {'type': 'lessthan', 'value': twiss['beta_x'], 'limit': 200, 'weight': 150},
+            'max_betay': {'type': 'lessthan', 'value': twiss['beta_y'], 'limit': 200, 'weight': 150},
             # 'max_alphax': {'type': 'lessthan', 'value': max(abs(twiss['alpha_x'])), 'limit': 20, 'weight': 5},
             # 'max_alphay': {'type': 'lessthan', 'value': max(abs(twiss['alpha_y'])), 'limit': 20, 'weight': 5},
         }
@@ -137,10 +137,10 @@ class FEBE_Transverse(Optimise_transverse):
             # 'alphax': {'type': 'equalto', 'value': twiss['alpha_x'][-1], 'limit': -0.955335, 'weight': 5},
             # 'alphay': {'type': 'equalto', 'value': twiss['alpha_y'][-1], 'limit': 1.61446, 'weight': 5},
             # VALUES FOR BROKEN FODO FEBE
-            'betax': {'type': 'equalto', 'value': twiss['beta_x'][-1], 'limit': 0.74306, 'weight': 50},
-            'betay': {'type': 'equalto', 'value': twiss['beta_y'][-1], 'limit': 3.96111, 'weight': 50},
-            'alphax': {'type': 'equalto', 'value': twiss['alpha_x'][-1], 'limit': -0.623844, 'weight': 50},
-            'alphay': {'type': 'equalto', 'value': twiss['alpha_y'][-1], 'limit': 0.872959, 'weight': 50},
+            'betax': {'type': 'equalto', 'value': twiss['beta_x'][-1], 'limit': 0.748377, 'weight': 50},
+            'betay': {'type': 'equalto', 'value': twiss['beta_y'][-1], 'limit': 3.96107, 'weight': 50},
+            'alphax': {'type': 'equalto', 'value': twiss['alpha_x'][-1], 'limit': -0.61447, 'weight': 50},
+            'alphay': {'type': 'equalto', 'value': twiss['alpha_y'][-1], 'limit': 0.872954, 'weight': 50},
             # 'etax': {'type': 'equalto', 'value': twiss.elegant['etax'][-1], 'limit': 0., 'weight': 500},
             # 'etaxp': {'type': 'equalto', 'value': twiss.elegant['etaxp'][-1], 'limit': 0., 'weight': 500},
         }

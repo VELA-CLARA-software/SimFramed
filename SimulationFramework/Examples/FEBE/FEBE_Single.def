@@ -51,22 +51,22 @@ files:
       cathode: False
       space_charge_mode: 3D
     output:
-      start_element: CLA-S01-DIA-SCR-01-W
-      end_element: CLA-FEB-START-01
+      start_element: CLA-S02-APER-01
+      end_element: CLA-FEA-START-01
     groups:
       laser-heater:
         dipoleangle: 0.0001
         width: 0.2
         gap: 0.02
   FEBE:
-    code: GPT
+    code: elegant
     charge:
       cathode: False
       space_charge_mode: 3D
     input: {}
     output:
-      start_element: CLA-FEB-START-01
-      end_element: CLA-FEB-DUMP-01-START
+      start_element: CLA-FEA-START-01
+      end_element: CLA-FED-DUMP-01-START
 groups:
   laser-heater:
     type: chicane
@@ -76,12 +76,12 @@ groups:
     elements: [CLA-VBC-MAG-DIP-01, CLA-VBC-MAG-DIP-02, CLA-VBC-MAG-DIP-03, CLA-VBC-MAG-DIP-04]
   FODO_F:
     type: element_group
-    elements: [CLA-FEB-MAG-QUAD-01, CLA-FEB-MAG-QUAD-03, CLA-FEB-MAG-QUAD-05, CLA-FEB-MAG-QUAD-07, CLA-FEB-MAG-QUAD-09, CLA-FEB-MAG-QUAD-11]
+    elements: [CLA-FEA-MAG-QUAD-01, CLA-FEA-MAG-QUAD-03, CLA-FEA-MAG-QUAD-05, CLA-FEA-MAG-QUAD-07, CLA-FEA-MAG-QUAD-09, CLA-FEA-MAG-QUAD-11]
   FODO_D:
     type: element_group
-    elements: [CLA-FEB-MAG-QUAD-02, CLA-FEB-MAG-QUAD-04, CLA-FEB-MAG-QUAD-06, CLA-FEB-MAG-QUAD-08, CLA-FEB-MAG-QUAD-10, CLA-FEB-MAG-QUAD-12]
+    elements: [CLA-FEA-MAG-QUAD-02, CLA-FEA-MAG-QUAD-04, CLA-FEA-MAG-QUAD-06, CLA-FEA-MAG-QUAD-08, CLA-FEA-MAG-QUAD-10, CLA-FEA-MAG-QUAD-12]
 elements:
   filename: [YAML/Injector400.yaml, YAML/S02.yaml, YAML/L02.yaml,
              YAML/S03.yaml, YAML/L03.yaml, YAML/S04.yaml, YAML/L4H.yaml,
              YAML/S05.yaml, YAML/VBC.yaml, YAML/S06.yaml, YAML/L04.yaml,
-             YAML/S07.yaml, YAML/FEBE2.yaml]
+             YAML/S07_FEBE.yaml, YAML/FEBE_ARC.yaml, YAML/FEBE5_Long_Laser_Input.yaml]

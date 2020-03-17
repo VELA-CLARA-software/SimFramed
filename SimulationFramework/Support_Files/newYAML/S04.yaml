@@ -1,0 +1,301 @@
+elements:
+  CLA-S04-APER:
+    name: CLA-S04-APER
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 16.2002]
+    datum: [0.0, 0, 16.200242]
+  CLA-S04-MARK-01:
+    name: CLA-S04-MARK-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 16.2002]
+    datum: [0.0, 0, 16.200242]
+  CLA-S04-MAG-HVCOR-01:
+    name: CLA-S04-MAG-HVCOR-01
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 16.3602]
+    datum: [0.0, 0, 16.385242]
+  CLA-S04-MAG-QUAD-01:
+    name: CLA-S04-MAG-QUAD-01
+    type: quadrupole
+    length: 0.162
+    k1l: 0.100731
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 16.4992]
+    datum: [0.0, 0, 16.580242]
+  CLA-S04-DIA-BPM-01:
+    name: CLA-S04-DIA-BPM-01
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 16.7857]
+    datum: [0.0, 0, 16.890742]
+  CLA-S04-MAG-QUAD-02:
+    name: CLA-S04-MAG-QUAD-02
+    type: quadrupole
+    length: 0.162
+    k1l: 0.0269461
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 17.0192]
+    datum: [0.0, 0, 17.100242]
+  CLA-S04-DIA-SCR-01-W:
+    name: CLA-S04-DIA-SCR-01-W
+    type: screen
+    output_filename: CLA-S04-DIA-SCR-01.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 17.3136]
+    datum: [0.0, 0, 17.313575]
+  CLA-S04-MAG-QUAD-03:
+    name: CLA-S04-MAG-QUAD-03
+    type: quadrupole
+    length: 0.162
+    k1l: -0.0628161
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 17.5192]
+    datum: [0.0, 0, 17.600242]
+  CLA-S04-DIA-BPM-02:
+    name: CLA-S04-DIA-BPM-02
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 17.7552]
+    datum: [0.0, 0, 17.860242]
+  CLA-S04-MAG-QUAD-04:
+    name: CLA-S04-MAG-QUAD-04
+    type: quadrupole
+    length: 0.162
+    k1l: -0.033758
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 18.0192]
+    datum: [0.0, 0, 18.100242]
+  CLA-S04-MAG-HVCOR-02:
+    name: CLA-S04-MAG-HVCOR-02
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 18.3502]
+    datum: [0.0, 0, 18.375242]
+  CLA-S04-DIA-SCR-02-W:
+    name: CLA-S04-DIA-SCR-02-W
+    type: screen
+    output_filename: CLA-S04-DIA-SCR-02.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 18.4536]
+    datum: [0.0, 0, 18.453575]
+  CLA-S04-MAG-DIP-01:
+    name: CLA-S04-MAG-DIP-01
+    type: dipole
+    length: 0.1
+    angle: 0.0001
+    exit_edge_angle: 0.0001
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: CLA-S04-MAG-DIP-01.CSR
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 18.6402]
+    datum: [-5e-06, 0, 18.690242]
+  CLA-S04-MAG-DIP-02:
+    name: CLA-S04-MAG-DIP-02
+    type: dipole
+    length: 0.1
+    angle: -0.0001
+    entrance_edge_angle: -0.0001
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: CLA-S04-MAG-DIP-02.CSR
+    global_rotation: [0, 0, 0.0001]
+    centre: [-5e-05, 0.0, 19.0902]
+    datum: [-4.5e-05, 0, 19.140242]
+  CLA-S04-DIA-SCR-03-W:
+    name: CLA-S04-DIA-SCR-03-W
+    type: screen
+    output_filename: CLA-S04-DIA-SCR-03.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0, 19.2336]
+    datum: [-4.5e-05, 0, 19.233575]
+  CLA-S04-MAG-HVCOR-03:
+    name: CLA-S04-MAG-HVCOR-03
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0.0, 19.4102]
+    datum: [-4.5e-05, 0, 19.435242]
+  CLA-S04-DIA-BPM-03:
+    name: CLA-S04-DIA-BPM-03
+    type: beam_position_monitor
+    length: 0.035
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0, 19.5027]
+    datum: [-4.5e-05, 0, 19.520242]
+  CLA-S04-LH-SCA:
+    name: CLA-S04-LH-SCA
+    type: scatter
+    probability: 1.0
+    horizontal_scatter: 0
+    vertical_scatter: 0
+    horizontal_momentum_scatter: 0
+    vertical_momentum_scatter: 0
+    relative_momentum_scatter: 0.0
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0, 19.87]
+    datum: [-4.5e-05, 0, 19.87]
+  CLA-S04-MAG-LASER0-M:
+    name: CLA-S04-MAG-LASER0-M
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0, 19.8777]
+    datum: [-4.5e-05, 0, 19.877742]
+  CLA-S04-DIA-BPM-04:
+    name: CLA-S04-DIA-BPM-04
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0, 20.3402]
+    datum: [-4.5e-05, 0, 20.445242]
+  CLA-S04-DIA-SCR-04-W:
+    name: CLA-S04-DIA-SCR-04-W
+    type: screen
+    output_filename: CLA-S04-DIA-SCR-04.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0, 20.4886]
+    datum: [-4.5e-05, 0, 20.488575]
+  CLA-S04-MAG-DIP-03:
+    name: CLA-S04-MAG-DIP-03
+    type: dipole
+    length: 0.1
+    angle: -0.0001
+    exit_edge_angle: -0.0001
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: CLA-S04-MAG-DIP-03.CSR
+    global_rotation: [0, 0, 0]
+    centre: [-4.5e-05, 0.0, 20.6652]
+    datum: [-4e-05, 0, 20.715242]
+  CLA-S04-MAG-DIP-04:
+    name: CLA-S04-MAG-DIP-04
+    type: dipole
+    length: 0.1
+    angle: 0.0001
+    entrance_edge_angle: 0.0001
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: CLA-S04-MAG-DIP-04.CSR
+    global_rotation: [0, 0, -0.0001]
+    centre: [5e-06, 0.0, 21.1152]
+    datum: [0.0, 0, 21.165242]
+  CLA-S04-DIA-SCR-05-W:
+    name: CLA-S04-DIA-SCR-05-W
+    type: screen
+    output_filename: CLA-S04-DIA-SCR-05.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 21.3152]
+    datum: [0.0, 0, 21.31524]
+  CLA-S04-MAG-QUAD-05:
+    name: CLA-S04-MAG-QUAD-05
+    type: quadrupole
+    length: 0.162
+    k1l: 0.0410889
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 21.5342]
+    datum: [0.0, 0, 21.615242]
+  CLA-S04-MAG-HVCOR-04:
+    name: CLA-S04-MAG-HVCOR-04
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 21.7302]
+    datum: [0.0, 0, 21.755242]
+  CLA-S04-MAG-QUAD-06:
+    name: CLA-S04-MAG-QUAD-06
+    type: quadrupole
+    length: 0.162
+    k1l: 0.070186
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 22.0342]
+    datum: [0.0, 0, 22.115242]
+  CLA-S04-DIA-BPM-05:
+    name: CLA-S04-DIA-BPM-05
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 22.3002]
+    datum: [0.0, 0, 22.405242]
+  CLA-S04-MAG-QUAD-07:
+    name: CLA-S04-MAG-QUAD-07
+    type: quadrupole
+    length: 0.162
+    k1l: 0.0845327
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 22.5342]
+    datum: [0.0, 0, 22.615242]
+  CLA-S04-MAG-HVCOR-05:
+    name: CLA-S04-MAG-HVCOR-05
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 22.7902]
+    datum: [0.0, 0, 22.815242]
+  CLA-S04-MAG-QUAD-08:
+    name: CLA-S04-MAG-QUAD-08
+    type: quadrupole
+    length: 0.162
+    k1l: -0.043544
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 23.0442]
+    datum: [0.0, 0, 23.125242]
+  CLA-S04-DIA-BPM-06:
+    name: CLA-S04-DIA-BPM-06
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 23.2802]
+    datum: [0.0, 0, 23.385242]
+  CLA-S04-MARK-02:
+    name: CLA-S04-MARK-02
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 23.4572]
+    datum: [0.0, 0, 23.457242]
