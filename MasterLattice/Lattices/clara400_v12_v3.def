@@ -157,24 +157,6 @@ files:
     output:
       start_element: CLA-S07-APER-01
       end_element: CLA-FMS-APER-01
-  FMS:
-    code: ASTRA
-    charge:
-      cathode: False
-      space_charge_mode: 3D
-    input: {}
-    output:
-      start_element: CLA-FMS-APER-01
-      end_element: CLA-FMS-APER-02
-    groups:
-      modulator1_chicane:
-        dipoleangle: 0.1
-        width: 0.2
-        gap: 0.02
-      modulator2_chicane:
-        dipoleangle: 0.124
-        width: 0.2
-        gap: 0.02
 groups:
   laser-heater:
     type: chicane

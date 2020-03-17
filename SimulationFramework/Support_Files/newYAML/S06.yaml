@@ -1,0 +1,98 @@
+elements:
+  CLA-S06-MARK-01:
+    name: CLA-S06-MARK-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 31.2678]
+    datum: [-0.0, 0, 31.267792]
+  CLA-S06-APER:
+    name: CLA-S06-APER
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 31.2678]
+    datum: [-0.0, 0, 31.267792]
+  CLA-S06-MAG-HVCOR-01:
+    name: CLA-S06-MAG-HVCOR-01
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 31.6078]
+    datum: [-0.0, 0, 31.632792]
+  CLA-S06-DIA-BPM-01:
+    name: CLA-S06-DIA-BPM-01
+    type: beam_position_monitor
+    length: 0.02
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 31.6678]
+    datum: [-0.0, 0, 31.677792]
+  CLA-S06-MAG-QUAD-01:
+    name: CLA-S06-MAG-QUAD-01
+    type: quadrupole
+    length: 0.15
+    k1l: 0.157575
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 31.8528]
+    datum: [-0.0, 0, 31.927792]
+  CLA-S06-DIA-EOM-01:
+    name: CLA-S06-DIA-EOM-01
+    type: monitor
+    length: 0.2885
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 32.39355]
+    datum: [-0.0, 0, 32.537792]
+  CLA-S06-MAG-QUAD-02:
+    name: CLA-S06-MAG-QUAD-02
+    type: quadrupole
+    length: 0.15
+    k1l: -0.0616258
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 32.7128]
+    datum: [-0.0, 0, 32.787792]
+  CLA-S06-DIA-SCR-01-W:
+    name: CLA-S06-DIA-SCR-01-W
+    type: screen
+    output_filename: CLA-S06-DIA-SCR-01.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 32.9311]
+    datum: [-0.0, 0, 32.931125]
+  CLA-S06-MAG-HVCOR-02:
+    name: CLA-S06-MAG-HVCOR-02
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 33.843]
+    datum: [-0.0, 0, 33.868]
+  CLA-S06-DIA-BPM-02:
+    name: CLA-S06-DIA-BPM-02
+    type: beam_position_monitor
+    length: 0.025
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 33.9293]
+    datum: [-0.0, 0, 33.941792]
+  CLA-S06-DIA-SCR-02-W:
+    name: CLA-S06-DIA-SCR-02-W
+    type: screen
+    output_filename: CLA-S06-DIA-SCR-02.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 33.9851]
+    datum: [-0.0, 0, 33.985125]
+  CLA-S06-MARK-02:
+    name: CLA-S06-MARK-02
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 34.118]
+    datum: [-0.0, 0, 34.117967]

@@ -1,0 +1,98 @@
+elements:
+  CLA-VBC-MAG-DIP-01:
+    name: CLA-VBC-MAG-DIP-01
+    type: dipole
+    length: 0.200981
+    angle: 0.095
+    exit_edge_angle: angle
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: '"VBC-MAG-DIP-01.CSR"'
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 26.16559]
+    datum: [0.009539, 0, 26.265754]
+  CLA-VBC-MAG-DIP-02:
+    name: CLA-VBC-MAG-DIP-02
+    type: dipole
+    length: 0.200981
+    angle: -0.095
+    entrance_edge_angle: angle
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: '"VBC-MAG-DIP-02.CSR"'
+    global_rotation: [0, 0, -0.095]
+    centre: [0.171449, 0.0, 27.864482]
+    datum: [0.162009, 0, 27.966433]
+  CLA-VBC-MAG-VCOR-01:
+    name: CLA-VBC-MAG-VCOR-01
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.162009, 0.0, 28.2881]
+    datum: [0.162009, 0, 28.313103]
+  CLA-VBC-DIA-BPM-01:
+    name: CLA-VBC-DIA-BPM-01
+    type: beam_position_monitor
+    length: 0.0312
+    global_rotation: [0, 0, 0]
+    centre: [0.162009, 0, 28.3713]
+    datum: [0.162009, 0, 28.386903]
+  CLA-VBC-RCOL-01:
+    name: CLA-VBC-RCOL-01
+    type: collimator
+    length: 0.48
+    shape: rectangular
+    horizontal_size: 0.01
+    vertical_size: 0.01
+    open_side: '"+x"'
+    global_rotation: [0, 0, 0]
+    centre: [0.162009, 0, 28.6393]
+    datum: [0.162009, 0, 28.879303]
+  CLA-VBC-DIA-SCR-01-W:
+    name: CLA-VBC-DIA-SCR-01-W
+    type: screen
+    output_filename: '"CLA-VBC-DIA-SCR-01.SDDS"'
+    global_rotation: [0, 0, 0]
+    centre: [0.162009, 0, 28.9048]
+    datum: [0.162009, 0, 28.904766]
+  CLA-VBC-MAG-DIP-03:
+    name: CLA-VBC-MAG-DIP-03
+    type: dipole
+    length: 0.200981
+    angle: -0.095
+    exit_edge_angle: angle
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: '"VBC-MAG-DIP-03.CSR"'
+    global_rotation: [0, 0, 0]
+    centre: [0.162009, 0.0, 29.36689]
+    datum: [0.15247, 0, 29.467113]
+  CLA-VBC-MAG-DIP-04:
+    name: CLA-VBC-MAG-DIP-04
+    type: dipole
+    length: 0.200981
+    angle: 0.095
+    entrance_edge_angle: angle
+    half_gap: 0.005
+    edge_field_integral: 0.4
+    sr_enable: true
+    isr_enable: true
+    csr_output_filename: '"VBC-MAG-DIP-04.CSR"'
+    global_rotation: [0, 0, 0.095]
+    centre: [-0.009439, 0.0, 31.065782]
+    datum: [-0.0, 0, 31.167792]
+  CLA-VBC-MARK-01:
+    name: CLA-VBC-MARK-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 31.2678]
+    datum: [-0.0, 0, 31.267792]

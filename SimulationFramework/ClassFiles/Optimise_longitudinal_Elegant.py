@@ -142,32 +142,33 @@ class Optimise_Elegant(runEle.fitnessFunc):
             print('!!!!!!  New best = ', fitvalue, inputargs)
             copyfile(dir+'/changes.yaml', self.best_changes)
             self.bestfit = fitvalue
+            self.framework.save_lattice()
         return fitvalue
 
-    def Nelder_Mead(self, best=None, step=0.1, best_changes='./nelder_mead_best_changes.yaml'):
+    def Nelder_Mead(self, best=None, step=0.1, best_changes='./nelder_mead_best_changes.yaml', subdir='nelder_mead'):
         best = np.array(self.best) if best is None else np.array(best)
-        self.subdir = 'nelder_mead'
+        self.subdir = subdir
         self.optdir = self.subdir + '/iteration_'
         self.best_changes = best_changes
         print('best = ', best)
         self.bestfit = 1e26
 
-        with open('nelder_mead/best_solutions_running.csv','w') as out:
+        with open(subdir+'/best_solutions_running.csv','w') as out:
             self.opt_iteration = 0
         res = nelder_mead(self.OptimisingFunction, best, step=step, max_iter=300, no_improv_break=100)
         print(res)
 
-    def Simplex(self, best=None, best_changes='./simplex_best_changes.yaml'):
+    def Simplex(self, best=None, best_changes='./simplex_best_changes.yaml', subdir='simplex', maxiter=300):
         best = self.best if best is None else best
-        self.subdir = 'simplex'
+        self.subdir = subdir
         self.optdir = self.subdir + '/iteration_'
         self.best_changes = best_changes
         print('best = ', best)
         self.bestfit = 1e26
 
-        with open('simplex/best_solutions_running.csv','w') as out:
+        with open(subdir+'/best_solutions_running.csv','w') as out:
             self.opt_iteration = 0
-        res = minimize(self.OptimisingFunction, best, method='nelder-mead', options={'disp': True, 'maxiter': 300, 'adaptive': True})
+        res = minimize(self.OptimisingFunction, best, method='nelder-mead', options={'disp': True, 'maxiter': maxiter, 'adaptive': True})
         print(res.x)
 
     def Example(self, best=None, step=0.1, dir='example'):

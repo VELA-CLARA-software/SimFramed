@@ -20,10 +20,14 @@ class FEBE(Optimise_Elegant):
         ['CLA-L02-CAV', 'phase'],
         ['CLA-L03-CAV', 'field_amplitude'],
         ['CLA-L03-CAV', 'phase'],
+        ['CLA-L4H-CAV', 'field_amplitude'],
+        ['CLA-L4H-CAV', 'phase'],
         ['CLA-L04-CAV', 'field_amplitude'],
         ['CLA-L04-CAV', 'phase'],
         ['bunch_compressor', 'angle'],
         ['CLA-S07-DCP-01', 'factor'],
+        ['FODO_D', 'k1l'],
+        ['FODO_F', 'k1l'],
     ]
 
     def __init__(self):
@@ -40,7 +44,7 @@ class FEBE(Optimise_Elegant):
             elements = self.framework.elementObjects.values()
             for e in elements:
                 e.lsc_enable = True
-                e.lsc_bins = 50
+                e.lsc_bins = 30
                 e.current_bins = 0
                 e.longitudinal_wakefield_enable = True
                 e.transverse_wakefield_enable = True
@@ -49,11 +53,14 @@ class FEBE(Optimise_Elegant):
             lattices = self.framework.latticeObjects.values()
             for l in lattices:
                 l.lscDrifts = True
-                l.lsc_bins = 50
+                l.lsc_bins = 30
                 l.lsc_high_frequency_cutoff_start = 0.25
                 l.lsc_high_frequency_cutoff_end = 0.33
                 pass
-            self.framework['CLA-L4H-CAV'].field_amplitude = 0
+            # self.framework['FEBE'].betax = 0.748377
+            # self.framework['FEBE'].betay = 3.96107
+            # self.framework['FEBE'].alphax = -0.61447
+            # self.framework['FEBE'].alphay = 0.872954
 
     def calculate_constraints(self):
         constraintsList = {}
@@ -61,7 +68,7 @@ class FEBE(Optimise_Elegant):
         quadlengths = self.framework.getElementType('quadrupole','length')
         quadnames = self.framework.getElementType('quadrupole','objectname')
 
-        self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FEB-FOCUS-01.hdf5')
+        self.beam.read_HDF5_beam_file(self.dirname+'/CLA-FEH-FOCUS-01.hdf5')
         self.beam.slice_length = 0.05e-12
 
         t = 1e12*(self.beam.t-np.mean(self.beam.t))
@@ -95,16 +102,20 @@ class FEBE(Optimise_Elegant):
         fitp = 100*sigmap/meanp
         peakI, peakIstd, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
 
-        linac_fields = np.array([1e-6*self.linac_fields[i] for i in [0,1,2]])
+        fhc_field = np.array([1e-6*self.linac_fields[i] for i in [2]])
+        linac_fields = np.array([1e-6*self.linac_fields[i] for i in [0,1,3]])
 
         self.twiss.read_elegant_twiss_files( self.dirname+'/FEBE.twi' )
-        ipindex = list(self.twiss.elegant['ElementName']).index('CLA-FEB-FOCUS-01')
+        ipindex = list(self.twiss.elegant['ElementName']).index('CLA-FEH-FOCUS-01')
         constraintsListFEBE = {
             # 'ip_enx': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 0},
             # 'ip_eny': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 2.5},
             'field_max': {'type': 'lessthan', 'value': linac_fields, 'limit': 32, 'weight': 3000},
+            'field_max_fhc': {'type': 'lessthan', 'value': fhc_field, 'limit': 50, 'weight': 3000},
             'momentum_max': {'type': 'lessthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 260, 'weight': 250},
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 240, 'weight': 150},
+            'sigma_x_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex], 'limit': 8e-6, 'weight': 10},
+            'sigma_y_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex], 'limit': 8e-6, 'weight': 10},
             # 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 950, 'weight': 20},
             # 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 1050, 'weight': 20},
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
@@ -123,9 +134,9 @@ class FEBE(Optimise_Elegant):
 
 if __name__ == "__main__":
     opt = FEBE()
-    opt.set_changes_file(['./nelder_mead_best_changes.yaml', './transverse_best_changes_upto_S07.yaml', './S07_transverse_best_changes.yaml', './FEBE_transverse_best_changes.yaml'])
+    opt.set_changes_file(['./transverse_best_changes_upto_S07_250pC.yaml', './S07_transverse_best_changes_250pC.yaml', './FEBE_transverse_best_changes_250pC.yaml'])
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
-    opt.load_best('./nelder_mead_best_changes.yaml')
-    opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_no4HC.yaml', step=[5e6, 5, 5e6, 5, 5e6, 5, 0.05, 0.1])
-    # opt.Simplex()
+    opt.load_best('./nelder_mead_best_changes_250pC.yaml')
+    # opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_250pC.yaml', step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 0.005, 0.1])
+    opt.Simplex(best_changes='./nelder_mead_best_changes_250pC.yaml', subdir='simplex_250pC', maxiter=3000)
