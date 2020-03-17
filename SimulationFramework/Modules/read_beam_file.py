@@ -117,9 +117,14 @@ class beam(object):
         return data
 
     def write_csv_file(self, file, data):
-        with open(file, 'wb') as f:
-            writer = csv.writer(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)
-            [writer.writerow(l) for l in data]
+        if sys.version_info[0] > 2:
+            with open(file, 'w', newline='') as f:
+                writer = csv.writer(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)
+                [writer.writerow(l) for l in data]
+        else:
+            with open(file, 'wb') as f:
+                writer = csv.writer(f, delimiter=' ',  quoting=csv.QUOTE_NONNUMERIC, skipinitialspace=True)
+                [writer.writerow(l) for l in data]
 
     def read_astra_beam_file(self, file, normaliseZ=False):
         starttime = time.time()

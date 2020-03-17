@@ -1,0 +1,319 @@
+elements:
+  CLA-S07-APER-01:
+    name: CLA-S07-APER-01
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 38.267792]
+    datum: [-0.0, 0, 38.267792]
+  CLA-S07-DIA-BPM-01:
+    name: CLA-S07-DIA-BPM-01
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 38.372792]
+    datum: [-0.0, 0, 38.477792]
+  CLA-S07-MAG-HVCOR-01:
+    name: CLA-S07-MAG-HVCOR-01
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 38.652792]
+    datum: [-0.0, 0, 38.677792]
+  CLA-S07-MAG-QUAD-01:
+    name: CLA-S07-MAG-QUAD-01
+    type: quadrupole
+    length: 0.15
+    k1l: 0
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 38.852792]
+    datum: [-0.0, 0, 38.927792]
+  CLA-S07-MARK-01:
+    name: CLA-S07-MARK-01
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 39.027792]
+    datum: [-0.0, 0, 39.027792]
+  CLA-S07-MAG-QUAD-02:
+    name: CLA-S07-MAG-QUAD-02
+    type: quadrupole
+    length: 0.15
+    k1l: -0.220169
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 39.302792]
+    datum: [-0.0, 0, 39.377792]
+  CLA-S07-DIA-BPM-02:
+    name: CLA-S07-DIA-BPM-02
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 39.582792]
+    datum: [-0.0, 0, 39.687792]
+  CLA-S07-MAG-HVCOR-02:
+    name: CLA-S07-MAG-HVCOR-02
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 39.813]
+    datum: [-0.0, 0, 39.838]
+  CLA-S07-DIA-SCR-01-W:
+    name: CLA-S07-DIA-SCR-01-W
+    type: screen
+    output_filename: '"CLA-S07-DIA-SCR-01.SDDS"'
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 39.931125]
+    datum: [-0.0, 0, 39.931125]
+  CLA-S07-TDC-01-APER:
+    name: CLA-S07-TDC-01-APER
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.005
+    vertical_size: 0.005
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 40.007792]
+    datum: [-0.0, 0, 40.007792]
+  CLA-S07-TDC-01-R:
+    name: CLA-S07-TDC-01-R
+    type: rf_deflecting_cavity
+    length: 0.45
+    phase: 0.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 40.579458]
+    datum: [-0.0, 0, 40.804458]
+  CLA-S07-APER-02:
+    name: CLA-S07-APER-02
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 41.107792]
+    datum: [-0.0, 0, 41.107792]
+  CLA-S07-MAG-HVCOR-03:
+    name: CLA-S07-MAG-HVCOR-03
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 41.232792]
+    datum: [-0.0, 0, 41.257792]
+  CLA-S07-DIA-BPM-03:
+    name: CLA-S07-DIA-BPM-03
+    type: beam_position_monitor
+    length: 0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 41.307792]
+    datum: [-0.0, 0, 41.307792]
+  CLA-S07F-MAG-QUAD-03-K:
+    name: CLA-S07F-MAG-QUAD-03-K
+    type: quadrupole
+    length: 0.15
+    k1l: 0.0144355
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 41.482792]
+    datum: [-0.0, 0, 41.557792]
+  CLA-S07F-MAG-QUAD-04-K:
+    name: CLA-S07F-MAG-QUAD-04-K
+    type: quadrupole
+    length: 0.15
+    k1l: 0.155237
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 42.232792]
+    datum: [-0.0, 0, 42.307792]
+  CLA-S07-DIA-BPM-04:
+    name: CLA-S07-DIA-BPM-04
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 42.512792]
+    datum: [-0.0, 0, 42.617792]
+  CLA-S07-DIA-SCR-02-W:
+    name: CLA-S07-DIA-SCR-02-W
+    type: screen
+    output_filename: '"CLA-S07-DIA-SCR-02.SDDS"'
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 42.661125]
+    datum: [-0.0, 0, 42.661125]
+  CLA-S07F-MAG-QUAD-05-K:
+    name: CLA-S07F-MAG-QUAD-05-K
+    type: quadrupole
+    length: 0.15
+    k1l: 0.166984
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 42.912792]
+    datum: [-0.0, 0, 42.987792]
+  CLA-S07-MAG-HVCOR-04:
+    name: CLA-S07-MAG-HVCOR-04
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 43.183]
+    datum: [-0.0, 0, 43.208]
+  CLA-S07-DIA-CDR-01:
+    name: CLA-S07-DIA-CDR-01
+    type: monitor
+    length: 0.3
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 43.375]
+    datum: [-0.0, 0, 43.525]
+  CLA-S07F-MAG-QUAD-06-K:
+    name: CLA-S07F-MAG-QUAD-06-K
+    type: quadrupole
+    length: 0.15
+    k1l: 0.101017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 43.662792]
+    datum: [-0.0, 0, 43.737792]
+  CLA-S07-DCP-01-SCR:
+    name: CLA-S07-DCP-01-SCR
+    type: screen
+    length: 0.0
+    output_filename: CLA-S07-DCP-01-SCR.SDDS
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 43.9318]
+    datum: [0, 0, 43.9318]
+  CLA-S07-DCP-01:
+    name: CLA-S07-DCP-01
+    type: longitudinal_wakefield
+    length: 0.596
+    cell_length: 0.596
+    n_cells: 1
+    field_definition_sdds: $master_lattice_location$Data_Files/DCP_200um_G1200um.sdds
+    field_definition: $master_lattice_location$Data_Files/DCP_200um_G1200um.txt
+    tcolumn: t
+    wcolumn: Ez
+    factor: 1
+    scale_kick: 1
+    interpolate: 1
+    change_momentum: 1
+    allow_long_beam: 1
+    bunched_beam: 0
+    n_bins: 0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 44.5278]
+    datum: [0, 0, 44.2298]
+  CLA-S07-APER-03:
+    name: CLA-S07-APER-03
+    type: aperture
+    shape: rectangular
+    horizontal_size: 0.017
+    vertical_size: 0.017
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 44.527792]
+    datum: [-0.0, 0, 44.527792]
+  CLA-S07-DIA-BPM-05:
+    name: CLA-S07-DIA-BPM-05
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 44.632792]
+    datum: [-0.0, 0, 44.737792]
+  CLA-S07F-MAG-QUAD-07-K:
+    name: CLA-S07F-MAG-QUAD-07-K
+    type: quadrupole
+    length: 0.15
+    k1l: -0.120435
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 44.912792]
+    datum: [-0.0, 0, 44.987792]
+  CLA-S07-MAG-HVCOR-05:
+    name: CLA-S07-MAG-HVCOR-05
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 45.137792]
+    datum: [-0.0, 0, 45.161792]
+  CLA-S07-MAG-HVCOR-06:
+    name: CLA-S07-MAG-HVCOR-06
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 45.9978]
+    datum: [-0.0, 0, 46.0228]
+  CLA-S07-DIA-BPM-06:
+    name: CLA-S07-DIA-BPM-06
+    type: beam_position_monitor
+    length: 0.05
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 46.272792]
+    datum: [-0.0, 0, 46.297792]
+  CLA-S07-DIA-SCR-03-W:
+    name: CLA-S07-DIA-SCR-03-W
+    type: screen
+    output_filename: '"CLA-S07-DIA-SCR-03.SDDS"'
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 46.441125]
+    datum: [-0.0, 0, 46.441125]
+  CLA-S07-MARK-02:
+    name: CLA-S07-MARK-02
+    type: marker
+    fit_point: 1.0
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 46.517792]
+    datum: [-0.0, 0, 46.517792]
+  CLA-S07F-MAG-QUAD-08-K:
+    name: CLA-S07F-MAG-QUAD-08-K
+    type: quadrupole
+    length: 0.15
+    k1l: -0.0357286
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 46.792792]
+    datum: [-0.0, 0, 46.867792]
+  CLA-S07F-MAG-QUAD-09-K:
+    name: CLA-S07F-MAG-QUAD-09-K
+    type: quadrupole
+    length: 0.162
+    k1l: -0.0797044
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 47.336792]
+    datum: [-0.0, 0, 47.417792]
+  CLA-S07-DIA-BPM-07:
+    name: CLA-S07-DIA-BPM-07
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 47.622792]
+    datum: [-0.0, 0, 47.727792]
+  CLA-S07-MAG-HVCOR-07:
+    name: CLA-S07-MAG-HVCOR-07
+    type: kicker
+    length: 0.05
+    sr_enable: true
+    isr_enable: true
+    global_rotation: [0, 0, 0]
+    centre: [0.0, 0.0, 47.777792]
+    datum: [-0.0, 0, 47.802792]
+  CLA-S07-DIA-SCR-04-W:
+    name: CLA-S07-DIA-SCR-04-W
+    type: screen
+    output_filename: '"CLA-S07-DIA-SCR-04.SDDS"'
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 47.871125]
+    datum: [-0.0, 0, 47.871125]
+  CLA-S07F-MAG-QUAD-10-K:
+    name: CLA-S07F-MAG-QUAD-10-K
+    type: quadrupole
+    length: 0.162
+    k1l: -0.0184684
+    global_rotation: [0, 0, 0]
+    centre: [0, 0, 48.116792]
+    datum: [-0.0, 0, 48.197792]

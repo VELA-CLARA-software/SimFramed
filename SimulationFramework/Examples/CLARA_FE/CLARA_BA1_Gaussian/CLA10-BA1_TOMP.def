@@ -100,7 +100,7 @@ files:
       end_element: EBT-BA1-COFFIN-FOC
 groups:
 elements:
-  filename: ['YAML/Injector10.yaml',
+  filename: ['YAML/Injector10_Separated_Solenoids.yaml',
                   'YAML/S02_EBT.yaml',
                   'YAML/C2V.yaml',
                   'YAML/INJ.yaml',
