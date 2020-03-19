@@ -124,12 +124,28 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [3.68075, 0, 67.605]
     position_start: [3.68075, 0, 67.605]
+  CLA-FEH-ECOLL-01:
+    type: aperture
+    horizontal_size: 25e6
+    vertical_size: 25e6
+    elliptical: True
+    global_rotation: [0, 0, 0]
+    position_end: [3.68075, 0, 68.65]
+    position_start: [3.68075, 0, 68.65]
   CLA-FEH-FOCUS-01:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
     position_end: [3.68075, 0, 68.6625]
     position_start: [3.68075, 0, 68.6625]
+  CLA-FEH-ECOLL-02:
+    type: aperture
+    horizontal_size: 1
+    vertical_size: 1
+    elliptical: True
+    global_rotation: [0, 0, 0]
+    position_end: [3.68075, 0, 68.67]
+    position_start: [3.68075, 0, 68.67]
   CLA-FEH-FOCUS-01-END:
     type: marker
     fit_point: 1.0

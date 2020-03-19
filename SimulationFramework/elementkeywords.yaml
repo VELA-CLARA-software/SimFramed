@@ -77,6 +77,13 @@ collimator:
     horizontal_size,
     vertical_size,
   }
+aperture:
+  keywords: {
+    shape,
+    horizontal_size,
+    vertical_size,
+    elliptical
+  }
 common:
   keywords: {
     subelement,
