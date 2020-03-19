@@ -68,7 +68,7 @@ class beam(object):
         self.beam['pz'] = cpz * self.q_over_c
         self.beam['t'] = self.beam['t']
         self.beam['z'] = (-1*self.Bz * constants.speed_of_light) * (self.t-np.mean(self.t)) #np.full(len(self.t), 0)
-        if 'Charge' in self.SDDSparameters:
+        if 'Charge' in self.SDDSparameters and len(self.SDDSparameters['Charge']) > 0:
             self.beam['total_charge'] = self.SDDSparameters['Charge'][0]
         elif charge is None:
             self.beam['total_charge'] = 0
