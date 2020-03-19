@@ -80,9 +80,10 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', '
 with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 'r') as infile:
     elements_Elegant = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
-type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'beam_arrival_monitor': 'moni', 'screen': 'watch', 'aperture': 'rcol',
+type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'beam_arrival_monitor': 'moni', 'screen': 'watch', 'rcollimator': 'rcol',
                          'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'integrated_current_transformer': 'moni', 'cavity': 'rfcw',
-                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake', 'modulator': 'lsrmdltr', 'scatter': 'scatter'}
+                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake', 'modulator': 'lsrmdltr', 'scatter': 'scatter',
+                         'aperture': 'maxamp'}
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'wakefields': {'header': 'WAKE', 'bool': 'LWAKE'},
@@ -2593,7 +2594,6 @@ class beam_arrival_monitor(screen):
 
     def write_ASTRA(self, n):
         return ''
-
 
 class collimator(frameworkElement):
 
