@@ -819,7 +819,12 @@ class frameworkLattice(Munch):
             if len(d) > 1:
                 x1, y1, z1 = d[0]
                 x2, y2, z2 = d[1]
-                length = np.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
+                try:
+                    length = np.sqrt((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2)
+                except Exception as exc:
+                    print('Element with error = ', e[0])
+                    print(d)
+                    raise exc
                 if length > 0:
                     elementno += 1
                     name = 'drift'+str(elementno)
