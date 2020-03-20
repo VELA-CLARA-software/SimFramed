@@ -29,26 +29,26 @@ elements:
     type: kicker
     length: 0.1
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 63.2]
-    position_start: [3.6807513048841103, 0, 63.1]
+    position_end: [3.6807513048841103, 0, 63.2 ]
+    position_start: [3.6807513048841103, 0, 63.1 ]
   CLA-FEA-SHUT-01-START:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 63.44084‬ ]
-    position_start: [3.6807513048841103, 0, 63.44084‬ ]
+    position_end: [3.6807513048841103, 0, 63.44084]
+    position_start: [3.6807513048841103, 0, 63.44084]
   CLA-FEA-SHUT-01-END:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 63.76084‬ ]
-    position_start: [3.6807513048841103, 0, 63.76084‬ ]
+    position_end: [3.6807513048841103, 0, 63.76084]
+    position_start: [3.6807513048841103, 0, 63.76084]
   CLA-FEH-WALL-01-START:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 63.86084‬ ]
-    position_start: [3.6807513048841103, 0, 63.86084‬ ]
+    position_end: [3.6807513048841103, 0, 63.86084 ]
+    position_start: [3.6807513048841103, 0, 63.86084 ]
   CLA-FEH-WALL-01-END:
     type: marker
     fit_point: 1.0
@@ -113,11 +113,11 @@ elements:
     position_start: [3.68075, 0, 67.4]
   CLA-FEH-DIA-SCR-05:
     type: screen
-    length: 0.2
+    length: 0.15
     output_filename: '"CLA-FED-DIA-SCR-05.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 67.605]
-    position_start: [3.6807513048841103, 0, 67.405]
+    position_end: [3.6807513048841103, 0, 67.58]
+    position_start: [3.6807513048841103, 0, 67.43]
   CLA-FEH-FOCUS-01-START:
     type: marker
     fit_point: 1.0
@@ -154,11 +154,11 @@ elements:
     position_start: [3.68075, 0, 69.715]
   CLA-FEH-DIA-SCR-06:
     type: screen
-    length: 0.2
+    length: 0.15
     output_filename: '"CLA-FED-DIA-SCR-06.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 69.92]
-    position_start: [3.6807513048841103, 0, 69.72]
+    position_end: [3.6807513048841103, 0, 69.895]
+    position_start: [3.6807513048841103, 0, 69.745]
   CLA-FEH-MAG-QUAD-19-CORR:
     type: quadrupole
     length: 0.225
@@ -249,11 +249,11 @@ elements:
     position_start: [3.68075, 0, 72.2]
   CLA-FEH-DIA-SCR-07:
     type: screen
-    length: 0.2
+    length: 0.15
     output_filename: '"CLA-FED-DIA-SCR-07.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 72.405]
-    position_start: [3.6807513048841103, 0, 72.205]
+    position_end: [3.6807513048841103, 0, 72.38]
+    position_start: [3.6807513048841103, 0, 72.23]
   CLA-FEH-FOCUS-02-START:
     type: marker
     fit_point: 1.0
@@ -274,11 +274,11 @@ elements:
     position_start: [3.68075, 0, 74.515]
   CLA-FEH-DIA-SCR-08:
     type: screen
-    length: 0.2
+    length: 0.15
     output_filename: '"CLA-FED-DIA-SCR-08.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 74.72]
-    position_start: [3.6807513048841103, 0, 74.52]
+    position_end: [3.6807513048841103, 0, 74.695]
+    position_start: [3.6807513048841103, 0, 74.545]
   CLA-FEH-MAG-QUAD-23-CORR:
     type: quadrupole
     length: 0.225
@@ -315,14 +315,14 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, ‭75.546845‬ ]
-    position_start: [3.6807513048841103, 0, ‭75.546845‬ ]
+    position_end: [3.6807513048841103, 0, 75.546845]
+    position_start: [3.6807513048841103, 0, 75.546845]
   CLA-FEH-WALL-02-END:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 77.13784‬]
-    position_start: [3.6807513048841103, 0, 77.13784‬]
+    position_end: [3.6807513048841103, 0, 77.13784]
+    position_start: [3.6807513048841103, 0, 77.13784]
   CLA-FED-MAG-QUAD-25:
     type: quadrupole
     length: 0.15
@@ -334,8 +334,8 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 77.57589‬]
-    position_start: [3.6807513048841103, 0, 77.57589‬]
+    position_end: [3.6807513048841103, 0, 77.57589]
+    position_start: [3.6807513048841103, 0, 77.57589]
   CLA-FED-SHUT-02-END:
     type: marker
     fit_point: 1.0
@@ -359,21 +359,21 @@ elements:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 78.846]
-    position_start: [3.6807513048841103, 0, 78.636]
+    position_end: [3.6807513048841103, 0, 78.840]
+    position_start: [3.6807513048841103, 0, 78.630]
   CLA-FED-DIA-SCR-09-OTR:
     type: screen
-    length: 0.2
+    length: 0.15
     output_filename: '"CLA-FED-DIA-SCR-09.SDDS"'
     global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 79.035]
-    position_start: [3.6807513048841103, 0, 78.835]
+    position_end: [3.6807513048841103, 0, 73.99]
+    position_start: [3.6807513048841103, 0, 78.840]
   CLA-FED-MAG-DIP-05:
     type: dipole
     length: 0.5
     angle: -0.3490658504
-    entrance_edge_angle: -0.174533
-    exit_edge_angle: -0.174533
+    entrance_edge_angle: -0.1745329252
+    exit_edge_angle: -0.1745329252
     global_rotation: [0, 0, 0]
     position_end: [3.5943673473222746, 0, 79.67]
     position_start: [3.6807513048841103, 0, 79.1801]
@@ -392,14 +392,14 @@ elements:
     position_start: [3.36966, 0, 80.2874]
   CLA-FED-DIA-SCR-10-WIDE:
     type: screen
-    length: 0.2
+    length: 0.15
     output_filename: '"CLA-FED-DIA-SCR-10-WIDE.SDDS"'
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [2.8046, 0., 81.8394 ]
-    position_start: [2.873, 0., 81.6515 ]
+    position_end: [2.86346, 0., 81.6782 ]
+    position_start: [2.91477, 0., 81.5372 ]
   CLA-FED-DUMP-01-START:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [2.68562, 0., 82.166]
-    position_start: [2.68562, 0., 82.166]
+    position_end: [2.68589, 0., 82.166]
+    position_start: [2.68589, 0., 82.166]
