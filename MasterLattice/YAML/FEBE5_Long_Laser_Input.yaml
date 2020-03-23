@@ -31,6 +31,12 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 63.2 ]
     position_start: [3.6807513048841103, 0, 63.1 ]
+  CLA-FEH-DIA-BPM-09:
+    type: beam_position_monitor
+    length: 0.21
+    global_rotation: [0, 0, 0]
+    position_end: [3.6807513048841103, 0, 63.44]
+    position_start: [3.6807513048841103, 0, 63.23]
   CLA-FEA-SHUT-01-START:
     type: marker
     fit_point: 1.0
@@ -55,12 +61,6 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [3.6807513048841103, 0, 65.45184 ]
     position_start: [3.6807513048841103, 0, 65.45184 ]
-  CLA-FEH-DIA-BPM-09:
-    type: beam_position_monitor
-    length: 0.2
-    global_rotation: [0, 0, 0]
-    position_end: [3.6807513048841103, 0, 65.68]
-    position_start: [3.6807513048841103, 0, 65.48]
   CLA-FEH-LAS-ENTR-01-START:
     type: marker
     fit_point: 1.0
@@ -213,14 +213,14 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 71.45]
-    position_start: [3.68075, 0, 71.45]
-  CLA-FEH-DIA-BPM-12:
-    type: beam_position_monitor
-    length: 0.21
-    global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 71.71]
-    position_start: [3.68075, 0, 71.5]
+    position_end: [3.68075, 0, 71.7]
+    position_start: [3.68075, 0, 71.7]
+  # CLA-FEH-DIA-BPM-12:
+  #   type: beam_position_monitor
+  #   length: 0.21
+  #   global_rotation: [0, 0, 0]
+  #   position_end: [3.68075, 0, 71.71]
+  #   position_start: [3.68075, 0, 71.5]
   CLA-FEH-MAG-QUAD-21-CORR:
     type: quadrupole
     length: 0.225
