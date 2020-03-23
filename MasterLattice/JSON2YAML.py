@@ -1,6 +1,6 @@
 from collections import OrderedDict
 import simplejson as json
-import yaml
+import ruamel.yaml as yaml
 import argparse
 
 def setup_yaml():
