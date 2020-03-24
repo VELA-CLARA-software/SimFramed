@@ -114,14 +114,14 @@ class FEBE(Optimise_Elegant):
             'field_max_fhc': {'type': 'lessthan', 'value': fhc_field, 'limit': 50, 'weight': 3000},
             'momentum_max': {'type': 'lessthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 260, 'weight': 250},
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 240, 'weight': 150},
-            'sigma_x_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex], 'limit': 8e-6, 'weight': 10},
-            'sigma_y_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex], 'limit': 8e-6, 'weight': 10},
+            'sigma_x_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex], 'limit': 15e-6, 'weight': 15},
+            'sigma_y_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex], 'limit': 8e-6, 'weight': 15},
             # 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 950, 'weight': 20},
             # 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 1050, 'weight': 20},
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
             'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 5, 'weight': 1.5},
             'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 1.5},
-            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.025, 'weight': 100},
+            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.015, 'weight': 100},
             # 'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 1, 'weight': 0},
             'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 99, 'weight': 200},
         }
@@ -134,9 +134,9 @@ class FEBE(Optimise_Elegant):
 
 if __name__ == "__main__":
     opt = FEBE()
-    opt.set_changes_file(['./transverse_best_changes_upto_S07_250pC.yaml', './S07_transverse_best_changes_250pC.yaml', './FEBE_transverse_best_changes_250pC.yaml'])
+    opt.set_changes_file(['./transverse_best_changes_upto_S07_250pC.yaml', './S07_transverse_best_changes_250pC.yaml', './FEBE_transverse_best_changes.yaml'])
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
     opt.load_best('./nelder_mead_best_changes_250pC.yaml')
     # opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_250pC.yaml', step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 0.005, 0.1])
-    opt.Simplex(best_changes='./nelder_mead_best_changes_250pC.yaml', subdir='simplex_250pC', maxiter=3000)
+    opt.Simplex(best_changes='./nelder_mead_best_changes_250pC.yaml', subdir='simplex_250pC', maxiter=300)
