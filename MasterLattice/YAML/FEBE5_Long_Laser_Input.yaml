@@ -217,30 +217,30 @@ elements:
     position_start: [3.68075, 0, 71.595]
   CLA-FEH-MAG-QUAD-21-CORR:
     type: quadrupole
-    length: 0.15
+    length: 0.225
     k1l: 1.84996
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 71.8075]
-    position_start: [3.68075, 0, 71.6575]
+    position_end: [3.68075, 0, 71.845]
+    position_start: [3.68075, 0, 71.62]
   CLA-FEH-MAG-HVCOR-11:
     type: kicker
     length: 0.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 71.8075]
-    position_start: [3.68075, 0, 71.8075]
+    position_end: [3.68075, 0, 71.845]
+    position_start: [3.68075, 0, 71.845]
   CLA-FEH-MAG-QUAD-22-CORR:
     type: quadrupole
-    length: 0.15
+    length: 0.225
     k1l: -2.04187
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 72.11]
-    position_start: [3.68075, 0, 71.96]
+    position_end: [3.68075, 0, 72.1475]
+    position_start: [3.68075, 0, 71.9225]
   CLA-FEH-MAG-HVCOR-12:
     type: kicker
     length: 0.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 72.11]
-    position_start: [3.68075, 0, 72.11]
+    position_end: [3.68075, 0, 72.1475]
+    position_start: [3.68075, 0, 72.1475]
   CLA-FEH-DIA-SCR-07:
     type: screen
     length: 0.15
@@ -275,30 +275,30 @@ elements:
     position_start: [3.680751, 0, 74.4925]
   CLA-FEH-MAG-QUAD-23-CORR:
     type: quadrupole
-    length: 0.15
+    length: 0.225
     k1l: 1.6745653021597
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 74.86]
-    position_start: [3.68075, 0, 74.71]
+    position_end: [3.68075, 0, 74.8975]
+    position_start: [3.68075, 0, 74.6725]
   CLA-FEH-MAG-HVCOR-13:
     type: kicker
     length: 0.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 74.86]
-    position_start: [3.68075, 0, 74.86]
+    position_end: [3.68075, 0, 74.8975]
+    position_start: [3.68075, 0, 74.8975]
   CLA-FEH-MAG-QUAD-24-CORR:
     type: quadrupole
-    length: 0.15
+    length: 0.225
     k1l: -1.7592589150063
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 75.1625]
-    position_start: [3.68075, 0, 75.0125]
+    position_end: [3.68075, 0, 75.2]
+    position_start: [3.68075, 0, 74.975]
   CLA-FEH-MAG-HVCOR-14:
     type: kicker
     length: 0.0
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 75.1625]
-    position_start: [3.68075, 0, 75.1625]
+    position_end: [3.68075, 0, 75.2]
+    position_start: [3.68075, 0, 75.2]
   CLA-FEH-DIA-BPM-13:
     type: beam_position_monitor
     length: 0.21
