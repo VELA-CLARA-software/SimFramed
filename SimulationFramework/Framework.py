@@ -68,6 +68,8 @@ elegant_generator_keywords = {
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/commands_Elegant.yaml', 'r') as infile:
     commandkeywords = yaml.load(infile, Loader=yaml.UnsafeLoader)
+# with open(os.path.dirname( os.path.abspath(__file__))+'/commands_MAD8.yaml', 'r') as infile:
+#     mad8commandkeywords = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
 with open(os.path.dirname( os.path.abspath(__file__))+'/csrtrack_defaults.yaml', 'r') as infile:
     csrtrack_defaults = yaml.load(infile, Loader=yaml.UnsafeLoader)
@@ -94,6 +96,7 @@ section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'}
                              'astra_output': {'header': 'OUTPUT'},
                              'astra_charge': {'header': 'CHARGE'},
                              'global_error': {'header': 'ERROR'},
+                             'apertures': {'header': 'APERTURE', 'bool': 'LApert'},
                             }
 
 def isevaluable(self, s):
@@ -713,7 +716,11 @@ class frameworkLattice(Munch):
 
     @property
     def screens_and_bpms(self):
-        return sorted(self.getElementType('screen') + self.getElementType('beam_position_monitor'), key=lambda x: x.position_end[2])
+        return sorted(self.getElementType('screen') + self.getElementType('beam_position_monitor'), key=lambda x: x.position_start[2])
+
+    @property
+    def apertures(self):
+        return sorted(self.getElementType('aperture') + self.getElementType('collimator'), key=lambda x: x.position_start[2])
 
     @property
     def lines(self):
@@ -1055,7 +1062,7 @@ class elegantCommandFile(object):
     def write(self):
         output = ''
         for c in list(self.commandObjects.values()):
-            output += c.write()
+            output += c.write_Elegant()
         return output
 
 class elegantTrackFile(elegantCommandFile):
@@ -1105,6 +1112,140 @@ class elegantOptimisation(elegantCommandFile):
     def add_optimisation_term(self, name, item=None, **kwargs):
         self.addCommand(name=name, type='optimization_term', term=item, **kwargs)
 
+class mad8Lattice(frameworkLattice):
+    def __init__(self, *args, **kwargs):
+        super(mad8Lattice, self).__init__(*args, **kwargs)
+        self.code = 'mad'
+        self.particle_definition = self.allElementObjects[self.start].objectname
+        self.bunch_charge = None
+        self.trackBeam = True
+        self.betax = None
+        self.betay = None
+        self.alphax = None
+        self.alphay = None
+
+    def writeElements(self):
+        elements = self.createDrifts()
+        fulltext = ''
+        for element in list(elements.values()):
+            if not element.subelement:
+                fulltext += element.write_MAD8()
+        fulltext += self.w.write_Elegant()
+        fulltext += self.objectname+': Line=('
+        for e, element in list(elements.items()):
+            if not element.subelement:
+                if len((fulltext + e).splitlines()[-1]) > 79:
+                    fulltext += '&\n'
+                fulltext += e+', '
+        return fulltext[:-2] + ')\n'
+
+    def write(self):
+        self.lattice_file = master_subdir+'/'+self.objectname+'.mad'
+        saveFile(self.lattice_file, self.writeElements())
+        self.command_file = master_subdir+'/'+self.objectname+'.mff'
+        saveFile(self.command_file, self.commandFile.write())
+
+    def preProcess(self):
+        prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
+        if self.trackBeam:
+            self.hdf5_to_tfs(prefix)
+        self.commandFile = mad8TrackFile(lattice=self, trackBeam=self.trackBeam, mad8beamfilename=self.objectname+'.tfs', sample_interval=self.sample_interval,
+        betax=self.betax,
+        betay=self.betay,
+        alphax=self.alphax,
+        alphay=self.alphay)
+
+    def postProcess(self):
+        if self.trackBeam:
+            for s in self.screens:
+                s.tfs_to_hdf5()
+
+    def hdf5_to_tfs(self, prefix=''):
+        HDF5filename = prefix+self.particle_definition+'.hdf5'
+        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        tfsbeamfilename = self.objectname+'.tfs'
+        beam.write_TFS_file(master_subdir + '/' + tfsbeamfilename, xyzoffset=self.startObject.position_start)
+
+    def run(self):
+        """Run the code with input 'filename'"""
+        command = self.executables[self.code] + [self.objectname+'.mff']
+        # print ('run command = ', command)
+        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f, cwd=master_subdir)
+
+class mad8CommandFile(object):
+    def __init__(self, lattice='', *args, **kwargs):
+        super(mad8CommandFile, self).__init__()
+        self.commandObjects = OrderedDict()
+        self.lattice_filename = lattice.objectname+'.mff'
+
+    def addCommand(self, name=None, **kwargs):
+        if name == None:
+            if not 'name' in kwargs:
+                if not 'type' in kwargs:
+                    raise NameError('Command does not have a name')
+                else:
+                    name = kwargs['type']
+            else:
+                name = kwargs['name']
+        command = frameworkCommand(name, **kwargs)
+        self.commandObjects[name] = command
+        return command
+
+    def write(self):
+        output = ''
+        for c in list(self.commandObjects.values()):
+            output += c.write_mad8()
+        return output
+
+class mad8TrackFile(elegantCommandFile):
+    def __init__(self, lattice='', trackBeam=True, mad8beamfilename='', betax=None, betay=None, alphax=None, alphay=None, *args, **kwargs):
+        super(mad8TrackFile, self).__init__(lattice, *args, **kwargs)
+        self.mad8beamfilename = mad8beamfilename
+        self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
+        self.trackBeam = trackBeam
+        self.betax = betax if betax is not None else beam.beta_x
+        self.betay = betay if betay is not None else beam.beta_y
+        self.alphax = alphax if alphax is not None else beam.alpha_x
+        self.alphay = alphay if alphay is not None else beam.alpha_y
+        self.addCommand(type='global_settings', mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
+        self.addCommand(type='run_setup',lattice=self.lattice_filename, \
+            use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
+            centroid='%s.cen',always_change_p0 = 1, \
+            sigma='%s.sig', default_order=3)
+        self.addCommand(type='run_control',n_steps=1, n_passes=1)
+        self.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi",
+        beta_x  = self.betax,
+        alpha_x = self.alphax,
+        beta_y  = self.betay,
+        alpha_y = self.alphay)
+        flr = self.addCommand(type='floor_coordinates', filename="%s.flr",
+        X0  = lattice.startObject['position_start'][0],
+        Z0 = lattice.startObject['position_start'][2],
+        theta0 = 0)
+        mat = self.addCommand(type='matrix_output', SDDS_output="%s.mat",
+        full_matrix_only=1, SDDS_output_order=2)
+        if self.trackBeam:
+            self.addCommand(type='sdds_beam', input=self.elegantbeamfilename, sample_interval=self.sample_interval)
+            self.addCommand(type='track')
+
+class mad8Optimisation(mad8CommandFile):
+
+    def __init__(self, lattice='', variables={}, constraints={}, terms={}, settings={}, *args, **kwargs):
+        super(mad8Optimisation, self).__init__(lattice, *args, **kwargs)
+        for k, v in list(variables.items()):
+            self.add_optimisation_variable(k, **v)
+
+    def add_optimisation_variable(self, name, item=None, lower=None, upper=None, step=None, restrict_range=None):
+        self.addCommand(name=name, type='optimization_variable', item=item, lower_limit=lower, upper_limit=upper, step_size=step, force_inside=restrict_range)
+
+    def add_optimisation_constraint(self, name, item=None, lower=None, upper=None):
+        self.addCommand(name=name, type='optimization_constraint', quantity=item, lower=lower, upper=upper)
+
+    def add_optimisation_term(self, name, item=None, **kwargs):
+        self.addCommand(name=name, type='optimization_term', term=item, **kwargs)
+
+
 class frameworkCommand(frameworkObject):
 
     def __init__(self, name=None, type=None, **kwargs):
@@ -1112,7 +1253,7 @@ class frameworkCommand(frameworkObject):
         if not type in commandkeywords:
             raise NameError('Command \'%s\' does not exist' % commandname)
 
-    def write(self):
+    def write_Elegant(self):
         wholestring=''
         string = '&'+self.objecttype+'\n'
         # print(self.objecttype, self.objectproperties)
@@ -1120,6 +1261,19 @@ class frameworkCommand(frameworkObject):
             if key.lower() in self.objectproperties and not key =='name' and not key == 'type' and not self.objectproperties[key.lower()] is None:
                 string+='\t'+key+' = '+str(self.objectproperties[key.lower()])+'\n'
         string+='&end\n'
+        return string
+
+    def write_MAD8(self):
+        wholestring=''
+        string = self.objecttype
+        # print(self.objecttype, self.objectproperties)
+        for key in commandkeywords[self.objecttype]:
+            if key.lower() in self.objectproperties and not key =='name' and not key == 'type' and not self.objectproperties[key.lower()] is None:
+                e = ',' + key +'=' + str(self.objectproperties[key.lower()])
+                if len((string + e).splitlines()[-1]) > 79:
+                    string += ',&\n'
+                string += e
+        string+=';\n'
         return string
 
 class astraLattice(frameworkLattice):
@@ -1190,8 +1344,8 @@ class astraLattice(frameworkLattice):
         for header in self.headers:
             fulltext += self.headers[header].write_ASTRA()+'\n'
         # Initialise a counter object
-        counter = frameworkCounter(sub={'kicker': 'dipole'})
-        for t in [['cavities'], ['wakefields'], ['solenoids'], ['quadrupoles'], ['dipoles', 'dipoles_and_kickers']]:
+        counter = frameworkCounter(sub={'kicker': 'dipole', 'collimator': 'aperture'})
+        for t in [['cavities'], ['wakefields'], ['solenoids'], ['quadrupoles'], ['dipoles', 'dipoles_and_kickers'], ['apertures']]:
             fulltext += '&' + section_header_text_ASTRA[t[0]]['header']+'\n'
             elements = getattr(self, t[-1])
             fulltext += section_header_text_ASTRA[t[0]]['bool']+' = '+str(len(elements) > 0)+'\n'
@@ -1205,6 +1359,8 @@ class astraLattice(frameworkLattice):
                         counter.add(element.objecttype,2)
                     elif element.objecttype == 'longitudinal_wakefield':
                         counter.add(element.objecttype, element.cells)
+                    elif element.objecttype == 'aperture' or element.objecttype == 'collimator':
+                        counter.add(element.objecttype, element.number_of_elements)
                     else:
                         counter.add(element.objecttype)
             fulltext += '\n/\n'
@@ -1549,11 +1705,13 @@ class frameworkCounter(dict):
         self.sub = sub
 
     def counter(self, type):
+        type = self.sub[type] if type in self.sub else type
         if type not in self:
             return 1
         return self[type] + 1
 
     def value(self, type):
+        type = self.sub[type] if type in self.sub else type
         if type not in self:
             return 1
         return self[type]
@@ -2443,6 +2601,7 @@ class aperture(frameworkElement):
 
     def __init__(self, name=None, type='aperture', **kwargs):
         super(aperture, self).__init__(name, type, **kwargs)
+        self.number_of_elements = 1
 
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
         return ''
@@ -2452,6 +2611,56 @@ class aperture(frameworkElement):
         #     output = 'xymax'
         # output += '( "wcs", '+self.gpt_coordinates()+', '+str(self.horizontal_size)+', '+str(self.length)+');\n'
         # return output
+
+    def write_ASTRA_Common(self, dic):
+        dic['Ap_Z1'] = {'value': self.start[2] + self.dz, 'default': 0}
+        end = self.end[2] + self.dz if self.end[2] > self.start[2] else self.start[2] + self.dz + 1e-3
+        dic['Ap_Z2'] = {'value': end, 'default': 0}
+        dic['A_xrot'] = {'value': self.y_rot + self.dy_rot, 'default': 0}
+        dic['A_yrot'] = {'value': self.x_rot + self.dx_rot, 'default': 0}
+        dic['A_zrot'] = {'value': self.z_rot + self.dz_rot, 'default': 0}
+        return dic
+
+    def write_ASTRA_Circular(self, n):
+        dic = OrderedDict()
+        dic['File_Aperture'] = {'value': 'RAD'}
+        if self.radius is not None:
+            radius = self.radius
+        elif self.horizontal_size > 0 and self.vertical_size > 0:
+            radius = min([self.horizontal_size, self.vertical_size])
+        elif self.horizontal_size > 0:
+            radius = self.horizontal_size
+        elif self.vertical_size > 0:
+            radius = self.vertical_size
+        else:
+            radius = 1
+        dic['Ap_R'] = {'value': 1e3*radius}
+        return self.write_ASTRA_Common(dic)
+
+    def write_ASTRA_Planar(self, n, plane, width):
+        dic = OrderedDict()
+        dic['File_Aperture'] = {'value': plane}
+        dic['Ap_R'] = {'value': width}
+        return self.write_ASTRA_Common(dic)
+
+    def write_ASTRA(self, n):
+        self.number_of_elements = 1
+        if self.shape == 'elliptical' or self.shape == 'circular':
+            dic = self.write_ASTRA_Circular(n)
+            return self._write_ASTRA(dic, n)
+        elif self.shape == 'planar' or self.shape == 'rectangular':
+            text = ''
+            if self.horizontal_size > 0:
+                dic = self.write_ASTRA_Planar(n, 'Col_X', 1e3*self.horizontal_size)
+                text += self._write_ASTRA(dic, n)
+                n = n + 1
+                self.number_of_elements = self.number_of_elements + 1
+            if self.vertical_size > 0:
+                dic = self.write_ASTRA_Planar(n, 'Col_Y', 1e3*self.vertical_size)
+                if self.number_of_elements > 1:
+                    text += '\n'
+                text += self._write_ASTRA(dic, n)
+            return text
 
 class scatter(frameworkElement):
 
@@ -2600,7 +2809,7 @@ class beam_arrival_monitor(screen):
     def write_ASTRA(self, n):
         return ''
 
-class collimator(frameworkElement):
+class collimator(aperture):
 
     def __init__(self, name=None, type='collimator', **kwargs):
         super(collimator, self).__init__(name, type, **kwargs)
