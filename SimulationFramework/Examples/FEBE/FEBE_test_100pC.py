@@ -13,8 +13,8 @@ class FEBE(Optimise_Elegant):
 
     def __init__(self):
         super(FEBE, self).__init__()
-        self.parameter_names.append(['FODO_F', 'k1l'])
-        self.parameter_names.append(['FODO_D', 'k1l'])
+        # self.parameter_names.append(['FODO_F', 'k1l'])
+        # self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
         self.sample_interval = 2**(3*2)
         self.base_files = '../../CLARA/basefiles_'+str(self.scaling)+'_100pC/'
@@ -58,7 +58,7 @@ class FEBE(Optimise_Elegant):
 
 if __name__ == "__main__":
     opt = FEBE()
-    opt.set_changes_file(['./transverse_best_changes_upto_S07_100pC.yaml', './S07_transverse_best_changes_100pC.yaml', './FEBE_transverse_best_changes_100pC.yaml'])
+    opt.set_changes_file(['./transverse_best_changes_upto_S07_100pC.yaml', './S07_transverse_best_changes_100pC.yaml', './FEBE_transverse_best_changes.yaml'])
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
     opt.load_best('./nelder_mead_best_changes_100pC.yaml')
@@ -68,4 +68,4 @@ if __name__ == "__main__":
         pass
     for l in opt.framework.latticeObjects.keys():
         opt.framework.save_lattice(lattice=l, directory='example_100pC')
-    # opt.Simplex()
+    opt.framework.save_lattice(directory='example_100pC/')

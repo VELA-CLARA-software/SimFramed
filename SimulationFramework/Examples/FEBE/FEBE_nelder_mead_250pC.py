@@ -26,8 +26,8 @@ class FEBE(Optimise_Elegant):
         ['CLA-L04-CAV', 'phase'],
         ['bunch_compressor', 'angle'],
         ['CLA-S07-DCP-01', 'factor'],
-        ['FODO_D', 'k1l'],
-        ['FODO_F', 'k1l'],
+        # ['FODO_D', 'k1l'],
+        # ['FODO_F', 'k1l'],
     ]
 
     def __init__(self):
@@ -107,6 +107,7 @@ class FEBE(Optimise_Elegant):
 
         self.twiss.read_elegant_twiss_files( self.dirname+'/FEBE.twi' )
         ipindex = list(self.twiss.elegant['ElementName']).index('CLA-FEH-FOCUS-01')
+        ipindex2 = list(self.twiss.elegant['ElementName']).index('CLA-FEH-FOCUS-02')
         constraintsListFEBE = {
             # 'ip_enx': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 0},
             # 'ip_eny': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 2.5},
@@ -116,6 +117,8 @@ class FEBE(Optimise_Elegant):
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 240, 'weight': 150},
             'sigma_x_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex], 'limit': 15e-6, 'weight': 15},
             'sigma_y_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex], 'limit': 8e-6, 'weight': 15},
+            'sigma_x_max': {'type': 'lessthan', 'value': 1e3*12*self.twiss.elegant['Sx'][:ipindex2], 'limit': 37, 'weight': 150},
+            'sigma_y_max': {'type': 'lessthan', 'value': 1e3*12*self.twiss.elegant['Sy'][:ipindex2], 'limit': 37, 'weight': 150},
             # 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 950, 'weight': 20},
             # 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 1050, 'weight': 20},
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
