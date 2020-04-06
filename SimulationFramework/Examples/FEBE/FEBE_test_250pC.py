@@ -62,3 +62,4 @@ if __name__ == "__main__":
     opt.load_best('./nelder_mead_best_changes_250pC.yaml')
     opt.Example(dir='example_250pC')
     # opt.Simplex()
+    opt.framework.save_lattice(directory='example_250pC/')

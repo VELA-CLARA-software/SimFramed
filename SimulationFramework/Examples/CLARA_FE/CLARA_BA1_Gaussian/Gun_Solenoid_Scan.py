@@ -29,19 +29,19 @@ def sol_field_from_current(I):
     return 0.001203*I + 1.09776e-7*I**2 - 2.53708e-10*I**3
 
 def bsol_field_from_current(I):
-    return 0.3462*sol_field_from_current(I)
+    return 0.354*sol_field_from_current(I)
 
-def create_base_files(scaling, charge=70, sol=160, bsol=-144):
+def create_base_files(scaling, charge=70, sol=160, bsol=-144, gunfield=58.82):
     sol=int(sol)
     bsol=int(bsol)
-    framework = Framework('Gun_Solenoid_Scan/basefiles_'+str(scaling)+'_'+str(charge)+'_'+str(int(sol))+'_'+str(int(bsol))+'_4.3MeV', overwrite=True, clean=True)
+    framework = Framework('Gun_Solenoid_Scan/basefiles_'+str(scaling)+'_'+str(charge)+'_'+str(int(sol))+'_'+str(int(bsol))+'_'+str(int(gunfield))+'MVm', overwrite=True, clean=True, verbose=False)
     framework.loadSettings('CLA10-BA1_TOMP.def')
     if not os.name == 'nt':
         framework.defineASTRACommand(scaling=(scaling))
         framework.defineCSRTrackCommand(scaling=(scaling))
     framework.generator.number_of_particles = 2**(3*scaling)
     framework.modifyElement('CLA-LRG1-GUN-CAV', 'phase', 0)
-    framework.modifyElement('CLA-LRG1-GUN-CAV', 'field_amplitude', 58820000) #66000000 == 4.7MeV/c   58820000 == 4.3MeV/c
+    framework.modifyElement('CLA-LRG1-GUN-CAV', 'field_amplitude', gunfield*1e6) #66000000 == 4.7MeV/c   58820000 == 4.3MeV/c
     framework.modifyElement('CLA-LRG1-MAG-SOL-01', 'field_amplitude', sol_field_from_current(sol))
     framework.modifyElement('CLA-LRG1-MAG-BSOL-01', 'field_amplitude', bsol_field_from_current(bsol))
     framework.modifyElement('CLA-L01-CAV', 'phase', 0)
@@ -59,17 +59,19 @@ def create_base_files(scaling, charge=70, sol=160, bsol=-144):
     framework.track(files=['generator', 'injector10', 'L01', 'S02'])
 
 # Modify as appropriate! ##
-# for i in [4]:
-#     print('Scaling = ', i)
-#     for j in np.arange(120,251,10):
-#         print('  Solenoid = ', j)
-#         create_base_files(i, 170, j, -0.9*j)
-#     for j in np.arange(181,200,1):
-#         print('  Solenoid = ', j)
-#         create_base_files(i, 170, j, -0.9*j)
 for i in [4]:
     print('Scaling = ', i)
-    for j in np.arange(120,121,10):
+    for j in np.arange(120,251,1):
         print('  Solenoid = ', j)
-        create_base_files(i, 70, j, -0.9*j)
+        for k in [53,55,57]:#np.arange(50,70,2):
+            print('    Gun Field = ', k)
+            create_base_files(i, 70, j, -0.9*j, gunfield=k)
+    # for j in np.arange(181,220,1):
+    #     print('  Solenoid = ', j)
+    #     create_base_files(i, 70, j, -0.9*j)
+# for i in [4]:
+#     print('Scaling = ', i)
+#     for j in np.arange(120,121,10):
+#         print('  Solenoid = ', j)
+#         create_base_files(i, 70, j, -0.9*j)
 exit()

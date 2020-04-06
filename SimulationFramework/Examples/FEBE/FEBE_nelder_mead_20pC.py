@@ -26,14 +26,14 @@ class FEBE(Optimise_Elegant):
         ['CLA-L04-CAV', 'phase'],
         ['bunch_compressor', 'angle'],
         ['CLA-S07-DCP-01', 'factor'],
-        ['FODO_D', 'k1l'],
-        ['FODO_F', 'k1l'],
+        # ['FODO_D', 'k1l'],
+        # ['FODO_F', 'k1l'],
     ]
 
     def __init__(self):
         super(FEBE, self).__init__()
-        # self.parameter_names.append(['FODO_F', 'k1l'])
-        # self.parameter_names.append(['FODO_D', 'k1l'])
+        self.parameter_names.append(['FODO_F', 'k1l'])
+        self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
         self.sample_interval = 2**(3*2)
         self.base_files = '../../../CLARA/basefiles_'+str(self.scaling)+'_20pC/'
@@ -107,6 +107,7 @@ class FEBE(Optimise_Elegant):
 
         self.twiss.read_elegant_twiss_files( self.dirname+'/FEBE.twi' )
         ipindex = list(self.twiss.elegant['ElementName']).index('CLA-FEH-FOCUS-01')
+        ipindex2 = list(self.twiss.elegant['ElementName']).index('CLA-FEH-FOCUS-02')
         constraintsListFEBE = {
             # 'ip_enx': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['enx'][ipindex], 'limit': 2, 'weight': 0},
             # 'ip_eny': {'type': 'lessthan', 'value': 1e6*self.twiss.elegant['eny'][ipindex], 'limit': 0.5, 'weight': 2.5},
@@ -116,11 +117,13 @@ class FEBE(Optimise_Elegant):
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 240, 'weight': 150},
             'sigma_x_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex], 'limit': 8e-6, 'weight': 10},
             'sigma_y_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex], 'limit': 8e-6, 'weight': 10},
+            'sigma_x_IP2': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex2], 'limit': 8e-6, 'weight': 10},
+            'sigma_y_IP2': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex2], 'limit': 8e-6, 'weight': 10},
             'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 0.75, 'weight': 1.5},
             'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 1.5},
-            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.01, 'weight': 100},
+            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.0075, 'weight': 100},
             # 'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 1, 'weight': 0},
-            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 99, 'weight': 200},
+            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 75, 'weight': 200},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
 
@@ -131,9 +134,9 @@ class FEBE(Optimise_Elegant):
 
 if __name__ == "__main__":
     opt = FEBE()
-    opt.set_changes_file(['./transverse_best_changes_upto_S07_20pC.yaml', './S07_transverse_best_changes_20pC.yaml', './FEBE_transverse_best_changes_20pC.yaml'])
+    opt.set_changes_file(['./transverse_best_changes_upto_S07_20pC.yaml', './S07_transverse_best_changes_20pC.yaml', './FEBE_transverse_best_changes.yaml'])
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
     opt.load_best('./nelder_mead_best_changes_20pC.yaml')
     # opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_20pC.yaml', step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 0.005, 0.1], subdir='nelder_mead_20pC')
-    opt.Simplex(best_changes='./nelder_mead_best_changes_20pC.yaml', subdir='simplex_20pC', maxiter=3000)
+    opt.Simplex(best_changes='./nelder_mead_best_changes_20pC.yaml', subdir='simplex_20pC', maxiter=300)
