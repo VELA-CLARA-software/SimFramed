@@ -16,7 +16,7 @@ class FEBE(Optimise_Elegant):
         self.parameter_names.append(['FODO_F', 'k1l'])
         self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*2)
+        self.sample_interval = 2**(3*1)
         self.base_files = '../../CLARA/basefiles_'+str(self.scaling)+'_20pC/'
         self.clean = True
         self.doTracking = True
@@ -58,9 +58,10 @@ class FEBE(Optimise_Elegant):
 
 if __name__ == "__main__":
     opt = FEBE()
-    opt.set_changes_file(['./transverse_best_changes_upto_S07_20pC.yaml', './S07_transverse_best_changes_20pC.yaml', './FEBE_transverse_best_changes_20pC.yaml'])
+    opt.set_changes_file(['./transverse_best_changes_upto_S07_20pC.yaml', './S07_transverse_best_changes_20pC.yaml', './FEBE_transverse_best_changes.yaml'])
     opt.set_lattice_file('./FEBE_Single.def')
     opt.set_start_file('PreFEBE')
     opt.load_best('./nelder_mead_best_changes_20pC.yaml')
     opt.Example(dir='example_20pC')
     # opt.Simplex()
+    opt.framework.save_lattice(directory='example_20pC/')
