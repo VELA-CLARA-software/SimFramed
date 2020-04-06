@@ -82,7 +82,8 @@ aperture:
     shape,
     horizontal_size,
     vertical_size,
-    elliptical
+    elliptical,
+    radius
   }
 common:
   keywords: {

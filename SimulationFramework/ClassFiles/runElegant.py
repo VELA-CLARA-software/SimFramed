@@ -67,6 +67,7 @@ class fitnessFunc(object):
         self.genesis_ncpu = 2
         self.doTracking = True
         self.change_to_elegant = True
+        self.framework = fw.Framework('.', clean=False, overwrite=False, verbose=False)
 
     def set_CLARA_directory(self, clara_dir):
         self.CLARA_dir = clara_dir
