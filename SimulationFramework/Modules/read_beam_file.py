@@ -772,6 +772,8 @@ class beam(object):
         if twidth == 0:
             t = self.z / (-1 * self.Bz * constants.speed_of_light)
             twidth = (max(t) - min(t))
+        if slices == 0:
+            slices = int(twidth / 0.1e-12)
         self._slices = slices
         self._slicelength = twidth / self._slices
 
