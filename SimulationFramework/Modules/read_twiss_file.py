@@ -28,6 +28,7 @@ class twiss(munch.Munch):
         self['kinetic_energy'] = []
         self['gamma'] = []
         self['cp'] = []
+        self['cp_eV'] = []
         self['p'] = []
         self['enx'] = []
         self['ex'] = []
@@ -50,6 +51,7 @@ class twiss(munch.Munch):
         self['sigma_t'] = []
         self['sigma_p'] = []
         self['sigma_cp'] = []
+        self['sigma_cp_eV'] = []
         self['mux'] = []
         self['muy'] = []
         self['eta_x'] = []
@@ -89,7 +91,8 @@ class twiss(munch.Munch):
             self['z'] = np.concatenate([self['z'], z])
             cp = self.elegant['pCentral0'] * self.E0
             self['cp'] = np.concatenate([self['cp'], cp])
-            ke = (np.sqrt(self.E0**2 + cp**2) - self.E0**2) / constants.elementary_charge
+            self['cp_eV'] = np.concatenate([self['cp_eV'], cp / constants.elementary_charge])
+            ke = np.array((np.sqrt(self.E0**2 + cp**2) - self.E0**2) / constants.elementary_charge)
             self['kinetic_energy'] = np.concatenate([self['kinetic_energy'], ke])
             gamma = 1 + ke / self.E0_eV
             self['gamma'] = np.concatenate([self['gamma'], gamma])
@@ -116,8 +119,10 @@ class twiss(munch.Munch):
             # print 'len(z) = ', len(z), '  len(beta) = ', len(beta)
             self['t'] = np.concatenate([self['t'], z / (beta * constants.speed_of_light)])
             self['sigma_z'] =  np.concatenate([self['sigma_z'], self.elegant['St'] * (beta * constants.speed_of_light)])
-            self['sigma_cp'] = np.concatenate([self['sigma_cp'], self.elegant['Sdelta'] * cp / self.E0])
-            self['sigma_p'] = np.concatenate([self['sigma_p'], self.elegant['Sdelta'] / 1000000])
+            self['sigma_cp'] = np.concatenate([self['sigma_cp'], self.elegant['Sdelta'] * cp ])
+            self['sigma_cp_eV'] = np.concatenate([self['sigma_cp_eV'], self.elegant['Sdelta'] * cp / constants.elementary_charge])
+            # print('elegant = ', (self.elegant['Sdelta'] * cp / constants.elementary_charge)[-1])
+            self['sigma_p'] = np.concatenate([self['sigma_p'], self.elegant['Sdelta'] ])
             self['mux'] = np.concatenate([self['mux'], self.elegant['psix'] / (2*constants.pi)])
             self['muy'] = np.concatenate([self['muy'], self.elegant['psiy'] / (2*constants.pi)])
             self['eta_x'] = np.concatenate([self['eta_x'], self.elegant['etax']])
@@ -161,13 +166,15 @@ class twiss(munch.Munch):
             exn = 1e-6*exn
             eyn = 1e-6*eyn
             rms_x, rms_xp, rms_y, rms_yp, rms_z, rms_e = 1e-3*np.array([rms_x, rms_xp, rms_y, rms_yp, rms_z, rms_e])
+            rms_e = 1e6 * rms_e
             self['z'] = np.concatenate([self['z'],z])
             self['t'] = np.concatenate([self['t'],t])
             self['kinetic_energy'] = np.concatenate([self['kinetic_energy'], e_kin])
             gamma = 1 + (e_kin / self.E0_eV)
             self['gamma'] = np.concatenate([self['gamma'], gamma])
-            cp = np.sqrt(e_kin * (2 * self.E0_eV + e_kin))
+            cp = np.sqrt(e_kin * (2 * self.E0_eV + e_kin)) * constants.elementary_charge
             self['cp'] = np.concatenate([self['cp'], cp])
+            self['cp_eV'] = np.concatenate([self['cp_eV'], cp / constants.elementary_charge])
             p = cp * self.q_over_c
             self['p'] = np.concatenate([self['p'], p])
             self['enx'] = np.concatenate([self['enx'], exn])
@@ -196,6 +203,8 @@ class twiss(munch.Munch):
             self['sigma_t'] = np.concatenate([self['sigma_t'], rms_z / (beta * constants.speed_of_light)])
             self['sigma_p'] = np.concatenate([self['sigma_p'], (rms_e / e_kin)])
             self['sigma_cp'] = np.concatenate([self['sigma_cp'], (rms_e / e_kin) * p])
+            self['sigma_cp_eV'] = np.concatenate([self['sigma_cp_eV'], (rms_e)])
+            # print('astra = ', (rms_e)[-1])
             self['mux'] = np.concatenate([self['mux'], integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)])
             self['muy'] = np.concatenate([self['muy'], integrate.cumtrapz(x=self['z'], y=1/self['beta_y'], initial=0)])
 
