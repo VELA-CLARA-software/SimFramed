@@ -1,4 +1,5 @@
 import sys, os, time, math, datetime, copy, re,  h5py
+from copy import copy
 from collections import OrderedDict
 import glob
 try:
@@ -13,6 +14,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
 import SimulationFramework.Modules.read_beam_file as raf
 import SimulationFramework.Modules.read_twiss_file as rtf
+from SimulationFramework.Modules.online_model_multiaxis_Plot import multiaxisPlotWidget
 sys.path.append(os.path.realpath(__file__)+'/../../../../')
 
 class mainWindow(QMainWindow):
@@ -40,12 +42,10 @@ class mainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-class slicePlotWidget(QWidget):
-    # Styles for the plot lines
-    colors = [QColor('#F5973A'),QColor('#A95AA1'),QColor('#85C059'),QColor('#0F2080'),QColor('#BDB8AD'), 'r']
-    styles = [Qt.SolidLine, Qt.DashLine, Qt.DotLine, Qt.DashDotLine, Qt.DashDotDotLine]
+class slicePlotWidget(multiaxisPlotWidget):
+    ''' QWidget containing pyqtgraph plot showing slice beam parameters '''
 
-    sliceParams = [
+    plotParams = [
         {'label': 'Horizontal Emittance (normalised)', 'quantity': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'name': '&epsilon;<sub>n,x</sub>'},
         {'label': 'Vertical Emittance (normalised)', 'quantity': 'slice_normalized_vertical_emittance', 'units': 'm-rad', 'name': '&epsilon;<sub>n,y</sub>'},
         {'label': 'Current', 'quantity': 'slice_peak_current', 'units': 'A', 'text': 'I', 'name': 'I'},
@@ -56,143 +56,95 @@ class slicePlotWidget(QWidget):
 
     def __init__(self, **kwargs):
         super(slicePlotWidget, self).__init__(**kwargs)
-        ''' These are for reading data files from ASTRA and Elegant '''
         self.beams = {}
-        self.twiss = rtf.twiss()
-
-        self.slicePlotWidget = QWidget()
-        self.slicePlotLayout = QVBoxLayout()
-        self.slicePlotWidget.setLayout(self.slicePlotLayout)
-        self.slicePlotWidgetGraphicsLayout = pg.GraphicsLayoutWidget()
-        self.slicePlotCheckbox = {}
-        self.viewboxes = {}
-        self.curves = {}
-        self.sliceaxis = {}
-        self.slicePlotCheckboxWidget = QWidget()
-        self.slicePlotCheckboxLayout = QVBoxLayout()
-        self.slicePlotCheckboxWidget.setLayout(self.slicePlotCheckboxLayout)
-        self.slicePlot = self.slicePlotWidgetGraphicsLayout.addPlot(title='Slice',row=0,col=50)
-        self.slicePlot.showAxis('left', False)
-        self.slicePlot.showGrid(x=True, y=True)
-        i = 0
-        for param in self.sliceParams:
-            axis = pg.AxisItem("left")
-            labelStyle = {'color': '#'+pg.colorStr(pg.mkColor(self.colors[i]))[0:-2]}
-            axis.setLabel(text=param['name'], units=param['units'], **labelStyle)
-            i += 1
-            viewbox = pg.ViewBox()
-            self.viewboxes[param['label']] = viewbox
-            axis.linkToView(viewbox)
-            viewbox.setXLink(self.slicePlot.vb)
-            self.sliceaxis[param['label']] = [axis, viewbox]
-            self.curves[param['label']] = {}
-            col = i
-            self.slicePlotWidgetGraphicsLayout.ci.addItem(axis, row = 0, col = col,  rowspan=1, colspan=1)
-            self.slicePlotWidgetGraphicsLayout.ci.addItem(viewbox, row=0, col=50)
-            viewbox.setLimits(yMin=0)
-            self.slicePlotCheckbox[param['label']] = QCheckBox(param['label'])
-            self.slicePlotCheckbox[param['label']].setChecked(True)
-            self.slicePlotCheckboxLayout.addWidget(self.slicePlotCheckbox[param['label']])
-            self.slicePlotCheckbox[param['label']].stateChanged.connect(self.updateSlicePlot)
         self.slicePlotSliceWidthWidget = QSpinBox()
         self.slicePlotSliceWidthWidget.setMaximum(500)
         self.slicePlotSliceWidthWidget.setValue(100)
         self.slicePlotSliceWidthWidget.setSingleStep(10)
         self.slicePlotSliceWidthWidget.setSuffix(" slices")
         self.slicePlotSliceWidthWidget.setSpecialValueText('Automatic')
-        self.slicePlotAxisWidget = QWidget()
-        self.slicePlotAxisLayout = QHBoxLayout()
-        self.slicePlotAxisWidget.setLayout(self.slicePlotAxisLayout)
-        self.slicePlotAxisLayout.addWidget(self.slicePlotCheckboxWidget)
-        self.slicePlotAxisLayout.addWidget(self.slicePlotSliceWidthWidget)
+        self.multiaxisPlotAxisLayout.addWidget(self.slicePlotSliceWidthWidget)
         self.slicePlotSliceWidthWidget.valueChanged.connect(self.changeSliceLengths)
-        self.slicePlotLayout.addWidget(self.slicePlotAxisWidget)
-        self.slicePlotLayout.addWidget(self.slicePlotWidgetGraphicsLayout)
-
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
-
-        self.layout.addWidget(self.slicePlotWidget)
-
-        ''' used for style cycling '''
-        self.plotColor = 0
 
     def addsliceDataFiles(self, dicts):
+        '''
+            add multiple data dictionaries
+
+            Keyword arguments:
+            dicts -- dictionary containing directory definitions:
+                [
+                    {'directory': <dir location>,           'filename': [<list of HDF5 beam files>]},
+                    ...
+                ]
+        '''
         for d in dicts:
             self.addsliceDataFile(**d)
 
-    def addsliceDataObject(self, beamobject, datafile):
-        ''' addsliceDirectory - read the data files in a directory and add a plotItem to the relevant slicePlotItems '''
+    def addsliceDataObject(self, beamobject, name):
+        '''
+            addsliceDirectory - read the data files in a directory and add a plotItem to the relevant slicePlotItems
+
+            Keyword arguments:
+            beamobject -- beam object
+            name -- key index name
+        '''
         ''' load the data files into the slice dictionary '''
         if str(type(beamobject)) == "<class 'SimulationFramework.Modules.read_beam_file.beam'>":
-            self.beams[datafile] = beamobject
+            self.beams[name] = beamobject
             beamobject.bin_time()
-            for n, param in enumerate(self.sliceParams):
+            self.curves[name] = {}
+            for n, param in enumerate(self.plotParams):
+                label = param['label']
                 color = self.colors[n]
-                pen = pg.mkPen(color=color, style=self.styles[self.plotColor % len(self.styles)])
-                self.curves[param['label']][datafile] = pg.PlotDataItem()
-                self.viewboxes[param['label']].addItem(self.curves[param['label']][datafile])
+                pen = pg.mkPen(color=color, style=self.styles[self.plotColor % len(self.styles)], width=3)
+                self.curves[name][label] = pg.PlotDataItem()
+                self.curves[name][label].curve.setClickable(True)
+                self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
+                self.viewboxes[label].addItem(self.curves[name][label])
                 exponent = np.floor(np.log10(np.abs(beamobject.slice_length)))
                 x = 10**(12) * np.array((beamobject.slice_bins - np.mean(beamobject.slice_bins)))
-                self.slicePlot.setRange(xRange=[min(x),max(x)])
+                self.multiaxisPlot.setRange(xRange=[min(x),max(x)])
                 y = getattr(beamobject, param['quantity'])
-                self.curves[param['label']][datafile].setData(x=x, y=y, pen=pen)
+                self.curves[name][label].setData(x=x, y=y, pen=pen)
             self.plotColor += 1
-        self.updateSlicePlot()
+        self.updateMultiAxisPlot()
 
-    def addsliceDataFile(self, directory, filename):
-        ''' addsliceDirectory - read the data files in a directory and add a plotItem to the relevant slicePlotItems '''
-        ''' load the data files into the slice dictionary '''
-        datafile = directory + '/' + filename
-        if os.path.isfile(datafile):
-            beam = raf.beam()
-            beam.read_HDF5_beam_file(datafile)
-            self.addsliceDataObject(beam, datafile)
+    def addsliceDataFile(self, directory, filename=None):
+        '''
+            addsliceDirectory - read the data files in a directory and call addsliceDataObject on the beam object
+
+            Keyword arguments:
+            directory -- location of beam file(s)
+            filenames -- HDF5 filenames of beam file(s)
+        '''
+        if not isinstance(filename, (list, tuple)):
+            filename = [filename]
+        for f in filename:
+            datafile = directory + '/' + f if f is not None else directory
+            if os.path.isfile(datafile):
+                beam = raf.beam()
+                beam.read_HDF5_beam_file(datafile)
+                self.addsliceDataObject(beam, datafile)
 
     def changeSliceLengths(self):
+        ''' change the time slice length for all beam objects '''
         for d in self.beams:
             self.changeSliceLength(d)
+        self.updateMultiAxisPlot()
 
     def changeSliceLength(self, datafile):
+        ''' change the time slice length for a beam data object and update the plot '''
         beam = self.beams[datafile]
         beam.slices = self.slicePlotSliceWidthWidget.value()
         beam.bin_time()
-        for n, param in enumerate(self.sliceParams):
+        for n, param in enumerate(self.plotParams):
+            label = param['label']
             exponent = np.floor(np.log10(np.abs(beam.slice_length)))
             x = 10**(12) * np.array((beam.slice_bins - np.mean(beam.slice_bins)))
-            self.slicePlot.setRange(xRange=[min(x),max(x)])
+            self.multiaxisPlot.setRange(xRange=[min(x),max(x)])
             y = getattr(beam, param['quantity'])
-            self.curves[param['label']][datafile].setData(x=x, y=y)
+            self.curves[datafile][label].setData(x=x, y=y)
 
-    def updateSlicePlot(self):
-        for n, param in enumerate(self.sliceParams):
-            if self.slicePlotCheckbox[param['label']].isChecked():
-                for d in self.curves[param['label']]:
-                    self.curves[param['label']][d].setVisible(True)
-                self.sliceaxis[param['label']][0].setVisible(True)
-            else:
-                for d in self.curves[param['label']]:
-                    self.curves[param['label']][d].setVisible(False)
-                self.sliceaxis[param['label']][0].setVisible(False)
-            self.sliceaxis[param['label']][1].autoRange()
-            currentrange = self.sliceaxis[param['label']][1].viewRange()
-            self.sliceaxis[param['label']][1].setYRange(0, currentrange[1][1])
-
-    def removePlot(self, directory):
-        ''' finds all slice plots based on a directory name, and removes them '''
-        if not isinstance(directory, (list, tuple)):
-            directory = [directory]
-        indexname = directory[-1]
-        if directory in self.slicePlotItems:
-            for entry in self.sliceplotLayout:
-                if entry == 'next_row':
-                    pass
-                else:
-                    self.slicePlotWidgets[entry['label']].removeItem(self.slicePlotItems[indexname][entry['label']])
-
-pg.setConfigOptions(antialias=True)
-pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k')
 def main():
     app = QApplication(sys.argv)
     pg.setConfigOptions(antialias=True)
@@ -202,7 +154,9 @@ def main():
     ex.show()
     ex.slicePlot.addsliceDataFiles([
     {'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'filename': 'CLA-S02-APER-01.hdf5'},
-    {'directory': 'OnlineModel_test_data/test_4', 'filename': 'CLA-L02-APER.hdf5'}])
+    {'directory': 'OnlineModel_test_data/test_4', 'filename': ['CLA-L02-APER.hdf5','CLA-S04-APER-01.hdf5']}])
+    ex.slicePlot.addsliceDataFile('OnlineModel_test_data/test_4/CLA-S03-APER.hdf5')
+    ex.slicePlot.highlightPlot('OnlineModel_test_data/test_4/CLA-S03-APER.hdf5')
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
