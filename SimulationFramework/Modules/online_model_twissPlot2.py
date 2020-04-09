@@ -13,7 +13,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
 import SimulationFramework.Modules.read_beam_file as raf
 import SimulationFramework.Modules.read_twiss_file as rtf
-from SimulationFramework.Modules.online_model_multiaxis_Plot import multiaxisPlotWidget
+from SimulationFramework.Modules.multiAxisPlot import multiAxisPlotWidget
 sys.path.append(os.path.realpath(__file__)+'/../../../../')
 
 class mainWindow(QMainWindow):
@@ -41,7 +41,7 @@ class mainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-class twissPlotWidget(multiaxisPlotWidget):
+class twissPlotWidget(multiAxisPlotWidget):
 
     plotParams = [
        {'label': 'Horizontal Beam Size', 'name': '&sigma;<sub>x</sub>', 'quantity': 'sigma_x', 'range': [0,1e-3], 'units': 'm'},
@@ -54,7 +54,6 @@ class twissPlotWidget(multiaxisPlotWidget):
        {'label': 'Horizontal Beta Function', 'name': '&beta;<sub>x</sub>', 'quantity': 'beta_x', 'range': [0,200], 'units': 'm'},
        {'label': 'Vertical Beta Function', 'name': '&beta;<sub>y</sub>', 'quantity': 'beta_y', 'range': [0,200], 'units': 'm'},
     ]
-
 
     def __init__(self, **kwargs):
         super(twissPlotWidget, self).__init__(**kwargs)
