@@ -106,6 +106,7 @@ class beamPlotWidget(QWidget):
         ''' used for style cycling '''
         self.plotColor = 0
         self.curves = {}
+        self.shadowCurves = []
 
     def addbeamDataFiles(self, dicts):
         for d in dicts:
@@ -121,6 +122,7 @@ class beamPlotWidget(QWidget):
             pen = pg.mkBrush(color=color)
             self.curves[datafile] = self.beamPlotPlotWidget.plot([], pen=None,
             symbolBrush=pen, symbolSize=5, symbolPen=None)
+            self.curves[datafile].sigClicked.connect(lambda: self.highlightPlot(datafile))
             self.plotColor += 1
         self.updateBeamPlot()
 
@@ -158,6 +160,41 @@ class beamPlotWidget(QWidget):
                     pass
                 else:
                     self.beamPlotWidgets[entry['label']].removeItem(self.beamPlotItems[indexname][entry['label']])
+
+    def highlightPlot(self, name):
+        ''' highlights a particular plot '''
+        # print('highligher clicked! = ', name)
+        if not isinstance(name, (list, tuple)):
+            name = [name]
+        for n in name:
+            self.addShadowPen(n)
+        for n in self.curves.keys():
+            if n in self.shadowCurves or not len(self.shadowCurves) > 0:
+                self.setPenAlpha(n, 255, 3)
+            else:
+                self.setPenAlpha(n, 10, 3)
+
+    def addShadowPen(self, name):
+        # curve = self.curves[name]
+        if not name in self.shadowCurves:
+            self.shadowCurves.append(name)
+            # pen = curve.opts['symbolBrush']
+            # shadowpencolor = pen.color()
+            # shadowpencolor.setAlpha(100)
+            # shadowpen = pg.mkPen(color=shadowpencolor, width=6)
+            # curve.setSymbolPen(shadowpen)
+        else:
+            self.shadowCurves.remove(name)
+            # curve.setSymbolPen(None)
+            # curve.opts['symbolPen'] = None
+
+    def setPenAlpha(self, name, alpha=255, width=3):
+        curve = self.curves[name]
+        pen = curve.opts['symbolBrush']
+        pencolor = pen.color()
+        pencolor.setAlpha(alpha)
+        pen = pg.mkBrush(color=pencolor, width=width, style=pen.style())
+        curve.setSymbolBrush(pen)
 
 def main():
     app = QApplication(sys.argv)
