@@ -13,6 +13,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
 import SimulationFramework.Modules.read_beam_file as raf
 import SimulationFramework.Modules.read_twiss_file as rtf
+from SimulationFramework.Modules.multiPlot import multiPlotWidget
 sys.path.append(os.path.realpath(__file__)+'/../../../../')
 
 class mainWindow(QMainWindow):
@@ -24,9 +25,9 @@ class mainWindow(QMainWindow):
         self.centralWidget.setLayout(self.layout)
 
         self.tab = QTabWidget()
-        self.twissPlot = twissPlotWidget()
+        self.multiPlot = multiPlotWidget()
 
-        self.layout.addWidget(self.twissPlot)
+        self.layout.addWidget(self.multiPlot)
 
         self.setCentralWidget(self.centralWidget)
 
@@ -40,14 +41,9 @@ class mainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-class twissPlotWidget(QWidget):
-    ''' QWidget containing various Twiss plots '''
-    # Styles for the plot lines
-    colors = [QColor('#F5973A'),QColor('#A95AA1'),QColor('#85C059'),QColor('#0F2080'),QColor('#BDB8AD'), 'r']
-    styles = [Qt.SolidLine, Qt.DashLine, Qt.DotLine, Qt.DashDotLine, Qt.DashDotDotLine]
-
+class multiPlotWidget(multiPlotWidget):
     # Layout oder for the individual Tiwss plot items
-    twissParams = [
+    plotParams = [
                    {'label': 'Horizontal Beam Size', 'name': '&sigma;<sub>x</sub>', 'quantity': 'sigma_x', 'range': [0,1e-3], 'units': 'm'},
                    {'label': 'Vertical Beam Size', 'name': '&sigma;<sub>y</sub>', 'quantity': 'sigma_y', 'range': [0,1e-3], 'units': 'm'},
                    {'label': 'Momentum', 'name': 'cp', 'quantity': 'cp_eV', 'range': [0,250e6], 'units': 'eV/c'},
@@ -62,44 +58,7 @@ class twissPlotWidget(QWidget):
                   ]
 
     def __init__(self, **kwargs):
-        super(twissPlotWidget, self).__init__(**kwargs)
-        ''' twissPlotWidget - main pyQtGraph display widgets '''
-        self.twissPlotView = pg.GraphicsView(useOpenGL=True)
-        self.twissPlotWidget = pg.GraphicsLayout()
-        self.twissPlotView.setCentralItem(self.twissPlotWidget)
-        ''' twissPlotWidgets - holds the base plotWidgets for each Twiss plot '''
-        self.twissPlotWidgets = {}
-        ''' curves - a dictionary containing {directory: [individual plotItems for each twiss plot,]} '''
-        self.curves = {}
-        for n, param in enumerate(self.twissParams):
-            if param == 'next_row':
-                self.twissPlotWidget.nextRow()
-            else:
-                ''' p - the relevant plotWidget for each param in twissParams '''
-                p = self.twissPlotWidget.addPlot(title=param['label'])
-                ''' this just links the horizontal axis for all plots.
-                    The first plot is selected to be the master axis '''
-                if n == 0:
-                    self.linkAxis = p.vb
-                else:
-                    p.setXLink(self.linkAxis)
-                p.showGrid(x=True, y=True)
-                p.setLabel('left', text=param['name'], units=param['units'])
-                ''' set lower plot limit at 0 for all plots '''
-                p.vb.setLimits(xMin=0,yMin=0)
-                ''' set the vertical viewRange according to the twissParams '''
-                p.vb.setYRange(*param['range'])
-                ''' record the plotWidget in the dictionary indexed by Twiss item '''
-                self.twissPlotWidgets[param['label']] = p
-
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
-
-        self.layout.addWidget(self.twissPlotView)
-
-        ''' used for style cycling '''
-        self.plotColor = 0
-        self.shadowCurves = []
+        super(multiPlotWidget, self).__init__(xmin=0, ymin=0, **kwargs)
 
     def addTwissDirectory(self, directory, name=None):
         '''
@@ -128,13 +87,13 @@ class twissPlotWidget(QWidget):
         name = directory[-1]['directory'] if name is None else name
         self.addtwissDataObject(twiss, name)
 
-    def addtwissDataObject(self, dataobject, indexname):
+    def addtwissDataObject(self, dataobject, name):
         '''
             Take a twiss data object and add a plot line to all of the relevant Twiss plots
 
             Keyword arguments:
             dataobject -- twiss data object for plotting
-            indexname -- dictionary key name
+            name -- dictionary key name
 
         '''
         twiss = dataobject
@@ -144,8 +103,8 @@ class twissPlotWidget(QWidget):
         ''' iterate the color index '''
         self.plotColor += 1
 
-        self.curves[indexname] = {}
-        for param in self.twissParams:
+        self.curves[name] = {}
+        for param in self.plotParams:
             if not param == 'next_row':
                 label = param['label']
                 if len(twiss[param['quantity']]) > 0: # confirm the data is there!
@@ -155,20 +114,9 @@ class twissPlotWidget(QWidget):
                     xy = np.transpose(np.array([x,y]))
                     x, y = np.transpose(xy[np.argsort(xy[:,0])])
                     ''' create a plotItem on a Twiss plot and save to the curves dictionary '''
-                    self.curves[indexname][label] = self.twissPlotWidgets[label].plot(x=x, y=y, pen=pen)
-                    self.curves[indexname][label].curve.setClickable(True)
-                    self.curves[indexname][label].sigClicked.connect(lambda: self.highlightPlot(indexname))
-
-    def removePlot(self, name):
-        ''' finds all Twiss plots based on a key name, and removes them '''
-        if not isinstance(name, (list, tuple)):
-            name = [name]
-        for n in name:
-            if n in self.curves:
-                for param in self.twissParams:
-                    if not param == 'next_row':
-                        ''' Remove the plotItem from the relevant plotWidget '''
-                        self.twissPlotWidgets[param['label']].removeItem(self.curves[n][param['label']])
+                    self.curves[name][label] = self.multiPlotWidgets[label].plot(x=x, y=y, pen=pen)
+                    self.curves[name][label].curve.setClickable(True)
+                    self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
 
     def loadDataFile(self, directory, sections=None, reset=True, twiss=None):
         ''' loads ASTRA and Elegant data files from a directory and returns a twiss object'''
@@ -189,48 +137,6 @@ class twissPlotWidget(QWidget):
         twiss.read_elegant_twiss_files(elegantfiles, reset=reset)
         return twiss
 
-    def highlightPlot(self, name):
-        ''' highlights a particular plot '''
-        # print('highligher clicked! = ', name)
-        if not isinstance(name, (list, tuple)):
-            name = [name]
-        for n in name:
-            self.addShadowPen(n)
-            for n in self.curves.keys():
-                if n in self.shadowCurves or not len(self.shadowCurves) > 0:
-                    self.setPenAlpha(n, 255, 3)
-                else:
-                    self.setPenAlpha(n, 25, 3)
-
-    def addShadowPen(self, name):
-        for param in self.twissParams:
-            if not param == 'next_row':
-                label = param['label']
-                curve = self.curves[name][label]
-                if curve.opts['shadowPen'] is None:
-                    self.shadowCurves.append(name)
-                    pen = curve.opts['pen']
-                    shadowpencolor = pen.color()
-                    shadowpencolor.setAlpha(100)
-                    shadowpen = pg.mkPen(color=shadowpencolor, width=(pen.width()+3))
-                    curve.setShadowPen(shadowpen)
-                else:
-                    self.shadowCurves.remove(name)
-                    curve.setShadowPen(None)
-                    curve.opts['shadowPen'] = None
-
-    def setPenAlpha(self, name, alpha=255, width=3):
-        for param in self.twissParams:
-            if not param == 'next_row':
-                label = param['label']
-                curve = self.curves[name][label]
-                pen = curve.opts['pen']
-                pencolor = pen.color()
-                pencolor.setAlpha(alpha)
-                pen = pg.mkPen(color=pencolor, width=width, style=pen.style())
-                curve.setPen(pen)
-
-
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', 'w')
 pg.setConfigOption('foreground', 'k')
@@ -241,9 +147,9 @@ def main():
     pg.setConfigOption('foreground', 'k')
     ex = mainWindow()
     ex.show()
-    ex.twissPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_4', 'sections': 'All'}], name='base+4')
-    ex.twissPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_2', 'sections': 'All'}], name='base+2')
-    # ex.twissPlot.removePlot('base+4')
+    ex.multiPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_4', 'sections': 'All'}], name='base+4')
+    ex.multiPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_2', 'sections': 'All'}], name='base+2')
+    # ex.multiPlot.removePlot('base+4')
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
