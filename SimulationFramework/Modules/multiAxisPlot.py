@@ -41,7 +41,7 @@ class mainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-class multiaxisPlotWidget(QWidget):
+class multiAxisPlotWidget(QWidget):
     ''' QWidget containing pyqtgraph plot showing beam parameters '''
 
     # Styles for the plot lines
@@ -51,7 +51,7 @@ class multiaxisPlotWidget(QWidget):
     plotParams = []
 
     def __init__(self, **kwargs):
-        super(multiaxisPlotWidget, self).__init__(**kwargs)
+        super(multiAxisPlotWidget, self).__init__(**kwargs)
         ''' These are for reading data files from ASTRA and Elegant '''
         self.multiaxisPlotWidget = QWidget()
         self.multiaxisPlotLayout = QVBoxLayout()
