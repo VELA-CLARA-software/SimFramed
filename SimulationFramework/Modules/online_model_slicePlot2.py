@@ -95,17 +95,13 @@ class slicePlotWidget(multiAxisPlotWidget):
             self.curves[name] = {}
             for n, param in enumerate(self.plotParams):
                 label = param['label']
-                color = self.colors[n]
+                color = self.colors[n % len(self.colors)]
                 pen = pg.mkPen(color=color, style=self.styles[self.plotColor % len(self.styles)], width=3)
-                self.curves[name][label] = pg.PlotDataItem()
-                self.curves[name][label].curve.setClickable(True)
-                self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
-                self.viewboxes[label].addItem(self.curves[name][label])
                 exponent = np.floor(np.log10(np.abs(beamobject.slice_length)))
                 x = 10**(12) * np.array((beamobject.slice_bins - np.mean(beamobject.slice_bins)))
-                self.multiaxisPlot.setRange(xRange=[min(x),max(x)])
+                # self.multiaxisPlot.setRange(xRange=[min(x),max(x)])
                 y = getattr(beamobject, param['quantity'])
-                self.curves[name][label].setData(x=x, y=y, pen=pen)
+                self.addCurve(x, y, name, label, pen)
             self.plotColor += 1
         self.updateMultiAxisPlot()
 

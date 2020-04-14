@@ -102,7 +102,6 @@ class multiPlotWidget(multiPlotWidget):
         pen = pg.mkPen(color, width=3, style=self.styles[int(self.plotColor / len(self.styles))])
         ''' iterate the color index '''
         self.plotColor += 1
-
         self.curves[name] = {}
         for param in self.plotParams:
             if not param == 'next_row':
@@ -114,9 +113,7 @@ class multiPlotWidget(multiPlotWidget):
                     xy = np.transpose(np.array([x,y]))
                     x, y = np.transpose(xy[np.argsort(xy[:,0])])
                     ''' create a plotItem on a Twiss plot and save to the curves dictionary '''
-                    self.curves[name][label] = self.multiPlotWidgets[label].plot(x=x, y=y, pen=pen)
-                    self.curves[name][label].curve.setClickable(True)
-                    self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
+                    self.addCurve(x, y, name, label, pen)
 
     def loadDataFile(self, directory, sections=None, reset=True, twiss=None):
         ''' loads ASTRA and Elegant data files from a directory and returns a twiss object'''
