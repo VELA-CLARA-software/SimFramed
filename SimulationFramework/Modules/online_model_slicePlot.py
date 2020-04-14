@@ -94,9 +94,7 @@ class multiPlotWidget(multiPlotWidget):
                     x = 10**(12) * np.array((beamobject.slice_bins - np.mean(beamobject.slice_bins)))
                     # self.multiPlot.setRange(xRange=[min(x),max(x)])
                     y = getattr(beamobject, param['quantity'])
-                    self.curves[name][label] = self.multiPlotWidgets[label].plot(x=x, y=y, pen=pen)
-                    self.curves[name][label].curve.setClickable(True)
-                    self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
+                    self.addCurve(x, y, name, label, pen)
                 self.plotColor += 1
 
     def addsliceDataFile(self, directory, filename=None):

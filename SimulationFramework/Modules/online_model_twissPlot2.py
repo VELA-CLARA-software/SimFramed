@@ -77,17 +77,13 @@ class twissPlotWidget(multiAxisPlotWidget):
             self.curves[name] = {}
             for n, param in enumerate(self.plotParams):
                 label = param['label']
-                color = self.colors[n]
+                color = self.colors[n % len(self.colors)]
                 pen = pg.mkPen(color=color, style=self.styles[self.plotColor % len(self.styles)])
-                self.curves[name][label] = pg.PlotDataItem()
-                self.curves[name][label].curve.setClickable(True)
-                self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
-                self.viewboxes[label].addItem(self.curves[name][label])
                 x = twissobject['z']
                 y = twissobject[param['quantity']]
                 xy = np.transpose(np.array([x,y]))
                 x, y = np.transpose(xy[np.argsort(xy[:,0])])
-                self.curves[name][label].setData(x=x, y=y, pen=pen)
+                self.addCurve(x, y, name, label, pen)
             self.plotColor += 1
         self.updateMultiAxisPlot()
 
