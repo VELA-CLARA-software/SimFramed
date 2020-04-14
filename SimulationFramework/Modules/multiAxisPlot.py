@@ -25,7 +25,7 @@ class mainWindow(QMainWindow):
         self.centralWidget.setLayout(self.layout)
 
         self.tab = QTabWidget()
-        self.multiaxisPlot = multiaxisPlotWidget()
+        self.multiaxisPlot = multiAxisPlotWidget()
 
         self.layout.addWidget(self.multiaxisPlot)
 
@@ -126,9 +126,15 @@ class multiAxisPlotWidget(QWidget):
             currentrange = self.multiaxisaxis[label][1].viewRange()
             self.multiaxisaxis[label][1].setYRange(0, currentrange[1][1])
 
+    def addCurve(self, x, y, name, label, pen):
+        self.curves[name][label] = pg.PlotDataItem()
+        self.curves[name][label].curve.setClickable(True)
+        self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
+        self.viewboxes[label].addItem(self.curves[name][label])
+        self.curves[name][label].setData(x=x, y=y, pen=pen)
 
-    def removePlot(self, directory, filename=None):
-        ''' finds all multiaxis plots based on a directory name, and removes them '''
+    def removeCurve(self, directory, filename=None):
+        ''' finds all multiaxis curves based on a set of names, and removes them '''
         if not isinstance(directory, (list, tuple)):
             directory = [directory]
         for d in directory:
@@ -188,11 +194,6 @@ def main():
     pg.setConfigOption('foreground', 'k')
     ex = mainWindow()
     ex.show()
-    ex.multiaxisPlot.addmultiaxisDataFiles([
-    {'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'filename': 'CLA-S02-APER-01.hdf5'},
-    {'directory': 'OnlineModel_test_data/test_4', 'filename': ['CLA-L02-APER.hdf5','CLA-S04-APER-01.hdf5']}])
-    ex.multiaxisPlot.addmultiaxisDataFile('OnlineModel_test_data/test_4/CLA-S03-APER.hdf5')
-    ex.multiaxisPlot.highlightPlot('OnlineModel_test_data/test_4/CLA-S03-APER.hdf5')
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

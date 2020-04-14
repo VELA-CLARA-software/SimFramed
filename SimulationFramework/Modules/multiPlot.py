@@ -47,19 +47,7 @@ class multiPlotWidget(QWidget):
     styles = [Qt.SolidLine, Qt.DashLine, Qt.DotLine, Qt.DashDotLine, Qt.DashDotDotLine]
 
     # Layout oder for the individual Tiwss plot items
-    plotParams = [
-                   {'label': 'Horizontal Beam Size', 'name': '&sigma;<sub>x</sub>', 'quantity': 'sigma_x', 'range': [0,1e-3], 'units': 'm'},
-                   {'label': 'Vertical Beam Size', 'name': '&sigma;<sub>y</sub>', 'quantity': 'sigma_y', 'range': [0,1e-3], 'units': 'm'},
-                   {'label': 'Momentum', 'name': 'cp', 'quantity': 'cp_eV', 'range': [0,250e6], 'units': 'eV/c'},
-                   'next_row',
-                   {'label': 'Momentum Spread', 'name': '&sigma;<sub>cp</sub>', 'quantity': 'sigma_cp_eV', 'range': [0,5e6], 'units': 'eV/c'},
-                   {'label': 'Bunch Length', 'name': '&sigma;<sub>z</sub>', 'quantity': 'sigma_z', 'range': [0,0.6e-3], 'units': 'm'},
-                   {'label': 'Horizontal Emittance (normalised)', 'name': '&epsilon;<sub>n,x</sub>', 'quantity': 'enx', 'range': [0.,1.5e-6], 'units': 'm-rad'},
-                   'next_row',
-                   {'label': 'Vertical Emittance (normalised)', 'name': '&epsilon;<sub>n,y</sub>', 'quantity': 'eny', 'range':  [0.,1.5e-6], 'units': 'm-rad'},
-                   {'label': 'Horizontal Beta Function', 'name': '&beta;<sub>x</sub>', 'quantity': 'beta_x', 'range': [0,200], 'units': 'm'},
-                   {'label': 'Vertical Beta Function', 'name': '&beta;<sub>y</sub>', 'quantity': 'beta_y', 'range': [0,200], 'units': 'm'},
-                  ]
+    plotParams = []
 
     def __init__(self, xmin=None, ymin=None, **kwargs):
         super(multiPlotWidget, self).__init__(**kwargs)
@@ -102,8 +90,14 @@ class multiPlotWidget(QWidget):
         self.plotColor = 0
         self.shadowCurves = []
 
-    def removePlot(self, name):
-        ''' finds all Twiss plots based on a key name, and removes them '''
+    def addCurve(self, x, y, name, label, pen):
+        ''' adds a curve to the main plot '''
+        self.curves[name][label] = self.multiPlotWidgets[label].plot(x=x, y=y, pen=pen)
+        self.curves[name][label].curve.setClickable(True)
+        self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
+
+    def removeCurve(self, name):
+        ''' finds all curves based on a key name, and removes them '''
         if not isinstance(name, (list, tuple)):
             name = [name]
         for n in name:
@@ -127,6 +121,7 @@ class multiPlotWidget(QWidget):
                     self.setPenAlpha(n, 25, 3)
 
     def addShadowPen(self, name):
+        ''' add/remove a shadow pen to a given plot curve '''
         for param in self.plotParams:
             if not param == 'next_row':
                 label = param['label']
@@ -144,6 +139,7 @@ class multiPlotWidget(QWidget):
                     curve.opts['shadowPen'] = None
 
     def setPenAlpha(self, name, alpha=255, width=3):
+        ''' change the alpha channel and width of a curves pen '''
         for param in self.plotParams:
             if not param == 'next_row':
                 label = param['label']
@@ -165,9 +161,6 @@ def main():
     pg.setConfigOption('foreground', 'k')
     ex = mainWindow()
     ex.show()
-    ex.multiPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_4', 'sections': 'All'}], name='base+4')
-    ex.multiPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_2', 'sections': 'All'}], name='base+2')
-    # ex.multiPlot.removePlot('base+4')
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
