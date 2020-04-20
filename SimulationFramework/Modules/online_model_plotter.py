@@ -12,7 +12,6 @@ from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, Graphi
 setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout, AxisItem, ViewBox, PlotDataItem, colorStr, mkColor, ImageView, PlotItem
 from pyqtgraph.graphicsItems.LegendItem import ItemSample
 import argparse
-import imageio
 import numpy as np
 sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
 # print (sys.path)
