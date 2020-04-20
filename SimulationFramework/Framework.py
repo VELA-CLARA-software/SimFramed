@@ -2694,9 +2694,9 @@ class wall_current_monitor(frameworkElement):
     def __init__(self, name=None, type='wall_current_monitor', **kwargs):
         super(wall_current_monitor, self).__init__(name, type, **kwargs)
 
-class integrated_current_transformer(frameworkElement):
+class integrated_current_transformer(wall_current_monitor):
 
-    def __init__(self, name=None, type='wall_current_monitor', **kwargs):
+    def __init__(self, name=None, type='integrated_current_transformer', **kwargs):
         super(integrated_current_transformer, self).__init__(name, type, **kwargs)
 
 class screen(frameworkElement):
@@ -2778,7 +2778,6 @@ class screen(frameworkElement):
         except:
             pass
 
-
 class monitor(screen):
 
     def __init__(self, name=None, type='monitor', **kwargs):
@@ -2846,6 +2845,21 @@ class drift(frameworkElement):
                     string+= tmpstring
         wholestring+=string+';\n'
         return wholestring
+
+class shutter(drift):
+
+    def __init__(self, name=None, type='shutter', **kwargs):
+        super(shutter, self).__init__(name, type, **kwargs)
+
+class valve(drift):
+
+    def __init__(self, name=None, type='valve', **kwargs):
+        super(valve, self).__init__(name, type, **kwargs)
+
+class bellows(drift):
+
+    def __init__(self, name=None, type='bellows', **kwargs):
+        super(bellows, self).__init__(name, type, **kwargs)
 
 class csrdrift(frameworkElement):
 
