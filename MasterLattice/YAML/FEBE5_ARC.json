@@ -52,52 +52,52 @@
 			"position_end":[
 				2.4313e-2,
 				0,
-				4.8495816e1
+				4.8495808e1
 			],
 			"position_start":[
 				2.4313e-2,
 				0,
-				4.8495816e1
+				4.8495808e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-01":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":1.59249,
+			"length":0.15,
+			"k1l":1.55847,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				0.221479,
+				0.214221,
 				0,
-				4.9286599e1
+				4.925749e1
 			],
 			"position_start":[
-				0.170675,
+				0.177933,
 				0,
-				4.9082837e1
+				4.9111946e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-02":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":-1.10639,
+			"length":0.15,
+			"k1l":-1.0915,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				0.354536,
+				0.347278,
 				0,
-				4.9820261e1
+				4.9791152e1
 			],
 			"position_start":[
-				0.303732,
+				0.31099,
 				0,
-				4.9616499e1
+				4.9645608e1
 			]
 		},
 		"CLA-FEA-MAG-HVCOR-01":{
@@ -160,42 +160,42 @@
 		},
 		"CLA-FEA-MAG-QUAD-03":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":1.59249,
+			"length":0.15,
+			"k1l":1.55847,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				0.688388,
+				0.68113,
 				0,
-				5.1159269e1
+				5.113016e1
 			],
 			"position_start":[
-				0.637584,
+				0.644842,
 				0,
-				5.0955507e1
+				5.0984616e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-04":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":-1.10639,
+			"length":0.15,
+			"k1l":-1.0915,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				0.821445,
+				0.814187,
 				0,
-				5.1692932e1
+				5.1663823e1
 			],
 			"position_start":[
-				0.770641,
+				0.777899,
 				0,
-				5.148917e1
+				5.1518279e1
 			]
 		},
 		"CLA-FEA-DIA-BPM-02":{
@@ -260,42 +260,42 @@
 		},
 		"CLA-FEA-MAG-QUAD-05":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":1.59249,
+			"length":0.15,
+			"k1l":1.55847,
 			"global_rotation":[
 				0,
 				0,
 				-0.4886921906
 			],
 			"position_end":[
-				1.363862,
+				1.349778,
 				0,
-				5.2952944e1
+				5.2926456e1
 			],
 			"position_start":[
-				1.265273,
+				1.279357,
 				0,
-				5.2767525e1
+				5.2794013e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-06":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":-1.10639,
+			"length":0.15,
+			"k1l":-1.0915,
 			"global_rotation":[
 				0,
 				0,
 				-0.4886921906
 			],
 			"position_end":[
-				1.622071,
+				1.607987,
 				0,
-				5.3438565e1
+				5.3412077e1
 			],
 			"position_start":[
-				1.523482,
+				1.537566,
 				0,
-				5.3253146e1
+				5.3279634e1
 			]
 		},
 		"CLA-FEA-MAG-HVCOR-02":{
@@ -358,42 +358,42 @@
 		},
 		"CLA-FEA-MAG-QUAD-07":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":1.59249,
+			"length":0.15,
+			"k1l":1.55847,
 			"global_rotation":[
 				0,
 				0,
 				-0.4886921906
 			],
 			"position_end":[
-				2.269942,
+				2.255858,
 				0,
-				5.4657033e1
+				5.4630545e1
 			],
 			"position_start":[
-				2.171353,
+				2.185437,
 				0,
-				5.4471614e1
+				5.4498102e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-08":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":-1.10639,
+			"length":0.15,
+			"k1l":-1.0915,
 			"global_rotation":[
 				0,
 				0,
 				-0.4886921906
 			],
 			"position_end":[
-				2.528152,
+				2.514068,
 				0,
-				5.5142654e1
+				5.5116166e1
 			],
 			"position_start":[
-				2.429563,
+				2.443647,
 				0,
-				5.4957235e1
+				5.4983723e1
 			]
 		},
 		"CLA-FEA-DIA-BPM-04":{
@@ -458,42 +458,42 @@
 		},
 		"CLA-FEA-MAG-QUAD-09":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":1.59249,
+			"length":0.15,
+			"k1l":1.55847,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				2.96817,
+				2.960912,
 				0,
-				5.6441973e1
+				5.6412864e1
 			],
 			"position_start":[
-				2.917366,
+				2.924624,
 				0,
-				5.6238211e1
+				5.626732e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-10":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":-1.10639,
+			"length":0.15,
+			"k1l":-1.0915,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				3.101227,
+				3.093969,
 				0,
-				5.6975636e1
+				5.6946527e1
 			],
 			"position_start":[
-				3.050423,
+				3.057681,
 				0,
-				5.6771874e1
+				5.6800983e1
 			]
 		},
 		"CLA-FEA-MAG-HVCOR-03":{
@@ -556,42 +556,42 @@
 		},
 		"CLA-FEA-MAG-QUAD-11":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":1.59249,
+			"length":0.15,
+			"k1l":1.55847,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				3.435079,
+				3.427821,
 				0,
-				5.8314644e1
+				5.8285535e1
 			],
 			"position_start":[
-				3.384275,
+				3.391533,
 				0,
-				5.8110882e1
+				5.8139991e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-12":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":-1.10639,
+			"length":0.15,
+			"k1l":-1.0915,
 			"global_rotation":[
 				0,
 				0,
 				-0.2443460953
 			],
 			"position_end":[
-				3.568136,
+				3.560878,
 				0,
-				5.8848306e1
+				5.8819197e1
 			],
 			"position_start":[
-				3.517332,
+				3.52459,
 				0,
-				5.8644544e1
+				5.8673653e1
 			]
 		},
 		"CLA-FEA-DIA-BPM-06":{
@@ -675,8 +675,8 @@
 		},
 		"CLA-FEA-MAG-QUAD-13":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":2.76203,
+			"length":0.15,
+			"k1l":1.98905,
 			"global_rotation":[
 				0,
 				0,
@@ -685,12 +685,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				6.0215479e1
+				6.0185479e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				6.0005479e1
+				6.0035479e1
 			]
 		},
 		"CLA-FEA-DIA-BPM-07":{
@@ -714,8 +714,8 @@
 		},
 		"CLA-FEA-MAG-QUAD-14":{
 			"type":"quadrupole",
-			"length":0.21,
-			"k1l":-1.263412,
+			"length":0.15,
+			"k1l":-1.22426,
 			"global_rotation":[
 				0,
 				0,
@@ -724,12 +724,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				6.0765479e1
+				6.0735479e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				6.0555479e1
+				6.0585479e1
 			]
 		},
 		"CLA-FEA-DIA-ICT-01":{

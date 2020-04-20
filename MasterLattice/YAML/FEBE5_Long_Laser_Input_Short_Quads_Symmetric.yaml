@@ -315,8 +315,8 @@ elements:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 75.48]
-    position_start: [3.68075, 0, 75.27]
+    position_end: [3.68075, 0, 75.546845]
+    position_start: [3.68075, 0, 75.336845]
   CLA-FEH-WALL-02-START:
     type: marker
     fit_point: 1.0

@@ -211,7 +211,7 @@ class Converter(Framework):
 fw = Converter()
 # fw.loadSettings('Lattices/clara400_v12_FEBE.def')
 
-fw.read_Element('filename', ['YAML/FEBE5_long_laser_input.yaml'])
+fw.read_Element('filename', ['YAML/FEBE_ARC.yaml','YAML/FEBE5_long_laser_input.yaml'])
 
 exit()
 

@@ -96,6 +96,10 @@ class multiPlotWidget(QWidget):
         self.curves[name][label].curve.setClickable(True)
         self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
 
+    def updateCurve(self, x, y, name, label):
+        ''' adds a curve to the main plot '''
+        self.curves[name][label].setData(x=x, y=y, pen=self.curves[name][label].opts['pen'])
+
     def removeCurve(self, name):
         ''' finds all curves based on a key name, and removes them '''
         if not isinstance(name, (list, tuple)):
@@ -105,7 +109,9 @@ class multiPlotWidget(QWidget):
                 for param in self.plotParams:
                     if not param == 'next_row':
                         ''' Remove the plotItem from the relevant plotWidget '''
+                        print('REMOVING curve: ', name)
                         self.multiPlotWidgets[param['label']].removeItem(self.curves[n][param['label']])
+                del self.curves[n]
 
     def highlightPlot(self, name):
         ''' highlights a particular plot '''
@@ -125,6 +131,7 @@ class multiPlotWidget(QWidget):
         for param in self.plotParams:
             if not param == 'next_row':
                 label = param['label']
+                # if name in self.curves and label in self.curves[name]:
                 curve = self.curves[name][label]
                 if curve.opts['shadowPen'] is None:
                     self.shadowCurves.append(name)
@@ -143,12 +150,13 @@ class multiPlotWidget(QWidget):
         for param in self.plotParams:
             if not param == 'next_row':
                 label = param['label']
-                curve = self.curves[name][label]
-                pen = curve.opts['pen']
-                pencolor = pen.color()
-                pencolor.setAlpha(alpha)
-                pen = pg.mkPen(color=pencolor, width=width, style=pen.style())
-                curve.setPen(pen)
+                if name in self.curves and label in self.curves[name]:
+                    curve = self.curves[name][label]
+                    pen = curve.opts['pen']
+                    pencolor = pen.color()
+                    pencolor.setAlpha(alpha)
+                    pen = pg.mkPen(color=pencolor, width=width, style=pen.style())
+                    curve.setPen(pen)
 
 
 pg.setConfigOptions(antialias=True)
