@@ -79,10 +79,10 @@ class twissPlotWidget(multiPlotWidget):
         if not isinstance(directory, (list, tuple)):
             directory = [directory]
         ''' loads the first (and only?) param in the list of directories '''
-        twiss = self.loadDataFile(**directory[0], reset=True)
+        twiss = self.loadDataFile( reset=True, **(directory[0]))
         ''' loads any other directories '''
         for d in directory[1:]:
-            twiss = self.loadDataFile(**d, reset=False, twiss=twiss)
+            twiss = self.loadDataFile(reset=False, twiss=twiss, **d)
         ''' assignes a reference name if none is given '''
         name = directory[-1]['directory'] if name is None else name
         self.addtwissDataObject(twiss, name)
