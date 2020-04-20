@@ -2,8 +2,8 @@
 	"elements":{
 		"CLA-FEA-MAG-QUAD-15":{
 			"type":"quadrupole",
-			"length":0.18,
-			"k1l":1.59946,
+			"length":0.21,
+			"k1l":1.494741,
 			"global_rotation":[
 				0,
 				0,
@@ -12,12 +12,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				6.1930479e1
+				6.1945479e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				6.1750479e1
+				6.1735479e1
 			]
 		},
 		"CLA-FEA-DIA-BPM-08":{
@@ -29,20 +29,20 @@
 				0
 			],
 			"position_end":[
-				3.6807513048841103,
+				3.680751,
 				0,
-				6.221547936814783e1
+				6.2215479e1
 			],
 			"position_start":[
-				3.6807513048841103,
+				3.680751,
 				0,
-				6.201547936814782e1
+				6.2015479e1
 			]
 		},
 		"CLA-FEA-MAG-QUAD-16":{
 			"type":"quadrupole",
-			"length":0.18,
-			"k1l":-0.90317,
+			"length":0.21,
+			"k1l":-0.83907,
 			"global_rotation":[
 				0,
 				0,
@@ -51,12 +51,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				6.2480479e1
+				6.2495479e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				6.2300479e1
+				6.2285479e1
 			]
 		},
 		"CLA-FEA-MAG-HVCOR-05":{
@@ -68,14 +68,14 @@
 				0
 			],
 			"position_end":[
-				3.6807513048841103,
+				3.680751,
 				0,
-				6.264547936814783e1
+				6.2645479e1
 			],
 			"position_start":[
-				3.6807513048841103,
+				3.680751,
 				0,
-				6.254547936814783e1
+				6.2545479e1
 			]
 		},
 		"CLA-FEA-MAG-HVCOR-06":{
@@ -87,12 +87,12 @@
 				0
 			],
 			"position_end":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.32e1
 			],
 			"position_start":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.31e1
 			]
@@ -106,18 +106,19 @@
 				0
 			],
 			"position_end":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.344e1
 			],
 			"position_start":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.323e1
 			]
 		},
-		"CLA-FEA-SHUT-01-START":{
-			"type":"marker",
+		"CLA-FEA-SHUT-01":{
+			"type":"shutter",
+			"length":0.32,
 			"fit_point":1.0,
 			"global_rotation":[
 				0,
@@ -125,33 +126,14 @@
 				0
 			],
 			"position_end":[
-				3.6807513048841103,
-				0,
-				6.344084e1
-			],
-			"position_start":[
-				3.6807513048841103,
-				0,
-				6.344084e1
-			]
-		},
-		"CLA-FEA-SHUT-01-END":{
-			"type":"marker",
-			"fit_point":1.0,
-			"global_rotation":[
-				0,
-				0,
-				0
-			],
-			"position_end":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.376084e1
 			],
 			"position_start":[
-				3.6807513048841103,
+				3.680751,
 				0,
-				6.376084e1
+				6.344084e1
 			]
 		},
 		"CLA-FEH-WALL-01-START":{
@@ -163,12 +145,12 @@
 				0
 			],
 			"position_end":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.386084e1
 			],
 			"position_start":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.386084e1
 			]
@@ -182,14 +164,33 @@
 				0
 			],
 			"position_end":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.545184e1
 			],
 			"position_start":[
-				3.6807513048841103,
+				3.680751,
 				0,
 				6.545184e1
+			]
+		},
+		"CLA-FEH-VAC-BELLOW-01":{
+			"type":"bellows",
+			"length":9.0e-2,
+			"global_rotation":[
+				0,
+				0,
+				0
+			],
+			"position_end":[
+				3.680751,
+				0,
+				6.55648e1
+			],
+			"position_start":[
+				3.680751,
+				0,
+				6.54748e1
 			]
 		},
 		"CLA-FEH-LAS-ENTR-01-START":{
@@ -203,12 +204,12 @@
 			"position_end":[
 				3.68075,
 				0,
-				6.566e1
+				6.564e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				6.566e1
+				6.564e1
 			]
 		},
 		"CLA-FEH-LAS-ENTR-01-MIRROR":{
@@ -222,12 +223,12 @@
 			"position_end":[
 				3.68075,
 				0,
-				6.586e1
+				6.588e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				6.586e1
+				6.588e1
 			]
 		},
 		"CLA-FEH-LAS-ENTR-01-END":{
@@ -241,12 +242,12 @@
 			"position_end":[
 				3.68075,
 				0,
-				6.665e1
+				6.662e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				6.665e1
+				6.662e1
 			]
 		},
 		"CLA-FEH-DIA-BPM-01":{
@@ -271,7 +272,7 @@
 		"CLA-FEH-MAG-QUAD-01-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":1.84996,
+			"k1l":-1.737113,
 			"global_rotation":[
 				0,
 				0,
@@ -310,7 +311,7 @@
 		"CLA-FEH-MAG-QUAD-02-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-2.04187,
+			"k1l":2.161009,
 			"global_rotation":[
 				0,
 				0,
@@ -488,7 +489,7 @@
 		"CLA-FEH-MAG-QUAD-03-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":1.6745653021597,
+			"k1l":2.161009,
 			"global_rotation":[
 				0,
 				0,
@@ -527,7 +528,7 @@
 		"CLA-FEH-MAG-QUAD-04-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-1.7592589150063,
+			"k1l":-1.737113,
 			"global_rotation":[
 				0,
 				0,
@@ -699,7 +700,7 @@
 		"CLA-FEH-MAG-QUAD-05-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":1.84996,
+			"k1l":-1.737113,
 			"global_rotation":[
 				0,
 				0,
@@ -738,7 +739,7 @@
 		"CLA-FEH-MAG-QUAD-06-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-2.04187,
+			"k1l":2.161009,
 			"global_rotation":[
 				0,
 				0,
@@ -874,7 +875,7 @@
 		"CLA-FEH-MAG-QUAD-07-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":1.6745653021597,
+			"k1l":2.251311,
 			"global_rotation":[
 				0,
 				0,
@@ -913,7 +914,7 @@
 		"CLA-FEH-MAG-QUAD-08-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-1.7592589150063,
+			"k1l":-1.757818,
 			"global_rotation":[
 				0,
 				0,
@@ -951,7 +952,7 @@
 		},
 		"CLA-FEH-DIA-BPM-04":{
 			"type":"beam_position_monitor",
-			"length":0.149,
+			"length":0.195845,
 			"global_rotation":[
 				0,
 				0,
@@ -960,7 +961,7 @@
 			"position_end":[
 				3.68075,
 				0,
-				7.55e1
+				7.5546845e1
 			],
 			"position_start":[
 				3.68075,
@@ -1009,7 +1010,7 @@
 		"CLA-FED-MAG-QUAD-01":{
 			"type":"quadrupole",
 			"length":0.21,
-			"k1l":0.506404946457,
+			"k1l":-0.417333,
 			"global_rotation":[
 				0,
 				0,
@@ -1026,9 +1027,9 @@
 				7.7216195e1
 			]
 		},
-		"CLA-FED-SHUT-01-START":{
-			"type":"marker",
-			"fit_point":1.0,
+		"CLA-FED-VAC-BELLOW-01":{
+			"type":"bellows",
+			"length":9.0e-2,
 			"global_rotation":[
 				0,
 				0,
@@ -1042,11 +1043,12 @@
 			"position_start":[
 				3.680751,
 				0,
-				7.757589e1
+				7.748589e1
 			]
 		},
-		"CLA-FED-SHUT-01-END":{
-			"type":"marker",
+		"CLA-FED-SHUT-01":{
+			"type":"shutter",
+			"length":0.32,
 			"fit_point":1.0,
 			"global_rotation":[
 				0,
@@ -1057,6 +1059,25 @@
 				3.680751,
 				0,
 				7.789589e1
+			],
+			"position_start":[
+				3.680751,
+				0,
+				7.757589e1
+			]
+		},
+		"CLA-FED-VAC-BELLOW-02":{
+			"type":"bellows",
+			"length":9.0e-2,
+			"global_rotation":[
+				0,
+				0,
+				0
+			],
+			"position_end":[
+				3.680751,
+				0,
+				7.798589e1
 			],
 			"position_start":[
 				3.680751,
@@ -1067,7 +1088,7 @@
 		"CLA-FED-MAG-QUAD-02":{
 			"type":"quadrupole",
 			"length":0.21,
-			"k1l":0.506404946457,
+			"k1l":0.491842,
 			"global_rotation":[
 				0,
 				0,
@@ -1103,6 +1124,25 @@
 				7.842e1
 			]
 		},
+		"CLA-FED-VAC-BELLOW-03":{
+			"type":"bellows",
+			"length":9.0e-2,
+			"global_rotation":[
+				0,
+				0,
+				0
+			],
+			"position_end":[
+				3.680751,
+				0,
+				7.8657e1
+			],
+			"position_start":[
+				3.680751,
+				0,
+				7.8567e1
+			]
+		},
 		"CLA-FED-DIA-BPM-01":{
 			"type":"beam_position_monitor",
 			"length":0.21,
@@ -1114,12 +1154,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				7.884e1
+				7.8867e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				7.863e1
+				7.8657e1
 			]
 		},
 		"CLA-FED-DIA-SCR-01-OTR":{
@@ -1134,12 +1174,31 @@
 			"position_end":[
 				3.680751,
 				0,
-				7.9055e1
+				7.9017e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				7.8905e1
+				7.8867e1
+			]
+		},
+		"CLA-FED-VAC-BELLOW-04":{
+			"type":"bellows",
+			"length":9.0e-2,
+			"global_rotation":[
+				0,
+				0,
+				0
+			],
+			"position_end":[
+				3.680751,
+				0,
+				7.9107e1
+			],
+			"position_start":[
+				3.680751,
+				0,
+				7.9017e1
 			]
 		},
 		"CLA-FED-MAG-DIP-01":{
@@ -1156,12 +1215,31 @@
 			"position_end":[
 				3.594367,
 				0,
-				7.9870008e1
+				7.987e1
 			],
 			"position_start":[
 				3.680751,
 				0,
 				7.93801e1
+			]
+		},
+		"CLA-FED-VAC-BELLOW-05":{
+			"type":"bellows",
+			"length":9.0e-2,
+			"global_rotation":[
+				0,
+				0,
+				0.3490658504
+			],
+			"position_end":[
+				3.50647,
+				0,
+				8.01115e1
+			],
+			"position_start":[
+				3.53725,
+				0,
+				8.00269e1
 			]
 		},
 		"CLA-FED-DIA-BPM-02":{
@@ -1175,10 +1253,10 @@
 			"position_end":[
 				3.43464,
 				0,
-				8.0308835e1
+				8.03088e1
 			],
 			"position_start":[
-				3.506464,
+				3.50647,
 				0,
 				8.01115e1
 			]
@@ -1186,21 +1264,40 @@
 		"CLA-FED-MAG-QUAD-03":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":1.81194781559,
+			"k1l":0.354379,
 			"global_rotation":[
 				0,
 				0,
 				0.3490658504
 			],
 			"position_end":[
-				3.283813,
+				3.28381,
 				0,
-				8.0723263e1
+				8.07232e1
 			],
 			"position_start":[
-				3.378553,
+				3.37855,
 				0,
-				8.0462968e1
+				8.0463e1
+			]
+		},
+		"CLA-FED-VAC-BELLOW-06":{
+			"type":"bellows",
+			"length":9.0e-2,
+			"global_rotation":[
+				0,
+				0,
+				0.3490658504
+			],
+			"position_end":[
+				2.91478,
+				0,
+				8.17372e1
+			],
+			"position_start":[
+				2.94556,
+				0,
+				8.16526e1
 			]
 		},
 		"CLA-FED-DIA-SCR-02-WIDE":{
@@ -1213,12 +1310,12 @@
 				0.3490658504
 			],
 			"position_end":[
-				2.863467,
+				2.86348,
 				0,
-				8.1878154e1
+				8.18781e1
 			],
 			"position_start":[
-				2.91477,
+				2.91478,
 				0,
 				8.17372e1
 			]
@@ -1232,14 +1329,14 @@
 				0.3490658504
 			],
 			"position_end":[
-				2.68589,
+				2.68563,
 				0,
-				8.2366e1
+				8.23668e1
 			],
 			"position_start":[
-				2.68589,
+				2.68563,
 				0,
-				8.2366e1
+				8.23668e1
 			]
 		}
 	}
