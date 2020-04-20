@@ -25,9 +25,9 @@ class mainWindow(QMainWindow):
         self.centralWidget.setLayout(self.layout)
 
         self.tab = QTabWidget()
-        self.multiPlot = multiPlotWidget()
+        self.slicePlot = slicePlotWidget()
 
-        self.layout.addWidget(self.multiPlot)
+        self.layout.addWidget(self.slicePlot)
 
         self.setCentralWidget(self.centralWidget)
 
@@ -41,7 +41,7 @@ class mainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-class multiPlotWidget(multiPlotWidget):
+class slicePlotWidget(multiPlotWidget):
     # Layout oder for the individual Tiwss plot items
     plotParams = [
         {'label': 'Horizontal Emittance (normalised)', 'quantity': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'name': '&epsilon;<sub>n,x</sub>'},
@@ -55,8 +55,17 @@ class multiPlotWidget(multiPlotWidget):
     ]
 
     def __init__(self, **kwargs):
-        super(multiPlotWidget, self).__init__(**kwargs)
+        super(slicePlotWidget, self).__init__(**kwargs)
         self.beams = {}
+        self.slicePlotSliceWidthWidget = QSpinBox()
+        self.slicePlotSliceWidthWidget.setMaximum(500)
+        self.slicePlotSliceWidthWidget.setValue(100)
+        self.slicePlotSliceWidthWidget.setSingleStep(10)
+        self.slicePlotSliceWidthWidget.setSuffix(" slices")
+        self.slicePlotSliceWidthWidget.setSpecialValueText('Automatic')
+        self.slicePlotSliceWidthWidget.setMaximumWidth(150)
+        # self.multiaxisPlotAxisLayout.addWidget(self.slicePlotSliceWidthWidget)
+        self.slicePlotSliceWidthWidget.valueChanged.connect(self.changeSliceLengths)
 
     def addsliceDataFiles(self, dicts):
         '''
@@ -84,18 +93,30 @@ class multiPlotWidget(multiPlotWidget):
         if str(type(beamobject)) == "<class 'SimulationFramework.Modules.read_beam_file.beam'>":
             self.beams[name] = beamobject
             beamobject.bin_time()
-            self.curves[name] = {}
+            color = self.colors[self.plotColor % len(self.colors)]
+            pen = pg.mkPen(color, width=3, style=self.styles[int(self.plotColor / len(self.styles))])
+            if name not in self.curves:
+                self.curves[name] = {}
+                self.plotColor += 1
             for n, param in enumerate(self.plotParams):
                 if not param == 'next_row':
                     label = param['label']
-                    color = self.colors[n]
-                    pen = pg.mkPen(color=color, style=self.styles[self.plotColor % len(self.styles)], width=3)
+                    # color = self.colors[n]
+                    # pen = pg.mkPen(color=color, style=self.styles[self.plotColor % len(self.styles)], width=3)
                     exponent = np.floor(np.log10(np.abs(beamobject.slice_length)))
                     x = 10**(12) * np.array((beamobject.slice_bins - np.mean(beamobject.slice_bins)))
                     # self.multiPlot.setRange(xRange=[min(x),max(x)])
                     y = getattr(beamobject, param['quantity'])
-                    self.addCurve(x, y, name, label, pen)
-                self.plotColor += 1
+                    # print('#################################################################')
+                    # print(name, name in self.curves, label, self.curves)#, label, label in self.curves[name], self.curves[name])
+                    # print('#################################################################')
+                    if name in self.curves and label in self.curves[name]:
+                        print('Updating curve: ', name, label)
+                        self.updateCurve(x, y, name, label)
+                    else:
+                        print('ADDING curve: ', name, label)
+                        self.addCurve(x, y, name, label, pen)
+
 
     def addsliceDataFile(self, directory, filename=None):
         '''
@@ -118,20 +139,22 @@ class multiPlotWidget(multiPlotWidget):
         ''' change the time slice length for all beam objects '''
         for d in self.beams:
             self.changeSliceLength(d)
-        self.updateMultiAxisPlot()
+        # self.updateMultiAxisPlot()
 
-    def changeSliceLength(self, datafile):
+    def changeSliceLength(self, name):
         ''' change the time slice length for a beam data object and update the plot '''
-        beam = self.beams[datafile]
+        beam = self.beams[name]
         beam.slices = self.slicePlotSliceWidthWidget.value()
         beam.bin_time()
         for n, param in enumerate(self.plotParams):
-            label = param['label']
-            exponent = np.floor(np.log10(np.abs(beam.slice_length)))
-            x = 10**(12) * np.array((beam.slice_bins - np.mean(beam.slice_bins)))
-            self.multiaxisPlot.setRange(xRange=[min(x),max(x)])
-            y = getattr(beam, param['quantity'])
-            self.curves[datafile][label].setData(x=x, y=y)
+            if not param == 'next_row':
+                label = param['label']
+                exponent = np.floor(np.log10(np.abs(beam.slice_length)))
+                x = 10**(12) * np.array((beam.slice_bins - np.mean(beam.slice_bins)))
+                # self.multiPlotWidgets[label].setRange(xRange=[min(x),max(x)])
+                y = getattr(beam, param['quantity'])
+                self.updateCurve(x, y, name, label)
+                # self.curves[datafile][label].setData(x=x, y=y)
 
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', 'w')

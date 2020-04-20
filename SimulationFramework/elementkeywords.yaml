@@ -13,6 +13,12 @@ scatter:
     vertical_momentum_scatter,
     relative_momentum_scatter
   }
+shutter:
+  keywords: {}
+valve:
+  keywords: {}
+bellows:
+  keywords: {}
 beam_position_monitor:
   keywords: {}
 beam_arrival_monitor:

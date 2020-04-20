@@ -25,9 +25,9 @@ class mainWindow(QMainWindow):
         self.centralWidget.setLayout(self.layout)
 
         self.tab = QTabWidget()
-        self.multiPlot = multiPlotWidget()
+        self.twissPlotWidget = twissPlotWidget()
 
-        self.layout.addWidget(self.multiPlot)
+        self.layout.addWidget(self.twissPlotWidget)
 
         self.setCentralWidget(self.centralWidget)
 
@@ -41,7 +41,7 @@ class mainWindow(QMainWindow):
         exitAction.triggered.connect(self.close)
         fileMenu.addAction(exitAction)
 
-class multiPlotWidget(multiPlotWidget):
+class twissPlotWidget(multiPlotWidget):
     # Layout oder for the individual Tiwss plot items
     plotParams = [
                    {'label': 'Horizontal Beam Size', 'name': '&sigma;<sub>x</sub>', 'quantity': 'sigma_x', 'range': [0,1e-3], 'units': 'm'},
@@ -58,7 +58,7 @@ class multiPlotWidget(multiPlotWidget):
                   ]
 
     def __init__(self, **kwargs):
-        super(multiPlotWidget, self).__init__(xmin=0, ymin=0, **kwargs)
+        super(twissPlotWidget, self).__init__(xmin=0, ymin=0, **kwargs)
 
     def addTwissDirectory(self, directory, name=None):
         '''
@@ -101,8 +101,9 @@ class multiPlotWidget(multiPlotWidget):
         color = self.colors[self.plotColor % len(self.colors)]
         pen = pg.mkPen(color, width=3, style=self.styles[int(self.plotColor / len(self.styles))])
         ''' iterate the color index '''
-        self.plotColor += 1
-        self.curves[name] = {}
+        if name not in self.curves:
+            self.curves[name] = {}
+            self.plotColor += 1
         for param in self.plotParams:
             if not param == 'next_row':
                 label = param['label']
@@ -113,7 +114,12 @@ class multiPlotWidget(multiPlotWidget):
                     xy = np.transpose(np.array([x,y]))
                     x, y = np.transpose(xy[np.argsort(xy[:,0])])
                     ''' create a plotItem on a Twiss plot and save to the curves dictionary '''
-                    self.addCurve(x, y, name, label, pen)
+                    if name in self.curves and label in self.curves[name]:
+                        print('Updating curve: ', name, label)
+                        self.updateCurve(x, y, name, label)
+                    else:
+                        print('ADDING curve: ', name, label)
+                        self.addCurve(x, y, name, label, pen)
 
     def loadDataFile(self, directory, sections=None, reset=True, twiss=None):
         ''' loads ASTRA and Elegant data files from a directory and returns a twiss object'''
@@ -144,8 +150,8 @@ def main():
     pg.setConfigOption('foreground', 'k')
     ex = mainWindow()
     ex.show()
-    ex.multiPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_4', 'sections': 'All'}], name='base+4')
-    ex.multiPlot.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_2', 'sections': 'All'}], name='base+2')
+    ex.twissPlotWidget.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_4', 'sections': 'All'}], name='base+4')
+    ex.twissPlotWidget.addTwissDirectory([{'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'sections': ['injector400']}, {'directory': 'OnlineModel_test_data/test_2', 'sections': 'All'}], name='base+2')
     # ex.multiPlot.removePlot('base+4')
     sys.exit(app.exec_())
 
