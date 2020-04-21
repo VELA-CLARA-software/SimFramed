@@ -82,10 +82,15 @@ with open(os.path.dirname( os.path.abspath(__file__))+'/elementkeywords.yaml', '
 with open(os.path.dirname( os.path.abspath(__file__))+'/elements_Elegant.yaml', 'r') as infile:
     elements_Elegant = yaml.load(infile, Loader=yaml.UnsafeLoader)
 
-type_conversion_rules_Elegant = {'dipole': 'csrcsbend', 'quadrupole': 'kquad', 'beam_position_monitor': 'moni', 'beam_arrival_monitor': 'moni', 'screen': 'watch', 'rcollimator': 'rcol',
-                         'collimator': 'ecol', 'monitor': 'moni', 'solenoid': 'sole', 'wall_current_monitor': 'moni', 'integrated_current_transformer': 'moni', 'cavity': 'rfcw',
-                         'rf_deflecting_cavity': 'rfdf', 'drift': 'csrdrift', 'longitudinal_wakefield': 'wake', 'modulator': 'lsrmdltr', 'scatter': 'scatter',
-                         'aperture': 'maxamp'}
+with open(os.path.dirname( os.path.abspath(__file__))+'/keyword_conversion_rules_elegant.yaml', 'r') as infile:
+    keyword_conversion_rules_elegant = yaml.load(infile, Loader=yaml.UnsafeLoader)
+
+with open(os.path.dirname( os.path.abspath(__file__))+'/type_conversion_rules.yaml', 'r') as infile:
+    type_conversion_rules = yaml.load(infile, Loader=yaml.UnsafeLoader)
+    type_conversion_rules_Elegant = type_conversion_rules['elegant']
+    type_conversion_rules_Names = type_conversion_rules['name']
+
+
 
 section_header_text_ASTRA = {'cavities': {'header': 'CAVITY', 'bool': 'LEField'},
                              'wakefields': {'header': 'WAKE', 'bool': 'LWAKE'},
@@ -1597,30 +1602,7 @@ class element_group(frameworkGroup):
 class chicane(frameworkGroup):
     def __init__(self, name, elementObjects, type, elements, **kwargs):
         super(chicane, self).__init__(name, elementObjects, type, elements, **kwargs)
-
-    def xform(self, theta, tilt, length, x, r):
-        """Calculate the change on local coordinates through an element"""
-        theta = theta if abs(theta) > 1e-9 else 1e-9
-        tiltMatrix = np.matrix([
-            [np.cos(tilt), -np.sin(tilt), 0],
-            [np.sin(tilt), np.cos(tilt), 0],
-            [0, 0, 1]
-        ])
-        angleMatrix = np.matrix([
-            [length/theta*(np.cos(theta)-1)],
-            [0],
-            [length/theta*np.sin(theta)]
-        ])
-        dx = np.dot(r, angleMatrix)
-        rt = np.transpose(r)
-        n = rt[1]*np.cos(tilt)-rt[0]*np.sin(tilt)
-        crossMatrix = np.matrix([
-            np.cross(rt[0], n),
-            np.cross(rt[1], n),
-            np.cross(rt[2], n)
-        ])*np.sin(theta)
-        rp = np.outer(np.dot(rt,n), n)*(1-np.cos(theta))+rt*np.cos(theta)+crossMatrix
-        return [np.array(x + dx), np.array(np.transpose(rp))]
+        self.ratios = (1,-1,-1,1)
 
     def update(self, **kwargs):
         if 'dipoleangle' in kwargs:
@@ -1640,25 +1622,30 @@ class chicane(frameworkGroup):
         self.set_angle(theta)
 
     def set_angle(self, a):
-        # print (self.objectname, ' setting angle = ', a)
-        obj = [self.allElementObjects[e] for e in self.elements]
+        indices = list(sorted([list(self.allElementObjects).index(e) for e in self.elements]))
+        dipole_objs = [self.allElementObjects[e] for e in self.elements]
+        obj = [self.allElementObjects[list(self.allElementObjects)[e]] for e in range(indices[0],indices[-1]+1)]
         starting_angle = obj[0].theta
-        for i in [0,1,2,3]:
-            x1 = np.transpose([self.allElementObjects[self.elements[i]].position_start])
-            angle = obj[i].angle
+        dipole_number = 0
+        for i in range(len(obj)):
+            x1 = np.transpose([obj[i].position_start])
             obj[i].global_rotation[2] = starting_angle
-            obj[i].angle = np.sign(angle)*a
-            localXYZ = self.xform(starting_angle, 0, 0, x1, np.identity(3))[1]
-            x1, localXYZ = self.xform(obj[i].angle, 0, obj[i].length, x1, localXYZ)
-            xstart, ystart, zstart = x1
-            obj[i].position_end[0] = chop(float(xstart))
-            if i < 3:
+            if obj[i] in dipole_objs:
+                obj[i].angle = a*self.ratios[dipole_number]
+                dipole_number += 1
+                elem_angle = obj[i].angle
+            else:
+                elem_angle = obj[i].angle if obj[i].angle is not None else 0
+            obj[i].position_end = list(obj[i].end)
+            xstart, ystart, zstart = obj[i].position_end
+            if i < len(obj)-1:
                 xend, yend, zend = obj[i+1].position_start
-                angle = starting_angle + obj[i].angle
-                length = float((-zstart + zend) * (1.0/np.cos(angle)))
-                endx = chop(float(xstart + np.tan(-1*angle)*length))
+                angle = starting_angle + elem_angle
+                length = float((-zstart + zend))
+                endx = chop(float(xstart + np.tan(angle)*length))
                 obj[i+1].position_start[0] =  endx
-                starting_angle += obj[i].angle
+                obj[i+1].global_rotation[2] =  angle
+                starting_angle += elem_angle
 
     def __str__(self):
         return str([[self.allElementObjects[e].objectname, self.allElementObjects[e].angle, self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
@@ -1666,38 +1653,7 @@ class chicane(frameworkGroup):
 class s_chicane(chicane):
     def __init__(self, name, elementObjects, type, elements, **kwargs):
         super(s_chicane, self).__init__(name, elementObjects, type, elements, **kwargs)
-
-    def update(self, **kwargs):
-        if 'dipoleangle' in kwargs:
-            self.set_angle(kwargs['dipoleangle'])
-        if 'width' in kwargs:
-            self.change_Parameter('width', kwargs['width'])
-        if 'gap' in kwargs:
-            self.change_Parameter('gap', kwargs['gap'])
-
-    def set_angle(self, a):
-        obj = [self.allElementObjects[e] for e in self.elements]
-        starting_angle = obj[0].theta
-        ratios = (-1,2,-2,1)
-        for i in [0,1,2,3]:
-            x1 = np.transpose([self.allElementObjects[self.elements[i]].position_start])
-            angle = obj[i].angle
-            obj[i].global_rotation[2] = starting_angle
-            obj[i].angle = np.sign(angle)*a*ratios[i]
-            localXYZ = self.xform(starting_angle, 0, 0, x1, np.identity(3))[1]
-            x1, localXYZ = self.xform(obj[i].angle, 0, obj[i].length, x1, localXYZ)
-            xstart, ystart, zstart = x1
-            obj[i].position_end[0] = chop(float(xstart))
-            if i < 3:
-                xend, yend, zend = obj[i+1].position_start
-                angle = starting_angle + obj[i].angle
-                length = float((-zstart + zend) * (1.0/np.cos(angle)))
-                endx = chop(float(xstart + np.tan(-1*angle)*length))
-                obj[i+1].position_start[0] =  endx
-                starting_angle += obj[i].angle
-
-    def __str__(self):
-        return str([[self.allElementObjects[e].objectname, self.allElementObjects[e].angle, self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
+        self.ratios = (-1,2,-2,1)
 
 class frameworkCounter(dict):
     def __init__(self, sub={}):
@@ -1843,15 +1799,14 @@ class frameworkElement(frameworkObject):
 
     def __init__(self, elementName=None, elementType=None, **kwargs):
         super(frameworkElement, self).__init__(elementName, elementType, **kwargs)
-        self.keyword_conversion_rules_elegant = {'length': 'l','entrance_edge_angle': 'e1', 'exit_edge_angle': 'e2', 'edge_field_integral': 'fint', 'horizontal_size': 'x_max', 'vertical_size': 'y_max',
-                                     'field_amplitude': 'volt', 'frequency': 'freq', 'output_filename': 'filename', 'csr_bins': 'bins', 'hangle': 'hkick', 'vangle': 'vkick',
-                                     'csrdz': 'dz', 'field_definition_sdds': 'inputfile', 'change_momentum': 'change_p0', 'bunched_beam': 'bunched_beam_mode', 'current_bins': 'n_bins',
-                                     'lsc_enable': 'lsc',
-                                     }
         self.add_default('length', 0)
         self.add_property('position_errors', [0,0,0])
         self.add_property('rotation_errors', [0,0,0])
         self.add_default('global_rotation', [0,0,0])
+        self.add_default('starting_rotation', 0)
+        self.keyword_conversion_rules_elegant = keyword_conversion_rules_elegant['general']
+        if elementType in keyword_conversion_rules_elegant:
+            self.keyword_conversion_rules_elegant = merge_two_dicts(self.keyword_conversion_rules_elegant, keyword_conversion_rules_elegant[elementType])
 
     def __mul__(self, other):
         return [self.objectproperties for x in range(other)]
@@ -1975,16 +1930,17 @@ class frameworkElement(frameworkObject):
     @property
     def middle(self):
         start = np.array(self.position_start)
-        return start + self.rotated_position(np.array([0,0, self.length / 2.0]), offset=self.starting_offset, theta=self.starting_rotation)
+        return start + self.rotated_position(np.array([0,0, self.length / 2.0]), offset=self.starting_offset, theta=-self.y_rot)
 
     @property
     def end(self):
         start = np.array(self.position_start)
-        return start + self.rotated_position(np.array([0,0, self.length]), offset=self.starting_offset, theta=self.starting_rotation)
+        # print(self.objectName, start, start + self.rotated_position(np.array([0,0, self.length]), offset=self.starting_offset, theta=-self.y_rot))
+        return start + self.rotated_position(np.array([0,0, self.length]), offset=self.starting_offset, theta=-self.y_rot)
 
     def relative_position_from_centre(self, vec=[0,0,0]):
         start = np.array(self.start)
-        return start + self.rotated_position(np.array([0,0, self.length / 2.0]) + np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
+        return start + self.rotated_position(np.array([0,0, self.length / 2.0]) + np.array(vec), offset=self.starting_offset, theta=-self.y_rot)
 
     def _write_ASTRA(self, d, n=1):
         output = ''
@@ -2075,11 +2031,6 @@ class dipole(frameworkElement):
 
     def __init__(self, name=None, type='dipole', **kwargs):
         super(dipole, self).__init__(name, type, **kwargs)
-        self.keyword_conversion_rules_elegant['isr_enable'] = 'isr'
-        self.keyword_conversion_rules_elegant['sr_enable'] = 'synch_rad'
-        self.keyword_conversion_rules_elegant['smoothing_half_width'] = 'sg_halfwidth'
-        self.keyword_conversion_rules_elegant['csr_bins'] = 'bins'
-        self.keyword_conversion_rules_elegant['edge_order'] = 'edge_order'
         self.add_default('csr_bins', 100)
         self.add_default('deltaL', 0)
         self.add_default('csr_enable', 1)
@@ -2171,9 +2122,9 @@ class dipole(frameworkElement):
             ex = -1. * (self.length * (np.cos(self.angle) - 1)) / self.angle
             ey = 0
             ez = (self.length * (np.sin(self.angle))) / self.angle
-            return np.array(self.position_start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=self.starting_rotation)
+            return np.array(self.position_start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=-self.y_rot)
         else:
-            return np.array(self.position_start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=self.starting_rotation)
+            return np.array(self.position_start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=-self.y_rot)
 
     @property
     def width(self):
@@ -2411,8 +2362,7 @@ class quadrupole(frameworkElement):
         self.add_default('k1l', 0)
         self.add_default('n_kicks', 20)
         self.strength_errors = [0]
-        self.keyword_conversion_rules_elegant['isr_enable'] = 'isr'
-        self.keyword_conversion_rules_elegant['sr_enable'] = 'synch_rad'
+
 
     @property
     def k1(self):
@@ -2462,14 +2412,6 @@ class cavity(frameworkElement):
 
     def __init__(self, name=None, type='cavity', **kwargs):
         super(cavity, self).__init__(name, type, **kwargs)
-        self.keyword_conversion_rules_elegant['field_amplitude'] = 'volt'
-        self.keyword_conversion_rules_elegant['longitudinal_wakefield_sdds'] = 'zwakefile'
-        self.keyword_conversion_rules_elegant['transverse_wakefield_sdds'] = 'trwakefile'
-        self.keyword_conversion_rules_elegant['longitudinal_wakefield_enable'] = 'zwake'
-        self.keyword_conversion_rules_elegant['transverse_wakefield_enable'] = 'trwake'
-        self.keyword_conversion_rules_elegant['interpolate_current_bins'] = 'interpolate'
-        self.keyword_conversion_rules_elegant['smooth_current_bins'] = 'smoothing'
-        self.keyword_conversion_rules_elegant['smoothing_half_width'] = 'sg_halfwidth'
         self.add_default('tcolumn', '"t"')
         self.add_default('wzcolumn', '"W"')
         self.add_default('wxcolumn', '"W"')
@@ -2583,7 +2525,6 @@ class solenoid(frameworkElement):
 
     def __init__(self, name=None, type='solenoid', **kwargs):
         super(solenoid, self).__init__(name, type, **kwargs)
-        self.keyword_conversion_rules_elegant['field_amplitude'] = 'B'
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
@@ -2666,8 +2607,6 @@ class scatter(frameworkElement):
 
     def __init__(self, name=None, type='scatter', **kwargs):
         super(scatter, self).__init__(name, type, **kwargs)
-        self.keyword_conversion_rules_elegant.update({'horizontal_scatter': 'x', 'vertical_scatter': 'y', 'horizontal_momentum_scatter': 'xp',
-        'vertical_momentum_scatter': 'yp', 'relative_momentum_scatter': 'dp'})
         # print('Scatter object ', self.objectname,' - DP = ', self.objectproperties)
 
     def _write_Elegant(self):
@@ -2865,12 +2804,6 @@ class csrdrift(frameworkElement):
 
     def __init__(self, name=None, type='csrdrift', **kwargs):
         super(csrdrift, self).__init__(name, type, **kwargs)
-        self.keyword_conversion_rules_elegant['csrdz'] = 'dz'
-        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_start'] = 'LSC_LOW_FREQUENCY_CUTOFF0'.lower()
-        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_end'] = 'LSC_LOW_FREQUENCY_CUTOFF1'.lower()
-        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_start'] = 'LSC_HIGH_FREQUENCY_CUTOFF0'.lower()
-        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_end'] = 'LSC_HIGH_FREQUENCY_CUTOFF1'.lower()
-        self.keyword_conversion_rules_elegant['csr_enable'] = 'csr'
 
     def _write_Elegant(self):
         wholestring=''
@@ -2896,12 +2829,6 @@ class lscdrift(frameworkElement):
 
     def __init__(self, name=None, type='lscdrift', **kwargs):
         super(lscdrift, self).__init__(name, type, **kwargs)
-        self.keyword_conversion_rules_elegant['lsc_bins'] = 'bins'
-        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_start'] = 'LOW_FREQUENCY_CUTOFF0'.lower()
-        self.keyword_conversion_rules_elegant['lsc_low_frequency_cutoff_end'] = 'LOW_FREQUENCY_CUTOFF1'.lower()
-        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_start'] = 'HIGH_FREQUENCY_CUTOFF0'.lower()
-        self.keyword_conversion_rules_elegant['lsc_high_frequency_cutoff_end'] = 'HIGH_FREQUENCY_CUTOFF1'.lower()
-        self.keyword_conversion_rules_elegant['lsc_enable'] = 'lsc'
 
     def _write_Elegant(self):
         wholestring=''
@@ -2929,8 +2856,6 @@ class fel_modulator(frameworkElement):
         super(fel_modulator, self).__init__(name, type, **kwargs)
         self.add_default('k1l', 0)
         self.add_default('n_steps', 1*self.periods)
-        self.keyword_conversion_rules_elegant.update({'peak_field': 'bu', 'gradient': 'TGU_GRADIENT', 'wavelength': 'LASER_WAVELENGTH', 'peak_power': 'LASER_PEAK_POWER',
-        'phase': 'LASER_PHASE', 'horizontal_mode_number': 'LASER_M', 'vertical_mode_number': 'LASER_N'})
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
@@ -2961,7 +2886,6 @@ class wiggler(frameworkElement):
         super(wiggler, self).__init__(name, type, **kwargs)
         # self.add_default('k1l', 0)
         # self.add_default('n_steps', 1*self.periods)
-        self.keyword_conversion_rules_elegant.update({'peak_field': 'B'})
 
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
