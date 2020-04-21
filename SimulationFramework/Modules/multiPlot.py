@@ -113,6 +113,9 @@ class multiPlotWidget(QWidget):
                         self.multiPlotWidgets[param['label']].removeItem(self.curves[n][param['label']])
                 del self.curves[n]
 
+    def clearCurves(self):
+        self.removeCurve(self.curves.keys())
+
     def highlightPlot(self, name):
         ''' highlights a particular plot '''
         # print('highligher clicked! = ', name)
