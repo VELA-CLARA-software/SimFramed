@@ -1,0 +1,25 @@
+elegant:
+  dipole: csrcsbend
+  quadrupole: kquad
+  beam_position_monitor: moni
+  beam_arrival_monitor: moni
+  screen: watch
+  rcollimator: rcol
+  collimator: ecol
+  monitor: moni
+  solenoid: sole
+  wall_current_monitor: moni
+  integrated_current_transformer: moni
+  cavity: rfcw
+  rf_deflecting_cavity: rfdf
+  drift: csrdrift
+  longitudinal_wakefield: wake
+  modulator: lsrmdltr
+  scatter: scatter
+  aperture: maxamp
+name:
+  dia-bpm: beam_position_monitor
+  dia-bam: beam_arrival_monitor
+  dia-scr: screen
+  dia-wcm: wall_current_monitor
+  dia-ict: integrated_current_transformer

@@ -14,6 +14,10 @@ class twiss(munch.Munch):
     E0_eV = E0 / constants.elementary_charge
     q_over_c = (constants.e / constants.speed_of_light)
 
+    def __init__(self):
+        super(twiss, self).__init__()
+        self.reset_dicts()
+
     def find_nearest(self, array, value):
         idx = np.searchsorted(array, value, side="left")
         if idx > 0 and (idx == len(array) or math.fabs(value - array[idx-1]) < math.fabs(value - array[idx])):
@@ -57,6 +61,8 @@ class twiss(munch.Munch):
         self['eta_x'] = []
         self['eta_xp'] = []
         self['element_name'] = []
+        self['x'] = []
+        self['y'] = []
         self.elegant = {}
 
     def read_sdds_file(self, fileName, charge=None, ascii=False):
@@ -75,6 +81,20 @@ class twiss(munch.Munch):
             self.elegant[param] = self.sdds.parameterData[i]
             # if isinstance(self[param][0], (float, long)):
             #     self.SDDSparameterNames.append(param)
+
+    def read_elegant_floor_file(self, filename, offset=[0,0,0], rotation=[0,0,0], reset=True):
+        if reset:
+            self.reset_dicts()
+        self.read_sdds_file(filename)
+        self['x'] = [np.round(x+offset[0], decimals = 6) for x in self.elegant['X']]
+        self['y'] = [np.round(y+offset[1], decimals = 6) for y in self.elegant['Y']]
+        self['z'] = [np.round(z+offset[2], decimals = 6) for z in self.elegant['Z']]
+        self['theta'] = [np.round(theta+rotation[0], decimals = 6) for theta in self.elegant['theta']]
+        self['phi'] = [np.round(phi+rotation[1], decimals = 6) for phi in self.elegant['phi']]
+        self['psi'] = [np.round(psi+rotation[2], decimals = 6) for psi in self.elegant['psi']]
+        xyz = list(zip(self['x'], self['y'], self['z']))
+        thetaphipsi = list(zip(self['phi'], self['psi'], self['theta']))
+        return list(zip(self.elegant['ElementName'], xyz[-1:] + xyz[:-1], xyz, thetaphipsi))[1:]
 
     def read_elegant_twiss_files(self, filename, startS=0, reset=True):
         if reset:
