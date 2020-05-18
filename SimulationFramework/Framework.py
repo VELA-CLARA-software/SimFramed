@@ -184,11 +184,7 @@ class Framework(Munch):
         self.runname = runname
         if self.subdir is not None:
             self.setSubDirectory(self.subdir)
-        if master_lattice is None:
-            master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
-        else:
-            master_lattice_location = master_lattice
-        self.master_lattice_location = master_lattice_location
+        self.setMasterLatticeLocation(master_lattice)
 
         self.executables = exes.Executables(master_lattice_location)
         self.defineASTRACommand = self.executables.define_astra_command
@@ -211,6 +207,15 @@ class Framework(Munch):
                 clean_directory(self.subdirectory)
         if self.overwrite == None:
             self.overwrite = True
+        self.setMasterLatticeLocation()
+
+    def setMasterLatticeLocation(self, master_lattice=None):
+        global master_lattice_location
+        if master_lattice is None:
+            master_lattice_location = (os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
+        else:
+            master_lattice_location = master_lattice
+        self.master_lattice_location = master_lattice_location
         # master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
 
     # def defineASTRACommand(self, ncpu=1):
