@@ -205,7 +205,7 @@ class Framework(Munch):
         self.subdirectory = os.path.abspath(self.basedirectory+'/'+dir)
         master_subdir = self.subdirectory
         if not os.path.exists(self.subdirectory):
-            os.makedirs(self.subdirectory)
+            os.makedirs(self.subdirectory, exist_ok=True)
         else:
             if self.clean == True:
                 clean_directory(self.subdirectory)
@@ -580,8 +580,10 @@ class Framework(Munch):
                     if postprocess:
                         self.latticeObjects[l].postProcess()
         else:
+            # print('files = ', files)
             for i in range(len(files)):
                 l = files[i]
+                # print('l = ', l)
                 if l == 'generator' and hasattr(self, 'generator'):
                     if write:
                         self.generator.write()
@@ -591,12 +593,16 @@ class Framework(Munch):
                         self.generator.astra_to_hdf5()
                 else:
                     if preprocess:
+                        # print('preprocess')
                         self.latticeObjects[l].preProcess()
                     if write:
+                        # print('write')
                         self.latticeObjects[l].write()
                     if track:
+                        # print('track')
                         self.latticeObjects[l].run()
                     if postprocess:
+                        # print('postprocess')
                         self.latticeObjects[l].postProcess()
 
 class frameworkLattice(Munch):
@@ -991,6 +997,7 @@ class elegantLattice(frameworkLattice):
         fulltext = ''
         fulltext += self.q.write_Elegant()
         for element in list(elements.values()):
+            # print(element.write_Elegant())
             if not element.subelement:
                 fulltext += element.write_Elegant()
         fulltext += self.w.write_Elegant()
@@ -2039,7 +2046,7 @@ class dipole(frameworkElement):
         self.add_default('sr_enable', True)
         self.add_default('integration_order', 4)
         self.add_default('nonlinear', 1)
-        self.add_default('smoothing_half_width', 2)
+        self.add_default('smoothing_half_width', 1)
         self.add_default('edge_order', 2)
         self.add_default('edge1_effects', 1)
         self.add_default('edge2_effects', 1)
@@ -2765,45 +2772,31 @@ class drift(frameworkElement):
     def __init__(self, name=None, type='drift', **kwargs):
         super(drift, self).__init__(name, type, **kwargs)
 
-    def _write_Elegant(self):
-        wholestring=''
-        etype = self._convertType_Elegant(self.objecttype)
-        string = self.objectname+': '+ etype
-        for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
-            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
-                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
-                key = self._convertKeword_Elegant(key)
-                value = 1 if value is True else value
-                value = 0 if value is False else value
-                tmpstring = ', '+key+' = '+str(value)
-                if len(string+tmpstring) > 76:
-                    wholestring+=string+',&\n'
-                    string=''
-                    string+=tmpstring[2::]
-                else:
-                    string+= tmpstring
-        wholestring+=string+';\n'
-        return wholestring
-
-class shutter(drift):
-
-    def __init__(self, name=None, type='shutter', **kwargs):
-        super(shutter, self).__init__(name, type, **kwargs)
-
-class valve(drift):
-
-    def __init__(self, name=None, type='valve', **kwargs):
-        super(valve, self).__init__(name, type, **kwargs)
-
-class bellows(drift):
-
-    def __init__(self, name=None, type='bellows', **kwargs):
-        super(bellows, self).__init__(name, type, **kwargs)
+    # def _write_Elegant(self):
+    #     wholestring=''
+    #     etype = self._convertType_Elegant(self.objecttype)
+    #     string = self.objectname+': '+ etype
+    #     for key, value in list(merge_two_dicts(self.objectproperties, self.objectdefaults).items()):
+    #         if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
+    #             value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+    #             key = self._convertKeword_Elegant(key)
+    #             value = 1 if value is True else value
+    #             value = 0 if value is False else value
+    #             tmpstring = ', '+key+' = '+str(value)
+    #             if len(string+tmpstring) > 76:
+    #                 wholestring+=string+',&\n'
+    #                 string=''
+    #                 string+=tmpstring[2::]
+    #             else:
+    #                 string+= tmpstring
+    #     wholestring+=string+';\n'
+    #     return wholestring
 
 class csrdrift(frameworkElement):
 
     def __init__(self, name=None, type='csrdrift', **kwargs):
         super(csrdrift, self).__init__(name, type, **kwargs)
+        self.add_default('lsc_interpolate', 1)
 
     def _write_Elegant(self):
         wholestring=''
@@ -2849,6 +2842,22 @@ class lscdrift(frameworkElement):
                     string+= tmpstring
         wholestring+=string+';\n'
         return wholestring
+
+class shutter(csrdrift):
+
+    def __init__(self, name=None, type='shutter', **kwargs):
+        super(shutter, self).__init__(name, type, **kwargs)
+
+class valve(csrdrift):
+
+    def __init__(self, name=None, type='valve', **kwargs):
+        super(valve, self).__init__(name, type, **kwargs)
+
+class bellows(csrdrift):
+
+    def __init__(self, name=None, type='bellows', **kwargs):
+        super(bellows, self).__init__(name, type, **kwargs)
+
 
 class fel_modulator(frameworkElement):
 
