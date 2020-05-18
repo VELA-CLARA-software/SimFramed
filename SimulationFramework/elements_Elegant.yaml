@@ -320,8 +320,8 @@ csrdrift:
   lsc_high_frequency_cutoff0: double
   lsc_high_frequency_cutoff1: double
   lsc_radius_factor: double
+  lsc_smoothing: long
   group: string
-
 cwiggler:
   l: double
   b_max: double

@@ -17,6 +17,9 @@ elegant:
   modulator: lsrmdltr
   scatter: scatter
   aperture: maxamp
+  shutter: drift
+  valve: drift
+  bellows: drift
 name:
   dia-bpm: beam_position_monitor
   dia-bam: beam_arrival_monitor
