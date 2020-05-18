@@ -23,6 +23,10 @@ dipole:
   smoothing_half_width: sg_halfwidth
   csr_bins: bins
   edge_order: edge_order
+  lsc_high_frequency_cutoff_start: high_frequency_cutoff0
+  lsc_high_frequency_cutoff_end: high_frequency_cutoff1
+  lsc_low_frequency_cutoff_start: low_frequency_cutoff0
+  lsc_low_frequency_cutoff_end: low_frequency_cutoff1
 quadrupole:
   isr_enable: isr
   sr_enable: synch_rad
@@ -57,6 +61,7 @@ lscdrift:
   lsc_high_frequency_cutoff_start: high_frequency_cutoff0
   lsc_high_frequency_cutoff_end: high_frequency_cutoff1
   lsc_enable: lsc
+  smoothing: smoothing
 fel_modulator:
   peak_field: bu
   gradient: tgu_gradient
