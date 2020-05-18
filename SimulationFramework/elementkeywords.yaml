@@ -196,10 +196,10 @@ drift:
   keywords: {}
 csrdrift:
   keywords: {'csrdz', 'use_stupakov', 'lsc_bins', 'use_saldin54', 'saldin54points', 'lsc_enable', 'lsc_low_frequency_cutoff_start', 'lsc_low_frequency_cutoff_end',
-  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end','csr_enable','spread'}
+  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end','csr_enable','spread', 'lsc_interpolate'}
 lscdrift:
   keywords: {'lsc_bins', 'lsc_enable', 'lsc_low_frequency_cutoff_start', 'lsc_low_frequency_cutoff_end',
-  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end'}
+  'lsc_high_frequency_cutoff_start', 'lsc_high_frequency_cutoff_end', 'smoothing'}
 charge:
   keywords: {"TOTAL"}
 astra_newrun:
