@@ -35,7 +35,7 @@ elements:
     Controller_Name: COR1
     Online_Model_Name: CV-COR01
     Horizontal_PV: CLA-C2V-MAG-HCOR-01
-    Vertcal_PV: CLA-C2V-MAG-VCOR-01
+    Vertical_PV: CLA-C2V-MAG-VCOR-01
     global_rotation: [0, 0, 0.785398]
     position_end: [-0.368412, 0, 6.40624]
     position_start: [-0.21992, 0, 6.25775]
