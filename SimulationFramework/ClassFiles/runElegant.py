@@ -158,6 +158,7 @@ class fitnessFunc(object):
 
         ### TRACKING
         if self.doTracking:
+            # print('endfile = ', endfile)
             self.framework.track(startfile=self.start_lattice, endfile=endfile)
 
 def optfunc(inputargs, dir=None, *args, **kwargs):
