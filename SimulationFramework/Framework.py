@@ -9,7 +9,6 @@ from SimulationFramework.Modules.merge_two_dicts import merge_two_dicts
 from SimulationFramework.FrameworkHelperFunctions import *
 import SimulationFramework.Modules.read_beam_file as rbf
 import SimulationFramework.Executables as exes
-beam = rbf.beam()
 from operator import add
 import progressbar
 from munch import Munch, unmunchify
@@ -113,6 +112,8 @@ def isevaluable(self, s):
 
 def expand_substitution(self, param, subs={}, elements={}):
     if isinstance(param,(str)):
+        subs['master_lattice_location'] = os.path.relpath(self.global_parameters['master_lattice_location'],self.global_parameters['master_subdir'])+'/'
+        subs['master_subdir'] = './'
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, param)
         if s:
@@ -123,7 +124,7 @@ def expand_substitution(self, param, subs={}, elements={}):
             for key in subs:
                 replaced_str = replaced_str.replace(key, subs[key])
             if os.path.exists(replaced_str):
-                replaced_str = os.path.relpath(replaced_str, master_subdir).replace('\\','/')
+                replaced_str = os.path.relpath(replaced_str, self.global_parameters['master_subdir']).replace('\\','/')
             for e in elements.keys():
                 if e in replaced_str:
                     print('Element is in string!', e, replaced_str)
@@ -167,9 +168,10 @@ def _rotation_matrix(theta):
 
 class Framework(Munch):
 
-    def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True):
+    def __init__(self, directory='test', master_lattice=None, overwrite=None, runname='CLARA_240', clean=False, verbose=True, sddsindex=0):
         super(Framework, self).__init__()
-        global master_lattice_location
+        # global master_lattice_location
+        self.global_parameters = {'beam': rbf.beam(sddsindex=sddsindex)}
         self.verbose = verbose
         self.subdir = directory
         self.clean = clean
@@ -186,20 +188,20 @@ class Framework(Munch):
             self.setSubDirectory(self.subdir)
         self.setMasterLatticeLocation(master_lattice)
 
-        self.executables = exes.Executables(master_lattice_location)
+        self.executables = exes.Executables(self.global_parameters['master_lattice_location'])
         self.defineASTRACommand = self.executables.define_astra_command
         self.defineElegantCommand = self.executables.define_elegant_command
         self.defineGeneratorCommand = self.executables.define_generator_command
         self.defineCSRTrackCommand = self.executables.define_csrtrack_command
         self.define_gpt_command = self.executables.define_gpt_command
-        # self.executables = {'generator': [master_lattice_location+'Codes/generator'], 'astra': [master_lattice_location+'Codes/astra'],
-        #                     'elegant': [master_lattice_location+'Codes/elegant'], 'csrtrack': [master_lattice_location+'Codes/csrtrack'],
+        # self.executables = {'generator': [self.global_parameters['master_lattice_location']+'Codes/generator'], 'astra': [self.global_parameters['master_lattice_location']+'Codes/astra'],
+        #                     'elegant': [self.global_parameters['master_lattice_location']+'Codes/elegant'], 'csrtrack': [self.global_parameters['master_lattice_location']+'Codes/csrtrack'],
         #                     'gpt': [r'C:/Program Files/General Particle Tracer/bin/gpt.exe']}
 
     def setSubDirectory(self, dir):
-        global master_subdir, master_lattice_location
+        # global self.global_parameters['master_subdir'], self.global_parameters['master_lattice_location']
         self.subdirectory = os.path.abspath(self.basedirectory+'/'+dir)
-        master_subdir = self.subdirectory
+        self.global_parameters['master_subdir'] = self.subdirectory
         if not os.path.exists(self.subdirectory):
             os.makedirs(self.subdirectory, exist_ok=True)
         else:
@@ -210,13 +212,13 @@ class Framework(Munch):
         self.setMasterLatticeLocation()
 
     def setMasterLatticeLocation(self, master_lattice=None):
-        global master_lattice_location
+        # global master_lattice_location
         if master_lattice is None:
-            master_lattice_location = (os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
+            self.global_parameters['master_lattice_location'] = (os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
         else:
-            master_lattice_location = master_lattice
-        self.master_lattice_location = master_lattice_location
-        # master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
+            self.global_parameters['master_lattice_location'] = master_lattice
+        self.master_lattice_location = self.global_parameters['master_lattice_location']
+        # self.global_parameters['master_lattice_location'] = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/', self.subdirectory)+'/').replace('\\','/')
 
     # def defineASTRACommand(self, ncpu=1):
     #     """Modify the defined ASTRA command variable"""
@@ -242,7 +244,7 @@ class Framework(Munch):
                 with open(f, 'r') as stream:
                     elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
             else:
-                with open(master_lattice_location + f, 'r') as stream:
+                with open(self.global_parameters['master_lattice_location'] + f, 'r') as stream:
                     elements = yaml.load(stream, Loader=yaml.UnsafeLoader)['elements']
             for name, elem in list(elements.items()):
                 self.read_Element(name, elem)
@@ -255,7 +257,7 @@ class Framework(Munch):
         if os.path.exists(filename):
             stream = open(filename, 'r')
         else:
-            stream = open(master_lattice_location+filename, 'r')
+            stream = open(self.global_parameters['master_lattice_location']+filename, 'r')
         self.settings = yaml.load(stream, Loader=yaml.UnsafeLoader)
         self.globalSettings = self.settings['global']
         master_run_no = self.globalSettings['run_no'] if 'run_no' in self.globalSettings else 1
@@ -269,7 +271,7 @@ class Framework(Munch):
         stream.close()
 
         for name, elem in list(self.groups.items()):
-            group = globals()[elem['type']](name, self.elementObjects, **elem)
+            group = globals()[elem['type']](name, self.elementObjects, global_parameters=self.global_parameters, **elem)
             self.groupObjects[name] = group
 
         for name, elem in list(elements.items()):
@@ -287,7 +289,7 @@ class Framework(Munch):
 
     def read_Lattice(self, name, lattice):
         code = lattice['code'] if 'code' in lattice else 'astra'
-        self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables)
+        self.latticeObjects[name] = globals()[lattice['code'].lower()+'Lattice'](name, lattice, self.elementObjects, self.groupObjects, self.settings, self.executables, self.global_parameters)
 
     def convert_numpy_types(self, v):
         if isinstance(v, (np.ndarray, list, tuple)):
@@ -426,7 +428,7 @@ class Framework(Munch):
         else:
             if not name == 'generator':
                 currentLattice = self.latticeObjects[name]
-                self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectname, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables)
+                self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectname, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables, self.global_parameters)
 
     def read_Element(self, name, element, subelement=False):
         if name == 'filename':
@@ -447,7 +449,7 @@ class Framework(Munch):
             else:
                 name = kwargs['name']
         # try:
-        element = globals()[type](name, type, **kwargs)
+        element = globals()[type](name, type, global_parameters=self.global_parameters, **kwargs)
         # print element
         self.elementObjects[name] = element
         return element
@@ -489,9 +491,9 @@ class Framework(Munch):
 
     def add_Generator(self, default=None, **kwargs):
         if default in astra_generator_keywords['defaults']:
-            self.generator = frameworkGenerator(self.executables, **merge_two_dicts(kwargs,astra_generator_keywords['defaults'][default]))
+            self.generator = frameworkGenerator(self.executables, self.global_parameters, **merge_two_dicts(kwargs,astra_generator_keywords['defaults'][default]))
         else:
-            self.generator = frameworkGenerator(self.executables, **kwargs)
+            self.generator = frameworkGenerator(self.executables, self.global_parameters, **kwargs)
         self.latticeObjects['generator'] = self.generator
 
     def loadParametersFile(self, file):
@@ -598,21 +600,22 @@ class Framework(Munch):
                         self.generator.astra_to_hdf5()
                 else:
                     if preprocess:
-                        # print('preprocess')
+                        # print('preprocess ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].preProcess()
                     if write:
-                        # print('write')
+                        # print('write ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].write()
                     if track:
-                        # print('track')
+                        # print('track ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].run()
                     if postprocess:
-                        # print('postprocess')
+                        # print('postprocess ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].postProcess()
 
 class frameworkLattice(Munch):
-    def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables):
+    def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables, global_parameters):
         super(frameworkLattice, self).__init__()
+        self.global_parameters = global_parameters
         self.objectname = name
         for key, value in list(elementObjects.items()):
             setattr(self, key, value)
@@ -778,7 +781,7 @@ class frameworkLattice(Munch):
 
     # @property
     def endScreen(self, **kwargs):
-        return screen(name='end', type='screen', position_start=self.endObject.position_start, position_end=self.endObject.position_start, global_rotation=self.endObject.global_rotation, **kwargs)
+        return screen(name='end', type='screen', position_start=self.endObject.position_start, position_end=self.endObject.position_start, global_rotation=self.endObject.global_rotation, global_parameters=self.global_parameters, **kwargs)
 
     @property
     def elements(self):
@@ -811,7 +814,7 @@ class frameworkLattice(Munch):
         for e, d in driftdata:
             if e[1]['objecttype'] == 'screen' and e[1]['length'] > 0:
                 name = e[0]+'-drift-01'
-                newdrift = drifttype(name, **{'length': e[1]['length']/2,
+                newdrift = drifttype(name, global_parameters=self.global_parameters, **{'length': e[1]['length']/2,
                  'csr_enable': csr,
                  'lsc_enable': lsc,
                  'use_stupakov': 1,
@@ -825,7 +828,7 @@ class frameworkLattice(Munch):
                 newelements[name] = newdrift
                 newelements[e[0]] = e[1]
                 name = e[0]+'-drift-02'
-                newdrift = drifttype(name, **{'length': e[1]['length']/2,
+                newdrift = drifttype(name, global_parameters=self.global_parameters, **{'length': e[1]['length']/2,
                  'csr_enable': csr,
                  'lsc_enable': lsc,
                  'use_stupakov': 1,
@@ -851,7 +854,7 @@ class frameworkLattice(Munch):
                 if length > 0:
                     elementno += 1
                     name = 'drift'+str(elementno)
-                    newdrift = drifttype(name, **{'length': length,
+                    newdrift = drifttype(name, global_parameters=self.global_parameters, **{'length': length,
                      'position_start': list(d[0]),
                      'position_end': list(d[1]),
                      'csr_enable': csr,
@@ -897,8 +900,8 @@ class frameworkLattice(Munch):
     def run(self):
         """Run the code with input 'filename'"""
         command = self.executables[self.code] + [self.objectname]
-        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
-            subprocess.call(command, stdout=f, cwd=master_subdir)
+        with open(os.path.relpath(self.global_parameters['master_subdir']+'/'+self.objectname+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.global_parameters['master_subdir'])
 
     def postProcess(self):
         pass
@@ -921,6 +924,8 @@ class frameworkObject(Munch):
 
     def __init__(self, objectname=None, objecttype=None, **kwargs):
         super(frameworkObject, self).__init__()
+        if 'global_parameters' in kwargs:
+            self.global_parameters = kwargs['global_parameters']
         if objectname == None:
             raise NameError('Command does not have a name')
         if objecttype == None:
@@ -989,7 +994,7 @@ class elegantLattice(frameworkLattice):
         self.code = 'elegant'
         self.particle_definition = self.allElementObjects[self.start].objectname
         self.bunch_charge = None
-        self.q = charge(name='START', type='charge',**{'total': 250e-12})
+        self.q = charge(name='START', type='charge', global_parameters=self.global_parameters,**{'total': 250e-12})
         self.trackBeam = True
         self.betax = None
         self.betay = None
@@ -1015,9 +1020,9 @@ class elegantLattice(frameworkLattice):
         return fulltext[:-2] + ', END )\n'
 
     def write(self):
-        self.lattice_file = master_subdir+'/'+self.objectname+'.lte'
+        self.lattice_file = self.global_parameters['master_subdir']+'/'+self.objectname+'.lte'
         saveFile(self.lattice_file, self.writeElements())
-        self.command_file = master_subdir+'/'+self.objectname+'.ele'
+        self.command_file = self.global_parameters['master_subdir']+'/'+self.objectname+'.ele'
         saveFile(self.command_file, self.commandFile.write())
 
     def preProcess(self):
@@ -1028,7 +1033,8 @@ class elegantLattice(frameworkLattice):
         betax=self.betax,
         betay=self.betay,
         alphax=self.alphax,
-        alphay=self.alphay)
+        alphay=self.alphay,
+        global_parameters=self.global_parameters)
 
     def postProcess(self):
         if self.trackBeam:
@@ -1038,28 +1044,29 @@ class elegantLattice(frameworkLattice):
 
     def hdf5_to_sdds(self, prefix=''):
         HDF5filename = prefix+self.particle_definition+'.hdf5'
-        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        self.global_parameters['beam'].read_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename)
         if self.bunch_charge is not None:
-            self.q = charge(name='START', type='charge',**{'total': abs(self.bunch_charge)})
+            self.q = charge(name='START', type='charge', global_parameters=self.global_parameters,**{'total': abs(self.bunch_charge)})
         else:
-            self.q = charge(name='START', type='charge',**{'total': abs(beam.charge)})
-        # print('mean cpz = ', np.mean(beam.cpz), ' prefix = ', prefix)
+            self.q = charge(name='START', type='charge', global_parameters=self.global_parameters,**{'total': abs(self.global_parameters['beam'].charge)})
+        # print('mean cpz = ', np.mean(self.global_parameters['beam'].cpz), ' prefix = ', prefix)
         sddsbeamfilename = self.objectname+'.sdds'
-        beam.write_SDDS_file(master_subdir + '/' + sddsbeamfilename, xyzoffset=self.startObject.position_start)
+        self.global_parameters['beam'].write_SDDS_file(self.global_parameters['master_subdir'] + '/' + sddsbeamfilename, xyzoffset=self.startObject.position_start)
 
     def run(self):
         """Run the code with input 'filename'"""
         if not os.name == 'nt':
-            command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(master_lattice_location,master_subdir)+'/Codes/defns.rpn'] + [self.objectname+'.ele']
+            command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(self.global_parameters['master_lattice_location'],self.global_parameters['master_subdir'])+'/Codes/defns.rpn'] + [self.objectname+'.ele']
         else:
             command = self.executables[self.code] + [self.objectname+'.ele']
         # print ('run command = ', command)
-        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
-            subprocess.call(command, stdout=f, cwd=master_subdir)
+        with open(os.path.relpath(self.global_parameters['master_subdir']+'/'+self.objectname+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.global_parameters['master_subdir'])
 
 class elegantCommandFile(object):
     def __init__(self, lattice='', *args, **kwargs):
         super(elegantCommandFile, self).__init__()
+        self.global_parameters = kwargs['global_parameters']
         self.commandObjects = OrderedDict()
         self.lattice_filename = lattice.objectname+'.lte'
 
@@ -1072,7 +1079,7 @@ class elegantCommandFile(object):
                     name = kwargs['type']
             else:
                 name = kwargs['name']
-        command = frameworkCommand(name, **kwargs)
+        command = frameworkCommand(name, global_parameters=self.global_parameters, **kwargs)
         self.commandObjects[name] = command
         return command
 
@@ -1088,13 +1095,13 @@ class elegantTrackFile(elegantCommandFile):
         self.elegantbeamfilename = elegantbeamfilename
         self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
         self.trackBeam = trackBeam
-        self.betax = betax if betax is not None else beam.beta_x
-        self.betay = betay if betay is not None else beam.beta_y
-        self.alphax = alphax if alphax is not None else beam.alpha_x
-        self.alphay = alphay if alphay is not None else beam.alpha_y
-        self.addCommand(type='global_settings', mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
+        self.betax = betax if betax is not None else self.global_parameters['beam'].beta_x
+        self.betay = betay if betay is not None else self.global_parameters['beam'].beta_y
+        self.alphax = alphax if alphax is not None else self.global_parameters['beam'].alpha_x
+        self.alphay = alphay if alphay is not None else self.global_parameters['beam'].alpha_y
+        self.addCommand(type='global_settings')#, mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
-            use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
+            use_beamline=lattice.objectname,p_central=np.mean(self.global_parameters['beam'].BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
             sigma='%s.sig', default_order=3)
         self.addCommand(type='run_control',n_steps=1, n_passes=1)
@@ -1157,9 +1164,9 @@ class mad8Lattice(frameworkLattice):
         return fulltext[:-2] + ')\n'
 
     def write(self):
-        self.lattice_file = master_subdir+'/'+self.objectname+'.mad'
+        self.lattice_file = self.global_parameters['master_subdir']+'/'+self.objectname+'.mad'
         saveFile(self.lattice_file, self.writeElements())
-        self.command_file = master_subdir+'/'+self.objectname+'.mff'
+        self.command_file = self.global_parameters['master_subdir']+'/'+self.objectname+'.mff'
         saveFile(self.command_file, self.commandFile.write())
 
     def preProcess(self):
@@ -1170,7 +1177,7 @@ class mad8Lattice(frameworkLattice):
         betax=self.betax,
         betay=self.betay,
         alphax=self.alphax,
-        alphay=self.alphay)
+        alphay=self.alphay, global_parameters=self.global_parameters)
 
     def postProcess(self):
         if self.trackBeam:
@@ -1179,18 +1186,18 @@ class mad8Lattice(frameworkLattice):
 
     def hdf5_to_tfs(self, prefix=''):
         HDF5filename = prefix+self.particle_definition+'.hdf5'
-        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        self.global_parameters['beam'].read_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename)
         tfsbeamfilename = self.objectname+'.tfs'
-        beam.write_TFS_file(master_subdir + '/' + tfsbeamfilename, xyzoffset=self.startObject.position_start)
+        self.global_parameters['beam'].write_TFS_file(self.global_parameters['master_subdir'] + '/' + tfsbeamfilename, xyzoffset=self.startObject.position_start)
 
     def run(self):
         """Run the code with input 'filename'"""
         command = self.executables[self.code] + [self.objectname+'.mff']
         # print ('run command = ', command)
-        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
-            subprocess.call(command, stdout=f, cwd=master_subdir)
+        with open(os.path.relpath(self.global_parameters['master_subdir']+'/'+self.objectname+'.log', '.'), "w") as f:
+            subprocess.call(command, stdout=f, cwd=self.global_parameters['master_subdir'])
 
-class mad8CommandFile(object):
+class mad8CommandFile(frameworkObject):
     def __init__(self, lattice='', *args, **kwargs):
         super(mad8CommandFile, self).__init__()
         self.commandObjects = OrderedDict()
@@ -1205,7 +1212,7 @@ class mad8CommandFile(object):
                     name = kwargs['type']
             else:
                 name = kwargs['name']
-        command = frameworkCommand(name, **kwargs)
+        command = frameworkCommand(name, global_parameters=self.global_parameters, **kwargs)
         self.commandObjects[name] = command
         return command
 
@@ -1221,13 +1228,13 @@ class mad8TrackFile(elegantCommandFile):
         self.mad8beamfilename = mad8beamfilename
         self.sample_interval = kwargs['sample_interval'] if 'sample_interval' in kwargs else 1
         self.trackBeam = trackBeam
-        self.betax = betax if betax is not None else beam.beta_x
-        self.betay = betay if betay is not None else beam.beta_y
-        self.alphax = alphax if alphax is not None else beam.alpha_x
-        self.alphay = alphay if alphay is not None else beam.alpha_y
-        self.addCommand(type='global_settings', mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
+        self.betax = betax if betax is not None else self.global_parameters['beam'].beta_x
+        self.betay = betay if betay is not None else self.global_parameters['beam'].beta_y
+        self.alphax = alphax if alphax is not None else self.global_parameters['beam'].alpha_x
+        self.alphay = alphay if alphay is not None else self.global_parameters['beam'].alpha_y
+        self.addCommand(type='global_settings')#, mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
-            use_beamline=lattice.objectname,p_central=np.mean(beam.BetaGamma), \
+            use_beamline=lattice.objectname,p_central=np.mean(self.global_parameters['beam'].BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
             sigma='%s.sig', default_order=3)
         self.addCommand(type='run_control',n_steps=1, n_passes=1)
@@ -1261,7 +1268,6 @@ class mad8Optimisation(mad8CommandFile):
 
     def add_optimisation_term(self, name, item=None, **kwargs):
         self.addCommand(name=name, type='optimization_term', term=item, **kwargs)
-
 
 class frameworkCommand(frameworkObject):
 
@@ -1314,7 +1320,7 @@ class astraLattice(frameworkLattice):
         # Create a "newrun" block
         if 'input' not in self.file_block:
             self.file_block['input'] = {}
-        self.headers['newrun'] = astra_newrun(self.starting_offset, self.starting_rotation, **merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
+        self.headers['newrun'] = astra_newrun(self.starting_offset, self.starting_rotation, global_parameters=self.global_parameters, **merge_two_dicts(self.file_block['input'],self.globalSettings['ASTRAsettings']))
         # If the initial distribution is derived from a generator file, we should use that
         if self.headers['newrun']['particle_definition'] == 'initial_distribution':
             self.headers['newrun']['particle_definition'] = 'laser.astra'
@@ -1324,12 +1330,12 @@ class astraLattice(frameworkLattice):
         # Create an "output" block
         if 'output' not in self.file_block:
             self.file_block['output'] = {}
-        self.headers['output'] = astra_output(self.screens_and_bpms, self.starting_offset, self.starting_rotation, **merge_two_dicts(self.file_block['output'],self.globalSettings['ASTRAsettings']))
+        self.headers['output'] = astra_output(self.screens_and_bpms, self.starting_offset, self.starting_rotation, global_parameters=self.global_parameters, **merge_two_dicts(self.file_block['output'],self.globalSettings['ASTRAsettings']))
 
         # Create a "charge" block
         if 'charge' not in self.file_block:
             self.file_block['charge'] = {}
-        self.headers['charge'] = astra_charge(**merge_two_dicts(self.file_block['charge'],self.globalSettings['ASTRAsettings']))
+        self.headers['charge'] = astra_charge(global_parameters=self.global_parameters, **merge_two_dicts(self.file_block['charge'],self.globalSettings['ASTRAsettings']))
 
         # Create an "error" block
         if 'global_errors' not in self.file_block:
@@ -1337,8 +1343,8 @@ class astraLattice(frameworkLattice):
         if 'global_errors' not in self.globalSettings:
             self.globalSettings['global_errors'] = {}
         if 'global_errors' in self.file_block or 'global_errors' in self.globalSettings:
-            self.global_error = global_error(name=self.objectname+'_global_error')
-            self.headers['global_errors'] = astra_errors(element=self.global_error, **merge_two_dicts(self.file_block['global_errors'], self.globalSettings['global_errors']))
+            self.global_error = global_error(name=self.objectname+'_global_error', global_parameters=self.global_parameters)
+            self.headers['global_errors'] = astra_errors(element=self.global_error, global_parameters=self.global_parameters, **merge_two_dicts(self.file_block['global_errors'], self.globalSettings['global_errors']))
         # print 'errors = ', self.file_block, self.headers['global_errors']
 
     @property
@@ -1384,13 +1390,13 @@ class astraLattice(frameworkLattice):
         return fulltext
 
     def write(self):
-        self.code_file = master_subdir+'/'+self.objectname+'.in'
+        self.code_file = self.global_parameters['master_subdir']+'/'+self.objectname+'.in'
         saveFile(self.code_file, self.writeElements())
 
     def preProcess(self):
         prefix = self.file_block['input']['prefix'] if 'input' in self.file_block and 'prefix' in self.file_block['input'] else ''
         self.headers['newrun'].hdf5_to_astra(prefix)
-        self.headers['charge'].npart = len(beam.x)
+        self.headers['charge'].npart = len(self.global_parameters['beam'].x)
 
     def postProcess(self):
         for e in self.screens_and_bpms:
@@ -1409,14 +1415,14 @@ class astraLattice(frameworkLattice):
         startpos = np.array(self.allElementObjects[self.start].start)-np.array(zstart)
         endpos = np.array(self.allElementObjects[self.end].end)-np.array(zstart)
         astrabeamfilename = self.objectname + '.' + str(int(round(endpos[2]*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
-        if not os.path.isfile(master_subdir + '/' + astrabeamfilename):
+        if not os.path.isfile(self.global_parameters['master_subdir'] + '/' + astrabeamfilename):
             # print('Can\'t find ASTRA beam file: ', astrabeamfilename)
             astrabeamfilename = self.objectname + '.' + str(int(round((endpos[2]-startpos[2])*1000))).zfill(4) + '.' + str(master_run_no).zfill(3)
             # print('Trying relative naming convention: ', astrabeamfilename)
-        beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
-        beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
+        self.global_parameters['beam'].read_astra_beam_file(self.global_parameters['master_subdir'] + '/' + astrabeamfilename, normaliseZ=False)
+        self.global_parameters['beam'].rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
         HDF5filename = self.allElementObjects[self.end].objectname+'.hdf5'
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.allElementObjects[self.end].middle)
+        self.global_parameters['beam'].write_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.allElementObjects[self.end].middle)
 
 class gptLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -1462,7 +1468,7 @@ class gptLattice(frameworkLattice):
         return fulltext
 
     def write(self):
-        self.code_file = master_subdir+'/'+self.objectname+'.in'
+        self.code_file = self.global_parameters['master_subdir']+'/'+self.objectname+'.in'
         saveFile(self.code_file, self.writeElements())
         return self.writeElements()
 
@@ -1480,12 +1486,12 @@ class gptLattice(frameworkLattice):
         post_command = [self.executables[self.code][0].replace('gpt','gdfa')] + ['-o', self.objectname+'_emit.gdf'] + [self.objectname+'_out.gdf'] + ['position','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
         post_command_t = [self.executables[self.code][0].replace('gpt','gdfa')] + ['-o', self.objectname+'_emitt.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','stdx','stdBx','stdy','stdBy','stdz','stdt','nemixrms','nemiyrms','nemizrms','numpar','nemirrms','avgG','avgp','stdG','avgt','avgBx','avgBy','avgBz','CSalphax','CSalphay','CSbetax','CSbetay']
         post_command_traj = [self.executables[self.code][0].replace('gpt','gdfa')] + ['-o', self.objectname+'traj.gdf'] + [self.objectname+'_out.gdf'] + ['time','avgx','avgy','avgz','G']
-        with open(os.path.relpath(master_subdir+'/'+self.objectname+'.log', '.'), "w") as f:
+        with open(os.path.relpath(self.global_parameters['master_subdir']+'/'+self.objectname+'.log', '.'), "w") as f:
             # print('gpt command = ', command)
-            subprocess.call(command, stdout=f, cwd=master_subdir, env=my_env)
-            subprocess.call(post_command, stdout=f, cwd=master_subdir)
-            subprocess.call(post_command_t, stdout=f, cwd=master_subdir)
-            subprocess.call(post_command_traj, stdout=f, cwd=master_subdir)
+            subprocess.call(command, stdout=f, cwd=self.global_parameters['master_subdir'], env=my_env)
+            subprocess.call(post_command, stdout=f, cwd=self.global_parameters['master_subdir'])
+            subprocess.call(post_command_t, stdout=f, cwd=self.global_parameters['master_subdir'])
+            subprocess.call(post_command_traj, stdout=f, cwd=self.global_parameters['master_subdir'])
 
     def postProcess(self):
         for e in self.screens_and_bpms:
@@ -1494,16 +1500,16 @@ class gptLattice(frameworkLattice):
 
     def hdf5_to_gdf(self, prefix=''):
         HDF5filename = prefix+self.particle_definition+'.hdf5'
-        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
-        # print('beam charge = ', beam.charge)
+        self.global_parameters['beam'].read_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename)
+        # print('beam charge = ', self.global_parameters['beam'].charge)
         if self.sample_interval > 1:
-            self.headers['setreduce'] = gpt_setreduce(set="\"beam\"", setreduce=len(beam.x)/self.sample_interval)
-        self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=beam.charge)
-        self.headers['tout'] = gpt_tout(starttime=min(beam.t), endpos=self.allElementObjects[self.end].end[2]/np.mean(beam.Bz), step=0.1)
+            self.headers['setreduce'] = gpt_setreduce(set="\"beam\"", setreduce=len(self.global_parameters['beam'].x)/self.sample_interval)
+        self.headers['settotalcharge'] = gpt_charge(set="\"beam\"", charge=self.global_parameters['beam'].charge)
+        self.headers['tout'] = gpt_tout(starttime=min(self.global_parameters['beam'].t), endpos=self.allElementObjects[self.end].end[2]/np.mean(self.global_parameters['beam'].Bz), step=0.1)
         gdfbeamfilename = self.particle_definition+'.gdf'
-        beam.write_gdf_beam_file(master_subdir + '/' + self.particle_definition+'.txt')
-        subprocess.call([self.executables[self.code][0].replace('gpt','asci2gdf'), '-o', gdfbeamfilename, self.particle_definition+'.txt'], cwd=master_subdir)
-        self.Brho = beam.Brho
+        self.global_parameters['beam'].write_gdf_beam_file(self.global_parameters['master_subdir'] + '/' + self.particle_definition+'.txt')
+        subprocess.call([self.executables[self.code][0].replace('gpt','asci2gdf'), '-o', gdfbeamfilename, self.particle_definition+'.txt'], cwd=self.global_parameters['master_subdir'])
+        self.Brho = self.global_parameters['beam'].Brho
 
 class csrtrackLattice(frameworkLattice):
     def __init__(self, *args, **kwargs):
@@ -1556,7 +1562,7 @@ class csrtrackLattice(frameworkLattice):
         return fulltext
 
     def write(self):
-        self.code_file = master_subdir+'/csrtrk.in'
+        self.code_file = self.global_parameters['master_subdir']+'/csrtrk.in'
         saveFile(self.code_file, self.writeElements())
 
     def preProcess(self):
@@ -1701,8 +1707,9 @@ class frameworkCounter(dict):
         return self[type]
 
 class frameworkGenerator(object):
-    def __init__(self, executables, **kwargs):
+    def __init__(self, executables, global_parameters, **kwargs):
         super(frameworkGenerator, self).__init__()
+        self.global_parameters = global_parameters
         self.executables = executables
         self.objectdefaults = {}
         self.objectproperties = {}
@@ -1723,7 +1730,7 @@ class frameworkGenerator(object):
     def run(self):
         command = self.executables['generator'] + [self.objectname+'.in']
         with open(os.devnull, "w") as f:
-            subprocess.call(command, stdout=f, cwd=master_subdir)
+            subprocess.call(command, stdout=f, cwd=self.global_parameters['master_subdir'])
 
     def load_defaults(self, defaults):
         if isinstance(defaults, str) and defaults in astra_generator_keywords['defaults']:
@@ -1787,7 +1794,7 @@ class frameworkGenerator(object):
                 keyword_dict[k] = {'value': val}
         output += self._write_ASTRA(merge_two_dicts(framework_dict, keyword_dict))
         output += '\n/\n'
-        saveFile(master_subdir+'/'+self.objectname+'.in', output)
+        saveFile(self.global_parameters['master_subdir']+'/'+self.objectname+'.in', output)
 
     @property
     def parameters(self):
@@ -1803,9 +1810,9 @@ class frameworkGenerator(object):
 
     def astra_to_hdf5(self):
         astrabeamfilename = self.filename
-        beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+        self.global_parameters['beam'].read_astra_beam_file(self.global_parameters['master_subdir'] + '/' + astrabeamfilename, normaliseZ=False)
         HDF5filename = self.filename.replace('.generator','.hdf5')
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
+        self.global_parameters['beam'].write_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename)
 
 class frameworkElement(frameworkObject):
 
@@ -2541,7 +2548,7 @@ class solenoid(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['S_pos', {'value': self.start[2] + self.dz, 'default': 0}],
-            ['FILE_BFieLD', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'')+'\''}],
+            ['FILE_BFieLD', {'value': ''+expand_substitution(self, '\''+self.field_definition+'\'')+''}],
             ['MaxB', {'value': self.field_amplitude, 'default': 0}],
             ['S_smooth', {'value': self.smooth, 'default': 10}],
             ['S_xoff', {'value': self.start[0] + self.dx, 'default': 0}],
@@ -2704,28 +2711,28 @@ class screen(frameworkElement):
         astrabeamfilename = None
         for i in [0, -0.001, 0.001]:
             tempfilename = lattice + '.' + str(int(round((self.middle[2]+i-self.zstart[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
-            if os.path.isfile(master_subdir + '/' + tempfilename):
+            if os.path.isfile(self.global_parameters['master_subdir'] + '/' + tempfilename):
                 astrabeamfilename = tempfilename
         if astrabeamfilename is None:
             print(( 'Screen Error: ', lattice, self.middle[2], self.zstart[2]))
         else:
-            beam.read_astra_beam_file((master_subdir + '/' + astrabeamfilename).strip('\"'), normaliseZ=False)
-            beam.rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
+            self.global_parameters['beam'].read_astra_beam_file((self.global_parameters['master_subdir'] + '/' + astrabeamfilename).strip('\"'), normaliseZ=False)
+            self.global_parameters['beam'].rotate_beamXZ(-1*self.starting_rotation, preOffset=[0,0,0], postOffset=-1*np.array(self.starting_offset))
             HDF5filename = (self.objectname+'.hdf5').strip('\"')
-            beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
+            self.global_parameters['beam'].write_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename, centered=False, sourcefilename=astrabeamfilename, pos=self.middle)
 
     def sdds_to_hdf5(self):
         elegantbeamfilename = self.output_filename.replace('.sdds','.SDDS').strip('\"')
-        beam.read_SDDS_beam_file(master_subdir + '/' + elegantbeamfilename)
+        self.global_parameters['beam'].read_SDDS_beam_file(self.global_parameters['master_subdir'] + '/' + elegantbeamfilename)
         HDF5filename = self.output_filename.replace('.sdds','.hdf5').replace('.SDDS','.hdf5').strip('\"')
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle, zoffset=self.end)
+        self.global_parameters['beam'].write_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename, centered=False, sourcefilename=elegantbeamfilename, pos=self.middle, zoffset=self.end)
 
     def gdf_to_hdf5(self, gptbeamfilename):
         # gptbeamfilename = self.objectname + '.' + str(int(round((self.allElementObjects[self.end].position_end[2])*100))).zfill(4) + '.' + str(master_run_no).zfill(3)
         try:
-            beam.read_gdf_beam_file(master_subdir + '/' + gptbeamfilename, position=self.gpt_screen_position)
+            self.global_parameters['beam'].read_gdf_beam_file(self.global_parameters['master_subdir'] + '/' + gptbeamfilename, position=self.gpt_screen_position)
             HDF5filename = self.objectname+'.hdf5'
-            beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, centered=False, sourcefilename=gptbeamfilename)
+            self.global_parameters['beam'].write_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename, centered=False, sourcefilename=gptbeamfilename)
         except:
             pass
 
@@ -3046,10 +3053,10 @@ class astra_newrun(astra_header):
 
     def hdf5_to_astra(self, prefix=''):
         HDF5filename = prefix+self.particle_definition.replace('.astra','')+'.hdf5'
-        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
-        beam.rotate_beamXZ(self.starting_rotation, preOffset=self.starting_offset)
+        self.global_parameters['beam'].read_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename)
+        self.global_parameters['beam'].rotate_beamXZ(self.starting_rotation, preOffset=self.starting_offset)
         astrabeamfilename = self.particle_definition
-        beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+        self.global_parameters['beam'].write_astra_beam_file(self.global_parameters['master_subdir'] + '/' + astrabeamfilename, normaliseZ=False)
 
 class astra_output(astra_header):
     def __init__(self, screens, offset, rotation, **kwargs):
@@ -3210,8 +3217,8 @@ class csrtrack_track_step(csrtrack_element):
 
 class csrtrack_tracker(csrtrack_element):
 
-    def __init__(self, end_time_marker=''):
-        super(csrtrack_tracker, self).__init__('tracker', 'csrtrack_tracker')
+    def __init__(self, end_time_marker='', **kwargs):
+        super(csrtrack_tracker, self).__init__('tracker', 'csrtrack_tracker', **kwargs)
         self.header = 'tracker'
         self.end_time_marker = end_time_marker
 
@@ -3224,10 +3231,10 @@ class csrtrack_monitor(csrtrack_element):
     def csrtrack_to_hdf5(self):
         csrtrackbeamfilename = self.name
         astrabeamfilename = csrtrackbeamfilename.replace('.fmt2','.astra')
-        beam.convert_csrtrackfile_to_astrafile(master_subdir + '/' + csrtrackbeamfilename, master_subdir + '/' + astrabeamfilename)
-        beam.read_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+        self.global_parameters['beam'].convert_csrtrackfile_to_astrafile(self.global_parameters['master_subdir'] + '/' + csrtrackbeamfilename, self.global_parameters['master_subdir'] + '/' + astrabeamfilename)
+        self.global_parameters['beam'].read_astra_beam_file(self.global_parameters['master_subdir'] + '/' + astrabeamfilename, normaliseZ=False)
         HDF5filename = self.name.replace('.fmt2','.hdf5')
-        beam.write_HDF5_beam_file(master_subdir + '/' + HDF5filename, sourcefilename=csrtrackbeamfilename)
+        self.global_parameters['beam'].write_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename, sourcefilename=csrtrackbeamfilename)
 
 class csrtrack_particles(csrtrack_element):
 
@@ -3237,17 +3244,17 @@ class csrtrack_particles(csrtrack_element):
 
     # def hdf5_to_astra(self):
     #     HDF5filename = self.particle_definition+'.hdf5'
-    #     beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+    #     self.global_parameters['beam'].read_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename)
     #     astrabeamfilename = self.particle_definition+'.astra'
-    #     beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+    #     self.global_parameters['beam'].write_astra_beam_file(self.global_parameters['master_subdir'] + '/' + astrabeamfilename, normaliseZ=False)
     def hdf5_to_astra(self, prefix=''):
         # print 'self.particle_definition = ', self.particle_definition
         HDF5filename = prefix+self.particle_definition.replace('.astra','')+'.hdf5'
-        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
+        self.global_parameters['beam'].read_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename)
         # print 'self.theta = ', self.theta
-        # beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
+        # self.global_parameters['beam'].rotate_beamXZ(self.theta, preOffset=self.starting_offset)
         astrabeamfilename = self.particle_definition+'.astra'
-        beam.write_astra_beam_file(master_subdir + '/' + astrabeamfilename, normaliseZ=False)
+        self.global_parameters['beam'].write_astra_beam_file(self.global_parameters['master_subdir'] + '/' + astrabeamfilename, normaliseZ=False)
 
 class gpt_element(frameworkElement):
 
@@ -3276,10 +3283,10 @@ class gpt_setfile(gpt_element):
 
     def hdf5_to_gpt(self, prefix=''):
         HDF5filename = prefix+self.particle_definition.replace('.gdf','')+'.hdf5'
-        beam.read_HDF5_beam_file(master_subdir + '/' + HDF5filename)
-        # beam.rotate_beamXZ(self.theta, preOffset=self.starting_offset)
+        self.global_parameters['beam'].read_HDF5_beam_file(self.global_parameters['master_subdir'] + '/' + HDF5filename)
+        # self.global_parameters['beam'].rotate_beamXZ(self.theta, preOffset=self.starting_offset)
         gptbeamfilename = self.particle_definition
-        beam.write_gdf_beam_file(master_subdir + '/' + gptbeamfilename, normaliseZ=False)
+        self.global_parameters['beam'].write_gdf_beam_file(self.global_parameters['master_subdir'] + '/' + gptbeamfilename, normaliseZ=False)
 
 class gpt_charge(gpt_element):
 
