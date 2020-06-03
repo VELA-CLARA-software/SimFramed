@@ -179,7 +179,7 @@ class Framework(Munch):
         self.latticeObjects = OrderedDict()
         self.commandObjects = OrderedDict()
         self.groupObjects = OrderedDict()
-
+        self.progress = 0
         self.basedirectory = os.getcwd()
         self.filedirectory = os.path.dirname(os.path.abspath(__file__))
         self.overwrite = overwrite
@@ -549,6 +549,7 @@ class Framework(Munch):
         return list(self.commandObjects.keys())
 
     def track(self, files=None, startfile=None, endfile=None, preprocess=True, write=True, track=True, postprocess=True):
+        self.progress = 0
         if files is None:
             files = ['generator'] + self.lines if hasattr(self, 'generator') else self.lines
         if startfile is not None and startfile in files:
@@ -565,6 +566,7 @@ class Framework(Munch):
             format_custom_text.update_mapping(running=files[0]+'  ')
             for i in bar(list(range(len(files)))):
                 l = files[i]
+                self.progress = 100. * (i+1)/len(files)
                 if l == 'generator' and hasattr(self, 'generator'):
                     format_custom_text.update_mapping(running='Generator  ')
                     if write:
@@ -587,30 +589,31 @@ class Framework(Munch):
                     if postprocess:
                         self.latticeObjects[l].postProcess()
         else:
-            # print('files = ', files)
             for i in range(len(files)):
                 l = files[i]
-                # print('l = ', l)
+                self.progress = 100. * (i)/len(files)
                 if l == 'generator' and hasattr(self, 'generator'):
                     if write:
                         self.generator.write()
+                    self.progress = 100. * (i+0.33)/len(files)
                     if track:
                         self.generator.run()
+                    self.progress = 100. * (i+0.66)/len(files)
                     if postprocess:
                         self.generator.astra_to_hdf5()
                 else:
                     if preprocess:
-                        # print('preprocess ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].preProcess()
+                    self.progress = 100. * (i+0.25)/len(files)
                     if write:
-                        # print('write ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].write()
+                    self.progress = 100. * (i+0.5)/len(files)
                     if track:
-                        # print('track ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].run()
+                    self.progress = 100. * (i+0.75)/len(files)
                     if postprocess:
-                        # print('postprocess ', self.global_parameters['master_subdir'])
                         self.latticeObjects[l].postProcess()
+            self.progress = 100
 
 class frameworkLattice(Munch):
     def __init__(self, name, file_block, elementObjects, groupObjects, settings, executables, global_parameters):
@@ -1099,7 +1102,7 @@ class elegantTrackFile(elegantCommandFile):
         self.betay = betay if betay is not None else self.global_parameters['beam'].beta_y
         self.alphax = alphax if alphax is not None else self.global_parameters['beam'].alpha_x
         self.alphay = alphay if alphay is not None else self.global_parameters['beam'].alpha_y
-        self.addCommand(type='global_settings')#, mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
+        self.addCommand(type='global_settings', mpi_io_read_buffer_size=262144, mpi_io_write_buffer_size=262144)
         self.addCommand(type='run_setup',lattice=self.lattice_filename, \
             use_beamline=lattice.objectname,p_central=np.mean(self.global_parameters['beam'].BetaGamma), \
             centroid='%s.cen',always_change_p0 = 1, \
