@@ -53,9 +53,9 @@ class Executables(object):
             if 'apclara1' in self.hostname:
                 self.astra = ['mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_MPICH2.sh']
             elif 'apclara2' in self.hostname:
-                self.astra =  ['/usr/lib64/compat-openmpi16/bin/mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_r62_Linux_x86_64_OpenMPI_sld6']
+                self.astra =  ['salloc','-n',str(ncpu),'/usr/lib64/compat-openmpi16/bin/mpirun','/opt/ASTRA/astra_r62_Linux_x86_64_OpenMPI_sld6']
             elif 'apclara3' in self.hostname:
-                self.astra =  ['/usr/lib64/compat-openmpi16/bin/mpiexec','-np',str(ncpu),'/opt/ASTRA/astra_r62_Linux_x86_64_OpenMPI_sld6']
+                self.astra =  ['salloc','-n',str(ncpu),'/usr/lib64/compat-openmpi16/bin/mpirun','/opt/ASTRA/astra_r62_Linux_x86_64_OpenMPI_sld6']
         else:
             self.astra =  [self.master_lattice_location+'Codes/astra']
 
@@ -71,9 +71,9 @@ class Executables(object):
                 if 'apclara1' in self.hostname:
                     self.elegant = ['/opt/MPICH2-3.2/bin/mpiexec','-np',str(ncpu),'Pelegant']
                 elif 'apclara2' in self.hostname:
-                    self.elegant = ['/usr/lib64/mpich-3.2/bin/mpiexec','-np',str(ncpu),'Pelegant']
+                    self.elegant = ['srun','--mpi=pmi2','-n',str(ncpu),'Pelegant']
                 elif 'apclara3' in self.hostname:
-                    self.elegant = ['/usr/lib64/mpich-3.2/bin/mpiexec','-np',str(ncpu),'Pelegant']
+                    self.elegant = ['srun','--mpi=pmi2','-n',str(ncpu),'Pelegant']
             else:
                 self.elegant = ['mpiexec','-np',str(ncpu),'Pelegant']
         else:
@@ -81,9 +81,9 @@ class Executables(object):
                 if 'apclara1' in self.hostname:
                     self.elegant = ['elegant']
                 elif 'apclara2' in self.hostname:
-                    self.elegant = ['elegant']
+                    self.elegant = ['srun','elegant']
                 elif 'apclara3' in self.hostname:
-                    self.elegant = ['elegant']
+                    self.elegant = ['srun','elegant']
             else:
                 self.elegant = ['elegant']
 
