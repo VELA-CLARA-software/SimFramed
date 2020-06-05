@@ -110,7 +110,10 @@ class multiPlotWidget(QWidget):
                     if not param == 'next_row':
                         ''' Remove the plotItem from the relevant plotWidget '''
                         print('REMOVING curve: ', name)
-                        self.multiPlotWidgets[param['label']].removeItem(self.curves[n][param['label']])
+                        try:
+                            self.multiPlotWidgets[param['label']].removeItem(self.curves[n][param['label']])
+                        except:
+                            pass
                 del self.curves[n]
 
     def clearCurves(self):
