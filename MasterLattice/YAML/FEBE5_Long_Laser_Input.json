@@ -3,7 +3,7 @@
 		"CLA-FEA-MAG-QUAD-15":{
 			"type":"quadrupole",
 			"length":0.21,
-			"k1l":1.494741,
+			"k1l":1.547866,
 			"global_rotation":[
 				0,
 				0,
@@ -42,7 +42,7 @@
 		"CLA-FEA-MAG-QUAD-16":{
 			"type":"quadrupole",
 			"length":0.21,
-			"k1l":-0.83907,
+			"k1l":-0.853439,
 			"global_rotation":[
 				0,
 				0,
@@ -128,12 +128,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				6.376084e1
+				6.38308e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				6.344084e1
+				6.35108e1
 			]
 		},
 		"CLA-FEH-WALL-01-START":{
@@ -172,25 +172,6 @@
 				3.680751,
 				0,
 				6.545184e1
-			]
-		},
-		"CLA-FEH-VAC-BELLOW-01":{
-			"type":"bellows",
-			"length":9.0e-2,
-			"global_rotation":[
-				0,
-				0,
-				0
-			],
-			"position_end":[
-				3.680751,
-				0,
-				6.55648e1
-			],
-			"position_start":[
-				3.680751,
-				0,
-				6.54748e1
 			]
 		},
 		"CLA-FEH-LAS-ENTR-01-START":{
@@ -272,7 +253,7 @@
 		"CLA-FEH-MAG-QUAD-01-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-1.737113,
+			"k1l":-1.736535,
 			"global_rotation":[
 				0,
 				0,
@@ -311,7 +292,7 @@
 		"CLA-FEH-MAG-QUAD-02-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":2.161009,
+			"k1l":2.160786,
 			"global_rotation":[
 				0,
 				0,
@@ -378,12 +359,12 @@
 			"position_end":[
 				3.68075,
 				0,
-				6.76225e1
+				6.77345e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				6.76225e1
+				6.77345e1
 			]
 		},
 		"CLA-FEH-ECOLL-01":{
@@ -458,12 +439,12 @@
 			"position_end":[
 				3.68075,
 				0,
-				6.96575e1
+				6.95755e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				6.96575e1
+				6.95755e1
 			]
 		},
 		"CLA-FEH-DIA-SCR-02":{
@@ -489,7 +470,7 @@
 		"CLA-FEH-MAG-QUAD-03-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":2.161009,
+			"k1l":2.160786,
 			"global_rotation":[
 				0,
 				0,
@@ -528,7 +509,7 @@
 		"CLA-FEH-MAG-QUAD-04-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-1.737113,
+			"k1l":-1.736535,
 			"global_rotation":[
 				0,
 				0,
@@ -689,18 +670,18 @@
 			"position_end":[
 				3.68075,
 				0,
-				7.1819e1
+				7.178326e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				7.173e1
+				7.169426e1
 			]
 		},
 		"CLA-FEH-MAG-QUAD-05-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-1.737113,
+			"k1l":-1.736535,
 			"global_rotation":[
 				0,
 				0,
@@ -739,7 +720,7 @@
 		"CLA-FEH-MAG-QUAD-06-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":2.161009,
+			"k1l":2.160786,
 			"global_rotation":[
 				0,
 				0,
@@ -806,12 +787,12 @@
 			"position_end":[
 				3.68075,
 				0,
-				7.25775e1
+				7.26645e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				7.25775e1
+				7.26645e1
 			]
 		},
 		"CLA-FEH-FOCUS-02":{
@@ -844,12 +825,12 @@
 			"position_end":[
 				3.68075,
 				0,
-				7.45875e1
+				7.45055e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				7.45875e1
+				7.45055e1
 			]
 		},
 		"CLA-FEH-DIA-SCR-04":{
@@ -875,7 +856,7 @@
 		"CLA-FEH-MAG-QUAD-07-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":2.251311,
+			"k1l":2.232481,
 			"global_rotation":[
 				0,
 				0,
@@ -914,7 +895,7 @@
 		"CLA-FEH-MAG-QUAD-08-CORR":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":-1.757818,
+			"k1l":-1.777059,
 			"global_rotation":[
 				0,
 				0,
@@ -1010,7 +991,7 @@
 		"CLA-FED-MAG-QUAD-01":{
 			"type":"quadrupole",
 			"length":0.21,
-			"k1l":-0.417333,
+			"k1l":-0.4306395,
 			"global_rotation":[
 				0,
 				0,
@@ -1025,25 +1006,6 @@
 				3.680751,
 				0,
 				7.7216195e1
-			]
-		},
-		"CLA-FED-VAC-BELLOW-01":{
-			"type":"bellows",
-			"length":9.0e-2,
-			"global_rotation":[
-				0,
-				0,
-				0
-			],
-			"position_end":[
-				3.680751,
-				0,
-				7.757589e1
-			],
-			"position_start":[
-				3.680751,
-				0,
-				7.748589e1
 			]
 		},
 		"CLA-FED-SHUT-01":{
@@ -1066,29 +1028,10 @@
 				7.757589e1
 			]
 		},
-		"CLA-FED-VAC-BELLOW-02":{
-			"type":"bellows",
-			"length":9.0e-2,
-			"global_rotation":[
-				0,
-				0,
-				0
-			],
-			"position_end":[
-				3.680751,
-				0,
-				7.798589e1
-			],
-			"position_start":[
-				3.680751,
-				0,
-				7.789589e1
-			]
-		},
 		"CLA-FED-MAG-QUAD-02":{
 			"type":"quadrupole",
 			"length":0.21,
-			"k1l":0.491842,
+			"k1l":0.5156186,
 			"global_rotation":[
 				0,
 				0,
@@ -1124,25 +1067,6 @@
 				7.842e1
 			]
 		},
-		"CLA-FED-VAC-BELLOW-03":{
-			"type":"bellows",
-			"length":9.0e-2,
-			"global_rotation":[
-				0,
-				0,
-				0
-			],
-			"position_end":[
-				3.680751,
-				0,
-				7.8657e1
-			],
-			"position_start":[
-				3.680751,
-				0,
-				7.8567e1
-			]
-		},
 		"CLA-FED-DIA-BPM-01":{
 			"type":"beam_position_monitor",
 			"length":0.21,
@@ -1174,31 +1098,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				7.9017e1
+				7.9025e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				7.8867e1
-			]
-		},
-		"CLA-FED-VAC-BELLOW-04":{
-			"type":"bellows",
-			"length":9.0e-2,
-			"global_rotation":[
-				0,
-				0,
-				0
-			],
-			"position_end":[
-				3.680751,
-				0,
-				7.9107e1
-			],
-			"position_start":[
-				3.680751,
-				0,
-				7.9017e1
+				7.8875e1
 			]
 		},
 		"CLA-FED-MAG-DIP-01":{
@@ -1223,25 +1128,6 @@
 				7.93801e1
 			]
 		},
-		"CLA-FED-VAC-BELLOW-05":{
-			"type":"bellows",
-			"length":9.0e-2,
-			"global_rotation":[
-				0,
-				0,
-				0.3490658504
-			],
-			"position_end":[
-				3.50647,
-				0,
-				8.01115e1
-			],
-			"position_start":[
-				3.53725,
-				0,
-				8.00269e1
-			]
-		},
 		"CLA-FED-DIA-BPM-02":{
 			"type":"beam_position_monitor",
 			"length":0.21,
@@ -1251,20 +1137,20 @@
 				0.3490658504
 			],
 			"position_end":[
-				3.43464,
+				3.419002,
 				0,
-				8.03088e1
+				8.0351817e1
 			],
 			"position_start":[
-				3.50647,
+				3.490826,
 				0,
-				8.01115e1
+				8.0154482e1
 			]
 		},
 		"CLA-FED-MAG-QUAD-03":{
 			"type":"quadrupole",
 			"length":0.277,
-			"k1l":0.354379,
+			"k1l":0.3542677,
 			"global_rotation":[
 				0,
 				0,
@@ -1279,25 +1165,6 @@
 				3.37855,
 				0,
 				8.0463e1
-			]
-		},
-		"CLA-FED-VAC-BELLOW-06":{
-			"type":"bellows",
-			"length":9.0e-2,
-			"global_rotation":[
-				0,
-				0,
-				0.3490658504
-			],
-			"position_end":[
-				2.91478,
-				0,
-				8.17372e1
-			],
-			"position_start":[
-				2.94556,
-				0,
-				8.16526e1
 			]
 		},
 		"CLA-FED-DIA-SCR-02-WIDE":{
