@@ -216,12 +216,18 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [3.68075, 0, 71.695]
     position_start: [3.68075, 0, 71.695]
-  CLA-FEH-DIA-BPM-03:
-    type: beam_position_monitor
-    length: 0.089
+  CLA-FEH-DIA-ICT-01:
+    type: integrated_current_transformer
+    length: 0.04
     global_rotation: [0, 0, 0]
-    position_end: [3.68075, 0, 71.78326]
-    position_start: [3.68075, 0, 71.69426]
+    position_end: [3.68075, 0, 71.7552]
+    position_start: [3.68075, 0, 71.7152]
+  CLA-FEH-DIA-BPM-03-INSIDE:
+    type: beam_position_monitor
+    length: 0.059
+    global_rotation: [0, 0, 0]
+    position_end: [3.68075, 0, 71.819]
+    position_start: [3.68075, 0, 71.76]
   CLA-FEH-MAG-QUAD-05-CORR:
     type: quadrupole
     length: 0.277
@@ -306,12 +312,12 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [3.68075, 0, 75.351]
     position_start: [3.68075, 0, 75.351]
-  CLA-FEH-DIA-BPM-04:
+  CLA-FEH-DIA-BPM-04-INSIDE:
     type: beam_position_monitor
-    length: 0.195845
+    length: 0.089265
     global_rotation: [0, 0, 0]
     position_end: [3.68075, 0, 75.546845]
-    position_start: [3.68075, 0, 75.351]
+    position_start: [3.68075, 0, 75.4576]
   CLA-FEH-WALL-02-START:
     type: marker
     fit_point: 1.0
@@ -355,8 +361,8 @@ elements:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    position_end: [3.680751, 0, 78.867]
-    position_start: [3.680751, 0, 78.657]
+    position_end: [3.680751, 0, 78.7718]
+    position_start: [3.680751, 0, 78.5618]
   CLA-FED-DIA-SCR-01-OTR:
     type: screen
     length: 0.15
@@ -391,8 +397,8 @@ elements:
     length: 0.15
     output_filename: '"CLA-FED-DIA-SCR-10-WIDE.SDDS"'
     global_rotation: [0, 0, 0.3490658504]
-    position_end: [2.86348, 0, 81.8781]
-    position_start: [2.91478, 0, 81.7372]
+    position_end: [2.858206, 0, 81.892635]
+    position_start: [2.909509, 0, 81.751681]
   CLA-FED-DUMP-01-START:
     type: marker
     fit_point: 1.0
