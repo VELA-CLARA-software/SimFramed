@@ -54,10 +54,10 @@ elements:
     length: 0.32
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 63.60084]
-    start: [3.680751, 0.0, 63.44084]
-    end: [3.680751, 0.0, 63.76084]
-    datum: [3.680751, 0.0, 63.60084]
+    centre: [3.680751, 0.0, 63.6708]
+    start: [3.680751, 0.0, 63.5108]
+    end: [3.680751, 0.0, 63.8308]
+    datum: [3.680751, 0.0, 63.6708]
   CLA-FEH-WALL-01-START:
     type: marker
     fit_point: 1.0
@@ -74,14 +74,6 @@ elements:
     start: [3.680751, 0.0, 65.45184]
     end: [3.680751, 0.0, 65.45184]
     datum: [3.680751, 0.0, 65.45184]
-  CLA-FEH-VAC-BELLOW-01:
-    type: bellows
-    length: 0.09
-    global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 65.5198]
-    start: [3.680751, 0.0, 65.4748]
-    end: [3.680751, 0.0, 65.5648]
-    datum: [3.680751, 0.0, 65.5198]
   CLA-FEH-LAS-ENTR-01-START:
     type: marker
     fit_point: 1.0
@@ -160,10 +152,10 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [3.68075, 0.0, 67.6225]
-    start: [3.68075, 0.0, 67.6225]
-    end: [3.68075, 0.0, 67.6225]
-    datum: [3.68075, 0.0, 67.6225]
+    centre: [3.68075, 0.0, 67.7345]
+    start: [3.68075, 0.0, 67.7345]
+    end: [3.68075, 0.0, 67.7345]
+    datum: [3.68075, 0.0, 67.7345]
   CLA-FEH-ECOLL-01:
     type: aperture
     horizontal_size: 1.0
@@ -196,10 +188,10 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [3.68075, 0.0, 69.6575]
-    start: [3.68075, 0.0, 69.6575]
-    end: [3.68075, 0.0, 69.6575]
-    datum: [3.68075, 0.0, 69.6575]
+    centre: [3.68075, 0.0, 69.5755]
+    start: [3.68075, 0.0, 69.5755]
+    end: [3.68075, 0.0, 69.5755]
+    datum: [3.68075, 0.0, 69.5755]
   CLA-FEH-DIA-SCR-02:
     type: screen
     length: 0.15
@@ -290,14 +282,22 @@ elements:
     start: [3.68075, 0.0, 71.695]
     end: [3.68075, 0.0, 71.695]
     datum: [3.68075, 0.0, 71.695]
-  CLA-FEH-DIA-BPM-03:
-    type: beam_position_monitor
-    length: 0.089
+  CLA-FEH-DIA-ICT-01:
+    type: integrated_current_transformer
+    length: 0.04
     global_rotation: [0, 0, 0]
-    centre: [3.68075, 0.0, 71.7745]
-    start: [3.68075, 0.0, 71.73]
+    centre: [3.68075, 0.0, 71.7352]
+    start: [3.68075, 0.0, 71.7152]
+    end: [3.68075, 0.0, 71.7552]
+    datum: [3.68075, 0.0, 71.7352]
+  CLA-FEH-DIA-BPM-03-INSIDE:
+    type: beam_position_monitor
+    length: 0.059
+    global_rotation: [0, 0, 0]
+    centre: [3.68075, 0.0, 71.7895]
+    start: [3.68075, 0.0, 71.76]
     end: [3.68075, 0.0, 71.819]
-    datum: [3.68075, 0.0, 71.7048]
+    datum: [3.68075, 0.0, 71.7953]
   CLA-FEH-MAG-QUAD-05-CORR:
     type: quadrupole
     length: 0.277
@@ -344,10 +344,10 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [3.68075, 0.0, 72.5775]
-    start: [3.68075, 0.0, 72.5775]
-    end: [3.68075, 0.0, 72.5775]
-    datum: [3.68075, 0.0, 72.5775]
+    centre: [3.68075, 0.0, 72.6645]
+    start: [3.68075, 0.0, 72.6645]
+    end: [3.68075, 0.0, 72.6645]
+    datum: [3.68075, 0.0, 72.6645]
   CLA-FEH-FOCUS-02:
     type: marker
     fit_point: 1.0
@@ -360,10 +360,10 @@ elements:
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [3.68075, 0.0, 74.5875]
-    start: [3.68075, 0.0, 74.5875]
-    end: [3.68075, 0.0, 74.5875]
-    datum: [3.68075, 0.0, 74.5875]
+    centre: [3.68075, 0.0, 74.5055]
+    start: [3.68075, 0.0, 74.5055]
+    end: [3.68075, 0.0, 74.5055]
+    datum: [3.68075, 0.0, 74.5055]
   CLA-FEH-DIA-SCR-04:
     type: screen
     length: 0.15
@@ -406,14 +406,14 @@ elements:
     start: [3.68075, 0.0, 75.351]
     end: [3.68075, 0.0, 75.351]
     datum: [3.68075, 0.0, 75.351]
-  CLA-FEH-DIA-BPM-04:
+  CLA-FEH-DIA-BPM-04-INSIDE:
     type: beam_position_monitor
-    length: 0.195845
+    length: 0.089265
     global_rotation: [0, 0, 0]
-    centre: [3.68075, 0.0, 75.448922]
-    start: [3.68075, 0.0, 75.351]
-    end: [3.68075, 0.0, 75.546845]
-    datum: [3.68075, 0.0, 75.379222]
+    centre: [3.68075, 0.0, 75.502232]
+    start: [3.68075, 0.0, 75.4576]
+    end: [3.68075, 0.0, 75.546865]
+    datum: [3.68075, 0.0, 75.4929]
   CLA-FEH-WALL-02-START:
     type: marker
     fit_point: 1.0
@@ -439,14 +439,6 @@ elements:
     start: [3.680751, 0.0, 77.216195]
     end: [3.680751, 0.0, 77.426195]
     datum: [3.680751, 0.0, 77.321195]
-  CLA-FED-VAC-BELLOW-01:
-    type: bellows
-    length: 0.09
-    global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 77.53089]
-    start: [3.680751, 0.0, 77.48589]
-    end: [3.680751, 0.0, 77.57589]
-    datum: [3.680751, 0.0, 77.53089]
   CLA-FED-SHUT-01:
     type: shutter
     length: 0.32
@@ -456,14 +448,6 @@ elements:
     start: [3.680751, 0.0, 77.57589]
     end: [3.680751, 0.0, 77.89589]
     datum: [3.680751, 0.0, 77.73589]
-  CLA-FED-VAC-BELLOW-02:
-    type: bellows
-    length: 0.09
-    global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 77.94089]
-    start: [3.680751, 0.0, 77.89589]
-    end: [3.680751, 0.0, 77.98589]
-    datum: [3.680751, 0.0, 77.94089]
   CLA-FED-MAG-QUAD-02:
     type: quadrupole
     length: 0.21
@@ -481,38 +465,22 @@ elements:
     start: [3.680751, 0.0, 78.42]
     end: [3.680751, 0.0, 78.52]
     datum: [3.680751, 0.0, 78.47]
-  CLA-FED-VAC-BELLOW-03:
-    type: bellows
-    length: 0.09
-    global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 78.612]
-    start: [3.680751, 0.0, 78.567]
-    end: [3.680751, 0.0, 78.657]
-    datum: [3.680751, 0.0, 78.612]
   CLA-FED-DIA-BPM-01:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 78.762]
-    start: [3.680751, 0.0, 78.657]
-    end: [3.680751, 0.0, 78.867]
-    datum: [3.680751, 0.0, 78.6923]
+    centre: [3.680751, 0.0, 78.6668]
+    start: [3.680751, 0.0, 78.5618]
+    end: [3.680751, 0.0, 78.7718]
+    datum: [3.680751, 0.0, 78.5971]
   CLA-FED-DIA-SCR-01-OTR:
     type: screen
     length: 0.15
     global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 78.942]
-    start: [3.680751, 0.0, 78.867]
-    end: [3.680751, 0.0, 79.017]
-    datum: [3.680751, 0.0, 78.9253]
-  CLA-FED-VAC-BELLOW-04:
-    type: bellows
-    length: 0.09
-    global_rotation: [0, 0, 0]
-    centre: [3.680751, 0.0, 79.062]
-    start: [3.680751, 0.0, 79.017]
-    end: [3.680751, 0.0, 79.107]
-    datum: [3.680751, 0.0, 79.062]
+    centre: [3.680751, 0.0, 78.95]
+    start: [3.680751, 0.0, 78.875]
+    end: [3.680751, 0.0, 79.025]
+    datum: [3.680751, 0.0, 78.9333]
   CLA-FED-MAG-DIP-01:
     type: dipole
     length: 0.5
@@ -527,22 +495,14 @@ elements:
     arc_centre: [3.65899, 0.0, 79.628833]
     line_centre: [3.637559, 0.0, 79.625054]
     TD_centre: [3.648274, 0.0, 79.626943]
-  CLA-FED-VAC-BELLOW-05:
-    type: bellows
-    length: 0.09
-    global_rotation: [0, 0, 0.3490658504]
-    centre: [3.521859, 0.0, 80.069186]
-    start: [3.53725, 0.0, 80.0269]
-    end: [3.506468, 0.0, 80.111472]
-    datum: [3.521859, 0.0, 80.069186]
   CLA-FED-DIA-BPM-02:
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0.3490658504]
-    centre: [3.470558, 0.0, 80.210168]
-    start: [3.50647, 0.0, 80.1115]
-    end: [3.434646, 0.0, 80.308835]
-    datum: [3.494397, 0.0, 80.144671]
+    centre: [3.454914, 0.0, 80.25315]
+    start: [3.490826, 0.0, 80.154482]
+    end: [3.419002, 0.0, 80.351817]
+    datum: [3.478753, 0.0, 80.187653]
   CLA-FED-MAG-QUAD-03:
     type: quadrupole
     length: 0.277
@@ -552,22 +512,14 @@ elements:
     start: [3.37855, 0.0, 80.463]
     end: [3.28381, 0.0, 80.723295]
     datum: [3.33118, 0.0, 80.593147]
-  CLA-FED-VAC-BELLOW-06:
-    type: bellows
-    length: 0.09
-    global_rotation: [0, 0, 0.3490658504]
-    centre: [2.930169, 0.0, 81.694886]
-    start: [2.94556, 0.0, 81.6526]
-    end: [2.914778, 0.0, 81.737172]
-    datum: [2.930169, 0.0, 81.694886]
   CLA-FED-DIA-SCR-02-WIDE:
     type: screen
     length: 0.15
     global_rotation: [0, 0, 0.3490658504]
-    centre: [2.889128, 0.0, 81.807677]
-    start: [2.91478, 0.0, 81.7372]
-    end: [2.863477, 0.0, 81.878154]
-    datum: [2.89484, 0.0, 81.791984]
+    centre: [2.883857, 0.0, 81.822158]
+    start: [2.909509, 0.0, 81.751681]
+    end: [2.858206, 0.0, 81.892635]
+    datum: [2.889569, 0.0, 81.806465]
   CLA-FED-DUMP-01-START:
     type: marker
     fit_point: 1.0

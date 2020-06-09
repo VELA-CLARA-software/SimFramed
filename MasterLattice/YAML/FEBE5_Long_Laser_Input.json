@@ -659,9 +659,9 @@
 				7.1695e1
 			]
 		},
-		"CLA-FEH-DIA-BPM-03":{
-			"type":"beam_position_monitor",
-			"length":8.9e-2,
+		"CLA-FEH-DIA-ICT-01":{
+			"type":"integrated_current_transformer",
+			"length":4.0e-2,
 			"global_rotation":[
 				0,
 				0,
@@ -670,12 +670,31 @@
 			"position_end":[
 				3.68075,
 				0,
-				7.178326e1
+				7.17552e1
 			],
 			"position_start":[
 				3.68075,
 				0,
-				7.169426e1
+				7.17152e1
+			]
+		},
+		"CLA-FEH-DIA-BPM-03-INSIDE":{
+			"type":"beam_position_monitor",
+			"length":5.9e-2,
+			"global_rotation":[
+				0,
+				0,
+				0
+			],
+			"position_end":[
+				3.68075,
+				0,
+				7.1819e1
+			],
+			"position_start":[
+				3.68075,
+				0,
+				7.176e1
 			]
 		},
 		"CLA-FEH-MAG-QUAD-05-CORR":{
@@ -931,9 +950,9 @@
 				7.5351e1
 			]
 		},
-		"CLA-FEH-DIA-BPM-04":{
+		"CLA-FEH-DIA-BPM-04-INSIDE":{
 			"type":"beam_position_monitor",
-			"length":0.195845,
+			"length":8.9265e-2,
 			"global_rotation":[
 				0,
 				0,
@@ -947,7 +966,7 @@
 			"position_start":[
 				3.68075,
 				0,
-				7.5351e1
+				7.54576e1
 			]
 		},
 		"CLA-FEH-WALL-02-START":{
@@ -1078,12 +1097,12 @@
 			"position_end":[
 				3.680751,
 				0,
-				7.8867e1
+				7.87718e1
 			],
 			"position_start":[
 				3.680751,
 				0,
-				7.8657e1
+				7.85618e1
 			]
 		},
 		"CLA-FED-DIA-SCR-01-OTR":{
@@ -1177,14 +1196,14 @@
 				0.3490658504
 			],
 			"position_end":[
-				2.86348,
+				2.858206,
 				0,
-				8.18781e1
+				8.1892635e1
 			],
 			"position_start":[
-				2.91478,
+				2.909509,
 				0,
-				8.17372e1
+				8.1751681e1
 			]
 		},
 		"CLA-FED-DUMP-01-START":{
