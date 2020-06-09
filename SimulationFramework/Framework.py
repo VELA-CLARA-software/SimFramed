@@ -1952,17 +1952,20 @@ class frameworkElement(frameworkObject):
     @property
     def middle(self):
         start = np.array(self.position_start)
-        return start + self.rotated_position(np.array([0,0, self.length / 2.0]), offset=self.starting_offset, theta=-self.y_rot)
+        return start + self.rotated_position(np.array([0,0, self.length / 2.0]), offset=self.starting_offset, theta=self.y_rot)
 
     @property
     def end(self):
         start = np.array(self.position_start)
         # print(self.objectName, start, start + self.rotated_position(np.array([0,0, self.length]), offset=self.starting_offset, theta=-self.y_rot))
-        return start + self.rotated_position(np.array([0,0, self.length]), offset=self.starting_offset, theta=-self.y_rot)
+        return start + self.rotated_position(np.array([0,0, self.length]), offset=self.starting_offset, theta=self.y_rot)
 
     def relative_position_from_centre(self, vec=[0,0,0]):
         start = np.array(self.start)
-        return start + self.rotated_position(np.array([0,0, self.length / 2.0]) + np.array(vec), offset=self.starting_offset, theta=-self.y_rot)
+        return start + self.rotated_position(np.array([0,0, self.length / 2.0]) + np.array(vec), offset=self.starting_offset, theta=self.y_rot)
+    def relative_position_from_start(self, vec=[0,0,0]):
+        start = np.array(self.start)
+        return start + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.y_rot)
 
     def _write_ASTRA(self, d, n=1):
         output = ''
@@ -2087,7 +2090,7 @@ class dipole(frameworkElement):
         else:
             vec = [0,0,l/2.0]
         # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
+        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.y_rot)
 
     @property
     def arc_middle(self):
@@ -2103,7 +2106,7 @@ class dipole(frameworkElement):
         else:
             vec = [0,0,l/2.0]
         # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
+        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.y_rot)
 
     @property
     def line_middle(self):
@@ -2119,7 +2122,7 @@ class dipole(frameworkElement):
         else:
             vec = [0,0,l/2.0]
         # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
+        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.y_rot)
 
     @property
     def TD_middle(self):
@@ -2135,7 +2138,7 @@ class dipole(frameworkElement):
         else:
             vec = [0,0,l/2.0]
         # print (vec)
-        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.starting_rotation)
+        return np.array(self.position_start) + self.rotated_position(np.array(vec), offset=self.starting_offset, theta=self.y_rot)
 
     @property
     def end(self):
@@ -2144,9 +2147,9 @@ class dipole(frameworkElement):
             ex = -1. * (self.length * (np.cos(self.angle) - 1)) / self.angle
             ey = 0
             ez = (self.length * (np.sin(self.angle))) / self.angle
-            return np.array(self.position_start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=-self.y_rot)
+            return np.array(self.position_start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=self.y_rot)
         else:
-            return np.array(self.position_start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=-self.y_rot)
+            return np.array(self.position_start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=self.y_rot)
 
     @property
     def width(self):
