@@ -1445,7 +1445,7 @@ class gptLattice(frameworkLattice):
         ccs = gpt_ccs("wcs", [0,0,0], [0,0,0])
         fulltext = ''
         self.headers['spacecharge'] = gpt_spacecharge(space_charge_mode=self.file_block['charge']['space_charge_mode'])
-        if self.csr_enable:
+        if self.csr_enable and not os.name == 'nt':
             self.headers['csr1d'] = gpt_csr1d()
         for header in self.headers:
             fulltext += self.headers[header].write_GPT()+'\n'
@@ -2480,7 +2480,7 @@ class cavity(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['C_pos', {'value': self.start[2] + self.dz, 'default': 0}],
-            ['FILE_EFieLD', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'\'', 'default': 0}],
+            ['FILE_EFieLD', {'value': ('\''+expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'\'').replace('\\','/'), 'default': 0}],
             ['C_numb', {'value': self.cells}],
             ['Nue', {'value': self.frequency / 1e9, 'default': 2998.5}],
             ['MaxE', {'value': self.field_amplitude / 1e6, 'default': 0}],
@@ -2554,7 +2554,7 @@ class solenoid(frameworkElement):
     def write_ASTRA(self, n):
         return self._write_ASTRA(OrderedDict([
             ['S_pos', {'value': self.start[2] + self.dz, 'default': 0}],
-            ['FILE_BFieLD', {'value': ''+expand_substitution(self, '\''+self.field_definition+'\'')+''}],
+            ['FILE_BFieLD', {'value': (''+expand_substitution(self, '\''+self.field_definition+'\'')+'').replace('\\','/')}],
             ['MaxB', {'value': self.field_amplitude, 'default': 0}],
             ['S_smooth', {'value': self.smooth, 'default': 10}],
             ['S_xoff', {'value': self.start[0] + self.dx, 'default': 0}],
@@ -2977,7 +2977,7 @@ class longitudinal_wakefield(cavity):
             for n in range(startn, startn+self.cells):
                 output += self._write_ASTRA(OrderedDict([
                     ['Wk_Type', {'value': self.waketype, 'default': '\'Taylor_Method_F\''}],
-                    ['Wk_filename', {'value': '\''+expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'\'', 'default': 0}],
+                    ['Wk_filename', {'value': ('\''+expand_substitution(self, '\''+self.field_definition+'\'').strip('\'"')+'\'').replace('\\','/'), 'default': 0}],
                     ['Wk_x', {'value': self.x_offset, 'default': 0}],
                     ['Wk_y', {'value': self.y_offset, 'default': 0}],
                     ['Wk_z', {'value': self.start[2] + self.coupling_cell_length + (n-1)*self.cell_length}],
