@@ -169,7 +169,7 @@ class onlineModelPlotter(QWidget):
             self.sliceWidget.setVisible(False)
         # self.loadDataFile()
 
-    def changeDirectory(self, directory=None):
+    def changeDirectory(self, directory=None, id=None):
         try:
             self.fileSelector.currentIndexChanged.disconnect(self.updateScreenCombo)
         except:
