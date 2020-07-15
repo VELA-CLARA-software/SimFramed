@@ -25,8 +25,9 @@ class beam(object):
     q_over_c = (constants.elementary_charge / constants.speed_of_light)
     speed_of_light = constants.speed_of_light
 
-    def __init__(self):
+    def __init__(self, sddsindex=0):
         self.beam = {}
+        self.sddsindex = sddsindex
 
     def set_particle_mass(self, mass=constants.m_e):
         self.particle_mass = mass
@@ -47,7 +48,7 @@ class beam(object):
 
     def read_SDDS_beam_file(self, fileName, charge=None, ascii=False):
         self.reset_dicts()
-        self.sdds = sdds.SDDS(0)
+        self.sdds = sdds.SDDS(self.sddsindex)
         self.sdds.load(fileName)
         for col in range(len(self.sdds.columnName)):
             if len(self.sdds.columnData[col]) == 1:
@@ -81,7 +82,7 @@ class beam(object):
         xoffset = xyzoffset[0]
         yoffset = xyzoffset[1]
         zoffset = xyzoffset[2] # Don't think I need this because we are using t anyway...
-        x = sdds.SDDS(0)
+        x = sdds.SDDS(self.sddsindex)
         if ascii:
             x.mode = x.SDDS_ASCII
         else:
