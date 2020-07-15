@@ -1,7 +1,8 @@
 import sys, os, time, math
 from elegantWriter_objects import *
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import pyqtgraph as pg
 import subprocess
 import sdds
@@ -13,16 +14,16 @@ class elegantGUI(QMainWindow):
         ''' Here we create an elegant environment '''
         ele = elegantInterpret()
         ''' now we read in a lattice file (can also be MAD format, but not all commands are equivalent (cavities are a problem!)) '''
-        self.lattice = ele.readElegantFile('diamond.lte')
-        self.lattice.writeLatticeFile('test.lte','diamond')
+        self.lattice = ele.readElegantFile('c2v.lte')
+        self.lattice.writeLatticeFile('test.lte','cla-ebt')
 
         self.lattice.addCommand(type='global_settings',log_file="elegant.log",error_log_file="elegant.err")
-        self.lattice.addCommand(type='run_setup',lattice="test.lte",use_beamline="DIAMOND",p_central_mev=3000,centroid='%s.cen',always_change_p0 = 1)
+        self.lattice.addCommand(type='run_setup',lattice="test.lte",use_beamline="CLA-EBT",p_central=70.31,centroid='%s.cen',always_change_p0 = 1)
         self.lattice.addCommand(type='run_control',n_steps=1, n_passes=1)
-        self.lattice.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi")#,beta_x  =  0.961326,
-	# alpha_x = -1.03701,
-	# beta_y  =  1.11184,
-	# alpha_y = -1.18067)
+        self.lattice.addCommand(type='twiss_output',matched = 0,output_at_each_step=0,radiation_integrals=1,statistics=1,filename="%s.twi",beta_x  =  0.961326,
+	alpha_x = -1.03701,
+	beta_y  =  1.11184,
+	alpha_y = -1.18067)
         self.lattice.addCommand(type='bunched_beam',n_particles_per_bunch=100,use_twiss_command_values=1,emit_nx=0.3e-6,emit_ny=0.3e-6)
         self.lattice.addCommand(type='track')
         # print lattice.global_settings.write()+lattice.run_setup.write()
@@ -33,11 +34,10 @@ class elegantGUI(QMainWindow):
         self.layout = QHBoxLayout()
         self.centralWidget.setLayout(self.layout)
 
-        # print(self.lattice.elements)
-
+        print(self.lattice)
         self.table = latticeTable(self.lattice)
         self.table.elementChanged.connect(self.runAndUpdate)
-        self.table.updateTable('diamond')
+        self.table.updateTable('cla-ebt')
         self.layout.addWidget(self.table)
 
         self.tab = QTabWidget()
@@ -50,20 +50,23 @@ class elegantGUI(QMainWindow):
         for name in glob.glob('*SCR*.SDDS'):
             self.plotWidget = SDDSBeamPlotWidget(name,xaxis='x',yaxis='y',pen='r')
             self.plot = self.plotWidget.plot
-            # self.beamPlots.addItem(self.plotWidget.getPlotItem())
+            # print(isinstance(self.plotWidget, pg.PlotWidget))
+            # print(self.plot)
+            self.beamPlots.addItem(self.plotWidget.getPlotItem())
             if noplots >= plotsperrow:
                 self.beamPlots.nextRow()
             else:
                 self.beamPlots.nextColumn()
-
-        self.tab.addTab(self.beamPlots, "Beam Plots")
+        self.tab.addTab(self.beamPlots,"Beam Plots")
 
         self.layout.addWidget(self.tab)
+
         self.setCentralWidget(self.centralWidget)
-        self.runAndUpdate()
+        # self.runAndUpdate()
+        self.show()
 
     def runAndUpdate(self):
-        self.lattice.writeLatticeFile('test.lte','diamond')
+        self.lattice.writeLatticeFile('test.lte','cla-ebt')
         self.runElegant(self.lattice)
         self.sddsPlot.loadTwi()
 
@@ -85,7 +88,7 @@ class elegantGUI(QMainWindow):
         # self.proc.stdin.write(lattice.global_settings.write())
         # self.proc.stdin.write(lattice.run_setup.write())
         # self.proc.stdin.write(lattice.twiss_output.write())
-        # print lattice.writeCommandFile()
+        print(lattice.writeCommandFile())
         stdout, stderr = self.proc.communicate(lattice.writeCommandFile())
         # self.proc.communicate(lattice.twiss_output.write())
         # time.sleep(1)
@@ -125,7 +128,7 @@ class SDDSTwissPlotWidget(QWidget):
                 setattr(self.twi,self.twi.columnName[col],self.twi.columnData[col])
         self.SDDSparameterNames = list()
         for param in self.twi.columnName:
-            if isinstance(getattr(self.twi,param)[0], (float, long)):
+            if isinstance(getattr(self.twi,param)[0], (float, int)):
                 self.SDDSparameterNames.append(param)
         self.updateSelectionBar()
         self.updatePlot()
@@ -183,7 +186,7 @@ class SDDSBeamPlotWidget(pg.PlotWidget):
                 setattr(self.sddsdata,self.sddsdata.columnName[col],self.sddsdata.columnData[col])
         self.SDDSparameterNames = list()
         for param in self.sddsdata.columnName:
-            if isinstance(getattr(self.sddsdata,param)[0], (float, long)):
+            if isinstance(getattr(self.sddsdata,param)[0], (float, int)):
                 self.SDDSparameterNames.append(param)
         self.plot = self.plot(x=getattr(self.sddsdata,xaxis), y=getattr(self.sddsdata,yaxis),pen=None,symbol='o')
 
@@ -203,7 +206,7 @@ class latticeTable(pg.TableWidget):
     def updateTable(self,line):
         # self.itemChanged.disconnect(self.propertyChanged)
         self.lattprops = self.lattice.getLatticeDefinitions(line, self.headings)
-        self.elementNames = self.lattprops.keys()
+        self.elementNames = list(self.lattprops.keys())
         self.setRowCount(len(self.lattprops))
         shortenedHeadings = self.headings
         shortenedHeadings.remove('name')
@@ -216,7 +219,7 @@ class latticeTable(pg.TableWidget):
 
     def tableSetData(self):
         row = 0
-        for key,val in self.lattprops.items():
+        for key,val in list(self.lattprops.items()):
             col = 0
             for h in self.headings:
                 if not h == 'name':
@@ -242,7 +245,7 @@ class latticeTable(pg.TableWidget):
                             widget.setValue(val[h])
                             widget.editingFinished.connect(self.spinboxChanged)
                             self.setCellWidget(row,col,widget)
-                        elif isinstance(val[h],(long, int)):
+                        elif isinstance(val[h],int):
                             widget = QSpinBox()
                             widget.setSingleStep(1)
                             widget.editingFinished.connect(self.spinboxChanged)
@@ -310,7 +313,7 @@ def main():
    # app.setStyle(QStyleFactory.create("plastique"))
    ex = elegantGUI()
    ex.show()
-   # ex.lattice.screensToWatch()
+   ex.lattice.screensToWatch()
    # ex.testSleep()
    sys.exit(app.exec_())
 
