@@ -408,12 +408,12 @@ elements:
     datum: [3.68075, 0.0, 75.351]
   CLA-FEH-DIA-BPM-04-INSIDE:
     type: beam_position_monitor
-    length: 0.089265
+    length: 0.096345
     global_rotation: [0, 0, 0]
-    centre: [3.68075, 0.0, 75.502232]
-    start: [3.68075, 0.0, 75.4576]
-    end: [3.68075, 0.0, 75.546865]
-    datum: [3.68075, 0.0, 75.4929]
+    centre: [3.68075, 0.0, 75.498673]
+    start: [3.68075, 0.0, 75.4505]
+    end: [3.68075, 0.0, 75.546845]
+    datum: [3.68075, 0.0, 75.4858]
   CLA-FEH-WALL-02-START:
     type: marker
     fit_point: 1.0
