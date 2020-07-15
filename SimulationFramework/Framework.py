@@ -28,21 +28,24 @@ yaml.add_constructor(_mapping_tag, dict_constructor)
 astra_generator_keywords = {
     'keywords':[
         'fname','add','ipart','species','probe','noise_reduc','high_res','cathode','lprompt', 'q_total','ref_zpos','ref_clock','dist_z','ref_ekin','lt','rt','sig_clock','sig_z','lz','rz',
-        'dist_pz','le','dist_x','sig_x','dist_y','sig_y','dist_px','nemit', 'C_sig_x', 'C_sig_y',
+        'dist_pz','le','dist_x','sig_x','dist_y','sig_y','dist_px','nemit', 'C_sig_x', 'C_sig_y', 'x_off', 'y_off',
     ],
     'defaults': {
         'clara_400_3ps':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
             'ref_ekin': 0, 'lt': 3e-3, 'rt': 0.2e-3, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
+            'x_off': 0, 'y_off': 0,
         },
         'clara_400_1ps':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'p',
             'ref_ekin': 0, 'lt': 1e-3, 'rt': 0.2e-3, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': 'radial', 'sig_x': 0.25, 'dist_y': 'r', 'sig_y': 0.25,
+            'x_off': 0, 'y_off': 0,
         },
         'clara_400_2ps_Gaussian':{
             'add': False,'species': 'electrons', 'probe': True,'noise_reduc': False, 'high_res': True, 'cathode': True, 'lprompt': False, 'ref_zpos': 0, 'ref_clock': 0, 'dist_z': 'g',
             'sig_clock': 0.85e-3,
-            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.25, 'dist_y': '2DGaussian', 'sig_y': 0.25, 'C_sig_x': 3, 'C_sig_y': 3
+            'ref_ekin': 0, 'dist_pz': 'i', 'le': 0.62e-3, 'dist_x': '2DGaussian', 'sig_x': 0.25, 'dist_y': '2DGaussian', 'sig_y': 0.25, 'C_sig_x': 3, 'C_sig_y': 3,
+            'x_off': 0, 'y_off': 0,
         },
     },
     'framework_keywords': [
@@ -420,13 +423,14 @@ class Framework(Munch):
             if not np.round(cend - end, decimals=decimals).any() == 0:
                 print (elem.objectname, cend - end)
 
-    def change_Lattice_Code(self, name, code):
+    def change_Lattice_Code(self, name, code, exclude=None):
         if name == 'All':
-            [self.change_Lattice_Code(l, code) for l in self.latticeObjects]
+            [self.change_Lattice_Code(l, code, exclude) for l in self.latticeObjects]
         elif isinstance(name, (tuple, list)):
-            [self.change_Lattice_Code(l, code) for l in name]
+            [self.change_Lattice_Code(l, code, exclude) for l in name]
         else:
-            if not name == 'generator':
+            if not name == 'generator' and not (name == exclude or (isinstance(exclude, (list, tuple)) and name in exclude)):
+                # print('Changing lattice ', name, ' to ', code.lower())
                 currentLattice = self.latticeObjects[name]
                 self.latticeObjects[name] = globals()[code.lower()+'Lattice'](currentLattice.objectname, currentLattice.file_block, self.elementObjects, self.groupObjects, self.settings, self.executables, self.global_parameters)
 
