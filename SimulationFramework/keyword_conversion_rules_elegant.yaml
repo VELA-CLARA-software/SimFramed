@@ -72,3 +72,6 @@ fel_modulator:
   vertical_mode_number: laser_n
 wiggler:
   peak_field: B
+kicker:
+  horizontal_kick: hkick
+  vertical_kick: vkick

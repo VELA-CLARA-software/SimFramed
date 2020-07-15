@@ -2195,7 +2195,7 @@ class dipole(frameworkElement):
         return self.rho * np.tan(self.angle / 2.0)
     @property
     def rho(self):
-        return self.length/self.angle if self.length is not None and abs(self.angle) > 1e-9 else 0
+        return -1*self.length/self.angle if self.length is not None and abs(self.angle) > 1e-9 else 0
 
     @property
     def e1(self):
@@ -2269,7 +2269,7 @@ class dipole(frameworkElement):
                 # ['D_zoff', {'value': self.dz, 'default': 0}],
                 # ['D_xrot', {'value': self.y_rot + self.dy_rot, 'default': 0}],
                 # ['D_yrot', {'value': self.x_rot + self.dx_rot, 'default': 0}],
-                # ['D_zrot', {'value': self.z_rot + self.dz_rot, 'default': 0}],
+                ['D_zrot', {'value': self.z_rot + self.dz_rot, 'default': 0}],
                 ])
             if abs(checkValue(self, 'strength', default=0)) > 0 or not abs(self.rho) > 0:
                 params['D_strength'] = {'value': checkValue(self, 'strength', 0), 'default': 1e6}
@@ -2357,25 +2357,19 @@ class kicker(dipole):
 
     @property
     def angle(self):
-        if self.plane == 'horizontal' and hasattr(self, 'hangle') and self.hangle is not None:
-            return self.hangle
-        elif hasattr(self, 'vangle') and self.vangle is not None:
-            return self.vangle
-        else:
-            return 0
+        hkick = self.horizontal_kick if self.horizontal_kick is not None else 0
+        vkick = self.vertical_kick if self.vertical_kick is not None else 0
+        return np.sqrt(hkick**2 + vkick**2)
+
+    @property
+    def z_rot(self):
+        hkick = self.horizontal_kick if self.horizontal_kick is not None else 0
+        vkick = self.vertical_kick if self.vertical_kick is not None else 0
+        return self.global_rotation[0] + np.arctan2(vkick, hkick)
 
     def write_ASTRA(self, n):
         output = ''
-        self.plane = 'horizontal'
-        hkick = super(kicker, self).write_ASTRA(n)
-        if hkick is not None:
-            output += hkick
-        else:
-            n = n-1
-        self.plane = 'vertical'
-        vkick = super(kicker, self).write_ASTRA(n+1)
-        if vkick is not None:
-            output += vkick
+        output = super(kicker, self).write_ASTRA(n)
         return output
 
     def write_GPT(self, Brho, ccs="wcs", *args, **kwargs):
