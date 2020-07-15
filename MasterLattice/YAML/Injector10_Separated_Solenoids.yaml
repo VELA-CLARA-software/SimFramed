@@ -98,7 +98,7 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 0.9377]
     position_start: [0, 0, 0.8297]
-  CLA-S01-DIA-SCR-01-W:
+  CLA-S01-DIA-SCR-01:
     type: screen
     output_filename: '"CLA-S01-DIA-SCR-01.SDDS"'
     camera_PV: CLA-S01-DIA-CAM-01
