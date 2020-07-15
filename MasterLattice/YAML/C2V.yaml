@@ -23,6 +23,7 @@ elements:
     buffer_end_length: 0.1
     Controller_Name: DIP01
     Online_Model_Name: CV-DIP01
+    field_integral_coefficients: [0.142064204721245,0.00344016005203196]
     PV: CLA-C2V-MAG-DIP-01
     global_rotation: [0, 0, 0]
     position_end: [-0.148877, 0, 6.1867]
@@ -80,7 +81,7 @@ elements:
     position_start: [-0.787086, 0, 6.82492]
     field_integral_coefficients: [-1.31651924239548E-11, 5.76805215137824E-09, -9.16843633799561E-07, 6.036266595182E-05,
                     1.47634437187611E-02, 0.013343693771224]
-  CLA-C2V-DIA-SCR-01-W:
+  CLA-C2V-DIA-SCR-01:
     type: screen
     output_filename: '"CLA-C2V-DIA-SCR-01.SDDS"'
     camera_PV: CLA-C2V-DIA-CAM-01
@@ -105,6 +106,7 @@ elements:
     buffer_end_length: 0.1
     Controller_Name: DIP02
     Online_Model_Name: CV-DIP03
+    field_integral_coefficients: [-9.5201E-07,0.000151557,0.894506059,0.126202232]
     PV: CLA-C2V-MAG-DIP-03
     global_rotation: [0, 0, 0.785398]
     position_end: [-1.25, 0, 7.4976]
