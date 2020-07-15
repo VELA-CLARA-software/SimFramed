@@ -167,10 +167,13 @@ class Converter(Framework):
                     element['arc_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].arc_middle ]
                     element['line_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].line_middle ]
                     element['TD_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].TD_middle ]
-                if element['type'] == 'screen' and '-feb-' in lname and not 'mask' in lname and not 'ctr' in lname:
+                if element['type'] == 'screen' and '-feb-' in lname and not 'mask' in lname and not 'ctr' in lname and not 'fed-dia-scr-02-wide' in lname:
                     element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0167]) ]
                 if element['type'] == 'beam_position_monitor' and '-feb-' in lname:
-                    element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0697]) ]
+                    if 'inside' in lname:
+                        element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_start([0,0,0.0353]) ]
+                    else:
+                        element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0697]) ]
             else:
                 element['old_datum'] = [ round(elem, 6) for elem in element['position_end']]
         else:
