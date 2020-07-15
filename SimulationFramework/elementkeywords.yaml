@@ -132,9 +132,8 @@ kicker:
     isr_enable,
     Horizontal_PV,
     Vertical_PV,
-    hangle,
-    vangle,
-    angle
+    horizontal_kick,
+    vertical_kick,
   }
 marker:
   keywords: {
