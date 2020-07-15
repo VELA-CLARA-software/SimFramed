@@ -58,7 +58,7 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.9775]
     position_start: [0, 0, 3.8768]
-  CLA-S02-DIA-SCR-01-W:
+  CLA-S02-DIA-SCR-01:
     type: screen
     output_filename: CLA-S02-DIA-SCR-01.SDDS
     camera_PV: CLA-S02-DIA-CAM-01
@@ -106,7 +106,7 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.84556]
     position_start: [0, 0, 4.81556]
-  CLA-S02-DIA-SCR-02-W:
+  CLA-S02-DIA-SCR-02:
     type: screen
     output_filename: CLA-S02-DIA-SCR-02.SDDS
     camera_PV: CLA-S02-DIA-CAM-02
@@ -168,7 +168,7 @@ elements:
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 6.542]
     position_start: [0, 0, 6.49065]
-  CLA-S02-DIA-SCR-03-W:
+  CLA-S02-DIA-SCR-03:
     type: screen
     output_filename: CLA-S02-DIA-SCR-03.SDDS
     camera_PV: CLA-S02-DIA-CAM-03
