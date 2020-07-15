@@ -116,6 +116,7 @@ elements:
     buffer_start: [-1.25, 0, 28.4538]
     buffer_start_length: 0.1
     buffer_end_length: 0.1
+    field_integral_coefficients: []
     position_end: [-1.48875, 0, 28.9673]
     position_start: [-1.25, 0, 28.5538]
   EBT-BA1-MAG-QUAD-07:
