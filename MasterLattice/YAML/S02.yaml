@@ -16,6 +16,8 @@ elements:
     Online_Model_Name: C1-S02-COR01
     Horizontal_PV: CLA-S02-MAG-HCOR-01
     Vertical_PV: CLA-S02-MAG-VCOR-01
+    field_integral_coefficients_horizontal: [0.299132052459495,0.00869167241506522]
+    field_integral_coefficients_vertical: [0.299132052459495,0.00869167241506522]
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 3.44808]
     position_start: [0, 0, 3.37147]
@@ -77,6 +79,8 @@ elements:
     Online_Model_Name: C1-S02-COR02
     Horizontal_PV: CLA-S02-MAG-HCOR-02
     Vertical_PV: CLA-S02-MAG-VCOR-02
+    field_integral_coefficients_horizontal: [0.299132052459495,0.00869167241506522]
+    field_integral_coefficients_vertical: [0.299132052459495,0.00869167241506522]
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.26807]
     position_start: [0, 0, 4.23807]
@@ -103,6 +107,10 @@ elements:
     sr_enable: true
     isr_enable: true
     Controller_Name: COR3
+    Horizontal_PV: CLA-S02-MAG-HCOR-03
+    Vertical_PV: CLA-S02-MAG-VCOR-03
+    field_integral_coefficients_horizontal: [0.299132052459495,0.00869167241506522]
+    field_integral_coefficients_vertical: [0.299132052459495,0.00869167241506522]
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 4.84556]
     position_start: [0, 0, 4.81556]
@@ -184,6 +192,10 @@ elements:
     sr_enable: true
     isr_enable: true
     Controller_Name: COR4
+    Horizontal_PV: CLA-S02-MAG-HCOR-04
+    Vertical_PV: CLA-S02-MAG-VCOR-04
+    field_integral_coefficients_horizontal: [0.299132052459495,0.00869167241506522]
+    field_integral_coefficients_vertical: [0.299132052459495,0.00869167241506522]
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 6.7175]
     position_start: [0, 0, 6.6601]
