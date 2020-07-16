@@ -37,6 +37,8 @@ elements:
     Online_Model_Name: CV-COR01
     Horizontal_PV: CLA-C2V-MAG-HCOR-01
     Vertical_PV: CLA-C2V-MAG-VCOR-01
+    field_integral_coefficients_horizontal: [0.139019971762932,0.00336644233663128]
+    field_integral_coefficients_vertical: [0.142064204721245,0.00344016005203196]
     global_rotation: [0, 0, 0.785398]
     position_end: [-0.368412, 0, 6.40624]
     position_start: [-0.21992, 0, 6.25775]
