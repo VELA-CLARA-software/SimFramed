@@ -12,9 +12,9 @@ try:
 except:
     print('sdds failed to load')
     pass
-sys.path.append(os.path.dirname(__file__))
-import read_gdf_file as rgf
-import minimumVolumeEllipse as mve
+sys.path.append(os.path.abspath(__file__+'/../../'))
+import SimulationFramework.Modules.read_gdf_file as rgf
+import SimulationFramework.Modules.minimumVolumeEllipse as mve
 MVE = mve.EllipsoidTool()
 
 class beam(object):
