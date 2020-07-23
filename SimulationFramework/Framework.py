@@ -115,7 +115,9 @@ def isevaluable(self, s):
 
 def expand_substitution(self, param, subs={}, elements={}):
     if isinstance(param,(str)):
-        subs['master_lattice_location'] = os.path.relpath(self.global_parameters['master_lattice_location'],self.global_parameters['master_subdir'])+'/'
+        relpath = os.path.relpath(self.global_parameters['master_lattice_location'],self.global_parameters['master_subdir'])+'/'
+        abspath = os.path.abspath(relpath)+'/'
+        subs['master_lattice_location'] = relpath if len(relpath) < len(abspath) else abspath
         subs['master_subdir'] = './'
         regex = re.compile('\$(.*)\$')
         s = re.search(regex, param)
