@@ -1261,6 +1261,26 @@ class beam(object):
     def Sy(self):
         return np.sqrt(self.covariance(self.y,self.y))
 
+    @property
+    def Sz(self):
+        return np.sqrt(self.covariance(self.z,self.z))
+
+    @property
+    def Mx(self):
+        return np.mean(self.beam['x'])
+
+    @property
+    def My(self):
+        return np.mean(self.beam['y'])
+    @property
+    def Mz(self):
+        return np.mean(self.beam['z'])
+
+    @property
+    def Mzn(self):
+        return 0.0
+
+
     # Added to use with dwa_beam_tools
     @property
     def nMacros(self):
@@ -1270,3 +1290,4 @@ class beam(object):
     @property
     def charge_per_macro(self):
         return self.charge / self.nMacros
+
