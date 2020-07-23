@@ -952,7 +952,7 @@
 		},
 		"CLA-FEH-DIA-BPM-04-INSIDE":{
 			"type":"beam_position_monitor",
-			"length":8.9265e-2,
+			"length":9.6345e-2,
 			"global_rotation":[
 				0,
 				0,
@@ -966,7 +966,7 @@
 			"position_start":[
 				3.68075,
 				0,
-				7.54576e1
+				7.54505e1
 			]
 		},
 		"CLA-FEH-WALL-02-START":{
@@ -1176,14 +1176,14 @@
 				0.3490658504
 			],
 			"position_end":[
-				3.28381,
+				3.232507,
 				0,
-				8.07232e1
+				8.0864249e1
 			],
 			"position_start":[
-				3.37855,
+				3.327247,
 				0,
-				8.0463e1
+				8.0603954e1
 			]
 		},
 		"CLA-FED-DIA-SCR-02-WIDE":{
