@@ -1260,3 +1260,13 @@ class beam(object):
     @property
     def Sy(self):
         return np.sqrt(self.covariance(self.y,self.y))
+
+    # Added to use with dwa_beam_tools
+    @property
+    def nMacros(self):
+        return len(self.x)
+
+    # Could cause a problem with a variable weight macro file...
+    @property
+    def charge_per_macro(self):
+        return self.charge / self.nMacros
