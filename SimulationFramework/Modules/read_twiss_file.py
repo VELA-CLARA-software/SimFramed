@@ -5,7 +5,8 @@ import scipy.integrate as integrate
 import scipy.constants as constants
 import sdds
 sys.path.append(os.path.dirname(__file__))
-import read_gdf_file as rgf
+sys.path.append(os.path.abspath(__file__+'/../../'))
+import SimulationFramework.Modules.read_gdf_file as rgf
 import munch
 
 class twiss(munch.Munch):
