@@ -1065,7 +1065,8 @@ class elegantLattice(frameworkLattice):
         if not os.name == 'nt':
             command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(self.global_parameters['master_lattice_location'],self.global_parameters['master_subdir'])+'/Codes/defns.rpn'] + [self.objectname+'.ele']
         else:
-            command = self.executables[self.code] + [self.objectname+'.ele']
+            command = self.executables[self.code] + ['-rpnDefns='+os.path.relpath(self.global_parameters['master_lattice_location'],self.global_parameters['master_subdir'])+'/Codes/defns.rpn'] + [self.objectname+'.ele']
+            command = [c.replace('/','\\') for c in command]
         # print ('run command = ', command)
         with open(os.path.relpath(self.global_parameters['master_subdir']+'/'+self.objectname+'.log', '.'), "w") as f:
             subprocess.call(command, stdout=f, cwd=self.global_parameters['master_subdir'])
