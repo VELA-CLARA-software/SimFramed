@@ -491,7 +491,7 @@ class beam(object):
             inputgrp['total_charge'] = self.beam['total_charge']
             inputgrp['npart'] = len(self.x)
             inputgrp['centered'] = centered
-            inputgrp['code'] = self.beam['code']
+            inputgrp['code'] = self.beam['code'] # This could be changed here to specify teh type maybe?
             inputgrp['particle_mass'] = mass
             beamgrp = f.create_group("beam")
             if 'reference_particle' in self.beam:
@@ -549,9 +549,11 @@ class beam(object):
             startposition = np.array(h5file.get('/Parameters/Starting_Position'))
             startposition = startposition if startposition is not None else [0,0,0]
             self.beam['starting_position'] = startposition
-            theta =  np.array(h5file.get('/Parameters/Rotation'))
+            theta = np.array(h5file.get('/Parameters/Rotation'))
             theta = theta if theta is not None else 0
             self.beam['rotation'] = theta
+            code = np.array(h5file.get('/Parameters/code')) # Added for completeness as its in the write method
+            self.beam['code'] = code.item().decode("utf-8") # wee bit hacky to get it to behave nicely
             if local == True:
                 self.rotate_beamXZ(self.beam['rotation'], preOffset=self.beam['starting_position'])
 
@@ -1265,6 +1267,7 @@ class beam(object):
     def Sz(self):
         return np.sqrt(self.covariance(self.z,self.z))
 
+    # These are also useful for some calculations
     @property
     def Mx(self):
         return np.mean(self.beam['x'])
@@ -1291,3 +1294,9 @@ class beam(object):
     def charge_per_macro(self):
         return self.charge / self.nMacros
 
+    @property
+    def code(self):
+        if 'code' in self.beam:
+            return self.beam['code']
+        else:
+            return 'unknown'
