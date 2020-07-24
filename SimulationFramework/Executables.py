@@ -85,7 +85,7 @@ class Executables(object):
                 elif 'apclara3' in self.hostname:
                     self.elegant = ['srun','elegant']
             else:
-                self.elegant = ['elegant']
+                self.elegant = [self.master_lattice_location+'Codes/elegant']
 
     def define_csrtrack_command(self, location=None, ncpu=1, scaling=None):
         ncpu = self.getNCPU(ncpu, scaling)
