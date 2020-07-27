@@ -99,7 +99,8 @@ class twissPlotWidget(multiPlotWidget):
         twiss = dataobject
         ''' select a color and style '''
         color = self.colors[self.plotColor % len(self.colors)]
-        pen = pg.mkPen(color, width=3, style=self.styles[int(self.plotColor / len(self.styles))])
+        style = self.styles[int(self.plotColor % len(self.styles))]
+        pen = pg.mkPen(color, width=3, style=style)
         ''' iterate the color index '''
         if name not in self.curves:
             self.curves[name] = {}
@@ -120,6 +121,9 @@ class twissPlotWidget(multiPlotWidget):
                     else:
                         print('ADDING curve: ', name, label)
                         self.addCurve(x, y, name, label, pen)
+        if not isinstance(color, QColor):
+            color = pg.mkColor(color)
+        return color, style
 
     def loadDataFile(self, directory, sections=None, reset=True, twiss=None):
         ''' loads ASTRA and Elegant data files from a directory and returns a twiss object'''
