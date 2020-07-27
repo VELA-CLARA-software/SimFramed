@@ -2449,6 +2449,7 @@ class cavity(frameworkElement):
         self.add_default('current_bins', 0)
         self.add_default('interpolate_current_bins', 1)
         self.add_default('smooth_current_bins', 1)
+        self.add_default('allow_long_beam', 1)
 
     def update_field_definition(self):
         if hasattr(self, 'field_definition') and self.field_definition is not None:
