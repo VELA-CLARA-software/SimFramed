@@ -1572,6 +1572,7 @@ rfcw:
   lsc_radius_factor: double
   wakes_at_end: long
   group: string
+  allow_long_beam: long
 
 rfdf:
   l: double

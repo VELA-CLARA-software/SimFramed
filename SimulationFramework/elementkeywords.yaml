@@ -46,7 +46,10 @@ cavity:
     lsc_bins,
     lsc_enable,
     current_bins,
-    n_kicks
+    n_kicks,
+    longitudinal_wakefield_enable,
+    transverse_wakefield_enable,
+    allow_long_beam,
   }
 longitudinal_wakefield:
   keywords: {
