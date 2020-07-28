@@ -24,7 +24,7 @@ elements:
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"VBC-MAG-DIP-02.CSR"'
-    global_rotation: [0, 0, -0.095]
+    global_rotation: [0, 0, 0.095]
     position_end: [0.162009, 0, 27.9664]
     position_start: [0.15247, 0, 27.7658]
   CLA-VBC-MAG-VCOR-01:
@@ -45,8 +45,8 @@ elements:
     type: collimator
     length: 0.48
     shape: rectangular
-    horizontal_size: 0.01
-    vertical_size: 0.01
+    horizontal_size: 1
+    vertical_size: 1
     open_side: '"+x"'
     global_rotation: [0, 0, 0]
     position_end: [0.162009, 0, 28.8793]
@@ -82,7 +82,7 @@ elements:
     sr_enable: true
     isr_enable: true
     csr_output_filename: '"VBC-MAG-DIP-04.CSR"'
-    global_rotation: [0, 0, 0.095]
+    global_rotation: [0, 0, -0.095]
     position_end: [0, 0, 31.1678]
     position_start: [0.00953944, 0, 30.9671]
   CLA-VBC-MARK-01:

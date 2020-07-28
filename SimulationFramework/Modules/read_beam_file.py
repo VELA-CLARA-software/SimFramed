@@ -140,6 +140,7 @@ class beam(object):
 
     def interpret_astra_data(self, data, normaliseZ=False):
         x, y, z, cpx, cpy, cpz, clock, charge, index, status = np.transpose(data)
+        zref = z[0]
         self.beam['code'] = "ASTRA"
         self.beam['reference_particle'] = data[0]
         # if normaliseZ:
@@ -161,7 +162,7 @@ class beam(object):
         self.beam['index'] = index
         self.beam['status'] = status
         # print self.Bz
-        self.beam['t'] = [clock if status == -1 else (z / (-1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], znorm, self.Bz, self.beam['clock'])]
+        self.beam['t'] = [clock if status == -1 else ((z-zref) / (-1 * Bz * constants.speed_of_light)) for status, z, Bz, clock in zip(self.beam['status'], z, self.Bz, self.beam['clock'])]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = np.sum(self.beam['charge'])
 

@@ -1674,7 +1674,7 @@ class chicane(frameworkGroup):
                 starting_angle += elem_angle
 
     def __str__(self):
-        return str([[self.allElementObjects[e].objectname, self.allElementObjects[e].angle, self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
+        return str([[self.allElementObjects[e].objectname, self.allElementObjects[e].angle, self.allElementObjects[e].global_rotation[2], self.allElementObjects[e].position_start[0], self.allElementObjects[e].position_end[0]] for e in self.elements])
 
 class s_chicane(chicane):
     def __init__(self, name, elementObjects, type, elements, **kwargs):
@@ -2152,9 +2152,9 @@ class dipole(frameworkElement):
             ex = -1. * (self.length * (np.cos(self.angle) - 1)) / self.angle
             ey = 0
             ez = (self.length * (np.sin(self.angle))) / self.angle
-            return np.array(self.position_start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=self.y_rot)
+            return np.array(self.position_start) + self.rotated_position(np.array([ex, ey, ez]), offset=self.starting_offset, theta=-1*self.y_rot)
         else:
-            return np.array(self.position_start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=self.y_rot)
+            return np.array(self.position_start) + self.rotated_position(np.array([0,0,self.length]), offset=self.starting_offset, theta=-1*self.y_rot)
 
     @property
     def width(self):
@@ -2243,8 +2243,8 @@ class dipole(frameworkElement):
         corners[0] = np.array(list(map(add, np.transpose(self.position_start), np.dot([-self.width*self.length,0,0], _rotation_matrix(theta)))))
         corners[3] = np.array(list(map(add, np.transpose(self.position_start), np.dot([self.width*self.length,0,0], _rotation_matrix(theta)))))
         theta = self.angle-self.e2+rotation
-        corners[1] = np.array(list(map(add, np.transpose(self.position_end), np.dot([-self.width*self.length,0,0], _rotation_matrix(theta)))))
-        corners[2] = np.array(list(map(add, np.transpose(self.position_end), np.dot([self.width*self.length,0,0], _rotation_matrix(theta)))))
+        corners[1] = np.array(list(map(add, np.transpose(self.end), np.dot([-self.width*self.length,0,0], _rotation_matrix(theta)))))
+        corners[2] = np.array(list(map(add, np.transpose(self.end), np.dot([self.width*self.length,0,0], _rotation_matrix(theta)))))
         corners = [self.rotated_position(x, offset=self.starting_offset, theta=self.starting_rotation) for x in corners]
         return corners
 
@@ -2444,12 +2444,13 @@ class cavity(frameworkElement):
         self.add_default('change_p0', 1)
         self.add_default('n_kicks', self.n_cells)
         # self.add_default('method', '"non-adaptive runge-kutta"')
-        self.add_default('focussing', 1)
+        self.add_default('end1_focus', 1)
+        self.add_default('end2_focus', 1)
+        self.add_default('body_focus_model', "SRS")
         self.add_default('lsc_bins', 100)
         self.add_default('current_bins', 0)
         self.add_default('interpolate_current_bins', 1)
         self.add_default('smooth_current_bins', 1)
-        self.add_default('allow_long_beam', 1)
 
     def update_field_definition(self):
         if hasattr(self, 'field_definition') and self.field_definition is not None:
@@ -2507,11 +2508,11 @@ class cavity(frameworkElement):
                 key = self._convertKeword_Elegant(key)
                 if self.objecttype == 'cavity':
                     # In ELEGANT all phases are +90degrees!!
-                    value = value + 90 if key.lower() == 'phase' else value
+                    value = 90 - value if key.lower() == 'phase' else value
                     # If using rftmez0 or similar
                     # value = ((90+value)/360.0)*(2*3.14159) if key.lower() == 'phase' else value
                     # In ELEGANT the voltages  need to be compensated
-                    value = (self.cells+4.8) * self.cell_length * (1 / np.sqrt(2)) * value if key.lower() == 'volt' else value
+                    value = (self.cells+4.7) * self.cell_length * (1 / np.sqrt(2)) * value if key.lower() == 'volt' else value
                     # If using rftmez0 or similar
                     value = 1/(2**0.5) * value if key.lower() == 'ez' else value
                     # In CAVITY NKICK = n_cells
@@ -2652,6 +2653,31 @@ class scatter(frameworkElement):
                     string+= tmpstring
         wholestring+=string+';\n'
         return wholestring
+
+class cleaner(frameworkElement):
+
+    def __init__(self, name=None, type='scatter', **kwargs):
+        super(cleaner, self).__init__(name, type, **kwargs)
+        # print('Scatter object ', self.objectname,' - DP = ', self.objectproperties)
+
+    def _write_Elegant(self):
+        wholestring=''
+        etype = 'clean'
+        string = self.objectname+': '+ etype
+        for key, value in merge_two_dicts(self.objectproperties, self.objectdefaults).items():
+            if not key is 'name' and not key is 'type' and not key is 'commandtype' and self._convertKeword_Elegant(key) in elements_Elegant[etype]:
+                value = getattr(self, key) if hasattr(self, key) and getattr(self, key) is not None else value
+                key = self._convertKeword_Elegant(key)
+                tmpstring = ', '+key+' = '+str(value)
+                if len(string+tmpstring) > 76:
+                    wholestring+=string+',&\n'
+                    string=''
+                    string+=tmpstring[2::]
+                else:
+                    string+= tmpstring
+        wholestring+=string+';\n'
+        return wholestring
+
 
 class wall_current_monitor(frameworkElement):
 
