@@ -49,7 +49,6 @@ cavity:
     n_kicks,
     longitudinal_wakefield_enable,
     transverse_wakefield_enable,
-    allow_long_beam,
   }
 longitudinal_wakefield:
   keywords: {
@@ -335,4 +334,14 @@ global_error:
     'Err_S_xoff', 'Err_S_yoff', 'Err_S_xrot', 'Err_S_yrot', 'Err_MaxB',
     'Err_Q_xoff', 'Err_Q_yoff', 'Err_Q_xrot', 'Err_Q_yrot', 'Err_Q_zrot', 'Err_Q_Grad', 'Err_Q_K',
     'Err_D_xoff', 'Err_D_yoff', 'Err_D_zoff', 'Err_D_xrot', 'Err_D_yrot', 'Err_D_zrot', 'Err_D_Strength', 'Err_D_Radius',
+    }
+cleaner:
+  keywords: {
+    mode,
+    xlimit,
+    xplimit,
+    ylimit,
+    yplimit,
+    tlimit,
+    deltalimit,
     }

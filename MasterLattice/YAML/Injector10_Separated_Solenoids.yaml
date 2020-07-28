@@ -115,8 +115,15 @@ elements:
   CLA-L01-APER:
     type: aperture
     shape: rectangular
-    horizontal_size: 0.01
-    vertical_size: 0.01
+    horizontal_size: 0.1
+    vertical_size: 0.1
+    global_rotation: [0, 0, 0]
+    position_end: [0, 0, 1.0577]
+    position_start: [0, 0, 1.0577]
+  CLA-L01-CLEANER:
+    type: cleaner
+    mode: absvalue
+    tlimit: 1e-9 # allow +/- 1ns bunch length
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 1.0577]
     position_start: [0, 0, 1.0577]
