@@ -20,6 +20,7 @@ elegant:
   shutter: drift
   valve: drift
   bellows: drift
+  cleaner: clean
 name:
   dia-bpm: beam_position_monitor
   dia-bam: beam_arrival_monitor
