@@ -364,7 +364,7 @@ class Framework(Munch):
                 return
             elements = list(self.latticeObjects[lattice].elements.keys())
             filename =  pre + '_' + lattice + '_lattice.yaml'
-        disallowed = ['allowedkeywords', 'keyword_conversion_rules_elegant', 'objectdefaults']
+        disallowed = ['allowedkeywords', 'keyword_conversion_rules_elegant', 'objectdefaults','global_parameters']
         for e in elements:
             new = unmunchify(self.elementObjects[e])
             if ('subelement' in new and not new['subelement']) or not 'subelement' in new:
