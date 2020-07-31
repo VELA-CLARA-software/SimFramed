@@ -1,6 +1,19 @@
 import sys, os, time, math, datetime, copy, h5py
 import argparse
-from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox
+
+
+#from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox
+
+#copied from astra plotter for using pyqt5
+try:
+    from PyQt4.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
+    from PyQt4.QtGui import * #QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QComboBox, QTabWidget, QLineEdit, QFileDialog, QLabel, QAction, QPixmap, qApp, QStyle, QGroupBox, QSpinBox
+except:
+    from PyQt5.QtCore import QObject, pyqtSignal, QThread, QTimer, QRectF, Qt
+    from PyQt5.QtGui import *
+    from PyQt5.QtWidgets import *
+
+
 from pyqtgraph import LegendItem, mkPen, mkBrush, LabelItem, TableWidget, GraphicsLayoutWidget, setConfigOption, setConfigOptions, InfiniteLine, ImageItem, GraphicsView, GraphicsLayout
 
 import astra_plotter_test as astraplotter
