@@ -9,11 +9,6 @@ except:
     from PyQt5.QtGui import *
     from PyQt5.QtWidgets import *
 import pyqtgraph as pg
-import numpy as np
-sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
-import SimulationFramework.Modules.read_beam_file as raf
-import SimulationFramework.Modules.read_twiss_file as rtf
-sys.path.append(os.path.realpath(__file__)+'/../../../../')
 
 class mainWindow(QMainWindow):
     def __init__(self):
@@ -49,6 +44,9 @@ class multiPlotWidget(QWidget):
     # Layout oder for the individual Tiwss plot items
     plotParams = []
 
+    highlightCurveSignal = pyqtSignal(str)
+    unHighlightCurveSignal = pyqtSignal(str)
+
     def __init__(self, xmin=None, ymin=None, **kwargs):
         super(multiPlotWidget, self).__init__(**kwargs)
         ''' multiPlotWidget - main pyQtGraph display widgets '''
@@ -73,11 +71,19 @@ class multiPlotWidget(QWidget):
                     p.setXLink(self.linkAxis)
                 p.showGrid(x=True, y=True)
                 p.setLabel('left', text=param['name'], units=param['units'])
-                ''' set lower plot limit at 0 for all plots '''
-                if xmin is not None and ymin is not None:
-                    p.vb.setLimits(xMin=xmin,yMin=ymin)
+                ''' set lower plot limit for all plots '''
+                if xmin is not None:
+                    p.vb.setLimits(xMin=xmin)
+                if ymin is not None:
+                    p.vb.setLimits(yMin=ymin)
+                # paramater xmin/ymin overrides global setting
+                if 'xmin' in param and param['xmin'] is not None:
+                    p.vb.setLimits(xMin=param['xmin'])
+                if 'ymin' in param and param['ymin'] is not None:
+                    p.vb.setLimits(yMin=param['ymin'])
                 ''' set the vertical viewRange according to the plotParams '''
-                # p.vb.setYRange(*param['range'])
+                if 'range' in param:
+                    p.vb.setYRange(*param['range'])
                 ''' record the plotWidget in the dictionary indexed by Twiss item '''
                 self.multiPlotWidgets[param['label']] = p
 
@@ -94,10 +100,11 @@ class multiPlotWidget(QWidget):
         ''' adds a curve to the main plot '''
         self.curves[name][label] = self.multiPlotWidgets[label].plot(x=x, y=y, pen=pen)
         self.curves[name][label].curve.setClickable(True)
-        self.curves[name][label].sigClicked.connect(lambda: self.highlightPlot(name))
+        self.curves[name][label].sigClicked.connect(lambda: self.curveClicked(name))
+        self.updateCurveHighlights()
 
     def updateCurve(self, x, y, name, label):
-        ''' adds a curve to the main plot '''
+        ''' updates a curve to the main plot '''
         self.curves[name][label].setData(x=x, y=y, pen=self.curves[name][label].opts['pen'])
 
     def removeCurve(self, name):
@@ -105,19 +112,30 @@ class multiPlotWidget(QWidget):
         if not isinstance(name, (list, tuple)):
             name = [name]
         for n in name:
+            if n in self.shadowCurves:
+                self.shadowCurves.remove(n)
             if n in self.curves:
                 for param in self.plotParams:
                     if not param == 'next_row':
                         ''' Remove the plotItem from the relevant plotWidget '''
-                        print('REMOVING curve: ', name)
+                        # print('REMOVING curve: ', name)
                         try:
                             self.multiPlotWidgets[param['label']].removeItem(self.curves[n][param['label']])
                         except:
                             pass
                 del self.curves[n]
+        self.updateCurveHighlights()
 
     def clearCurves(self):
         self.removeCurve(self.curves.keys())
+
+    def curveClicked(self, name):
+        if name in self.shadowCurves:
+            self.unHighlightPlot(name)
+            self.unHighlightCurveSignal.emit(name)
+        else:
+            self.highlightPlot(name)
+            self.highlightCurveSignal.emit(name)
 
     def highlightPlot(self, name):
         ''' highlights a particular plot '''
@@ -126,30 +144,50 @@ class multiPlotWidget(QWidget):
             name = [name]
         for n in name:
             self.addShadowPen(n)
-            for n in self.curves.keys():
-                if n in self.shadowCurves or not len(self.shadowCurves) > 0:
-                    self.setPenAlpha(n, 255, 3)
-                else:
-                    self.setPenAlpha(n, 25, 3)
+        self.updateCurveHighlights()
+
+    def unHighlightPlot(self, name):
+        ''' highlights a particular plot '''
+        # print('highligher clicked! = ', name)
+        if not isinstance(name, (list, tuple)):
+            name = [name]
+        for n in name:
+            self.removeShadowPen(n)
+        self.updateCurveHighlights()
+
+    def updateCurveHighlights(self):
+        for n in self.curves.keys():
+            if n in self.shadowCurves or not len(self.shadowCurves) > 0:
+                self.setPenAlpha(n, 255, 3)
+            else:
+                self.setPenAlpha(n, 75, 3)
 
     def addShadowPen(self, name):
         ''' add/remove a shadow pen to a given plot curve '''
-        for param in self.plotParams:
-            if not param == 'next_row':
-                label = param['label']
-                # if name in self.curves and label in self.curves[name]:
-                curve = self.curves[name][label]
-                if curve.opts['shadowPen'] is None:
-                    self.shadowCurves.append(name)
-                    pen = curve.opts['pen']
-                    shadowpencolor = pen.color()
-                    shadowpencolor.setAlpha(100)
-                    shadowpen = pg.mkPen(color=shadowpencolor, width=(pen.width()+3))
-                    curve.setShadowPen(shadowpen)
-                else:
-                    self.shadowCurves.remove(name)
-                    curve.setShadowPen(None)
-                    curve.opts['shadowPen'] = None
+        if not name in self.shadowCurves:
+            self.shadowCurves.append(name)
+            # for param in self.plotParams:
+            #     if not param == 'next_row':
+            #         label = param['label']
+            #         # if name in self.curves and label in self.curves[name]:
+            #         curve = self.curves[name][label]
+            #         pen = curve.opts['pen']
+            #         shadowpencolor = pen.color()
+            #         shadowpencolor.setAlpha(100)
+            #         shadowpen = pg.mkPen(color=shadowpencolor, width=(pen.width()+3))
+            #         curve.setShadowPen(shadowpen)
+
+    def removeShadowPen(self, name):
+        ''' add/remove a shadow pen to a given plot curve '''
+        if name in self.shadowCurves:
+            self.shadowCurves.remove(name)
+            # for param in self.plotParams:
+            #     if not param == 'next_row':
+            #         label = param['label']
+            #         # if name in self.curves and label in self.curves[name]:
+            #         curve = self.curves[name][label]
+            #         curve.setShadowPen(None)
+            #         curve.opts['shadowPen'] = None
 
     def setPenAlpha(self, name, alpha=255, width=3):
         ''' change the alpha channel and width of a curves pen '''
@@ -163,6 +201,16 @@ class multiPlotWidget(QWidget):
                     pencolor.setAlpha(alpha)
                     pen = pg.mkPen(color=pencolor, width=width, style=pen.style())
                     curve.setPen(pen)
+
+    def clear(self):
+        for n, param in enumerate(self.plotParams):
+            if param == 'next_row':
+                pass
+            else:
+                self.multiPlotWidgets[param['label']].clear()
+        self.plotColor = 0
+        self.curves = {}
+        self.shadowCurves = []
 
 
 pg.setConfigOptions(antialias=True)

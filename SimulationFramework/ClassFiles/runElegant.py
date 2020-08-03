@@ -84,6 +84,8 @@ class fitnessFunc(object):
                     best.append(data[n][p])
                 elif n == 'bunch_compressor' and p == 'set_angle':
                     best.append(data['CLA-VBC-MAG-DIP-01']['angle'])
+                elif n == 'startcharge':
+                    best.append(self.startcharge)
                 else:
                     # print(n, p)
                     if not hasattr(self, 'framework'):
@@ -108,11 +110,11 @@ class fitnessFunc(object):
         #     self.framework.defineElegantCommand(['mpiexec','-np','10','pelegant'])
         self.framework.loadSettings(self.lattice_file)
         if hasattr(self, 'change_to_elegant') and self.change_to_elegant:
-            self.framework.change_Lattice_Code('All','elegant')
+            self.framework.change_Lattice_Code('All','elegant', exclude=['injector400'])
         elif hasattr(self, 'change_to_astra') and self.change_to_astra:
-            self.framework.change_Lattice_Code('All','ASTRA')
+            self.framework.change_Lattice_Code('All','ASTRA', exclude=['injector400'])
         elif hasattr(self, 'change_to_gpt') and self.change_to_gpt:
-            self.framework.change_Lattice_Code('All','GPT')
+            self.framework.change_Lattice_Code('All','GPT', exclude=['injector400'])
 
         ### Define starting lattice
         if self.start_lattice is None:
@@ -129,7 +131,11 @@ class fitnessFunc(object):
         ### Apply input arguments to element definitions
         ''' Apply arguments: [[element, parameter, value], [...]] '''
         for e, p, v in self.input_parameters:
-            self.framework.modifyElement(e, p, v)
+            if e == 'startcharge':
+                print('Setting start charge to ', v)
+                self.startcharge = v
+            else:
+                self.framework.modifyElement(e, p, v)
 
         ### Save the changes to the run directory
         self.framework.save_changes_file(filename=self.framework.subdirectory+'/changes.yaml', elements=self.input_parameters)
