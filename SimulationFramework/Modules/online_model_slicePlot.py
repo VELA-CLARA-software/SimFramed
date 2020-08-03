@@ -1,6 +1,5 @@
 import sys, os, time, math, datetime, copy, re,  h5py
 from collections import OrderedDict
-import glob
 try:
     from PyQt4.QtCore import *
     from PyQt4.QtGui import *
@@ -12,13 +11,11 @@ import pyqtgraph as pg
 import numpy as np
 sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
 import SimulationFramework.Modules.read_beam_file as raf
-import SimulationFramework.Modules.read_twiss_file as rtf
 from SimulationFramework.Modules.multiPlot import multiPlotWidget
-sys.path.append(os.path.realpath(__file__)+'/../../../../')
 
-class mainWindow(QMainWindow):
+class slicePlotter(QMainWindow):
     def __init__(self):
-        super(mainWindow, self).__init__()
+        super(slicePlotter, self).__init__()
         self.resize(1800,900)
         self.centralWidget = QWidget()
         self.layout = QVBoxLayout()
@@ -44,14 +41,14 @@ class mainWindow(QMainWindow):
 class slicePlotWidget(multiPlotWidget):
     # Layout oder for the individual Tiwss plot items
     plotParams = [
-        {'label': 'Horizontal Emittance (normalised)', 'quantity': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'name': '&epsilon;<sub>n,x</sub>'},
-        {'label': 'Vertical Emittance (normalised)', 'quantity': 'slice_normalized_vertical_emittance', 'units': 'm-rad', 'name': '&epsilon;<sub>n,y</sub>'},
+        {'label': 'Slice Horizontal Emittance (normalised)', 'quantity': 'slice_normalized_horizontal_emittance', 'units': 'm-rad', 'name': '&epsilon;<sub>n,x</sub>', 'range': [0,5e-6]},
+        {'label': 'Slice Vertical Emittance (normalised)', 'quantity': 'slice_normalized_vertical_emittance', 'units': 'm-rad', 'name': '&epsilon;<sub>n,y</sub>', 'range': [0,5e-6]},
         'next_row',
-        {'label': 'Current', 'quantity': 'slice_peak_current', 'units': 'A', 'text': 'I', 'name': 'I'},
-        {'label': 'Relative Momentum Spread', 'quantity': 'slice_relative_momentum_spread', 'units': '%', 'name': '&sigma;<sub>cp</sub>/p'},
+        {'label': 'Current', 'quantity': 'slice_peak_current', 'units': 'A', 'text': 'I', 'name': 'I', 'range': [0,100]},
+        {'label': 'Slice Relative Momentum Spread', 'quantity': 'slice_relative_momentum_spread', 'units': '%', 'name': '&sigma;<sub>cp</sub>/p', 'range': [0,0.2]},
         'next_row',
-        {'label': 'Horizontal Beta Function', 'quantity': 'slice_beta_x', 'units': 'm', 'name': '&beta;<sub>x</sub>'},
-        {'label': 'Vertical Beta Function', 'quantity': 'slice_beta_y', 'units': 'm', 'name': '&beta;<sub>y</sub>'},
+        {'label': 'Slice Horizontal Beta Function', 'quantity': 'slice_beta_x', 'units': 'm', 'name': '&beta;<sub>x</sub>', 'range': [0,250]},
+        {'label': 'Slice Vertical Beta Function', 'quantity': 'slice_beta_y', 'units': 'm', 'name': '&beta;<sub>y</sub>', 'range': [0,250]},
     ]
 
     def __init__(self, **kwargs):
@@ -81,7 +78,7 @@ class slicePlotWidget(multiPlotWidget):
         for d in dicts:
             self.addsliceDataFile(**d)
 
-    def addsliceDataObject(self, beamobject, name):
+    def addsliceDataObject(self, beamobject, id, color=None):
         '''
             addsliceDirectory - read the data files in a directory and add a plotItem to the relevant slicePlotItems
 
@@ -91,13 +88,16 @@ class slicePlotWidget(multiPlotWidget):
         '''
         ''' load the data files into the slice dictionary '''
         if str(type(beamobject)) == "<class 'SimulationFramework.Modules.read_beam_file.beam'>":
-            self.beams[name] = beamobject
+            self.beams[id] = beamobject
+            self.beams[id].slices = self.slicePlotSliceWidthWidget.value()
             beamobject.bin_time()
-            color = self.colors[self.plotColor % len(self.colors)]
-            pen = pg.mkPen(color, width=3, style=self.styles[int(self.plotColor / len(self.styles))])
-            if name not in self.curves:
-                self.curves[name] = {}
-                self.plotColor += 1
+            if color is None:
+                color = self.colors[self.plotColor % len(self.colors)]
+                if id not in self.curves:
+                    self.plotColor += 1
+            pen = pg.mkPen(color, width=3, style=self.styles[int(self.plotColor % len(self.styles))])
+            if id not in self.curves:
+                self.curves[id] = {}
             for n, param in enumerate(self.plotParams):
                 if not param == 'next_row':
                     label = param['label']
@@ -110,15 +110,15 @@ class slicePlotWidget(multiPlotWidget):
                     # print('#################################################################')
                     # print(name, name in self.curves, label, self.curves)#, label, label in self.curves[name], self.curves[name])
                     # print('#################################################################')
-                    if name in self.curves and label in self.curves[name]:
-                        print('Updating curve: ', name, label)
-                        self.updateCurve(x, y, name, label)
+                    if id in self.curves and label in self.curves[id]:
+                        # print('Updating curve: ', name, label)
+                        self.updateCurve(x, y, id, label)
                     else:
-                        print('ADDING curve: ', name, label)
-                        self.addCurve(x, y, name, label, pen)
+                        # print('ADDING curve: ', name, label)
+                        self.addCurve(x, y, id, label, pen)
 
 
-    def addsliceDataFile(self, directory, filename=None):
+    def addsliceDataFile(self, directory, filename=None, color=None, id=None):
         '''
             addsliceDirectory - read the data files in a directory and call addsliceDataObject on the beam object
 
@@ -130,10 +130,14 @@ class slicePlotWidget(multiPlotWidget):
             filename = [filename]
         for f in filename:
             datafile = directory + '/' + f if f is not None else directory
-            if os.path.isfile(datafile):
+            if id is None:
+                id = datafile
+            if not datafile in self.curves and os.path.isfile(datafile):
                 beam = raf.beam()
+                # print('reading slice beam', datafile)
                 beam.read_HDF5_beam_file(datafile)
-                self.addsliceDataObject(beam, datafile)
+                # print('plotting slice beam', datafile)
+                self.addsliceDataObject(beam, id=id, color=color)
 
     def changeSliceLengths(self):
         ''' change the time slice length for all beam objects '''
@@ -153,23 +157,25 @@ class slicePlotWidget(multiPlotWidget):
                 x = 10**(12) * np.array((beam.slice_bins - np.mean(beam.slice_bins)))
                 # self.multiPlotWidgets[label].setRange(xRange=[min(x),max(x)])
                 y = getattr(beam, param['quantity'])
-                self.updateCurve(x, y, name, label)
+                if name in self.curves and label in self.curves[name]:
+                    self.updateCurve(x, y, name, label)
                 # self.curves[datafile][label].setData(x=x, y=y)
 
-pg.setConfigOptions(antialias=True)
-pg.setConfigOption('background', 'w')
-pg.setConfigOption('foreground', 'k')
+    def clear(self):
+        self.beams = {}
+        super(slicePlotWidget, self).clear()
+
 def main():
     app = QApplication(sys.argv)
     pg.setConfigOptions(antialias=True)
     pg.setConfigOption('background', 'w')
     pg.setConfigOption('foreground', 'k')
-    ex = mainWindow()
+    ex = slicePlotter()
     ex.show()
-    ex.multiPlot.addsliceDataFiles([
+    ex.slicePlot.addsliceDataFiles([
     {'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'filename': 'CLA-S02-APER-01.hdf5'},
     {'directory': 'OnlineModel_test_data/test_4', 'filename': ['CLA-L02-APER.hdf5','CLA-S04-APER-01.hdf5']}])
-    ex.multiPlot.addsliceDataFile('OnlineModel_test_data/test_4/CLA-S03-APER.hdf5')
+    ex.slicePlot.addsliceDataFile('OnlineModel_test_data/test_4/CLA-S03-APER.hdf5')
     # ex.multiPlot.removePlot('base+4')
     sys.exit(app.exec_())
 
