@@ -12,12 +12,11 @@ import pyqtgraph as pg
 import numpy as np
 sys.path.append(os.path.abspath(os.path.realpath(__file__)+'/../../../'))
 from SimulationFramework.Modules.read_beam_file import beam as rbfBeam
-import SimulationFramework.Modules.read_twiss_file as rtf
 sys.path.append(os.path.realpath(__file__)+'/../../../../')
 
-class mainWindow(QMainWindow):
+class beamPlotter(QMainWindow):
     def __init__(self):
-        super(mainWindow, self).__init__()
+        super(beamPlotter, self).__init__()
         self.resize(1800,900)
         self.centralWidget = QWidget()
         self.layout = QVBoxLayout()
@@ -42,7 +41,7 @@ class mainWindow(QMainWindow):
 
 class beamPlotWidget(QWidget):
     # Styles for the plot lines
-    colors = [QColor('#F5973A'),QColor('#A95AA1'),QColor('#85C059'),QColor('#0F2080'),QColor('#BDB8AD'), 'r']
+    colors = [QColor('#F5973A'),QColor('#A95AA1'),QColor('#85C059'),QColor('#0F2080'),QColor('#BDB8AD'), 'r', 'k', 'm', 'g']
 
     beamParams = OrderedDict([
         ['x', {'quantity': 'x', 'units': 'm', 'name': 'x'}],
@@ -54,11 +53,13 @@ class beamPlotWidget(QWidget):
         ['cpz', {'quantity': 'cpz', 'units': 'eV', 'name': 'cp<sub>z</sub>'}],
     ])
 
+    highlightCurveSignal = pyqtSignal(str)
+    unHighlightCurveSignal = pyqtSignal(str)
+
     def __init__(self, **kwargs):
         super(beamPlotWidget, self).__init__(**kwargs)
         ''' These are for reading data files from ASTRA and Elegant '''
         self.beams = {}
-        self.twiss = rtf.twiss()
 
         ''' beamPlotWidget '''
         self.beamPlotWidget = QWidget()
@@ -112,28 +113,37 @@ class beamPlotWidget(QWidget):
         for d in dicts:
             self.addbeamDataFile(**d)
 
-    def addbeamData(self, beamobject, datafile):
+    def addbeamData(self, beamobject, id, color=None):
         ''' addbeamData - takes a "read_beam_file" object and add a plotItem to the relevant self.curves '''
         ''' add the beam object into the self.beams dictionary '''
         ''' Requires a reference file name '''
         if str(type(beamobject)) == "<class 'SimulationFramework.Modules.read_beam_file.beam'>":
-            self.beams[datafile] = beamobject
-            color = self.colors[self.plotColor]
+            self.beams[id] = beamobject
+            if color is None:
+                color = self.colors[self.plotColor % len(self.colors)]
+                self.plotColor += 1
             pen = pg.mkBrush(color=color)
-            self.curves[datafile] = self.beamPlotPlotWidget.plot([], pen=None,
-            symbolBrush=pen, symbolSize=5, symbolPen=None)
-            self.curves[datafile].sigClicked.connect(lambda: self.highlightPlot(datafile))
-            self.plotColor += 1
-        self.updateBeamPlot()
 
-    def addbeamDataFile(self, directory, filename):
+            self.curves[id] = self.beamPlotPlotWidget.plot([], pen=None,
+                                                                symbolBrush=pen, symbolSize=5, symbolPen=None)
+            self.curves[id].sigClicked.connect(lambda: self.curveClicked(id))
+        self.updateBeamPlot()
+        return color
+
+    def addbeamDataFile(self, directory, filename, color=None, id=None):
         ''' addbeamDataFile - read the data file and add a plotItem to the relevant self.curves '''
         ''' load the data file into the self.beams dictionary '''
         datafile = directory + '/' + filename
-        if os.path.isfile(datafile):
+        if id is None:
+            id = datafile
+        if not datafile in self.curves and os.path.isfile(datafile):
             beam = rbfBeam()
+            # print('reading beam', datafile)
             beam.read_HDF5_beam_file(datafile)
-            self.addbeamData(beam, datafile)
+            # print('plotting beam', datafile)
+            color = self.addbeamData(beam, id=id, color=color)
+            return color
+        return None
 
     def updateBeamPlot(self):
         xdict = self.beamParams[str(self.beamPlotXAxisCombo.currentText())]
@@ -148,18 +158,23 @@ class beamPlotWidget(QWidget):
             self.curves[d].setData(x=x, y=y)
         self.beamPlotPlotWidget.setLabel('left', text=ydict['name'], units=ydict['units'])
         self.beamPlotPlotWidget.setLabel('bottom', text=xdict['name'], units=xdict['units'])
+        self.updateCurveHighlights()
 
-    def removePlot(self, directory):
+    def removePlot(self, id):
         ''' finds all beam plots based on a directory name, and removes them '''
-        if not isinstance(directory, (list, tuple)):
-            directory = [directory]
-        indexname = directory[-1]
-        if directory in self.beamPlotItems:
-            for entry in self.beamplotLayout:
-                if entry == 'next_row':
-                    pass
-                else:
-                    self.beamPlotWidgets[entry['label']].removeItem(self.beamPlotItems[indexname][entry['label']])
+        if id in self.shadowCurves:
+            self.shadowCurves.remove(id)
+        if id in self.curves:
+            self.beamPlotPlotWidget.removeItem(self.curves[id])
+        self.updateCurveHighlights()
+
+    def curveClicked(self, name):
+        if name in self.shadowCurves:
+            self.unHighlightPlot(name)
+            self.unHighlightCurveSignal.emit(name)
+        else:
+            self.highlightPlot(name)
+            self.highlightCurveSignal.emit(name)
 
     def highlightPlot(self, name):
         ''' highlights a particular plot '''
@@ -168,6 +183,18 @@ class beamPlotWidget(QWidget):
             name = [name]
         for n in name:
             self.addShadowPen(n)
+        self.updateCurveHighlights()
+
+    def unHighlightPlot(self, name):
+        ''' highlights a particular plot '''
+        # print('highligher clicked! = ', name)
+        if not isinstance(name, (list, tuple)):
+            name = [name]
+        for n in name:
+            self.removeShadowPen(n)
+        self.updateCurveHighlights()
+
+    def updateCurveHighlights(self):
         for n in self.curves.keys():
             if n in self.shadowCurves or not len(self.shadowCurves) > 0:
                 self.setPenAlpha(n, 255, 3)
@@ -178,15 +205,10 @@ class beamPlotWidget(QWidget):
         # curve = self.curves[name]
         if not name in self.shadowCurves:
             self.shadowCurves.append(name)
-            # pen = curve.opts['symbolBrush']
-            # shadowpencolor = pen.color()
-            # shadowpencolor.setAlpha(100)
-            # shadowpen = pg.mkPen(color=shadowpencolor, width=6)
-            # curve.setSymbolPen(shadowpen)
-        else:
+
+    def removeShadowPen(self, name):
+        if name in self.shadowCurves:
             self.shadowCurves.remove(name)
-            # curve.setSymbolPen(None)
-            # curve.opts['symbolPen'] = None
 
     def setPenAlpha(self, name, alpha=255, width=3):
         curve = self.curves[name]
@@ -196,12 +218,19 @@ class beamPlotWidget(QWidget):
         pen = pg.mkBrush(color=pencolor, width=width, style=pen.style())
         curve.setSymbolBrush(pen)
 
+    def clear(self):
+        self.beamPlotPlotWidget.clear()
+        self.plotColor = 0
+        self.curves = {}
+        self.shadowCurves = []
+        self.beams = {}
+
 def main():
     app = QApplication(sys.argv)
     # pg.setConfigOptions(antialias=True)
     pg.setConfigOption('background', 'w')
     pg.setConfigOption('foreground', 'k')
-    ex = mainWindow()
+    ex = beamPlotter()
     ex.show()
     ex.beamPlot.addbeamDataFiles([
     {'directory': 'OnlineModel_test_data/basefiles_4_250pC', 'filename': 'CLA-S02-APER-01.hdf5'},

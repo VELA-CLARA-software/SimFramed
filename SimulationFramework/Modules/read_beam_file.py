@@ -204,7 +204,7 @@ class beam(object):
         self.beam['px'] = cpx * self.particle_mass
         self.beam['py'] = cpy * self.particle_mass
         self.beam['pz'] = cpz * self.particle_mass
-        self.beam['t'] = [(z / (1 * Bz * constants.speed_of_light)) for z, Bz in zip(self.z, self.Bz)]
+        self.beam['t'] = [(z / (-1 * Bz * constants.speed_of_light)) for z, Bz in zip(self.z, self.Bz)]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = charge
         self.beam['charge'] = []
@@ -222,7 +222,7 @@ class beam(object):
         self.beam['px'] = cpx * self.q_over_c
         self.beam['py'] = cpy * self.q_over_c
         self.beam['pz'] = cpz * self.q_over_c
-        self.beam['t'] = [(z / (1 * Bz * constants.speed_of_light)) for z, Bz in zip(self.z, self.Bz)]
+        self.beam['t'] = [(z / (-1 * Bz * constants.speed_of_light)) for z, Bz in zip(self.z, self.Bz)]
         # self.beam['t'] = self.z / (1 * self.Bz * constants.speed_of_light)#[time if status is -1 else 0 for time, status in zip(clock, status)]#
         self.beam['total_charge'] = charge
         self.beam['charge'] = []
@@ -597,7 +597,10 @@ class beam(object):
         return np.mean(u2*up2) - np.mean(u2)*np.mean(up2)
 
     def emittance(self, x, xp, p=None):
-        emittance = np.sqrt(self.covariance(x, x)*self.covariance(xp, xp) - self.covariance(x, xp)**2)
+        cov_x = self.covariance(x, x)
+        cov_xp = self.covariance(xp, xp)
+        cov_x_xp = self.covariance(x, xp)
+        emittance = np.sqrt(cov_x * cov_xp - cov_x_xp**2) if (cov_x * cov_xp - cov_x_xp**2) > 0 else 0
         if p is None:
             return emittance
         else:
@@ -783,7 +786,7 @@ class beam(object):
         if not hasattr(self,'slice'):
             self.slice = {}
         if not hasattr(self,'_slicelength'):
-            self.slice_length = 0.1e-12
+            self.slice_length = 0
             # print("Assuming slice length is 100 fs")
         twidth = (max(self.t) - min(self.t))
         if twidth == 0:
@@ -835,19 +838,19 @@ class beam(object):
     def slice_momentum(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
-        self.slice['Momentum'] = np.array([cpbin.mean() for cpbin in self._cpbins])
+        self.slice['Momentum'] = np.array([cpbin.mean() if len(cpbin) > 0 else 0 for cpbin in self._cpbins ])
         return self.slice['Momentum']
     @property
     def slice_momentum_spread(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
-        self.slice['Momentum_Spread'] = np.array([cpbin.std() for cpbin in self._cpbins])
+        self.slice['Momentum_Spread'] = np.array([cpbin.std() if len(cpbin) > 0 else 0 for cpbin in self._cpbins])
         return self.slice['Momentum_Spread']
     @property
     def slice_relative_momentum_spread(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
-        self.slice['Relative_Momentum_Spread'] = np.array([100*cpbin.std()/cpbin.mean() for cpbin in self._cpbins])
+        self.slice['Relative_Momentum_Spread'] = np.array([100*cpbin.std()/cpbin.mean() if len(cpbin) > 0 else 0 for cpbin in self._cpbins])
         return self.slice['Relative_Momentum_Spread']
 
     def slice_data(self, data):
@@ -884,42 +887,42 @@ class beam(object):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         emitbins = self.emitbins(self.x, self.xp)
-        self.slice['Horizontal_Emittance'] = np.array([self.emittance(xbin, xpbin) for xbin, xpbin, cpbin in emitbins])
+        self.slice['Horizontal_Emittance'] = np.array([self.emittance(xbin, xpbin) if len(cpbin) > 0 else 0 for xbin, xpbin, cpbin in emitbins])
         return self.slice['Horizontal_Emittance']
     @property
     def slice_vertical_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         emitbins = self.emitbins(self.y, self.yp)
-        self.slice['Vertical_Emittance'] = np.array([self.emittance(ybin, ypbin) for ybin, ypbin, cpbin in emitbins])
+        self.slice['Vertical_Emittance'] = np.array([self.emittance(ybin, ypbin) if len(cpbin) > 0 else 0 for ybin, ypbin, cpbin in emitbins])
         return self.slice['Vertical_Emittance']
     @property
     def slice_normalized_horizontal_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         emitbins = self.emitbins(self.x, self.xp)
-        self.slice['Normalized_Horizontal_Emittance'] = np.array([self.emittance(xbin, xpbin, cpbin) for xbin, xpbin, cpbin in emitbins])
+        self.slice['Normalized_Horizontal_Emittance'] = np.array([self.emittance(xbin, xpbin, cpbin) if len(cpbin) > 0 else 0 for xbin, xpbin, cpbin in emitbins])
         return self.slice['Normalized_Horizontal_Emittance']
     @property
     def slice_normalized_vertical_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         emitbins = self.emitbins(self.y, self.yp)
-        self.slice['Normalized_Vertical_Emittance'] = np.array([self.emittance(ybin, ypbin, cpbin) for ybin, ypbin, cpbin in emitbins])
+        self.slice['Normalized_Vertical_Emittance'] = np.array([self.emittance(ybin, ypbin, cpbin) if len(cpbin) > 0 else 0 for ybin, ypbin, cpbin in emitbins])
         return self.slice['Normalized_Vertical_Emittance']
     @property
     def slice_normalized_mve_horizontal_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         emitbins = self.emitbins(self.x, self.xp)
-        self.slice['Normalized_mve_Horizontal_Emittance'] = np.array([self.mve_emittance(xbin, xpbin, cpbin) for xbin, xpbin, cpbin in emitbins])
+        self.slice['Normalized_mve_Horizontal_Emittance'] = np.array([self.mve_emittance(xbin, xpbin, cpbin) if len(cpbin) > 0 else 0 for xbin, xpbin, cpbin in emitbins])
         return self.slice['Normalized_mve_Horizontal_Emittance']
     @property
     def slice_normalized_mve_vertical_emittance(self):
         if not hasattr(self,'_tbins') or not hasattr(self,'_cpbins'):
             self.bin_time()
         emitbins = self.emitbins(self.y, self.yp)
-        self.slice['Normalized_mve_Vertical_Emittance'] = np.array([self.mve_emittance(ybin, ypbin, cpbin) for ybin, ypbin, cpbin in emitbins])
+        self.slice['Normalized_mve_Vertical_Emittance'] = np.array([self.mve_emittance(ybin, ypbin, cpbin) if len(cpbin) > 0 else 0 for ybin, ypbin, cpbin in emitbins])
         return self.slice['Normalized_mve_Vertical_Emittance']
     @property
     def slice_peak_current(self):
@@ -940,7 +943,7 @@ class beam(object):
         xbins = self.slice_data(self.beam['x'])
         exbins =  self.slice_horizontal_emittance
         emitbins = list(zip(xbins, exbins))
-        self.slice['slice_beta_x'] = np.array([self.covariance(x, x)/ex for x, ex in emitbins])
+        self.slice['slice_beta_x'] = np.array([self.covariance(x, x)/ex if ex > 0 else 0 for x, ex in emitbins])
         return self.slice['slice_beta_x']
     @property
     def slice_alpha_x(self):
@@ -948,7 +951,7 @@ class beam(object):
         xpbins = self.slice_data(self.xp)
         exbins =  self.slice_horizontal_emittance
         emitbins = list(zip(xbins, xpbins, exbins))
-        self.slice['slice_alpha_x'] = np.array([-1*self.covariance(x, xp)/ex for x, xp, ex in emitbins])
+        self.slice['slice_alpha_x'] = np.array([-1*self.covariance(x, xp)/ex if ex > 0 else 0 for x, xp, ex in emitbins])
         return self.slice['slice_alpha_x']
     @property
     def slice_gamma_x(self):
@@ -959,7 +962,7 @@ class beam(object):
         ybins = self.slice_data(self.beam['y'])
         eybins =  self.slice_vertical_emittance
         emitbins = list(zip(ybins, eybins))
-        self.slice['slice_beta_y'] = np.array([self.covariance(y, y)/ey for y, ey in emitbins])
+        self.slice['slice_beta_y'] = np.array([self.covariance(y, y)/ey if ey > 0 else 0 for y, ey in emitbins])
         return self.slice['slice_beta_y']
     @property
     def slice_alpha_y(self):
@@ -967,7 +970,7 @@ class beam(object):
         ypbins = self.slice_data(self.yp)
         eybins =  self.slice_vertical_emittance
         emitbins = list(zip(ybins, ypbins, eybins))
-        self.slice['slice_alpha_y'] = np.array([-1*self.covariance(y,yp)/ey for y, yp, ey in emitbins])
+        self.slice['slice_alpha_y'] = np.array([-1*self.covariance(y,yp)/ey if ey > 0 else 0 for y, yp, ey in emitbins])
         return self.twiss['slice_alpha_y']
     @property
     def slice_gamma_y(self):

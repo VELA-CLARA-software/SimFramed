@@ -43,13 +43,14 @@ class mainWindow(QMainWindow):
 
 class twissPlotWidget(multiPlotWidget):
     # Layout oder for the individual Tiwss plot items
+
     plotParams = [
-                   {'label': 'Horizontal Beam Size', 'name': '&sigma;<sub>x</sub>', 'quantity': 'sigma_x', 'range': [0,1e-3], 'units': 'm'},
-                   {'label': 'Vertical Beam Size', 'name': '&sigma;<sub>y</sub>', 'quantity': 'sigma_y', 'range': [0,1e-3], 'units': 'm'},
-                   {'label': 'Momentum', 'name': 'cp', 'quantity': 'cp_eV', 'range': [0,250e6], 'units': 'eV/c'},
+                   {'label': 'Horizontal Beam Size', 'name': '&sigma;<sub>x</sub>', 'quantity': 'sigma_x', 'range': [0,3e-3], 'units': 'm'},
+                   {'label': 'Vertical Beam Size', 'name': '&sigma;<sub>y</sub>', 'quantity': 'sigma_y', 'range': [0,3e-3], 'units': 'm'},
+                   {'label': 'Momentum', 'name': 'cp', 'quantity': 'cp_eV', 'range': [0,50e6], 'units': 'eV/c'},
                    'next_row',
-                   {'label': 'Momentum Spread', 'name': '&sigma;<sub>cp</sub>', 'quantity': 'sigma_cp_eV', 'range': [0,5e6], 'units': 'eV/c'},
-                   {'label': 'Bunch Length', 'name': '&sigma;<sub>z</sub>', 'quantity': 'sigma_z', 'range': [0,0.6e-3], 'units': 'm'},
+                   {'label': 'Momentum Spread', 'name': '&sigma;<sub>cp</sub>', 'quantity': 'sigma_cp_eV', 'range': [0,1e6], 'units': 'eV/c'},
+                   {'label': 'Bunch Length', 'name': '&sigma;<sub>z</sub>', 'quantity': 'sigma_z', 'range': [0,5e-3], 'units': 'm'},
                    {'label': 'Horizontal Emittance (normalised)', 'name': '&epsilon;<sub>n,x</sub>', 'quantity': 'enx', 'range': [0.,1.5e-6], 'units': 'm-rad'},
                    'next_row',
                    {'label': 'Vertical Emittance (normalised)', 'name': '&epsilon;<sub>n,y</sub>', 'quantity': 'eny', 'range':  [0.,1.5e-6], 'units': 'm-rad'},
@@ -60,7 +61,7 @@ class twissPlotWidget(multiPlotWidget):
     def __init__(self, **kwargs):
         super(twissPlotWidget, self).__init__(xmin=0, ymin=0, **kwargs)
 
-    def addTwissDirectory(self, directory, name=None):
+    def addTwissDirectory(self, directory, id, color=None):
         '''
             Read the data files in a directory and add a plotItem to the relevant curves
 
@@ -79,15 +80,17 @@ class twissPlotWidget(multiPlotWidget):
         if not isinstance(directory, (list, tuple)):
             directory = [directory]
         ''' loads the first (and only?) param in the list of directories '''
+        print('TWISS loading ', directory[0])
         twiss = self.loadDataFile( reset=True, **(directory[0]))
         ''' loads any other directories '''
         for d in directory[1:]:
+            print('TWISS loading ', d)
             twiss = self.loadDataFile(reset=False, twiss=twiss, **d)
         ''' assignes a reference name if none is given '''
-        name = directory[-1]['directory'] if name is None else name
-        self.addtwissDataObject(twiss, name)
+        id = directory[-1]['directory'] if id is None else id
+        self.addtwissDataObject(twiss, id, color=color)
 
-    def addtwissDataObject(self, dataobject, name):
+    def addtwissDataObject(self, dataobject, id, color=None):
         '''
             Take a twiss data object and add a plot line to all of the relevant Twiss plots
 
@@ -98,13 +101,14 @@ class twissPlotWidget(multiPlotWidget):
         '''
         twiss = dataobject
         ''' select a color and style '''
-        color = self.colors[self.plotColor % len(self.colors)]
-        style = self.styles[int(self.plotColor % len(self.styles))]
-        pen = pg.mkPen(color, width=3, style=style)
-        ''' iterate the color index '''
-        if name not in self.curves:
-            self.curves[name] = {}
+        if color is None:
+            color = self.colors[self.plotColor % len(self.colors)]
+            # style = self.styles[int(self.plotColor % len(self.styles))]
             self.plotColor += 1
+        pen = pg.mkPen(color, width=3)#, style=style)
+        ''' iterate the color index '''
+        if id not in self.curves:
+            self.curves[id] = {}
         for param in self.plotParams:
             if not param == 'next_row':
                 label = param['label']
@@ -115,15 +119,15 @@ class twissPlotWidget(multiPlotWidget):
                     xy = np.transpose(np.array([x,y]))
                     x, y = np.transpose(xy[np.argsort(xy[:,0])])
                     ''' create a plotItem on a Twiss plot and save to the curves dictionary '''
-                    if name in self.curves and label in self.curves[name]:
-                        print('Updating curve: ', name, label)
-                        self.updateCurve(x, y, name, label)
+                    if id in self.curves and label in self.curves[id]:
+                        # print('Updating curve: ', id, label)
+                        self.updateCurve(x, y, id, label)
                     else:
-                        print('ADDING curve: ', name, label)
-                        self.addCurve(x, y, name, label, pen)
+                        # print('ADDING curve: ', id, label)
+                        self.addCurve(x, y, id, label, pen)
         if not isinstance(color, QColor):
             color = pg.mkColor(color)
-        return color, style
+        return color
 
     def loadDataFile(self, directory, sections=None, reset=True, twiss=None):
         ''' loads ASTRA and Elegant data files from a directory and returns a twiss object'''
