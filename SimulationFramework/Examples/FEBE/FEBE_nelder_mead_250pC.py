@@ -7,6 +7,10 @@ from functools import partial
 from ruamel import yaml
 import SimulationFramework.Framework as fw
 import matplotlib.pyplot as plt
+import argparse
+
+parser = argparse.ArgumentParser(description='Perform an optimisation.')
+parser.add_argument('type', default='nelder_mead')
 
 class FEBE(Optimise_Elegant):
 
@@ -16,6 +20,9 @@ class FEBE(Optimise_Elegant):
     #    -1.22393267e-01,  6.12784140e-01])
 
     parameter_names = [
+        ['startcharge','charge'],
+        ['CLA-L01-CAV', 'field_amplitude'],
+        ['CLA-L01-CAV', 'phase'],
         ['CLA-L02-CAV', 'field_amplitude'],
         ['CLA-L02-CAV', 'phase'],
         ['CLA-L03-CAV', 'field_amplitude'],
@@ -32,31 +39,41 @@ class FEBE(Optimise_Elegant):
 
     def __init__(self):
         super(FEBE, self).__init__()
-        # self.parameter_names.append(['FODO_F', 'k1l'])
-        # self.parameter_names.append(['FODO_D', 'k1l'])
+        self.parameter_names.append(['FODO_F', 'k1l'])
+        self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*2)
-        self.base_files = '../../../CLARA/basefiles_'+str(self.scaling)+'/'
+        self.sample_interval = 2**(3*1)
+        self.base_files = '../../basefiles_'+str(self.scaling)+'/'
         self.clean = True
         self.doTracking = True
+        self.startcharge = 250
 
     def before_tracking(self):
+            csrbins = int(round(2**(3*self.scaling) / self.sample_interval / 250, -1))
+            lscbins = int(round(2**(3*self.scaling) / self.sample_interval / 500, -1))
             elements = self.framework.elementObjects.values()
             for e in elements:
                 e.lsc_enable = True
-                e.lsc_bins = 30
+                e.lsc_bins = lscbins
                 e.current_bins = 0
+                e.csr_bins = csrbins
                 e.longitudinal_wakefield_enable = True
                 e.transverse_wakefield_enable = True
-                e.smoothing_half_width = 2
-                pass
+                e.smoothing_half_width = 1
+                e.lsc_high_frequency_cutoff_start = 0.2
+                e.lsc_high_frequency_cutoff_end = 0.25
+                e.smoothing = 1
+                # e.end1_focus = 0
+                # e.end2_focus = 0
+                # e.body_focus_model = "None"
             lattices = self.framework.latticeObjects.values()
             for l in lattices:
                 l.lscDrifts = True
-                l.lsc_bins = 30
-                l.lsc_high_frequency_cutoff_start = 0.25
-                l.lsc_high_frequency_cutoff_end = 0.33
-                pass
+                l.lsc_bins = lscbins
+                l.lsc_high_frequency_cutoff_start = 0.2
+                l.lsc_high_frequency_cutoff_end = 0.25
+                l.smoothing_half_width = 1
+                l.smoothing = 1
             # self.framework['FEBE'].betax = 0.748377
             # self.framework['FEBE'].betay = 3.96107
             # self.framework['FEBE'].alphax = -0.61447
@@ -115,18 +132,18 @@ class FEBE(Optimise_Elegant):
             'field_max_fhc': {'type': 'lessthan', 'value': fhc_field, 'limit': 50, 'weight': 3000},
             'momentum_max': {'type': 'lessthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 260, 'weight': 250},
             'momentum_min': {'type': 'greaterthan', 'value': 0.511*self.twiss.elegant['pCentral0'][ipindex], 'limit': 240, 'weight': 150},
-            'sigma_x_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex], 'limit': 15e-6, 'weight': 15},
-            'sigma_y_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex], 'limit': 8e-6, 'weight': 15},
-            'sigma_x_max': {'type': 'lessthan', 'value': 1e3*12*self.twiss.elegant['Sx'][:ipindex2], 'limit': 37, 'weight': 150},
-            'sigma_y_max': {'type': 'lessthan', 'value': 1e3*12*self.twiss.elegant['Sy'][:ipindex2], 'limit': 37, 'weight': 150},
-            # 'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 950, 'weight': 20},
+            # 'sigma_x_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sx'][ipindex], 'limit': 15e-6, 'weight': 15},
+            # 'sigma_y_IP': {'type': 'lessthan', 'value': self.twiss.elegant['Sy'][ipindex], 'limit': 8e-6, 'weight': 15},
+            'sigma_x_max': {'type': 'lessthan', 'value': 1e3*6*self.twiss.elegant['Sx'][:ipindex2], 'limit': 37, 'weight': 150},
+            'sigma_y_max': {'type': 'lessthan', 'value': 1e3*6*self.twiss.elegant['Sy'][:ipindex2], 'limit': 37, 'weight': 150},
+            'peakI_min': {'type': 'greaterthan', 'value': abs(peakI), 'limit': 5000, 'weight': 100},
             # 'peakI_max': {'type': 'lessthan', 'value': abs(peakI), 'limit': 1050, 'weight': 20},
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
-            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 5, 'weight': 1.5},
-            'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 0.75, 'weight': 1.5},
-            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.015, 'weight': 100},
+            'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 25, 'weight': 1.5},
+            'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 1, 'weight': 1.5},
+            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.015, 'weight': 50},
             # 'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 1, 'weight': 0},
-            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 99, 'weight': 200},
+            'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 75, 'weight': 25},
         }
         constraintsList = merge_two_dicts(constraintsList, constraintsListFEBE)
 
@@ -138,8 +155,14 @@ class FEBE(Optimise_Elegant):
 if __name__ == "__main__":
     opt = FEBE()
     opt.set_changes_file(['./transverse_best_changes_upto_S07_250pC.yaml', './S07_transverse_best_changes_250pC.yaml', './FEBE_transverse_best_changes.yaml'])
-    opt.set_lattice_file('./FEBE_Single.def')
+    opt.set_lattice_file('./FEBE_Single_L01.def')
     opt.set_start_file('PreFEBE')
-    opt.load_best('./nelder_mead_best_changes_250pC.yaml')
-    # opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_250pC.yaml', step=[5e6, 5, 5e6, 5, 5e6, 5, 5e6, 5, 0.005, 0.1])
-    opt.Simplex(best_changes='./nelder_mead_best_changes_250pC.yaml', subdir='simplex_250pC', maxiter=300)
+    args = parser.parse_args()
+    if args.type == 'nelder_mead':
+        print('Performing a Nelder-Mead Optimisation...')
+        opt.load_best('./nelder_mead_best_changes_250pC.yaml')
+        opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_250pC.yaml', subdir='nelder_mead_250pC', step=[20, 1e6, 2, 1e6, 2, 1e6, 2, 1e6, 2, 0.001, 0.02, 0.1,0.1])
+    elif args.type == 'simplex':
+        print('Performing a SciPy Simplex Optimisation...')
+        opt.load_best('./simplex_best_changes_250pC.yaml')
+        opt.Simplex(best_changes='./simplex_best_changes_250pC.yaml', subdir='simplex_250pC', maxiter=300)
