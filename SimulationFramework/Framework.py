@@ -489,7 +489,7 @@ class Framework(Munch):
     def modifyElement(self, elementName, parameter, value):
         if elementName in self.groupObjects:
             self.groupObjects[elementName].change_Parameter(parameter,value)
-        else:
+        elif elementName in self.elementObjects:
             setattr(self.elementObjects[elementName], parameter, value)
         # set(getattr(self.elementObjects[elementName], parameter), value)
 
