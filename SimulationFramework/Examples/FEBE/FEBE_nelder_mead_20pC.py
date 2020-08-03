@@ -32,8 +32,8 @@ class FEBE(Optimise_Elegant):
 
     def __init__(self):
         super(FEBE, self).__init__()
-        self.parameter_names.append(['FODO_F', 'k1l'])
-        self.parameter_names.append(['FODO_D', 'k1l'])
+        # self.parameter_names.append(['FODO_F', 'k1l'])
+        # self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
         self.sample_interval = 2**(3*2)
         self.base_files = '../../../CLARA/basefiles_'+str(self.scaling)+'_20pC/'

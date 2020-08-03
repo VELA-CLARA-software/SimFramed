@@ -3,6 +3,10 @@ sys.path.append('../../../')
 from SimulationFramework.ClassFiles.Optimise_longitudinal_Elegant import Optimise_Elegant
 import SimulationFramework.Modules.read_twiss_file as rtf
 import numpy as np
+import argparse
+
+parser = argparse.ArgumentParser(description='Example Tracking')
+parser.add_argument('type', default='nelder_mead')
 
 class FEBE(Optimise_Elegant):
 
@@ -11,11 +15,31 @@ class FEBE(Optimise_Elegant):
     #     2.74842883e+07,  1.87482967e+02,  3.11918859e+07,  5.07160187e+01,
     #    -1.22393267e-01,  6.12784140e-01])
 
+    parameter_names = [
+        ['startcharge','charge'],
+        ['CLA-L01-CAV', 'field_amplitude'],
+        ['CLA-L01-CAV', 'phase'],
+        ['CLA-L02-CAV', 'field_amplitude'],
+        ['CLA-L02-CAV', 'phase'],
+        ['CLA-L03-CAV', 'field_amplitude'],
+        ['CLA-L03-CAV', 'phase'],
+        ['CLA-L4H-CAV', 'field_amplitude'],
+        ['CLA-L4H-CAV', 'phase'],
+        ['CLA-L04-CAV', 'field_amplitude'],
+        ['CLA-L04-CAV', 'phase'],
+        ['bunch_compressor', 'angle'],
+        ['CLA-S07-DCP-01', 'factor'],
+        # ['FODO_D', 'k1l'],
+        # ['FODO_F', 'k1l'],
+    ]
+
     def __init__(self):
         super(FEBE, self).__init__()
+        self.parameter_names.append(['FODO_F', 'k1l'])
+        self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*2)
-        self.base_files = '../../CLARA/basefiles_'+str(self.scaling)+'/'
+        self.sample_interval = 2**(3*1)
+        self.base_files = '../basefiles_'+str(self.scaling)+'/'
         self.clean = True
         self.doTracking = True
         self.change_to_elegant = True
@@ -23,22 +47,31 @@ class FEBE(Optimise_Elegant):
         self.change_to_gpt = False
 
     def before_tracking(self):
+            csrbins = int(round(2**(3*self.scaling) / self.sample_interval / 250, -1))
+            lscbins = int(round(2**(3*self.scaling) / self.sample_interval / 500, -1))
             elements = self.framework.elementObjects.values()
             for e in elements:
                 e.lsc_enable = True
-                e.lsc_bins = 30
+                e.lsc_bins = lscbins
                 e.current_bins = 0
+                e.csr_bins = csrbins
                 e.longitudinal_wakefield_enable = True
                 e.transverse_wakefield_enable = True
-                e.smoothing_half_width = 2
-                pass
+                e.smoothing_half_width = 1
+                e.lsc_high_frequency_cutoff_start = 0.2
+                e.lsc_high_frequency_cutoff_end = 0.25
+                e.smoothing = 1
+                # e.end1_focus = 0
+                # e.end2_focus = 0
+                # e.body_focus_model = "None"
             lattices = self.framework.latticeObjects.values()
             for l in lattices:
                 l.lscDrifts = True
-                l.lsc_bins = 30
-                l.lsc_high_frequency_cutoff_start = 0.25
-                l.lsc_high_frequency_cutoff_end = 0.33
-                pass
+                l.lsc_bins = lscbins
+                l.lsc_high_frequency_cutoff_start = 0.2
+                l.lsc_high_frequency_cutoff_end = 0.25
+                l.smoothing_half_width = 1
+                l.smoothing = 1
             # self.framework['FEBE'].betax = 0.748377
             # self.framework['FEBE'].betay = 3.96107
             # self.framework['FEBE'].alphax = -0.61447
@@ -57,9 +90,14 @@ class FEBE(Optimise_Elegant):
 if __name__ == "__main__":
     opt = FEBE()
     opt.set_changes_file(['./transverse_best_changes_upto_S07_250pC.yaml', './S07_transverse_best_changes_250pC.yaml','./FEBE_transverse_best_changes.yaml'])
-    opt.set_lattice_file('./FEBE_Single.def')
+    opt.set_lattice_file('./FEBE_Single_L01.def')
     opt.set_start_file('PreFEBE')
-    opt.load_best('./nelder_mead_best_changes_250pC.yaml')
+    args = parser.parse_args()
+    if args.type == 'nelder_mead':
+        print('Using a Nelder-Mead Track...')
+        opt.load_best('./nelder_mead_best_changes_250pC.yaml')
+    elif args.type == 'simplex':
+        print('Using a SciPy Simplex Track...')
+        opt.load_best('./simplex_best_changes_250pC.yaml')
     opt.Example(dir='example_250pC')
-    # opt.Simplex()
     opt.framework.save_lattice(directory='example_250pC/')

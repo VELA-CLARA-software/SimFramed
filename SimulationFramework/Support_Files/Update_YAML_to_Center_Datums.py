@@ -25,8 +25,8 @@ class Converter(Framework):
         super(Converter, self).__init__(directory='', master_lattice=None, overwrite=None, runname='', clean=False, verbose=True)
         global master_lattice_location
         master_lattice_location = self.master_lattice_location
-        self.mariadb_connection = mariadb.connect(host='astecnas2', user='root', password='control123', database='master_lattice')
-        self.cursor = self.mariadb_connection.cursor(buffered=True)
+        # self.mariadb_connection = mariadb.connect(host='astecnas2', user='root', password='control123', database='master_lattice')
+        # self.cursor = self.mariadb_connection.cursor(buffered=True)
         self.datums = {k:v for k,v in self.load_datums().items() if not '-a' == k[-2:] and not '-b'  == k[-2:]}
         self.all_data = OrderedDict()
 
@@ -157,25 +157,28 @@ class Converter(Framework):
                         mdiff = diff
                 if mdiff > 0.001:
                     print('Match found but diff big', mdiff, ez, dz , ex, dx, lname, finalmatch)
-        if finalmatch is None or mdiff > 0.001:
-            # print('No Match found  ', lname, finalmatch)
-            if '-feb-' in lname:
-                element['start'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].start ]
-                element['end'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].end ]
-                element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].middle ]
-                if element['type'] == 'dipole' and '-feb-' in lname:
-                    element['arc_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].arc_middle ]
-                    element['line_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].line_middle ]
-                    element['TD_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].TD_middle ]
-                if element['type'] == 'screen' and '-feb-' in lname and not 'mask' in lname and not 'ctr' in lname and not 'fed-dia-scr-02-wide' in lname:
-                    element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0167]) ]
-                if element['type'] == 'beam_position_monitor' and '-feb-' in lname:
-                    if 'inside' in lname:
-                        element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_start([0,0,0.0353]) ]
-                    else:
-                        element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0697]) ]
+        element['start'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].start ]
+        element['end'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].end ]
+        if ('-feb-' in lname or '-s08-' in lname):
+            element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].middle ]
+        else:
+            element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].end ]
+        if not 'global_rotation' in element:
+            element['global_rotation'] = [0,0,0]
+        if element['type'] == 'dipole' and ('-feb-' in lname or '-s08-' in lname):
+            element['arc_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].arc_middle ]
+            element['line_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].line_middle ]
+            element['TD_centre'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].TD_middle ]
+        if element['type'] == 'screen' and ('-feb-' in lname or '-s08-' in lname) and not 'mask' in lname and not 'ctr' in lname and not 'fed-dia-scr-02-wide' in lname:
+            element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0167]) ]
+        if element['type'] == 'beam_position_monitor' and ('-feb-' in lname or '-s08-' in lname):
+            if 'inside' in lname:
+                element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_start([0,0,0.0353]) ]
             else:
-                element['old_datum'] = [ round(elem, 6) for elem in element['position_end']]
+                element['datum'] = [ round(elem, 6) for elem in self.elementObjects[element['name']].relative_position_from_centre([0,0,-0.0697]) ]
+        if finalmatch is None or mdiff > 0.001 or True:
+            # print('No Match found  ', lname, finalmatch)
+            element['old_datum'] = [ round(elem, 6) for elem in element['position_end']]
         else:
             element['old_datum'] = [ round(elem, 6) for elem in self.datums[finalmatch.lower()]]
 
@@ -202,19 +205,23 @@ class Converter(Framework):
             colstring = ', '.join(cols)
             valuesstring = [1 if e is True else 0 if e is False else e for e in valuesstring]
             valuestring = ', '.join(['%s' for c in cols])
-            self.cursor.execute("""INSERT IGNORE INTO """+type+""" ("""+colstring+""") VALUES ("""+valuestring+""")""", valuesstring)
+            # self.cursor.execute("""INSERT IGNORE INTO """+type+""" ("""+colstring+""") VALUES ("""+valuestring+""")""", valuesstring)
         except Exception as e:
             print ('#####ERRROR#####', type,e)
 
     def get_columns(self, table):
-        self.cursor.execute("SHOW COLUMNS from "+table+" from master_lattice")
+        # self.cursor.execute("SHOW COLUMNS from "+table+" from master_lattice")
         # print (c)
         return [c[0] for c in self.cursor]
 
 fw = Converter()
 # fw.loadSettings('Lattices/clara400_v12_FEBE.def')
 
-fw.read_Element('filename', ['YAML/FEBE_ARC.yaml','YAML/FEBE5_long_laser_input.yaml'])
+fw.read_Element('filename', ['YAML/Injector400.yaml', 'YAML/S02.yaml','YAML/L02.yaml',
+             'YAML/S03.yaml', 'YAML/L03.yaml', 'YAML/S04.yaml', 'YAML/L4H.yaml',
+             'YAML/S05.yaml', 'YAML/VBC.yaml', 'YAML/S06.yaml', 'YAML/L04.yaml',
+             'YAML/S07_FEBE.yaml', 'YAML/FEBE_ARC.yaml', 'YAML/FEBE5_long_laser_input.yaml',
+             'YAML/S07_FEBE_STRAIGHT_ON.yaml'])
 
 exit()
 
