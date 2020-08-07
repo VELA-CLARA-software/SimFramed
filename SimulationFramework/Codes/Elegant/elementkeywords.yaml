@@ -1,9 +1,3 @@
-aperture:
-  keywords: {
-    shape,
-    horizontal_size,
-    vertical_size,
-  }
 scatter:
   keywords: {
     probability,
@@ -49,6 +43,7 @@ cavity:
     n_kicks,
     longitudinal_wakefield_enable,
     transverse_wakefield_enable,
+    gpt_phase_offset,
   }
 longitudinal_wakefield:
   keywords: {
@@ -160,6 +155,7 @@ solenoid:
   keywords: {
     field_amplitude,
     field_definition,
+    field_definition_gdf,
   }
 undulator:
   keywords: {
