@@ -142,7 +142,7 @@ files:
       particle_definition: $output['start_element']$.astra
     output:
       start_element: CLA-S07-APER-01
-      end_element: CLA-FEB-W-START-01
+      end_element: CLA-FEA-START-01
   FEBE:
     code: elegant
     charge:
@@ -151,8 +151,8 @@ files:
     input:
       particle_definition: $output['start_element']$.astra
     output:
-      start_element: CLA-FEB-W-START-01
-      end_element: CLA-FEB-W-DUMPSTART-01
+      start_element: CLA-FEA-START-01
+      end_element: CLA-FED-DUMP-01
 groups:
   laser-heater:
     type: chicane

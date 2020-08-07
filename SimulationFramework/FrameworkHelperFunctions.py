@@ -1,3 +1,5 @@
+import os
+import re
 from collections import OrderedDict
 import numpy as np
 
@@ -101,3 +103,66 @@ def createOptionalString(paramaterdict, parameter, n=None):
     """Formats ASTRA strings for optional ASTRA parameters"""
     val = str(getParameter(paramaterdict,parameter,default=None))
     return formatOptionalString(val,parameter,n)
+
+def _rotation_matrix(theta):
+    return np.array([[np.cos(theta), 0, np.sin(theta)], [0, 1, 0], [-1*np.sin(theta), 0, np.cos(theta)]])
+
+def isevaluable(self, s):
+    try:
+        eval(s)
+        return True
+    except:
+        return False
+
+def expand_substitution(self, param, subs={}, elements={}):
+    if isinstance(param,(str)):
+        subs['master_lattice_location'] = os.path.relpath(self.global_parameters['master_lattice_location'],self.global_parameters['master_subdir'])+'/'
+        subs['master_subdir'] = './'
+        regex = re.compile('\$(.*)\$')
+        s = re.search(regex, param)
+        if s:
+            if isevaluable(self, s.group(1)) is True:
+                replaced_str = str(eval(re.sub(regex, str(eval(s.group(1))), param)))
+            else:
+                replaced_str = re.sub(regex, s.group(1), param)
+            for key in subs:
+                replaced_str = replaced_str.replace(key, subs[key])
+            if os.path.exists(replaced_str):
+                replaced_str = os.path.relpath(replaced_str, self.global_parameters['master_subdir']).replace('\\','/')
+            for e in elements.keys():
+                if e in replaced_str:
+                    print('Element is in string!', e, replaced_str)
+            return replaced_str
+        else:
+            return param
+    else:
+        return param
+
+def checkValue(self, d, default=None):
+    if isinstance(d,dict):
+        if 'type' in d and d['type'] == 'list':
+            if 'default' in d:
+                return [a if a is not None else b for a,b in zip(d['value'],d['default'])]
+            else:
+                if isinstance(d['value'], list):
+                    return [val if val is not None else default for val in d['value']]
+                else:
+                    return None
+        else:
+            d['value'] = expand_substitution(self, d['value'])
+            return d['value'] if d['value'] is not None else d['default'] if 'default' in d else default
+    elif isinstance(d, str):
+        return getattr(self, d) if hasattr(self, d) and getattr(self, d) is not None else default
+
+def clean_directory(folder):
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+
+def list_add(list1, list2):
+    return list(map(add, list1, list2))
