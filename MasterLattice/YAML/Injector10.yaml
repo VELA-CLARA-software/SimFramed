@@ -16,7 +16,9 @@ elements:
     Controller_Name: GUN10
     Structure_Type: 'StandingWave'
     phase: -16
+    gpt_phase_offset: 141
     field_definition: $master_lattice_location$Data_Files/bas_gun.txt
+    field_definition_gdf: $master_lattice_location$Data_Files/bas_gun_norm.gdf
     lsc_cutoff_high: [0, 0]
     global_rotation: [0, 0, 0]
     position_end: [0, 0, 0.17]
@@ -27,6 +29,7 @@ elements:
         length: 0
         field_amplitude: 0.237
         field_definition: $master_lattice_location$Data_Files/bas_sol.txt
+        field_definition_gdf: $master_lattice_location$Data_Files/bas_sol_norm.gdf
         global_rotation: [0, 0, 0]
         position_end: [0, 0, 0]
         position_start: [0, 0, 0]
