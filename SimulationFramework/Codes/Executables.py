@@ -11,7 +11,7 @@ class Executables(object):
             self.master_lattice_location = (os.path.relpath(os.path.dirname(os.path.abspath(__file__)) + '/../MasterLattice/')+'/').replace('\\','/')
         else:
             self.master_lattice_location = master_lattice
-        self.define_generator_command()
+        self.define_ASTRAgenerator_command()
         self.define_astra_command()
         self.define_elegant_command()
         self.define_csrtrack_command()
@@ -26,21 +26,21 @@ class Executables(object):
         else:
             return ncpu
 
-    def define_generator_command(self, location=None):
+    def define_ASTRAgenerator_command(self, location=None):
         if location is not None:
             if isinstance(location,str):
-                self.generator = [location]
+                self.ASTRAgenerator = [location]
             elif isinstance(location,list):
-                self.generator = location
+                self.ASTRAgenerator = location
         elif not self.osname == 'nt':
             if 'apclara1' in self.hostname:
-                self.generator =  ['/opt/ASTRA/generator.sh']
+                self.ASTRAgenerator =  ['/opt/ASTRA/generator.sh']
             elif 'apclara2' in self.hostname:
-                self.generator =  ['/opt/ASTRA/generator.sh']
+                self.ASTRAgenerator =  ['/opt/ASTRA/generator.sh']
             elif 'apclara3' in self.hostname:
-                self.generator =  ['/opt/ASTRA/generator.sh']
+                self.ASTRAgenerator =  ['/opt/ASTRA/generator.sh']
         else:
-            self.generator =  [self.master_lattice_location+'Codes/generator']
+            self.ASTRAgenerator =  [self.master_lattice_location+'Codes/generator']
 
     def define_astra_command(self, location=None, ncpu=1, scaling=None):
         ncpu = self.getNCPU(ncpu, scaling)
@@ -71,9 +71,9 @@ class Executables(object):
                 if 'apclara1' in self.hostname:
                     self.elegant = ['/opt/MPICH2-3.2/bin/mpiexec','-np',str(ncpu),'Pelegant']
                 elif 'apclara2' in self.hostname:
-                    self.elegant = ['srun','--mpi=pmi2','-n',str(ncpu),'Pelegant']
+                    self.elegant = ['salloc','-n',str(ncpu),'/usr/lib64/openmpi3/bin/mpiexec','Pelegant']
                 elif 'apclara3' in self.hostname:
-                    self.elegant = ['srun','--mpi=pmi2','-n',str(ncpu),'Pelegant']
+                    self.elegant = ['salloc','-w','apclara3','-n',str(ncpu),'/usr/lib64/openmpi3/bin/mpiexec','Pelegant']
             else:
                 self.elegant = ['mpiexec','-np',str(ncpu),'Pelegant']
         else:

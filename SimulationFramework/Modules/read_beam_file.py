@@ -2,6 +2,7 @@ import os, time, csv, sys, subprocess
 import copy
 import h5py
 import numpy as np
+import munch
 import scipy.constants as constants
 from scipy.spatial.distance import cdist
 from scipy.spatial import ConvexHull
@@ -17,7 +18,7 @@ import SimulationFramework.Modules.read_gdf_file as rgf
 import SimulationFramework.Modules.minimumVolumeEllipse as mve
 MVE = mve.EllipsoidTool()
 
-class beam(object):
+class beam(munch.Munch):
 
     particle_mass = constants.m_e
     E0 = particle_mass * constants.speed_of_light**2
@@ -1122,6 +1123,14 @@ class beam(object):
         C12 /= len(x)
         C22 /= len(x)
         return C11, C12, C22
+
+    @property
+    def eta_x(self):
+        return self.calculate_etax()[0]
+
+    @property
+    def eta_xp(self):
+        return self.calculate_etax()[1]
 
     def calculate_etax(self):
         p = self.cp

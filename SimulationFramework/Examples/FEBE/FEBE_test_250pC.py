@@ -16,7 +16,7 @@ class FEBE(Optimise_Elegant):
     #    -1.22393267e-01,  6.12784140e-01])
 
     parameter_names = [
-        ['startcharge','charge'],
+        # ['startcharge','charge'],
         ['CLA-L01-CAV', 'field_amplitude'],
         ['CLA-L01-CAV', 'phase'],
         ['CLA-L02-CAV', 'field_amplitude'],
@@ -38,7 +38,7 @@ class FEBE(Optimise_Elegant):
         self.parameter_names.append(['FODO_F', 'k1l'])
         self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*1)
+        self.sample_interval = 2**(3*0)
         self.base_files = '../basefiles_'+str(self.scaling)+'/'
         self.clean = True
         self.doTracking = True
@@ -47,8 +47,9 @@ class FEBE(Optimise_Elegant):
         self.change_to_gpt = False
 
     def before_tracking(self):
-            csrbins = int(round(2**(3*self.scaling) / self.sample_interval / 250, -1))
-            lscbins = int(round(2**(3*self.scaling) / self.sample_interval / 500, -1))
+            self.framework.defineElegantCommand(scaling=4)
+            csrbins = int(round(2**(3*self.scaling) / self.sample_interval / 128, -1))
+            lscbins = int(round(2**(3*self.scaling) / self.sample_interval / 256, -1))
             elements = self.framework.elementObjects.values()
             for e in elements:
                 e.lsc_enable = True
