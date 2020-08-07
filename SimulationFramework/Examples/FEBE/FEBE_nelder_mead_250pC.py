@@ -20,7 +20,7 @@ class FEBE(Optimise_Elegant):
     #    -1.22393267e-01,  6.12784140e-01])
 
     parameter_names = [
-        ['startcharge','charge'],
+        # ['startcharge','charge'],
         ['CLA-L01-CAV', 'field_amplitude'],
         ['CLA-L01-CAV', 'phase'],
         ['CLA-L02-CAV', 'field_amplitude'],
@@ -42,15 +42,16 @@ class FEBE(Optimise_Elegant):
         self.parameter_names.append(['FODO_F', 'k1l'])
         self.parameter_names.append(['FODO_D', 'k1l'])
         self.scaling = 6
-        self.sample_interval = 2**(3*1)
+        self.sample_interval = 2**(3*0)
         self.base_files = '../../basefiles_'+str(self.scaling)+'/'
         self.clean = True
         self.doTracking = True
         self.startcharge = 250
 
     def before_tracking(self):
-            csrbins = int(round(2**(3*self.scaling) / self.sample_interval / 250, -1))
-            lscbins = int(round(2**(3*self.scaling) / self.sample_interval / 500, -1))
+            self.framework.defineElegantCommand(scaling=6)
+            csrbins = int(round(2**(3*self.scaling) / self.sample_interval / 128, -1))
+            lscbins = int(round(2**(3*self.scaling) / self.sample_interval / 256, -1))
             elements = self.framework.elementObjects.values()
             for e in elements:
                 e.lsc_enable = True
@@ -92,7 +93,7 @@ class FEBE(Optimise_Elegant):
         t_grid = np.linspace(min(t), max(t), 2**8)
         peakIPDF = self.beam.PDF(t, t_grid, bandwidth=self.beam.rms(t)/(2**4))
         peakICDF = self.beam.CDF(t, t_grid, bandwidth=self.beam.rms(t)/(2**4))
-        peakIFWHM, indexes = self.beam.FWHM(t_grid, peakIPDF, frac=2)
+        peakIFWHM, indexes = self.beam.FWHM(t_grid, peakIPDF, frac=4)
         # peakIFWHM2, indexes2 = self.beam.FWHM(t_grid, peakIPDF, frac=10)
         # stdpeakIPDF = (max(peakIPDF[indexes2]) - min(peakIPDF[indexes2]))/np.mean(peakIPDF[indexes2])
         # print('stdpeakIPDF = ', stdpeakIPDF)
@@ -119,8 +120,8 @@ class FEBE(Optimise_Elegant):
         fitp = 100*sigmap/meanp
         peakI, peakIstd, peakIMomentumSpread, peakIEmittanceX, peakIEmittanceY, peakIMomentum, peakIDensity = self.beam.sliceAnalysis()
 
-        fhc_field = np.array([1e-6*self.linac_fields[i] for i in [2]])
-        linac_fields = np.array([1e-6*self.linac_fields[i] for i in [0,1,3]])
+        fhc_field = np.array([1e-6*self.linac_fields[i] for i in [3]])
+        linac_fields = np.array([1e-6*self.linac_fields[i] for i in [0,1,2, 4]])
 
         self.twiss.read_elegant_twiss_files( self.dirname+'/FEBE.twi' )
         ipindex = list(self.twiss.elegant['ElementName']).index('CLA-FEH-FOCUS-01')
@@ -141,7 +142,7 @@ class FEBE(Optimise_Elegant):
             # 'peakIMomentumSpread': {'type': 'lessthan', 'value': peakIMomentumSpread, 'limit': 0.1, 'weight': 2},
             'peakIEmittanceX': {'type': 'lessthan', 'value': 1e6*peakIEmittanceX, 'limit': 25, 'weight': 1.5},
             'peakIEmittanceY': {'type': 'lessthan', 'value': 1e6*peakIEmittanceY, 'limit': 1, 'weight': 1.5},
-            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.015, 'weight': 50},
+            'peakIFWHM': {'type': 'lessthan','value': peakIFWHM, 'limit': 0.03, 'weight': 50},
             # 'stdpeakIFWHM': {'type': 'lessthan','value': stdpeakIPDF, 'limit': 1, 'weight': 0},
             'peakIFraction': {'type': 'greaterthan','value': 100*peakICDF[indexes][-1]-peakICDF[indexes][0], 'limit': 75, 'weight': 25},
         }
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     if args.type == 'nelder_mead':
         print('Performing a Nelder-Mead Optimisation...')
         opt.load_best('./nelder_mead_best_changes_250pC.yaml')
-        opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_250pC.yaml', subdir='nelder_mead_250pC', step=[20, 1e6, 2, 1e6, 2, 1e6, 2, 1e6, 2, 0.001, 0.02, 0.1,0.1])
+        opt.Nelder_Mead(best_changes='./nelder_mead_best_changes_250pC.yaml', subdir='nelder_mead_250pC', step=[1e6, 2, 1e6, 2, 1e6, 2, 1e6, 2, 1e6, 2, 0.001, 0.02, 0.1,0.1])
     elif args.type == 'simplex':
         print('Performing a SciPy Simplex Optimisation...')
         opt.load_best('./simplex_best_changes_250pC.yaml')
