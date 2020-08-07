@@ -228,6 +228,8 @@ class twiss(munch.Munch):
             # print('astra = ', (rms_e)[-1])
             self['mux'] = np.concatenate([self['mux'], integrate.cumtrapz(x=self['z'], y=1/self['beta_x'], initial=0)])
             self['muy'] = np.concatenate([self['muy'], integrate.cumtrapz(x=self['z'], y=1/self['beta_y'], initial=0)])
+            self['eta_x'] = np.concatenate([self['eta_x'], np.zeros(len(z))])
+            self['eta_xp'] = np.concatenate([self['eta_xp'], np.zeros(len(z))])
 
     def interpolate(self, z=None, value='z', index='z'):
         f = interpolate.interp1d(self[index], self[value], kind='linear')
@@ -243,6 +245,13 @@ class twiss(munch.Munch):
         startidx = self.find_nearest(self['z'], start)
         endidx = self.find_nearest(self['z'], end) + 1
         return self[array][startidx:endidx]
+
+    def get_parameter_at_z(self, param, z):
+        if z in self['z']:
+            idx = list(self['z']).index(z)
+            return self[param][idx]
+        else:
+            return self.interpolate(z=z, value=param, index='z')
 
     def covariance(self, u, up):
         u2 = u - np.mean(u)
