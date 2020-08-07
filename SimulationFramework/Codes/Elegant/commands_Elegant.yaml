@@ -302,6 +302,10 @@ global_settings :
   error_log_file: string
   mpi_randomization_mode: long
   exact_normalized_emittance: long
+  mpi_io_read_buffer_size: long
+  mpi_io_write_buffer_size: long
+  usleep_mpi_io_kludge: long
+  mpi_io_force_file_sync: long
 
 insert_elements :
   name: string
