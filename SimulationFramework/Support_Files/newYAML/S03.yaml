@@ -1,43 +1,52 @@
 elements:
   CLA-S03-APER:
-    name: CLA-S03-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 10.8974]
-    datum: [0.0, 0, 10.897372]
+    centre: [0.0, 0.0, 10.8974]
+    start: [0.0, 0.0, 10.8974]
+    end: [0.0, 0.0, 10.8974]
+    datum: [0.0, 0.0, 10.8974]
+    old_datum: [0, 0, 10.8974]
   CLA-S03-DIA-BPM-01:
-    name: CLA-S03-DIA-BPM-01
     type: beam_position_monitor
     length: 0.21
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 11.1924]
-    datum: [0.0, 0, 11.297372]
+    centre: [0.0, 0.0, 11.1924]
+    start: [0.0, 0.0, 11.0874]
+    end: [0.0, 0.0, 11.2974]
+    datum: [0.0, 0.0, 11.2974]
+    old_datum: [0, 0, 11.2974]
   CLA-S03-MAG-QUAD-01:
-    name: CLA-S03-MAG-QUAD-01
     type: quadrupole
     length: 0.162
     k1l: -0.157474
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 11.4664]
-    datum: [0.0, 0, 11.547372]
+    centre: [0.0, 0.0, 11.4664]
+    start: [0.0, 0.0, 11.3854]
+    end: [0.0, 0.0, 11.5474]
+    datum: [0.0, 0.0, 11.5474]
+    old_datum: [0, 0, 11.5474]
   CLA-S03-MAG-HVCOR-01:
-    name: CLA-S03-MAG-HVCOR-01
     type: kicker
     length: 0.05
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
     centre: [0.0, 0.0, 11.7974]
-    datum: [0.0, 0, 11.822372]
+    start: [0.0, 0.0, 11.7724]
+    end: [0.0, 0.0, 11.8224]
+    datum: [0.0, 0.0, 11.8224]
+    old_datum: [0, 0, 11.8224]
   CLA-S03-DIA-SCR-01-W:
-    name: CLA-S03-DIA-SCR-01-W
     type: screen
-    output_filename: CLA-S03-DIA-SCR-01.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 11.9107]
-    datum: [0.0, 0, 11.910705]
+    centre: [0.0, 0.0, 11.9107]
+    start: [0.0, 0.0, 11.9107]
+    end: [0.0, 0.0, 11.9107]
+    datum: [0.0, 0.0, 11.9107]
+    old_datum: [0, 0, 11.9107]

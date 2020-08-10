@@ -1,14 +1,16 @@
 elements:
   CLA-HRG1-APER:
-    name: CLA-HRG1-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
     centre: [0, 0, 0]
-    datum: [0.0, 0, 0.0]
+    start: [0, 0, 0]
+    end: [0, 0, 0]
+    datum: [0, 0, 0]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0]
   CLA-HRG1-GUN-CAV:
-    name: CLA-HRG1-GUN-CAV
     type: cavity
     length: 0.15
     n_cells: 1.5
@@ -21,74 +23,100 @@ elements:
     lsc_cutoff_high: [0, 0]
     sub_elements:
       CLA-HRG1-GUN-SOL:
-        name: CLA-HRG1-GUN-SOL
         type: solenoid
         length: 0.15
         field_amplitude: 0.345
         field_definition: $master_lattice_location$Data_Files/HRRG_combined_sols_100mm_onaxis.dat
-        centre: [0, 0, 0.075]
-        datum: [0, 0, 0.15]
-    centre: [0, 0, 0.075]
-    datum: [0, 0, 0.15]
+        centre: [0.0, 0.0, 0.075]
+        start: [0, 0, 0]
+        end: [0.0, 0.0, 0.15]
+        datum: [0.0, 0.0, 0.15]
+        global_rotation: [0, 0, 0]
+        old_datum: [0, 0, 0.15]
+    centre: [0.0, 0.0, 0.075]
+    start: [0, 0, 0]
+    end: [0.0, 0.0, 0.15]
+    datum: [0.0, 0.0, 0.15]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0.15]
   CLA-S01-APER:
-    name: CLA-S01-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
-    centre: [0, 0, 0.32482]
-    datum: [0.0, 0, 0.32482]
+    centre: [0.0, 0.0, 0.32482]
+    start: [0.0, 0.0, 0.32482]
+    end: [0.0, 0.0, 0.32482]
+    datum: [0.0, 0.0, 0.32482]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0.32482]
   CLA-S01-MAG-HVCOR-01:
-    name: CLA-S01-MAG-HVCOR-01
     type: kicker
     length: 0.03
     sr_enable: true
     isr_enable: true
     Horizontal_PV: CLA-S01-MAG-HCOR-01
-    Vertcal_PV: CLA-S01-MAG-VCOR-01
+    Vertical_PV: CLA-S01-MAG-VCOR-01
     centre: [0.0, 0.0, 0.33982]
-    datum: [0.0, 0, 0.35482]
+    start: [0.0, 0.0, 0.32482]
+    end: [0.0, 0.0, 0.35482]
+    datum: [0.0, 0.0, 0.35482]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0.35482]
   CLA-S01-DIA-WCM-01:
-    name: CLA-S01-DIA-WCM-01
     type: wall_current_monitor
     length: 0.05
     PV: CLA-S01-DIA-WCM-01
-    centre: [0, 0, 0.7027]
-    datum: [0.0, 0, 0.7277]
+    centre: [0.0, 0.0, 0.7027]
+    start: [0.0, 0.0, 0.6777]
+    end: [0.0, 0.0, 0.7277]
+    datum: [0.0, 0.0, 0.7277]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0.7277]
   CLA-S01-MAG-HVCOR-02:
-    name: CLA-S01-MAG-HVCOR-02
     type: kicker
     length: 0.102
     sr_enable: true
     isr_enable: true
     Horizontal_PV: CLA-S01-MAG-HCOR-02
-    Vertcal_PV: CLA-S01-MAG-VCOR-02
+    Vertical_PV: CLA-S01-MAG-VCOR-02
     centre: [0.0, 0.0, 0.7787]
-    datum: [0.0, 0, 0.8297]
+    start: [0.0, 0.0, 0.7277]
+    end: [0.0, 0.0, 0.8297]
+    datum: [0.0, 0.0, 0.8297]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0.8297]
   CLA-S01-DIA-BPM-01:
-    name: CLA-S01-DIA-BPM-01
     type: beam_position_monitor
     length: 0.108
     PV: CLA-S01-DIA-BPM-01
-    centre: [0, 0, 0.8837]
-    datum: [0.0, 0, 0.9377]
+    centre: [0.0, 0.0, 0.8837]
+    start: [0.0, 0.0, 0.8297]
+    end: [0.0, 0.0, 0.9377]
+    datum: [0.0, 0.0, 0.9377]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0.9377]
   CLA-S01-DIA-SCR-01-W:
-    name: CLA-S01-DIA-SCR-01-W
     type: screen
-    output_filename: '"CLA-S01-DIA-SCR-01.SDDS"'
     camera_PV: CLA-S01-DIA-CAM-01
-    centre: [0, 0, 0.981033]
-    datum: [0.0, 0, 0.981033]
+    centre: [0.0, 0.0, 0.981033]
+    start: [0.0, 0.0, 0.981033]
+    end: [0.0, 0.0, 0.981033]
+    datum: [0.0, 0.0, 0.981033]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 0.981033]
   CLA-L01-APER:
-    name: CLA-L01-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.01
     vertical_size: 0.01
-    centre: [0, 0, 1.0577]
-    datum: [0.0, 0, 1.0577]
+    centre: [0.0, 0.0, 1.0577]
+    start: [0.0, 0.0, 1.0577]
+    end: [0.0, 0.0, 1.0577]
+    datum: [0.0, 0.0, 1.0577]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 1.0577]
   CLA-L01-CAV:
-    name: CLA-L01-CAV
     type: cavity
     length: 2.03333
     Structure_Type: TravellingWave
@@ -108,7 +136,6 @@ elements:
     PV: CLA-L01-LRF-CTRL-01
     sub_elements:
       CLA-L01-WAKE:
-        name: CLA-L01-WAKE
         type: longitudinal_wakefield
         length: 2.03333
         cell_length: 0.0333333333333333
@@ -116,23 +143,36 @@ elements:
         field_definition: $master_lattice_location$Data_Files/SzSx5um10mm.dat
         global_rotation: [0, 0, 0]
         scale_kick: 1
-        centre: [0, 0, 2.210235]
-        datum: [0.0, 0, 3.226903]
+        centre: [0.0, 0.0, 2.210235]
+        start: [0.0, 0.0, 1.19357]
+        end: [0.0, 0.0, 3.2269]
+        datum: [0.0, 0.0, 3.2269]
+        old_datum: [0, 0, 3.2269]
       CLA-L01-CAV-SOL-01:
-        name: CLA-L01-CAV-SOL-01
         type: solenoid
         length: 0.5
         field_amplitude: 0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
-        centre: [0, 0, 1.95]
-        datum: [0, 0, 2.2]
+        centre: [0.0, 0.0, 1.95]
+        start: [0.0, 0.0, 1.7]
+        end: [0.0, 0.0, 2.2]
+        datum: [0.0, 0.0, 2.2]
+        global_rotation: [0, 0, 0]
+        old_datum: [0, 0, 2.2]
       CLA-L01-CAV-SOL-02:
-        name: CLA-L01-CAV-SOL-02
         type: solenoid
         length: 0.5
         field_amplitude: -0.05
         field_definition: $master_lattice_location$Data_Files/SwissFEL_linac_sols.dat
-        centre: [0, 0, 2.95]
-        datum: [0, 0, 3.2]
-    centre: [0, 0, 2.210235]
-    datum: [0.0, 0, 3.226903]
+        centre: [0.0, 0.0, 2.95]
+        start: [0.0, 0.0, 2.7]
+        end: [0.0, 0.0, 3.2]
+        datum: [0.0, 0.0, 3.2]
+        global_rotation: [0, 0, 0]
+        old_datum: [0, 0, 3.2]
+    centre: [0.0, 0.0, 2.210235]
+    start: [0.0, 0.0, 1.19357]
+    end: [0.0, 0.0, 3.2269]
+    datum: [0.0, 0.0, 3.2269]
+    global_rotation: [0, 0, 0]
+    old_datum: [0, 0, 3.2269]

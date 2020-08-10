@@ -1,15 +1,16 @@
 elements:
   CLA-L03-APER:
-    name: CLA-L03-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.01
     vertical_size: 0.01
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 12.0502]
-    datum: [0.0, 0, 12.050242]
+    centre: [0.0, 0.0, 12.0502]
+    start: [0.0, 0.0, 12.0502]
+    end: [0.0, 0.0, 12.0502]
+    datum: [0.0, 0.0, 12.0502]
+    old_datum: [0, 0, 12.0502]
   CLA-L03-CAV:
-    name: CLA-L03-CAV
     type: cavity
     length: 4.06667
     cell_length: 0.0333333
@@ -26,7 +27,6 @@ elements:
     global_rotation: [0, 0, 0]
     sub_elements:
       CLA-L03-WAKE:
-        name: CLA-L03-WAKE
         type: longitudinal_wakefield
         length: 4.06667
         cell_length: 0.0333333
@@ -34,7 +34,13 @@ elements:
         field_definition: $master_lattice_location$Data_Files/SzSx5um10mm.dat
         global_rotation: [0, 0, 0]
         scale_kick: 1
-        centre: [0, 0, 14.125235]
-        datum: [0.0, 0, 16.158575]
-    centre: [0, 0, 14.125235]
-    datum: [0.0, 0, 16.158575]
+        centre: [0.0, 0.0, 14.125235]
+        start: [0.0, 0.0, 12.0919]
+        end: [0.0, 0.0, 16.15857]
+        datum: [0.0, 0.0, 16.15857]
+        old_datum: [0, 0, 16.1586]
+    centre: [0.0, 0.0, 14.125235]
+    start: [0.0, 0.0, 12.0919]
+    end: [0.0, 0.0, 16.15857]
+    datum: [0.0, 0.0, 16.15857]
+    old_datum: [0, 0, 16.1586]

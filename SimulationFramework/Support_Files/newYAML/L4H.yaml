@@ -1,15 +1,16 @@
 elements:
   CLA-L4H-APER:
-    name: CLA-L4H-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.0041195
     vertical_size: 0.0041195
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 23.4572]
-    datum: [0.0, 0, 23.457242]
+    centre: [0.0, 0.0, 23.4572]
+    start: [0.0, 0.0, 23.4572]
+    end: [0.0, 0.0, 23.4572]
+    datum: [0.0, 0.0, 23.4572]
+    old_datum: [0, 0, 23.4572]
   CLA-L4H-CAV:
-    name: CLA-L4H-CAV
     type: cavity
     length: 0.75
     cell_length: 0.00833333
@@ -26,7 +27,6 @@ elements:
     global_rotation: [0, 0, 0]
     sub_elements:
       CLA-L4H-WAKE:
-        name: CLA-L4H-WAKE
         type: longitudinal_wakefield
         length: 0.75
         cell_length: 0.00833333
@@ -34,7 +34,13 @@ elements:
         field_definition: $master_lattice_location$Data_Files/SzSx20um25mmxband.dat
         global_rotation: [0, 0, 0]
         scale_kick: 1
-        centre: [0, 0, 23.9397]
-        datum: [0.0, 0, 24.314742]
-    centre: [0, 0, 23.9397]
-    datum: [0.0, 0, 24.314742]
+        centre: [0.0, 0.0, 23.9397]
+        start: [0.0, 0.0, 23.5647]
+        end: [0.0, 0.0, 24.3147]
+        datum: [0.0, 0.0, 24.3147]
+        old_datum: [0, 0, 24.3147]
+    centre: [0.0, 0.0, 23.9397]
+    start: [0.0, 0.0, 23.5647]
+    end: [0.0, 0.0, 24.3147]
+    datum: [0.0, 0.0, 24.3147]
+    old_datum: [0, 0, 24.3147]

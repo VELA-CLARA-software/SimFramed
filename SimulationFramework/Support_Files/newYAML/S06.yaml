@@ -1,98 +1,120 @@
 elements:
   CLA-S06-MARK-01:
-    name: CLA-S06-MARK-01
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 31.2678]
-    datum: [-0.0, 0, 31.267792]
+    centre: [0.0, 0.0, 31.2678]
+    start: [0.0, 0.0, 31.2678]
+    end: [0.0, 0.0, 31.2678]
+    datum: [0.0, 0.0, 31.2678]
+    old_datum: [0, 0, 31.2678]
   CLA-S06-APER:
-    name: CLA-S06-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 31.2678]
-    datum: [-0.0, 0, 31.267792]
+    centre: [0.0, 0.0, 31.2678]
+    start: [0.0, 0.0, 31.2678]
+    end: [0.0, 0.0, 31.2678]
+    datum: [0.0, 0.0, 31.2678]
+    old_datum: [0, 0, 31.2678]
   CLA-S06-MAG-HVCOR-01:
-    name: CLA-S06-MAG-HVCOR-01
     type: kicker
     length: 0.05
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
     centre: [0.0, 0.0, 31.6078]
-    datum: [-0.0, 0, 31.632792]
+    start: [0.0, 0.0, 31.5828]
+    end: [0.0, 0.0, 31.6328]
+    datum: [0.0, 0.0, 31.6328]
+    old_datum: [0, 0, 31.6328]
   CLA-S06-DIA-BPM-01:
-    name: CLA-S06-DIA-BPM-01
     type: beam_position_monitor
     length: 0.02
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 31.6678]
-    datum: [-0.0, 0, 31.677792]
+    centre: [0.0, 0.0, 31.6678]
+    start: [0.0, 0.0, 31.6578]
+    end: [0.0, 0.0, 31.6778]
+    datum: [0.0, 0.0, 31.6778]
+    old_datum: [0, 0, 31.6778]
   CLA-S06-MAG-QUAD-01:
-    name: CLA-S06-MAG-QUAD-01
     type: quadrupole
     length: 0.15
     k1l: 0.157575
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 31.8528]
-    datum: [-0.0, 0, 31.927792]
+    centre: [0.0, 0.0, 31.8528]
+    start: [0.0, 0.0, 31.7778]
+    end: [0.0, 0.0, 31.9278]
+    datum: [0.0, 0.0, 31.9278]
+    old_datum: [0, 0, 31.9278]
   CLA-S06-DIA-EOM-01:
-    name: CLA-S06-DIA-EOM-01
     type: monitor
     length: 0.2885
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 32.39355]
-    datum: [-0.0, 0, 32.537792]
+    centre: [0.0, 0.0, 32.39355]
+    start: [0.0, 0.0, 32.2493]
+    end: [0.0, 0.0, 32.5378]
+    datum: [0.0, 0.0, 32.5378]
+    old_datum: [0, 0, 32.5378]
   CLA-S06-MAG-QUAD-02:
-    name: CLA-S06-MAG-QUAD-02
     type: quadrupole
     length: 0.15
     k1l: -0.0616258
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 32.7128]
-    datum: [-0.0, 0, 32.787792]
+    centre: [0.0, 0.0, 32.7128]
+    start: [0.0, 0.0, 32.6378]
+    end: [0.0, 0.0, 32.7878]
+    datum: [0.0, 0.0, 32.7878]
+    old_datum: [0, 0, 32.7878]
   CLA-S06-DIA-SCR-01-W:
-    name: CLA-S06-DIA-SCR-01-W
     type: screen
-    output_filename: CLA-S06-DIA-SCR-01.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 32.9311]
-    datum: [-0.0, 0, 32.931125]
+    centre: [0.0, 0.0, 32.9311]
+    start: [0.0, 0.0, 32.9311]
+    end: [0.0, 0.0, 32.9311]
+    datum: [0.0, 0.0, 32.9311]
+    old_datum: [0, 0, 32.9311]
   CLA-S06-MAG-HVCOR-02:
-    name: CLA-S06-MAG-HVCOR-02
     type: kicker
     length: 0.05
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
     centre: [0.0, 0.0, 33.843]
-    datum: [-0.0, 0, 33.868]
+    start: [0.0, 0.0, 33.818]
+    end: [0.0, 0.0, 33.868]
+    datum: [0.0, 0.0, 33.868]
+    old_datum: [0, 0, 33.868]
   CLA-S06-DIA-BPM-02:
-    name: CLA-S06-DIA-BPM-02
     type: beam_position_monitor
     length: 0.025
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 33.9293]
-    datum: [-0.0, 0, 33.941792]
+    centre: [0.0, 0.0, 33.9293]
+    start: [0.0, 0.0, 33.9168]
+    end: [0.0, 0.0, 33.9418]
+    datum: [0.0, 0.0, 33.9418]
+    old_datum: [0, 0, 33.9418]
   CLA-S06-DIA-SCR-02-W:
-    name: CLA-S06-DIA-SCR-02-W
     type: screen
-    output_filename: CLA-S06-DIA-SCR-02.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 33.9851]
-    datum: [-0.0, 0, 33.985125]
+    centre: [0.0, 0.0, 33.9851]
+    start: [0.0, 0.0, 33.9851]
+    end: [0.0, 0.0, 33.9851]
+    datum: [0.0, 0.0, 33.9851]
+    old_datum: [0, 0, 33.9851]
   CLA-S06-MARK-02:
-    name: CLA-S06-MARK-02
     type: marker
     fit_point: 1.0
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 34.118]
-    datum: [-0.0, 0, 34.117967]
+    centre: [0.0, 0.0, 34.118]
+    start: [0.0, 0.0, 34.118]
+    end: [0.0, 0.0, 34.118]
+    datum: [0.0, 0.0, 34.118]
+    old_datum: [0, 0, 34.118]

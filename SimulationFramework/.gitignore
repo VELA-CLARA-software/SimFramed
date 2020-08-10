@@ -7,5 +7,6 @@ magnet-table/tmp/*.*
 magnet-table/rf_sol_gui.py
 magnet-table/src/pip-delete-this-directory.txt
 .idea
-Examples*
+Examples/
 v2/
+Support_Files/newYAML/
