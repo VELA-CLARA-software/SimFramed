@@ -1265,7 +1265,7 @@ class gptLattice(frameworkLattice):
 
     def run(self):
         """Run the code with input 'filename'"""
-        command = self.executables[self.code] + ['-o', self.objectname+'_out.gdf'] + ['GPTLICENSE=***REMOVED***'] + [self.objectname+'.in']
+        command = self.executables[self.code] + ['-o', self.objectname+'_out.gdf'] + ['GPTLICENSE='] + [self.objectname+'.in']
         my_env = os.environ.copy()
         my_env["LD_LIBRARY_PATH"] = my_env["LD_LIBRARY_PATH"] + ":/opt/GPT3.3.6/lib/" if "LD_LIBRARY_PATH" in my_env else "/opt/GPT3.3.6/lib/"
         my_env["OMP_WAIT_POLICY"] = "PASSIVE"
