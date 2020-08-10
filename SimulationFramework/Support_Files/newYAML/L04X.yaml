@@ -1,25 +1,22 @@
 elements:
   CLA-L04-APER:
-    name: CLA-L04-APER
     type: aperture
     shape: rectangular
     horizontal_size: 0.01
     vertical_size: 0.01
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 34.118]
-    datum: [-0.0, 0, 34.117967]
+    centre: [0.0, 0.0, 34.118]
+    old_datum: [-0.0, 0, 34.117967]
   CLA-L04X-MAG-QUAD-01:
-    name: CLA-L04X-MAG-QUAD-01
     type: quadrupole
     length: 0.15
     k1l: 0.157575
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 35.189]
-    datum: [0, 0, 35.264]
+    centre: [0.0, 0.0, 35.189]
+    old_datum: [0, 0, 35.264]
   CLA-L04-CAV-01:
-    name: CLA-L04-CAV-01
     type: cavity
     length: 4.06667
     cell_length: 0.00833333
@@ -35,28 +32,24 @@ elements:
     lsc_bins: 100.0
     lsc_cutoff_high: [0.2, 0.25]
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 37.497335]
-    datum: [0, 0, 39.5307]
+    centre: [0.0, 0.0, 37.497335]
+    old_datum: [0, 0, 39.5307]
   CLA-S07-CAV-01-SCR:
-    name: CLA-S07-CAV-01-SCR
     type: screen
     length: 0.0
-    output_filename: CLA-S07-CAV-01-SCR.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 39.6]
-    datum: [0, 0, 39.6]
+    centre: [0.0, 0.0, 39.6]
+    old_datum: [0, 0, 39.6]
   CLA-L04X-MAG-QUAD-02:
-    name: CLA-L04X-MAG-QUAD-02
     type: quadrupole
     length: 0.15
     k1l: 0.157575
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 39.8057]
-    datum: [0, 0, 39.8807]
+    centre: [0.0, 0.0, 39.8057]
+    old_datum: [0, 0, 39.8807]
   CLA-L04-CAV-02:
-    name: CLA-L04-CAV-02
     type: cavity
     length: 4.06667
     cell_length: 0.00833333
@@ -72,28 +65,24 @@ elements:
     lsc_bins: 100.0
     lsc_cutoff_high: [0.2, 0.25]
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 42.114035]
-    datum: [0, 0, 44.1473]
+    centre: [0.0, 0.0, 42.114035]
+    old_datum: [0, 0, 44.1473]
   CLA-S07-CAV-02-SCR:
-    name: CLA-S07-CAV-02-SCR
     type: screen
     length: 0.0
-    output_filename: CLA-S07-CAV-02-SCR.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 44.2]
-    datum: [0, 0, 44.2]
+    centre: [0.0, 0.0, 44.2]
+    old_datum: [0, 0, 44.2]
   CLA-L04X-MAG-QUAD-03:
-    name: CLA-L04X-MAG-QUAD-03
     type: quadrupole
     length: 0.15
     k1l: 0.157575
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 44.4223]
-    datum: [0, 0, 44.4973]
+    centre: [0.0, 0.0, 44.4223]
+    old_datum: [0, 0, 44.4973]
   CLA-L04-CAV-03:
-    name: CLA-L04-CAV-03
     type: cavity
     length: 4.06667
     cell_length: 0.00833333
@@ -109,28 +98,24 @@ elements:
     lsc_bins: 100.0
     lsc_cutoff_high: [0.2, 0.25]
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 46.730635]
-    datum: [0, 0, 48.764]
+    centre: [0.0, 0.0, 46.730635]
+    old_datum: [0, 0, 48.764]
   CLA-S07-CAV-03-SCR:
-    name: CLA-S07-CAV-03-SCR
     type: screen
     length: 0.0
-    output_filename: CLA-S07-CAV-03-SCR.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 48.8]
-    datum: [0, 0, 48.8]
+    centre: [0.0, 0.0, 48.8]
+    old_datum: [0, 0, 48.8]
   CLA-L04X-MAG-QUAD-04:
-    name: CLA-L04X-MAG-QUAD-04
     type: quadrupole
     length: 0.15
     k1l: 0.157575
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 49.039]
-    datum: [0, 0, 49.114]
+    centre: [0.0, 0.0, 49.039]
+    old_datum: [0, 0, 49.114]
   CLA-L04-CAV-04:
-    name: CLA-L04-CAV-04
     type: cavity
     length: 4.06667
     cell_length: 0.00833333
@@ -146,28 +131,24 @@ elements:
     lsc_bins: 100.0
     lsc_cutoff_high: [0.2, 0.25]
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 51.347335]
-    datum: [0, 0, 53.3807]
+    centre: [0.0, 0.0, 51.347335]
+    old_datum: [0, 0, 53.3807]
   CLA-S07-CAV-04-SCR:
-    name: CLA-S07-CAV-04-SCR
     type: screen
     length: 0.0
-    output_filename: CLA-S07-CAV-04-SCR.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 53.4]
-    datum: [0, 0, 53.4]
+    centre: [0.0, 0.0, 53.4]
+    old_datum: [0, 0, 53.4]
   CLA-L04X-MAG-QUAD-05:
-    name: CLA-L04X-MAG-QUAD-05
     type: quadrupole
     length: 0.15
     k1l: 0.157575
     sr_enable: true
     isr_enable: true
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 53.6557]
-    datum: [0, 0, 53.7307]
+    centre: [0.0, 0.0, 53.6557]
+    old_datum: [0, 0, 53.7307]
   CLA-S07-DCP-01:
-    name: CLA-S07-DCP-01
     type: longitudinal_wakefield
     length: 0.596
     cell_length: 0.596
@@ -184,22 +165,19 @@ elements:
     bunched_beam: 0
     n_bins: 0
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 54.298]
-    datum: [0, 0, 54.596]
+    centre: [0.0, 0.0, 54.298]
+    old_datum: [0, 0, 54.596]
   CLA-S07-DCP-01-SCR:
-    name: CLA-S07-DCP-01-SCR
     type: screen
     length: 0.0
-    output_filename: CLA-S07-DCP-01-SCR.SDDS
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 54.8]
-    datum: [0, 0, 54.8]
+    centre: [0.0, 0.0, 54.8]
+    old_datum: [0, 0, 54.8]
   CLA-S07-APER-01:
-    name: CLA-S07-APER-01
     type: aperture
     shape: rectangular
     horizontal_size: 0.017
     vertical_size: 0.017
     global_rotation: [0, 0, 0]
-    centre: [0, 0, 55.0]
-    datum: [0, 0, 55.0]
+    centre: [0.0, 0.0, 55.0]
+    old_datum: [0, 0, 55.0]

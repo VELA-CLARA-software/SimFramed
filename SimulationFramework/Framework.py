@@ -331,10 +331,17 @@ class Framework(Munch):
         # set(getattr(self.elementObjects[elementName], parameter), value)
 
     def add_Generator(self, default=None, **kwargs):
-        if default in astra_generator_keywords['defaults']:
-            self.generator = ASTRAGenerator(self.executables, self.global_parameters, **merge_two_dicts(kwargs,astra_generator_keywords['defaults'][default]))
+        if 'code' in generator_keywords:
+            if generator_keywords['code'].lower() = "gpt":
+                code = GPTGenerator
+            else:
+                code = ASTRAGenerator
         else:
-            self.generator = ASTRAGenerator(self.executables, self.global_parameters, **kwargs)
+            code = ASTRAGenerator
+        if default in generator_keywords['defaults']:
+            self.generator = code(self.executables, self.global_parameters, **merge_two_dicts(kwargs, generator_keywords['defaults'][default]))
+        else:
+            self.generator = code(self.executables, self.global_parameters, **kwargs)
         self.latticeObjects['generator'] = self.generator
 
     def loadParametersFile(self, file):
